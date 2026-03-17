@@ -1,5 +1,5 @@
 <div class="fixed inset-0 z-[99999] hidden items-center justify-center bg-black/40 p-3" data-order-preview-modal>
-	<div class="flex max-h-full w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
+	<div class="flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl" style="height: min(85vh, 48rem);">
 		<div class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
 			<div>
 				<div class="text-sm font-semibold text-slate-800">
@@ -14,7 +14,69 @@
 			</button>
 		</div>
 		<div class="flex-1 min-h-0 overflow-y-auto p-3 text-sm" data-order-preview-content>
-			<div class="flex items-center justify-center text-slate-500">Đang tải...</div>
+			<div class="h-full min-h-full animate-pulse" aria-hidden="true">
+				<div class="space-y-3">
+					<div class="flex flex-wrap items-center gap-2">
+						<div class="h-6 w-24 rounded-full bg-emerald-100"></div>
+						<div class="h-6 w-20 rounded-full bg-amber-100"></div>
+					</div>
+
+					<div class="rounded-lg bg-white">
+						<div class="space-y-2">
+							<div class="flex items-center justify-between gap-3">
+								<div class="h-3 w-16 rounded bg-slate-200"></div>
+								<div class="h-4 w-20 rounded bg-slate-300"></div>
+							</div>
+							<div class="flex items-center justify-between gap-3">
+								<div class="h-3 w-14 rounded bg-slate-200"></div>
+								<div class="h-4 w-16 rounded bg-emerald-100"></div>
+							</div>
+							<div class="flex items-center justify-between gap-3">
+								<div class="h-3 w-12 rounded bg-slate-200"></div>
+								<div class="h-4 w-16 rounded bg-amber-100"></div>
+							</div>
+						</div>
+						<div class="my-2 border-t border-dashed border-slate-200"></div>
+						<div class="flex items-center justify-between gap-3">
+							<div class="h-4 w-20 rounded bg-slate-300"></div>
+							<div class="h-5 w-24 rounded bg-slate-300"></div>
+						</div>
+					</div>
+
+					<div class="grid grid-cols-2 gap-3">
+						<div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
+							<div class="h-3 w-16 rounded bg-slate-200"></div>
+							<div class="mt-2 h-5 w-20 rounded bg-emerald-100"></div>
+						</div>
+						<div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
+							<div class="h-3 w-12 rounded bg-slate-200"></div>
+							<div class="mt-2 h-5 w-16 rounded bg-slate-300"></div>
+						</div>
+					</div>
+
+					<div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+						<div class="border-b border-slate-100 px-3 py-2">
+							<div class="h-4 w-20 rounded bg-slate-300"></div>
+						</div>
+						<div class="divide-y divide-slate-100">
+							<div class="flex items-center justify-between px-3 py-2">
+								<div class="space-y-2">
+									<div class="h-4 w-36 rounded bg-slate-300"></div>
+									<div class="h-3 w-44 rounded bg-slate-200"></div>
+								</div>
+								<div class="h-4 w-16 rounded bg-slate-300"></div>
+							</div>
+							<div class="flex items-center justify-between px-3 py-2">
+								<div class="space-y-2">
+									<div class="h-4 w-32 rounded bg-slate-300"></div>
+									<div class="h-3 w-40 rounded bg-slate-200"></div>
+								</div>
+								<div class="h-4 w-14 rounded bg-slate-300"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="flex items-center justify-end gap-2 border-t border-slate-200 bg-slate-50 px-3 py-2">
 			<a href="#" class="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700" data-order-preview-open-detail>Xem chi tiết</a>
@@ -26,6 +88,71 @@
 (function () {
 	var modal = document.querySelector('[data-order-preview-modal]');
 	var modalContent = modal ? modal.querySelector('[data-order-preview-content]') : null;
+
+	function loadingHtml() {
+		return [
+			'<div class="h-full min-h-full animate-pulse" aria-hidden="true">',
+				'<div class="space-y-3">',
+					'<div class="flex flex-wrap items-center gap-2">',
+						'<div class="h-6 w-24 rounded-full bg-emerald-100"></div>',
+						'<div class="h-6 w-20 rounded-full bg-amber-100"></div>',
+					'</div>',
+					'<div class="rounded-lg bg-white">',
+						'<div class="space-y-2">',
+							'<div class="flex items-center justify-between gap-3">',
+								'<div class="h-3 w-16 rounded bg-slate-200"></div>',
+								'<div class="h-4 w-20 rounded bg-slate-300"></div>',
+							'</div>',
+							'<div class="flex items-center justify-between gap-3">',
+								'<div class="h-3 w-14 rounded bg-slate-200"></div>',
+								'<div class="h-4 w-16 rounded bg-emerald-100"></div>',
+							'</div>',
+							'<div class="flex items-center justify-between gap-3">',
+								'<div class="h-3 w-12 rounded bg-slate-200"></div>',
+								'<div class="h-4 w-16 rounded bg-amber-100"></div>',
+							'</div>',
+						'</div>',
+						'<div class="my-2 border-t border-dashed border-slate-200"></div>',
+						'<div class="flex items-center justify-between gap-3">',
+							'<div class="h-4 w-20 rounded bg-slate-300"></div>',
+							'<div class="h-5 w-24 rounded bg-slate-300"></div>',
+						'</div>',
+					'</div>',
+					'<div class="grid grid-cols-2 gap-3">',
+						'<div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">',
+							'<div class="h-3 w-16 rounded bg-slate-200"></div>',
+							'<div class="mt-2 h-5 w-20 rounded bg-emerald-100"></div>',
+						'</div>',
+						'<div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">',
+							'<div class="h-3 w-12 rounded bg-slate-200"></div>',
+							'<div class="mt-2 h-5 w-16 rounded bg-slate-300"></div>',
+						'</div>',
+					'</div>',
+					'<div class="rounded-lg border border-slate-200 bg-white shadow-sm">',
+						'<div class="border-b border-slate-100 px-3 py-2">',
+							'<div class="h-4 w-20 rounded bg-slate-300"></div>',
+						'</div>',
+						'<div class="divide-y divide-slate-100">',
+							'<div class="flex items-center justify-between px-3 py-2">',
+								'<div class="space-y-2">',
+									'<div class="h-4 w-36 rounded bg-slate-300"></div>',
+									'<div class="h-3 w-44 rounded bg-slate-200"></div>',
+								'</div>',
+								'<div class="h-4 w-16 rounded bg-slate-300"></div>',
+							'</div>',
+							'<div class="flex items-center justify-between px-3 py-2">',
+								'<div class="space-y-2">',
+									'<div class="h-4 w-32 rounded bg-slate-300"></div>',
+									'<div class="h-3 w-40 rounded bg-slate-200"></div>',
+								'</div>',
+								'<div class="h-4 w-14 rounded bg-slate-300"></div>',
+							'</div>',
+						'</div>',
+					'</div>',
+				'</div>',
+			'</div>'
+		].join('');
+	}
 
 	function openPreview(html) {
 		if (!modal) return;
@@ -88,7 +215,7 @@
 		if (detailBtn) {
 			detailBtn.setAttribute('href', '<?php echo $basePath; ?>/order/view?id=' + encodeURIComponent(orderId));
 		}
-		openPreview('<div class="py-6 text-center text-slate-500">Đang tải...</div>');
+		openPreview(loadingHtml());
 		fetch('<?php echo $basePath; ?>/order/preview?id=' + encodeURIComponent(orderId) + '&ajax=1', {
 			method: 'GET',
 			credentials: 'same-origin',
