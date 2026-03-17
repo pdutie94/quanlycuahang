@@ -62,7 +62,7 @@
 			<?php
 			$productCodeValue = $product ? $product['code'] : '';
 			ui_input_text('code', $productCodeValue, [
-				'placeholder' => 'Bỏ trống để hệ thống tự sinh',
+				'placeholder' => 'Bỏ trống để tự sinh theo tên (vd: san pham 1 -> sp1)',
 			]);
 			?>
 			</div>
