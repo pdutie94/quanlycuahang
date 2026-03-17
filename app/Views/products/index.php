@@ -14,7 +14,7 @@ if ($categoryId < 0) {
 		Chưa có sản phẩm nào.
 	</div>
 <?php } else { ?>
-	<div class="space-y-3" data-infinite-list data-infinite-url="<?php echo $basePath; ?>/product" data-infinite-query="<?php echo htmlspecialchars($queryString); ?>" data-current-page="<?php echo isset($page) ? (int) $page : 1; ?>" data-has-more="<?php echo isset($totalPages) && isset($page) && $page < $totalPages ? '1' : '0'; ?>">
+	<div class="space-y-2" data-infinite-list data-infinite-url="<?php echo $basePath; ?>/product" data-infinite-query="<?php echo htmlspecialchars($queryString); ?>" data-current-page="<?php echo isset($page) ? (int) $page : 1; ?>" data-has-more="<?php echo isset($totalPages) && isset($page) && $page < $totalPages ? '1' : '0'; ?>">
 		<?php foreach ($products as $index => $product) { ?>
 			<?php
 			$productId = isset($product['id']) ? (int) $product['id'] : 0;
@@ -105,58 +105,47 @@ if ($categoryId < 0) {
 				}
 			}
 			?>
-			<div class="relative cursor-pointer rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-100 transition" data-product-edit-row data-url="<?php echo $basePath; ?>/product/edit?id=<?php echo $product['id']; ?>" data-infinite-item>
-				<div class="flex items-start gap-2">
+			<div class="relative cursor-pointer rounded-2xl bg-white px-3 py-2.5 shadow-sm ring-1 ring-slate-100 transition" data-product-edit-row data-url="<?php echo $basePath; ?>/product/edit?id=<?php echo $product['id']; ?>" data-infinite-item>
+				<div class="flex items-center gap-2.5">
 					<div class="flex-none">
 						<?php if (!empty($product['image_path'])) { ?>
-							<img src="<?php echo $basePath . '/' . htmlspecialchars($product['image_path']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="h-12 w-12 rounded-xl object-cover border border-slate-200">
-					<?php } else { ?>
-						<div class="h-12 w-12 rounded-xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300">
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-								<path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
-							</svg>
-						</div>
+							<img src="<?php echo $basePath . '/' . htmlspecialchars($product['image_path']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="h-10 w-10 rounded-xl object-cover border border-slate-200">
+						<?php } else { ?>
+							<div class="h-10 w-10 rounded-xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+									<path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+								</svg>
+							</div>
 						<?php } ?>
 					</div>
 					<div class="flex-1 min-w-0">
-						<div class="flex items-start justify-between gap-2">
-							<div class="min-w-0">
-								<div class="truncate text-sm font-medium text-slate-900"><?php echo htmlspecialchars($product['name']); ?></div>
-								<div class="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-slate-500">
-									<?php if (!empty($product['code'])) { ?>
-										<span>SKU: <?php echo htmlspecialchars($product['code']); ?></span>
-									<?php } ?>
-									<?php if (!empty($product['category_name'])) { ?>
-										<span><?php echo htmlspecialchars($product['category_name']); ?></span>
-									<?php } ?>
-								</div>
-								<?php if ($stockLabel !== null || $soldLabel !== null || $statusLabel !== null) { ?>
-									<div class="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
-										<?php if ($soldLabel !== null) { ?>
-											<div><?php echo htmlspecialchars($soldLabel); ?></div>
-										<?php } ?>
-										<?php if ($stockLabel !== null) { ?>
-											<div><?php echo htmlspecialchars($stockLabel); ?></div>
-										<?php } ?>
-										<?php if ($statusLabel !== null && $statusClass !== '') { ?>
-											<div class="<?php echo $statusClass; ?>"><?php echo $statusLabel; ?></div>
-										<?php } ?>
-									</div>
-								<?php } ?>
-							</div>
+						<div class="flex items-center justify-between gap-x-2">
+							<div class="truncate text-sm font-medium text-slate-900"><?php echo htmlspecialchars($product['name']); ?></div>
+							<?php if ($statusLabel !== null && $statusClass !== '') { ?>
+								<span class="flex-none text-xs font-medium <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span>
+							<?php } ?>
 						</div>
-						<div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+						<div class="mt-0.5 flex items-center gap-1 text-xs text-slate-400 truncate">
+							<?php if (!empty($product['code'])) { ?>
+								<span><?php echo htmlspecialchars($product['code']); ?></span>
+							<?php } ?>
+							<?php if (!empty($product['category_name'])) { ?>
+								<span class="text-slate-300">·</span>
+								<span class="truncate"><?php echo htmlspecialchars($product['category_name']); ?></span>
+							<?php } ?>
+							<?php if ($stockLabel !== null) { ?>
+								<span class="text-slate-300">·</span>
+								<span><?php echo htmlspecialchars($stockLabel); ?></span>
+							<?php } ?>
+						</div>
+						<div class="mt-0.5 flex items-center gap-x-2 text-sm">
 							<?php if ($primaryPrice !== null) { ?>
-								<span class="font-medium text-emerald-600">
-									<?php echo Money::format($primaryPrice); ?><?php if ($primaryUnit !== '') { ?>/<?php echo htmlspecialchars($primaryUnit); ?><?php } ?>
-								</span>
+								<span class="font-medium text-emerald-600"><?php echo Money::format($primaryPrice); ?><?php if ($primaryUnit !== '') { ?>/<?php echo htmlspecialchars($primaryUnit); ?><?php } ?></span>
 								<?php if ($primaryCost !== null && $primaryCost > 0) { ?>
-									<span class="font-medium text-slate-500">
-										<?php echo Money::format($primaryCost); ?><?php if ($primaryUnit !== '') { ?>/<?php echo htmlspecialchars($primaryUnit); ?><?php } ?>
-									</span>
+									<span class="text-xs text-slate-400"><?php echo Money::format($primaryCost); ?><?php if ($primaryUnit !== '') { ?>/<?php echo htmlspecialchars($primaryUnit); ?><?php } ?></span>
 								<?php } ?>
 							<?php } else { ?>
-								<span class="text-sm text-slate-400">Chưa có giá</span>
+								<span class="text-xs text-slate-400">Chưa có giá</span>
 							<?php } ?>
 						</div>
 					</div>
