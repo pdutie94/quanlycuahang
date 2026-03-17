@@ -88,6 +88,8 @@
 (function () {
 	var modal = document.querySelector('[data-order-preview-modal]');
 	var modalContent = modal ? modal.querySelector('[data-order-preview-content]') : null;
+	var minimumLoadingMs = 1000;
+	var activePreviewRequestId = 0;
 
 	function loadingHtml() {
 		return [
@@ -161,8 +163,18 @@
 		modal.classList.add('flex');
 	}
 
+	function updatePreviewWhenReady(requestId, startedAt, render) {
+		var elapsed = Date.now() - startedAt;
+		var remaining = Math.max(0, minimumLoadingMs - elapsed);
+		window.setTimeout(function () {
+			if (!modalContent || requestId !== activePreviewRequestId) return;
+			render();
+		}, remaining);
+	}
+
 	function closePreview() {
 		if (!modal) return;
+		activePreviewRequestId += 1;
 		modal.classList.add('hidden');
 		modal.classList.remove('flex');
 	}
@@ -197,6 +209,8 @@
 		e.stopPropagation();
 		var orderId = btn.getAttribute('data-order-id');
 		if (!orderId || !modalContent) return;
+		var requestId = activePreviewRequestId + 1;
+		var loadingStartedAt = Date.now();
 		var orderCode = btn.getAttribute('data-order-code') || 'Đơn hàng';
 		var orderCustomer = (btn.getAttribute('data-order-customer') || '').trim();
 		var normalizedCustomer = orderCustomer.toLowerCase();
@@ -215,6 +229,7 @@
 		if (detailBtn) {
 			detailBtn.setAttribute('href', '<?php echo $basePath; ?>/order/view?id=' + encodeURIComponent(orderId));
 		}
+		activePreviewRequestId = requestId;
 		openPreview(loadingHtml());
 		fetch('<?php echo $basePath; ?>/order/preview?id=' + encodeURIComponent(orderId) + '&ajax=1', {
 			method: 'GET',
@@ -228,12 +243,16 @@
 				return response.text();
 			})
 			.then(function (html) {
-				openPreview(html);
+				updatePreviewWhenReady(requestId, loadingStartedAt, function () {
+					openPreview(html);
+				});
 			})
 			.catch(function (error) {
-				if (modalContent) {
-					modalContent.innerHTML = '<div class="py-6 text-center text-rose-600">' + (error.message || 'Không thể hiển thị dữ liệu') + '</div>';
-				}
+				updatePreviewWhenReady(requestId, loadingStartedAt, function () {
+					if (modalContent) {
+						modalContent.innerHTML = '<div class="py-6 text-center text-rose-600">' + (error.message || 'Không thể hiển thị dữ liệu') + '</div>';
+					}
+				});
 			});
 	});
 })();
