@@ -1,0 +1,97 @@
+RewriteEngine On
+
+# Chặn index bởi search engine ở cấp HTTP header
+<IfModule mod_headers.c>
+    Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet, noimageindex"
+</IfModule>
+
+# Truy cập root: quanlycuahang.test -> public/index.php
+RewriteRule ^$ public/index.php [L]
+
+# Nếu URL đã bắt đầu bằng /public thì giữ nguyên (để dev/test vẫn dùng được)
+RewriteRule ^public/ - [L]
+
+# Static assets: /assets/... -> /public/assets/...
+RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+
+# Uploads: /uploads/... -> /public/uploads/...
+RewriteRule ^uploads/(.*)$ public/uploads/$1 [L]
+
+# Route thân thiện
+RewriteRule ^login$ public/index.php?r=auth/login [L,QSA]
+RewriteRule ^logout$ public/index.php?r=auth/logout [L,QSA]
+RewriteRule ^dashboard$ public/index.php?r=dashboard/index [L,QSA]
+
+RewriteRule ^product$ public/index.php?r=product/index [L,QSA]
+RewriteRule ^product/create$ public/index.php?r=product/create [L,QSA]
+RewriteRule ^product/edit$ public/index.php?r=product/edit [L,QSA]
+RewriteRule ^product/delete$ public/index.php?r=product/delete [L,QSA]
+RewriteRule ^migration$ public/index.php?r=migration/index [L,QSA]
+RewriteRule ^migration/apply$ public/index.php?r=migration/apply [L,QSA]
+RewriteRule ^migration/run$ public/index.php?r=migration/run [L,QSA]
+RewriteRule ^unit$ public/index.php?r=unit/index [L,QSA]
+RewriteRule ^unit/store$ public/index.php?r=unit/store [L,QSA]
+RewriteRule ^unit/update$ public/index.php?r=unit/update [L,QSA]
+RewriteRule ^unit/delete$ public/index.php?r=unit/delete [L,QSA]
+
+RewriteRule ^category$ public/index.php?r=category/index [L,QSA]
+RewriteRule ^category/create$ public/index.php?r=category/create [L,QSA]
+RewriteRule ^category/edit$ public/index.php?r=category/edit [L,QSA]
+RewriteRule ^category/store$ public/index.php?r=category/store [L,QSA]
+RewriteRule ^category/update$ public/index.php?r=category/update [L,QSA]
+RewriteRule ^category/delete$ public/index.php?r=category/delete [L,QSA]
+
+RewriteRule ^pos$ public/index.php?r=pos/index [L,QSA]
+RewriteRule ^order$ public/index.php?r=orderList/index [L,QSA]
+RewriteRule ^order/delete$ public/index.php?r=orderList/delete [L,QSA]
+RewriteRule ^order/restore$ public/index.php?r=orderList/restore [L,QSA]
+RewriteRule ^order/purgeDeleted$ public/index.php?r=orderList/purgeDeleted [L,QSA]
+RewriteRule ^order/view$ public/index.php?r=orderDetail/view [L,QSA]
+RewriteRule ^order/preview$ public/index.php?r=orderDetail/preview [L,QSA]
+RewriteRule ^order/invoice$ public/index.php?r=orderDetail/invoice [L,QSA]
+RewriteRule ^order/addForm$ public/index.php?r=orderDetail/addForm [L,QSA]
+RewriteRule ^order/update$ public/index.php?r=orderDetail/update [L,QSA]
+RewriteRule ^order/addStore$ public/index.php?r=orderDetail/addStore [L,QSA]
+RewriteRule ^order/edit$ public/index.php?r=orderDetail/edit [L,QSA]
+RewriteRule ^order/updateStatus$ public/index.php?r=orderDetail/updateStatus [L,QSA]
+RewriteRule ^order/paymentStore$ public/index.php?r=orderPayment/paymentStore [L,QSA]
+RewriteRule ^order/paymentReset$ public/index.php?r=orderPayment/paymentReset [L,QSA]
+RewriteRule ^order/returnForm$ public/index.php?r=orderPayment/returnForm [L,QSA]
+RewriteRule ^order/returnStore$ public/index.php?r=orderPayment/returnStore [L,QSA]
+RewriteRule ^customer$ public/index.php?r=customer/index [L,QSA]
+
+RewriteRule ^supplier$ public/index.php?r=supplier/index [L,QSA]
+RewriteRule ^supplier/create$ public/index.php?r=supplier/create [L,QSA]
+RewriteRule ^supplier/store$ public/index.php?r=supplier/store [L,QSA]
+RewriteRule ^supplier/edit$ public/index.php?r=supplier/edit [L,QSA]
+RewriteRule ^supplier/update$ public/index.php?r=supplier/update [L,QSA]
+RewriteRule ^supplier/delete$ public/index.php?r=supplier/delete [L,QSA]
+
+RewriteRule ^purchase$ public/index.php?r=purchase/index [L,QSA]
+RewriteRule ^purchase/create$ public/index.php?r=purchase/create [L,QSA]
+RewriteRule ^purchase/store$ public/index.php?r=purchase/store [L,QSA]
+RewriteRule ^purchase/view$ public/index.php?r=purchase/view [L,QSA]
+
+RewriteRule ^transaction$ public/index.php?r=transaction/index [L,QSA]
+RewriteRule ^transaction/create$ public/index.php?r=transaction/create [L,QSA]
+RewriteRule ^transaction/store$ public/index.php?r=transaction/store [L,QSA]
+RewriteRule ^transaction/view$ public/index.php?r=transaction/view [L,QSA]
+RewriteRule ^transaction/edit$ public/index.php?r=transaction/edit [L,QSA]
+RewriteRule ^transaction/update$ public/index.php?r=transaction/update [L,QSA]
+
+RewriteRule ^report$ public/index.php?r=report/index [L,QSA]
+RewriteRule ^report/sales$ public/index.php?r=report/sales [L,QSA]
+RewriteRule ^report/inventory$ public/index.php?r=report/inventory [L,QSA]
+RewriteRule ^report/customer-debt$ public/index.php?r=report/customerDebt [L,QSA]
+RewriteRule ^report/supplier-debt$ public/index.php?r=report/supplierDebt [L,QSA]
+RewriteRule ^report/missing-cost$ public/index.php?r=report/missingCost [L,QSA]
+RewriteRule ^report/transactions$ public/index.php?r=report/transactions [L,QSA]
+
+RewriteRule ^order/delete$ public/index.php?r=order/delete [L,QSA]
+RewriteRule ^order/restore$ public/index.php?r=order/restore [L,QSA]
+RewriteRule ^order/purgeDeleted$ public/index.php?r=order/purgeDeleted [L,QSA]
+
+RewriteRule ^backup/database$ public/index.php?r=backup/database [L,QSA]
+
+# Fallback chung cho mọi URL dạng /controller/action
+RewriteRule ^([A-Za-z0-9_-]+)/([A-Za-z0-9_-]+)$ public/index.php?r=$1/$2 [L,QSA]

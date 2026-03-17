@@ -1,0 +1,68 @@
+RewriteEngine On
+
+# Nếu truy cập trực tiếp vào thư mục public/ thì ưu tiên dashboard hoặc login
+RewriteRule ^$ index.php [L]
+
+# Các route thân thiện
+RewriteRule ^login$ index.php?r=auth/login [L,QSA]
+RewriteRule ^logout$ index.php?r=auth/logout [L,QSA]
+RewriteRule ^dashboard$ index.php?r=dashboard/index [L,QSA]
+
+RewriteRule ^product$ index.php?r=product/index [L,QSA]
+RewriteRule ^product/create$ index.php?r=product/create [L,QSA]
+RewriteRule ^product/edit$ index.php?r=product/edit [L,QSA]
+RewriteRule ^product/delete$ index.php?r=product/delete [L,QSA]
+RewriteRule ^product/store$ index.php?r=product/store [L,QSA]
+RewriteRule ^product/update$ index.php?r=product/update [L,QSA]
+RewriteRule ^migration$ index.php?r=migration/index [L,QSA]
+RewriteRule ^migration/apply$ index.php?r=migration/apply [L,QSA]
+RewriteRule ^migration/run$ index.php?r=migration/run [L,QSA]
+RewriteRule ^unit$ index.php?r=unit/index [L,QSA]
+RewriteRule ^unit/store$ index.php?r=unit/store [L,QSA]
+RewriteRule ^unit/update$ index.php?r=unit/update [L,QSA]
+RewriteRule ^unit/delete$ index.php?r=unit/delete [L,QSA]
+
+RewriteRule ^category$ index.php?r=category/index [L,QSA]
+RewriteRule ^category/create$ index.php?r=category/create [L,QSA]
+RewriteRule ^category/edit$ index.php?r=category/edit [L,QSA]
+RewriteRule ^category/store$ index.php?r=category/store [L,QSA]
+RewriteRule ^category/update$ index.php?r=category/update [L,QSA]
+RewriteRule ^category/delete$ index.php?r=category/delete [L,QSA]
+
+RewriteRule ^pos$ index.php?r=pos/index [L,QSA]
+RewriteRule ^customer$ index.php?r=customer/index [L,QSA]
+RewriteRule ^customer/view$ index.php?r=customer/view [L,QSA]
+RewriteRule ^customer/payment$ index.php?r=customer/payment [L,QSA]
+RewriteRule ^customer/payment/store$ index.php?r=customer/paymentStore [L,QSA]
+
+RewriteRule ^supplier$ index.php?r=supplier/index [L,QSA]
+RewriteRule ^supplier/create$ index.php?r=supplier/create [L,QSA]
+RewriteRule ^supplier/store$ index.php?r=supplier/store [L,QSA]
+RewriteRule ^supplier/edit$ index.php?r=supplier/edit [L,QSA]
+RewriteRule ^supplier/update$ index.php?r=supplier/update [L,QSA]
+RewriteRule ^supplier/delete$ index.php?r=supplier/delete [L,QSA]
+
+RewriteRule ^purchase$ index.php?r=purchase/index [L,QSA]
+RewriteRule ^purchase/create$ index.php?r=purchase/create [L,QSA]
+RewriteRule ^purchase/store$ index.php?r=purchase/store [L,QSA]
+RewriteRule ^purchase/view$ index.php?r=purchase/view [L,QSA]
+
+RewriteRule ^transaction$ index.php?r=transaction/index [L,QSA]
+RewriteRule ^transaction/create$ index.php?r=transaction/create [L,QSA]
+RewriteRule ^transaction/store$ index.php?r=transaction/store [L,QSA]
+RewriteRule ^transaction/view$ index.php?r=transaction/view [L,QSA]
+RewriteRule ^transaction/edit$ index.php?r=transaction/edit [L,QSA]
+RewriteRule ^transaction/update$ index.php?r=transaction/update [L,QSA]
+
+RewriteRule ^report$ index.php?r=report/index [L,QSA]
+RewriteRule ^report/sales$ index.php?r=report/sales [L,QSA]
+RewriteRule ^report/inventory$ index.php?r=report/inventory [L,QSA]
+RewriteRule ^report/customer-debt$ index.php?r=report/customerDebt [L,QSA]
+RewriteRule ^report/supplier-debt$ index.php?r=report/supplierDebt [L,QSA]
+RewriteRule ^report/missing-cost$ index.php?r=report/missingCost [L,QSA]
+RewriteRule ^report/transactions$ index.php?r=report/transactions [L,QSA]
+
+RewriteRule ^order/delete$ index.php?r=order/delete [L,QSA]
+RewriteRule ^order/restore$ index.php?r=order/restore [L,QSA]
+RewriteRule ^order/purgeDeleted$ index.php?r=order/purgeDeleted [L,QSA]
+RewriteRule ^backup/database$ index.php?r=backup/database [L,QSA]
