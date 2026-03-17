@@ -10,39 +10,89 @@ $surchargeAmount = isset($order['surcharge_amount']) ? (float) $order['surcharge
 if ($surchargeAmount < 0) {
     $surchargeAmount = 0.0;
 }
-$grossAmount = $totalAmount + $discountAmount - $surchargeAmount;
-if ($grossAmount < 0) {
-    $grossAmount = 0.0;
+$baseAmount = $totalAmount + $discountAmount - $surchargeAmount;
+if ($baseAmount < 0) {
+    $baseAmount = 0.0;
 }
-$subtotalAmount = $totalAmount + $discountAmount;
 $profitOrder = $totalAmount - $totalCost;
 $remaining = $totalAmount - (isset($order['paid_amount']) ? (float) $order['paid_amount'] : 0.0);
 if ($remaining < 0) {
     $remaining = 0.0;
 }
+$paymentStatus = isset($order['status']) ? (string) $order['status'] : '';
+$paymentStatusLabel = 'Chờ thanh toán';
+$paymentStatusClass = 'bg-amber-50 text-amber-700';
+if ($paymentStatus === 'paid' || ($totalAmount > 0 && (isset($order['paid_amount']) ? (float) $order['paid_amount'] : 0.0) >= $totalAmount)) {
+    $paymentStatusLabel = 'Đã thanh toán';
+    $paymentStatusClass = 'bg-emerald-50 text-emerald-700';
+} elseif ($remaining > 0) {
+    $paymentStatusLabel = 'Còn nợ';
+    $paymentStatusClass = 'bg-rose-50 text-rose-700';
+}
+$orderStatusLabel = 'Chờ xử lý';
+$orderStatusClass = 'bg-amber-50 text-amber-700';
+if ($orderStatus === 'cancelled') {
+    $orderStatusLabel = 'Đã hủy';
+    $orderStatusClass = 'bg-slate-100 text-slate-600';
+} elseif ($orderStatus === 'completed') {
+    $orderStatusLabel = 'Hoàn tất';
+    $orderStatusClass = 'bg-sky-50 text-sky-700';
+}
+$debtClass = $remaining > 0 ? 'text-rose-700' : 'text-slate-700';
+$orderNote = isset($order['note']) ? trim((string) $order['note']) : (isset($order['notes']) ? trim((string) $order['notes']) : '');
 $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : [];
 $items = isset($items) && is_array($items) ? $items : [];
 ?>
 
 <div class="space-y-3">
-    <div class="grid grid-cols-1 gap-1 text-sm text-slate-600">
-        <div class="flex items-center justify-between">
-            <span class="text-slate-500">Khách hàng</span>
-            <span class="font-semibold text-slate-900"><?php echo !empty($order['customer_name']) ? htmlspecialchars($order['customer_name']) : 'Khách lẻ'; ?></span>
+    <div class="space-y-3">
+        <div>
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold <?php echo $paymentStatusClass; ?>"><?php echo htmlspecialchars($paymentStatusLabel); ?></span>
+                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold <?php echo $orderStatusClass; ?>"><?php echo htmlspecialchars($orderStatusLabel); ?></span>
+            </div>
         </div>
-        <div class="flex items-center justify-between">
-            <span class="text-slate-500">Tổng tiền</span>
-            <span class="font-semibold text-slate-900"><?php echo Money::format($totalAmount); ?></span>
+
+        <div class="rounded-lg bg-white">
+            <div class="space-y-1.5">
+                <div class="flex items-center justify-between gap-3">
+                    <span class="text-slate-500">Tạm tính</span>
+                    <span class="font-medium text-slate-900"><?php echo Money::format($baseAmount); ?></span>
+                </div>
+                <div class="flex items-center justify-between gap-3">
+                    <span class="text-slate-500">Giảm giá</span>
+                    <span class="font-medium <?php echo $discountAmount > 0 ? 'text-emerald-700' : 'text-slate-400'; ?>"><?php echo $discountAmount > 0 ? '-' . Money::format($discountAmount) : Money::format(0); ?></span>
+                </div>
+                <div class="flex items-center justify-between gap-3">
+                    <span class="text-slate-500">Phụ thu</span>
+                    <span class="font-medium <?php echo $surchargeAmount > 0 ? 'text-amber-700' : 'text-slate-400'; ?>"><?php echo $surchargeAmount > 0 ? '+' . Money::format($surchargeAmount) : Money::format(0); ?></span>
+                </div>
+            </div>
+            <div class="my-2 border-t border-dashed border-slate-200"></div>
+            <div class="flex items-center justify-between gap-3">
+                <span class="font-medium text-slate-700">Tổng cộng</span>
+                <span class="text-base font-semibold text-slate-900"><?php echo Money::format($totalAmount); ?></span>
+            </div>
         </div>
-        <div class="flex items-center justify-between">
-            <span class="text-slate-500">Đã thanh toán</span>
-            <span class="font-semibold text-emerald-700"><?php echo Money::format(isset($order['paid_amount']) ? (float)$order['paid_amount'] : 0); ?></span>
-        </div>
-        <div class="flex items-center justify-between">
-            <span class="text-slate-500">Còn nợ</span>
-            <span class="font-semibold text-rose-700"><?php echo Money::format($remaining); ?></span>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
+                <div class="text-xs text-slate-500">Đã thanh toán</div>
+                <div class="mt-0.5 font-semibold text-emerald-700"><?php echo Money::format(isset($order['paid_amount']) ? (float)$order['paid_amount'] : 0); ?></div>
+            </div>
+            <div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
+                <div class="text-xs text-slate-500">Còn nợ</div>
+                <div class="mt-0.5 font-semibold <?php echo $debtClass; ?>"><?php echo Money::format($remaining); ?></div>
+            </div>
         </div>
     </div>
+
+    <?php if ($orderNote !== '') { ?>
+        <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+            <div class="text-slate-500">Ghi chú</div>
+            <div class="mt-1 text-slate-800"><?php echo nl2br(htmlspecialchars($orderNote)); ?></div>
+        </div>
+    <?php } ?>
 
     <?php if (empty($items) && empty($manualItems)) { ?>
         <div class="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-4 text-center text-sm text-slate-500">
