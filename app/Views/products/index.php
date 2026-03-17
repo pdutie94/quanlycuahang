@@ -9,12 +9,13 @@ if ($categoryId < 0) {
 	$categoryId = 0;
 }
 ?>
-<?php if (empty($products)) { ?>
-	<div class="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-4 text-center text-sm text-slate-500">
-		Chưa có sản phẩm nào.
-	</div>
-<?php } else { ?>
-	<div class="space-y-2" data-infinite-list data-infinite-url="<?php echo $basePath; ?>/product" data-infinite-query="<?php echo htmlspecialchars($queryString); ?>" data-current-page="<?php echo isset($page) ? (int) $page : 1; ?>" data-has-more="<?php echo isset($totalPages) && isset($page) && $page < $totalPages ? '1' : '0'; ?>">
+<div data-product-results>
+	<?php if (empty($products)) { ?>
+		<div class="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-4 text-center text-sm text-slate-500">
+			Chưa có sản phẩm nào.
+		</div>
+	<?php } else { ?>
+		<div class="space-y-2" data-infinite-list data-infinite-url="<?php echo $basePath; ?>/product" data-infinite-query="<?php echo htmlspecialchars($queryString); ?>" data-current-page="<?php echo isset($page) ? (int) $page : 1; ?>" data-has-more="<?php echo isset($totalPages) && isset($page) && $page < $totalPages ? '1' : '0'; ?>">
 		<?php foreach ($products as $index => $product) { ?>
 			<?php
 			$productId = isset($product['id']) ? (int) $product['id'] : 0;
@@ -152,8 +153,9 @@ if ($categoryId < 0) {
 				</div>
 			</div>
 		<?php } ?>
-    </div>
-<?php } ?>
+		</div>
+	<?php } ?>
+</div>
 
 <?php if (!empty($categoryList)) { ?>
 <div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/30" data-product-category-filter-root>
@@ -172,11 +174,9 @@ if ($categoryId < 0) {
 			?>
 			<button type="button" class="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm <?php echo $isAllSelected ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'; ?>" data-product-category-option data-category-id="">
 				<span>Tất cả danh mục</span>
-				<?php if ($isAllSelected) { ?>
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
-						<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.75a.75.75 0 1 1 1.08-1.04l3.894 4.108 7.48-9.817a.75.75 0 0 1 1.03-.128Z" clip-rule="evenodd" />
-					</svg>
-				<?php } ?>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4<?php echo $isAllSelected ? '' : ' hidden'; ?>" data-product-category-check="1">
+					<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.75a.75.75 0 1 1 1.08-1.04l3.894 4.108 7.48-9.817a.75.75 0 0 1 1.03-.128Z" clip-rule="evenodd" />
+				</svg>
 			</button>
 			<?php foreach ($categoryList as $cat) { ?>
 				<?php
@@ -192,11 +192,9 @@ if ($categoryId < 0) {
 				?>
 				<button type="button" class="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm <?php echo $selected ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'; ?>" data-product-category-option data-category-id="<?php echo $id; ?>">
 					<span class="truncate"><?php echo htmlspecialchars($name); ?></span>
-					<?php if ($selected) { ?>
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
-							<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.75a.75.75 0 1 1 1.08-1.04l3.894 4.108 7.48-9.817a.75.75 0 0 1 1.03-.128Z" clip-rule="evenodd" />
-						</svg>
-					<?php } ?>
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4<?php echo $selected ? '' : ' hidden'; ?>" data-product-category-check="1">
+						<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.75a.75.75 0 1 1 1.08-1.04l3.894 4.108 7.48-9.817a.75.75 0 0 1 1.03-.128Z" clip-rule="evenodd" />
+					</svg>
 				</button>
 			<?php } ?>
 		</div>
@@ -208,25 +206,255 @@ if ($categoryId < 0) {
 document.addEventListener('DOMContentLoaded', function () {
 	var form = document.querySelector('form[data-product-filter-form]');
 	if (!form) return;
+	var resultRoot = document.querySelector('[data-product-results]');
+	if (!resultRoot) return;
+
+	var searchInput = form.querySelector('input[name="q"]');
+	var searchClear = form.querySelector('[data-list-search-clear]');
+	var debounceTimer = null;
+	var pendingController = null;
+	var latestRequestId = 0;
+	var isComposing = false;
+
+	function setStockActiveState(value) {
+		var selectedValue = value || 'all';
+		form.querySelectorAll('[data-product-stock-filter]').forEach(function (btn) {
+			var isActive = (btn.getAttribute('data-product-stock-filter') || 'all') === selectedValue;
+			btn.classList.toggle('bg-emerald-600', isActive);
+			btn.classList.toggle('text-white', isActive);
+			btn.classList.toggle('border-emerald-600', isActive);
+			btn.classList.toggle('bg-white', !isActive);
+			btn.classList.toggle('text-slate-700', !isActive);
+			btn.classList.toggle('border-slate-200', !isActive);
+		});
+	}
+
+	function setCategoryActiveState(value) {
+		var selectedValue = value || '';
+		document.querySelectorAll('[data-product-category-option]').forEach(function (btn) {
+			var isActive = (btn.getAttribute('data-category-id') || '') === selectedValue;
+			btn.classList.toggle('border-emerald-500', isActive);
+			btn.classList.toggle('bg-emerald-50', isActive);
+			btn.classList.toggle('text-emerald-700', isActive);
+			btn.classList.toggle('border-slate-200', !isActive);
+			btn.classList.toggle('bg-white', !isActive);
+			btn.classList.toggle('text-slate-700', !isActive);
+			btn.classList.toggle('hover:bg-slate-50', !isActive);
+
+			var icon = btn.querySelector('[data-product-category-check]');
+			if (icon) {
+				icon.classList.toggle('hidden', !isActive);
+			}
+		});
+	}
+
+	function updateSearchClearVisibility() {
+		if (!searchClear || !searchInput) {
+			return;
+		}
+		var hasKeyword = (searchInput.value || '').trim() !== '';
+		searchClear.classList.toggle('hidden', !hasKeyword);
+	}
+
+	function updateClearFiltersVisibility() {
+		var clearBtn = form.querySelector('[data-product-clear-filters]');
+		if (!clearBtn) {
+			return;
+		}
+		var stockInput = form.querySelector('input[name="stock"]');
+		var categoryInput = form.querySelector('input[name="category_id"]');
+		var hasStockFilter = !!(stockInput && (stockInput.value || '') !== '' && (stockInput.value || '') !== 'all');
+		var hasCategoryFilter = !!(categoryInput && (categoryInput.value || '') !== '');
+		clearBtn.classList.toggle('hidden', !(hasStockFilter || hasCategoryFilter));
+	}
+
+	function setHiddenField(name, value) {
+		var input = form.querySelector('input[name="' + name + '"]');
+		if (!input) {
+			input = document.createElement('input');
+			input.type = 'hidden';
+			input.name = name;
+			form.appendChild(input);
+		}
+		input.value = value;
+	}
+
+	function removeField(name) {
+		form.querySelectorAll('input[name="' + name + '"]').forEach(function (input) {
+			input.remove();
+		});
+	}
+
+	function buildRequestUrl() {
+		var formData = new FormData(form);
+		formData.delete('page');
+		formData.delete('ajax');
+
+		var params = new URLSearchParams();
+		formData.forEach(function (value, key) {
+			params.append(key, value == null ? '' : String(value));
+		});
+
+		var action = (form.getAttribute('action') || '').trim();
+		var baseUrl = action !== '' ? action : window.location.pathname;
+		params.append('ajax', '1');
+		var query = params.toString();
+		if (!query) {
+			return baseUrl;
+		}
+		return baseUrl + (baseUrl.indexOf('?') === -1 ? '?' : '&') + query;
+	}
+
+	function syncBrowserUrl() {
+		var formData = new FormData(form);
+		formData.delete('page');
+		formData.delete('ajax');
+		var params = new URLSearchParams();
+		formData.forEach(function (value, key) {
+			params.append(key, value == null ? '' : String(value));
+		});
+		var path = window.location.pathname;
+		var query = params.toString();
+		var nextUrl = query ? (path + '?' + query) : path;
+		window.history.replaceState(null, '', nextUrl);
+	}
+
+	function renderAjaxResults(html) {
+		var parser = new DOMParser();
+		var doc = parser.parseFromString(html, 'text/html');
+		var nextResultRoot = doc.querySelector('[data-product-results]');
+		if (!nextResultRoot) {
+			return false;
+		}
+		resultRoot.innerHTML = nextResultRoot.innerHTML;
+		if (typeof window.APP_initInfiniteScroll === 'function') {
+			window.APP_initInfiniteScroll();
+		}
+		return true;
+	}
+
+	function requestResults() {
+		if (pendingController) {
+			pendingController.abort();
+		}
+		pendingController = new AbortController();
+		latestRequestId++;
+		var requestId = latestRequestId;
+		var url = buildRequestUrl();
+
+		fetch(url, {
+			method: 'GET',
+			headers: {
+				'X-Requested-With': 'XMLHttpRequest'
+			},
+			signal: pendingController.signal
+		}).then(function (response) {
+			if (!response.ok) {
+				throw new Error('Search request failed');
+			}
+			return response.text();
+		}).then(function (html) {
+			if (requestId !== latestRequestId) {
+				return;
+			}
+			if (renderAjaxResults(html)) {
+				syncBrowserUrl();
+			}
+		}).catch(function (error) {
+			if (error && error.name === 'AbortError') {
+				return;
+			}
+		}).finally(function () {
+			if (requestId === latestRequestId) {
+				pendingController = null;
+			}
+		});
+	}
+
+	function triggerDebouncedRequest() {
+		updateSearchClearVisibility();
+		if (debounceTimer) {
+			clearTimeout(debounceTimer);
+		}
+		debounceTimer = setTimeout(function () {
+			requestResults();
+		}, 300);
+	}
+
+	form.addEventListener('submit', function (e) {
+		e.preventDefault();
+		requestResults();
+	});
+
+	if (searchInput) {
+		updateSearchClearVisibility();
+		searchInput.addEventListener('compositionstart', function () {
+			isComposing = true;
+		});
+		searchInput.addEventListener('compositionend', function () {
+			isComposing = false;
+			triggerDebouncedRequest();
+		});
+		searchInput.addEventListener('input', function () {
+			if (isComposing) {
+				return;
+			}
+			triggerDebouncedRequest();
+		});
+		searchInput.addEventListener('keydown', function (e) {
+			if (e.key !== 'Enter') {
+				return;
+			}
+			e.preventDefault();
+			requestResults();
+		});
+	}
+
+	if (searchClear) {
+		searchClear.addEventListener('click', function (e) {
+			e.preventDefault();
+			if (searchInput) {
+				searchInput.value = '';
+			}
+			updateSearchClearVisibility();
+			triggerDebouncedRequest();
+		});
+	}
+
+	var stockInput = form.querySelector('input[name="stock"]');
+	setStockActiveState(stockInput && stockInput.value ? stockInput.value : 'all');
+	var categoryInput = form.querySelector('input[name="category_id"]');
+	setCategoryActiveState(categoryInput && categoryInput.value ? categoryInput.value : '');
+	updateClearFiltersVisibility();
 
     form.querySelectorAll('[data-product-stock-filter]').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
             e.preventDefault();
             var value = btn.getAttribute('data-product-stock-filter') || 'all';
-            var input = form.querySelector('input[name="stock"]');
-            if (!input) {
-                input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'stock';
-                form.appendChild(input);
-            }
-            input.value = value;
-            form.submit();
+            setHiddenField('stock', value);
+			setStockActiveState(value);
+			updateClearFiltersVisibility();
+            requestResults();
         });
     });
 
+	var clearFiltersBtn = form.querySelector('[data-product-clear-filters]');
+	if (clearFiltersBtn) {
+		clearFiltersBtn.addEventListener('click', function (e) {
+			e.preventDefault();
+			setHiddenField('stock', 'all');
+			removeField('category_id');
+			setStockActiveState('all');
+			setCategoryActiveState('');
+			updateClearFiltersVisibility();
+			requestResults();
+		});
+	}
+
 	var root = document.querySelector('[data-product-category-filter-root]');
-	if (!root) return;
+	if (!root) {
+		return;
+	}
 	var btnOpen = document.querySelector('[data-product-category-filter-open]');
 	if (btnOpen) {
 		btnOpen.addEventListener('click', function (e) {
@@ -253,15 +481,15 @@ document.addEventListener('DOMContentLoaded', function () {
 		btn.addEventListener('click', function (e) {
 			e.preventDefault();
 			var id = btn.getAttribute('data-category-id') || '';
-			var input = form.querySelector('input[name="category_id"]');
-			if (!input) {
-				input = document.createElement('input');
-				input.type = 'hidden';
-				input.name = 'category_id';
-				form.appendChild(input);
+			if (id === '') {
+				removeField('category_id');
+			} else {
+				setHiddenField('category_id', id);
 			}
-			input.value = id;
-			form.submit();
+			setCategoryActiveState(id);
+			updateClearFiltersVisibility();
+			closePopup();
+			requestResults();
 		});
 	});
 	document.addEventListener('keydown', function (e) {

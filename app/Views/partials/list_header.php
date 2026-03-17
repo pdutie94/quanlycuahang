@@ -59,8 +59,8 @@ $chipsCfg = isset($cfg['chips']) && is_array($cfg['chips']) ? $cfg['chips'] : []
 							</svg>
 						</span>
 						<input type="text" name="<?php echo htmlspecialchars($searchParam, ENT_QUOTES, 'UTF-8'); ?>" value="<?php echo htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8'); ?>" class="h-10 w-full rounded-full border border-slate-200 bg-slate-50 pl-9 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-0" placeholder="<?php echo htmlspecialchars($searchPlaceholder, ENT_QUOTES, 'UTF-8'); ?>" />
-						<?php if ($searchClearUrl !== '' && $searchShowClear) { ?>
-							<a href="<?php echo $basePath . '/' . ltrim($searchClearUrl, '/'); ?>" class="absolute inset-y-0 right-2 flex items-center rounded-full px-2 text-sm text-slate-400 hover:text-slate-600">Xóa</a>
+						<?php if ($searchClearUrl !== '') { ?>
+							<a href="<?php echo $basePath . '/' . ltrim($searchClearUrl, '/'); ?>" class="absolute inset-y-0 right-2 flex items-center rounded-full px-2 text-sm text-slate-400 hover:text-slate-600<?php echo $searchShowClear ? '' : ' hidden'; ?>" data-list-search-clear="1">Xóa</a>
 						<?php } ?>
 					</div>
 					<?php if (!empty($extraButtons)) { ?>
@@ -104,13 +104,17 @@ $chipsCfg = isset($cfg['chips']) && is_array($cfg['chips']) ? $cfg['chips'] : []
 							<?php
 							$kind = isset($chip['kind']) ? (string) $chip['kind'] : 'submit';
 							$label = isset($chip['label']) ? (string) $chip['label'] : '';
-							if ($label === '') {
+							$icon = isset($chip['icon']) ? (string) $chip['icon'] : '';
+							$iconOnly = !empty($chip['icon_only']);
+							$ariaLabel = isset($chip['aria_label']) ? (string) $chip['aria_label'] : $label;
+							if ($label === '' && $icon === '') {
 								continue;
 							}
 							$active = !empty($chip['active']);
 							$baseClass = isset($chip['base_class']) ? (string) $chip['base_class'] : 'border inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium';
 							$activeClass = isset($chip['active_class']) ? (string) $chip['active_class'] : 'border-emerald-600 bg-emerald-600 text-white';
 							$inactiveClass = isset($chip['inactive_class']) ? (string) $chip['inactive_class'] : 'bg-white text-slate-700 border-slate-200';
+							$chipAttrs = isset($chip['attrs']) && is_array($chip['attrs']) ? $chip['attrs'] : [];
 							$classes = $baseClass . ' ' . ($active ? $activeClass : $inactiveClass);
 							?>
 							<?php if ($kind === 'button') { ?>
@@ -118,16 +122,34 @@ $chipsCfg = isset($cfg['chips']) && is_array($cfg['chips']) ? $cfg['chips'] : []
 								$dataAttr = isset($chip['data_attr']) ? (string) $chip['data_attr'] : '';
 								$dataValue = isset($chip['value']) ? (string) $chip['value'] : '';
 								?>
-								<button type="button" class="<?php echo htmlspecialchars($classes, ENT_QUOTES, 'UTF-8'); ?>"<?php if ($dataAttr !== '') { echo ' ' . htmlspecialchars($dataAttr, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($dataValue, ENT_QUOTES, 'UTF-8') . '"'; } ?>>
-									<?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?>
+								<button type="button" class="<?php echo htmlspecialchars($classes, ENT_QUOTES, 'UTF-8'); ?>"<?php if ($ariaLabel !== '') { echo ' aria-label="' . htmlspecialchars($ariaLabel, ENT_QUOTES, 'UTF-8') . '"'; } ?><?php if ($dataAttr !== '') { echo ' ' . htmlspecialchars($dataAttr, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars($dataValue, ENT_QUOTES, 'UTF-8') . '"'; } ?><?php foreach ($chipAttrs as $attrKey => $attrValue) { echo ' ' . htmlspecialchars((string) $attrKey, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars((string) $attrValue, ENT_QUOTES, 'UTF-8') . '"'; } ?>>
+									<?php if ($icon === 'clear') { ?>
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
+											<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+										</svg>
+									<?php } ?>
+									<?php if (!$iconOnly && $label !== '') { ?>
+										<span><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></span>
+									<?php } elseif ($iconOnly && $label !== '') { ?>
+										<span class="sr-only"><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></span>
+									<?php } ?>
 								</button>
 							<?php } else { ?>
 								<?php
 								$name = isset($chip['name']) ? (string) $chip['name'] : '';
 								$value = isset($chip['value']) ? (string) $chip['value'] : '';
 								?>
-								<button type="submit"<?php if ($name !== '') { echo ' name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"'; } ?> value="<?php echo htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); ?>" class="<?php echo htmlspecialchars($classes, ENT_QUOTES, 'UTF-8'); ?>">
-									<?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?>
+								<button type="submit"<?php if ($name !== '') { echo ' name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"'; } ?> value="<?php echo htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); ?>" class="<?php echo htmlspecialchars($classes, ENT_QUOTES, 'UTF-8'); ?>"<?php if ($ariaLabel !== '') { echo ' aria-label="' . htmlspecialchars($ariaLabel, ENT_QUOTES, 'UTF-8') . '"'; } ?><?php foreach ($chipAttrs as $attrKey => $attrValue) { echo ' ' . htmlspecialchars((string) $attrKey, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars((string) $attrValue, ENT_QUOTES, 'UTF-8') . '"'; } ?>>
+									<?php if ($icon === 'clear') { ?>
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
+											<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+										</svg>
+									<?php } ?>
+									<?php if (!$iconOnly && $label !== '') { ?>
+										<span><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></span>
+									<?php } elseif ($iconOnly && $label !== '') { ?>
+										<span class="sr-only"><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></span>
+									<?php } ?>
 								</button>
 							<?php } ?>
 						<?php } ?>

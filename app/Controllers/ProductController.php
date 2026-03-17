@@ -141,6 +141,19 @@ class ProductController extends Controller
                     'items' => [
                         [
                             'kind' => 'button',
+                            'data_attr' => 'data-product-clear-filters',
+                            'value' => '1',
+                            'label' => 'Xóa lọc',
+                            'aria_label' => 'Xóa bộ lọc',
+                            'icon' => 'clear',
+                            'icon_only' => true,
+                            'active' => false,
+                            'base_class' => 'border inline-flex items-center justify-center rounded-full h-[30px] w-[30px] text-sm font-medium bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
+                            'active_class' => 'bg-rose-50 text-rose-700 border-rose-200',
+                            'inactive_class' => 'bg-rose-50 text-rose-700 border-rose-200',
+                        ],
+                        [
+                            'kind' => 'button',
                             'data_attr' => 'data-product-stock-filter',
                             'value' => 'all',
                             'label' => 'Tất cả',

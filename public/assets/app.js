@@ -4856,6 +4856,10 @@
 
         $lists.each(function () {
             var $list = $(this);
+            if ($list.attr('data-infinite-initialized') === '1') {
+                return;
+            }
+            $list.attr('data-infinite-initialized', '1');
             var baseUrl = $list.attr('data-infinite-url') || '';
             if (!baseUrl) return;
 
@@ -4897,6 +4901,7 @@
                     $sentinel.remove();
                     $sentinel = null;
                 }
+                $list.removeAttr('data-infinite-initialized');
                 if (observer) {
                     observer.disconnect();
                     observer = null;
@@ -4997,6 +5002,8 @@
             }
         });
     }
+
+    window.APP_initInfiniteScroll = initInfiniteScroll;
 
     function initFloatingFormActions() {
         var containers = document.querySelectorAll('[data-floating-actions]');
