@@ -115,7 +115,7 @@ $chipsCfg = isset($cfg['chips']) && is_array($cfg['chips']) ? $cfg['chips'] : []
 							$activeClass = isset($chip['active_class']) ? (string) $chip['active_class'] : 'border-emerald-600 bg-emerald-600 text-white';
 							$inactiveClass = isset($chip['inactive_class']) ? (string) $chip['inactive_class'] : 'bg-white text-slate-700 border-slate-200';
 							$chipAttrs = isset($chip['attrs']) && is_array($chip['attrs']) ? $chip['attrs'] : [];
-							$classes = $baseClass . ' ' . ($active ? $activeClass : $inactiveClass);
+							$classes = $baseClass . ' shrink-0 ' . ($active ? $activeClass : $inactiveClass);
 							?>
 							<?php if ($kind === 'button') { ?>
 								<?php
