@@ -6,7 +6,7 @@ $detailActionsView = isset($detailHeader['actions_view']) ? (string) $detailHead
 ?>
 <?php if ($detailTitle !== '' || $detailBackUrl !== '') { ?>
 	<div class="sticky top-0 z-20 bg-white/95 border-b border-slate-200 backdrop-blur">
-		<div class="mx-auto w-full max-w-4xl px-4 py-1.5 flex items-center justify-between gap-3">
+		<div class="mx-auto w-full max-w-4xl px-3 py-1.5 flex items-center justify-between gap-3">
 			<div class="min-w-0">
 				<h1 class="truncate text-lg font-medium tracking-tight text-slate-900">
 					<?php echo htmlspecialchars($detailTitle !== '' ? $detailTitle : $title, ENT_QUOTES, 'UTF-8'); ?>

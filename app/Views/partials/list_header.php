@@ -11,7 +11,7 @@ $extraButtons = isset($cfg['extra_buttons']) && is_array($cfg['extra_buttons']) 
 $chipsCfg = isset($cfg['chips']) && is_array($cfg['chips']) ? $cfg['chips'] : [];
 ?>
 <?php if ($headerTitle !== '' || !empty($searchCfg)) { ?>
-	<div class="mx-auto w-full max-w-4xl px-4 py-3">
+	<div class="mx-auto w-full max-w-4xl px-3 py-3">
 		<div class="flex items-center justify-between gap-3">
 			<div>
 				<h1 class="text-lg font-medium tracking-tight">
@@ -50,7 +50,7 @@ $chipsCfg = isset($cfg['chips']) && is_array($cfg['chips']) ? $cfg['chips'] : []
 		$searchShowClear = !empty($searchCfg['show_clear']);
 		?>
 		<form method="<?php echo htmlspecialchars($formMethod, ENT_QUOTES, 'UTF-8'); ?>" action="<?php echo $formAction !== '' ? htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8') : ''; ?>" class="<?php echo $formClass; ?>"<?php foreach ($formAttrs as $attrKey => $attrValue) { echo ' ' . htmlspecialchars((string) $attrKey, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars((string) $attrValue, ENT_QUOTES, 'UTF-8') . '"'; } ?>>
-			<div class="mx-auto w-full max-w-4xl px-4<?php echo $sticky ? ' py-1.5 space-y-1.5' : ''; ?>">
+			<div class="mx-auto w-full max-w-4xl px-3<?php echo $sticky ? ' py-1.5 space-y-1.5' : ''; ?>">
 				<div class="flex items-center gap-1.5">
 					<div class="relative flex-1">
 						<span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
