@@ -25,7 +25,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 
 <div class="space-y-4">
 	<?php $orderDateFormatted = date('H:i, d/m/Y', strtotime($order['order_date'])); ?>
-	<div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+	<div class="rounded-lg border border-slate-200 bg-white ">
 		<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 			<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
 				<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
@@ -149,7 +149,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 		</div>
 	</div>
 
-	<div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+	<div class="rounded-lg border border-slate-200 bg-white ">
 		<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 			<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
 				<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-amber-700">
@@ -232,7 +232,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 				</div>
 			<?php } ?>
 		<?php if (!empty($items)) { ?>
-			<div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+			<div class="rounded-lg border border-slate-200 bg-white ">
 				<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 					<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
 						<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-slate-700">
@@ -303,7 +303,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 	<?php } ?>
 
     <?php if (!empty($manualItems)) { ?>
-		<div class="mt-4 rounded-lg border border-slate-200 bg-white shadow-sm">
+		<div class="mt-4 rounded-lg border border-slate-200 bg-white ">
 			<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 				<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
 					<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-amber-700">
@@ -377,7 +377,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 	<?php } ?>
 
 	<?php if (!empty($payments)) { ?>
-		<div class="mt-4 rounded-lg border border-slate-200 bg-white shadow-sm">
+		<div class="mt-4 rounded-lg border border-slate-200 bg-white ">
 			<div class="border-b border-slate-100 px-4 py-2 text-sm font-medium text-slate-800">
 				Lịch sử thanh toán
 			</div>
@@ -429,7 +429,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 	<?php } ?>
 
 	<?php if (!empty($logs)) { ?>
-		<div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+		<div class="rounded-lg border border-slate-200 bg-white ">
 			<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 				<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
 					<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-amber-700">
@@ -584,7 +584,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 </div>
 <?php if ($remaining > 0 && $orderStatus !== 'cancelled') { ?>
 	<div class="fixed p-3 inset-0 z-40 hidden items-center justify-center bg-black/40" data-order-payment-modal>
-		<div class="w-full max-w-md rounded-2xl bg-white shadow-lg">
+		<div class="w-full max-w-md rounded-2xl bg-white ">
 			<div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
 				<h2 class="text-sm font-medium text-slate-800">Thu tiền đơn hàng</h2>
 				<button type="button" class="text-slate-400 hover:text-slate-600" data-order-payment-close>

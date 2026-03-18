@@ -2,3 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+	body {
+		@apply text-slate-800 antialiased;
+	}
+}
+
+@layer components {
+	.app-shell {
+		@apply min-h-screen bg-gradient-to-b from-slate-100 via-slate-100 to-slate-200;
+	}
+
+	.app-topbar {
+		@apply sticky top-0 z-30 border-b border-slate-800/70 bg-slate-900/95 text-slate-50 backdrop-blur;
+	}
+
+	.app-content-wrap {
+		@apply mx-auto w-full max-w-4xl px-3;
+	}
+
+	.app-card {
+		@apply rounded-app bg-white p-4 ring-1 ring-slate-100;
+	}
+
+	.app-section-title {
+		@apply text-sm font-semibold uppercase tracking-wide text-slate-500;
+	}
+
+	.app-chip {
+		@apply inline-flex items-center rounded-chip border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700;
+	}
+
+	.app-chip-active {
+		@apply border-brand-600 bg-brand-600 text-white;
+	}
+
+	.app-input {
+			@apply block min-h-[38px] w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:bg-white;
+	}
+
+	.app-btn-primary {
+		@apply inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 active:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50;
+	}
+
+	.app-btn-secondary {
+		@apply inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50;
+	}
+
+	.app-kpi-card {
+		@apply rounded-xl bg-white/10 px-3 py-2;
+	}
+
+	.app-bottom-nav {
+		@apply fixed inset-x-0 bottom-0 z-30 border-t border-slate-200/80 bg-white/95 backdrop-blur;
+	}
+
+	.app-bottom-nav-inner {
+		@apply mx-auto flex w-full max-w-4xl items-center justify-between gap-1 px-1.5 py-1 text-xs font-medium;
+	}
+
+	.app-bottom-nav-link {
+		@apply flex min-h-11 flex-1 flex-col items-center justify-center rounded-xl px-1.5 py-1.5 text-slate-500 transition;
+	}
+
+	.app-bottom-nav-link-active {
+		@apply bg-emerald-50 text-emerald-700;
+	}
+}
+

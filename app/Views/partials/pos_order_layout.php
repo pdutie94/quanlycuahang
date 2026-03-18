@@ -10,7 +10,7 @@ $isPos = $layoutMode === 'pos';
             <input type="hidden" hidden name="id" value="<?php echo $order['id']; ?>">
         <?php } ?>
 
-        <div class="flex flex-col rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5 shadow-sm ring-1 ring-slate-100">
+        <div class="flex flex-col rounded-lg border border-slate-200 bg-white px-4 py-4 lg:px-5 lg:py-5">
             <div class="mb-1 flex items-center justify-between">
                 <div class="flex items-center gap-2 text-sm font-medium text-slate-800">
                     <span>Sản phẩm</span>
@@ -156,7 +156,9 @@ $isPos = $layoutMode === 'pos';
                 ?>
             <?php } ?>
 
-            <div class="mt-2 border-t border-slate-100 pt-2 space-y-1.5">
+            <div class="mt-3 border-t border-slate-200 pt-3">
+                <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Tạm tính</div>
+                <div class="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
                 <div class="flex items-center justify-between text-sm text-slate-600">
                     <span>Tạm tính</span>
                     <?php if ($isPos) { ?>
@@ -211,12 +213,13 @@ $isPos = $layoutMode === 'pos';
                         </button>
                     </div>
                 </div>
+                </div>
             </div>
         </div>
 
         <?php /* manual free item modal shared for POS and order edit */ ?>
         <div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/40 p-4" hidden data-pos-manual-edit-modal>
-            <div class="flex max-h-full w-full max-w-sm flex-col rounded-2xl bg-white shadow-lg">
+            <div class="flex max-h-full w-full max-w-sm flex-col rounded-2xl bg-white ">
                 <div class="flex items-center justify-between border-b border-slate-200 px-4 py-2">
                     <h2 class="text-sm font-medium text-slate-800">Chỉnh sửa sản phẩm tự do</h2>
                     <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600" data-pos-manual-edit-cancel>
@@ -285,7 +288,7 @@ $isPos = $layoutMode === 'pos';
 </div>
 
 <div class="fixed inset-0 z-40 hidden flex items-center justify-center bg-slate-900/40 p-4" data-pos-price-modal>
-        <div class="w-full max-w-sm rounded-xl bg-white shadow-lg max-h-full flex flex-col">
+        <div class="w-full max-w-sm rounded-xl bg-white  max-h-full flex flex-col">
             <div class="flex items-center justify-between border-b border-slate-200 px-4 py-2">
                 <div class="text-sm font-medium text-slate-900">
                     Chỉnh đơn giá

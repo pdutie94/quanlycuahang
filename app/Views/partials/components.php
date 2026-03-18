@@ -3,7 +3,7 @@
 if (!function_exists('ui_button_primary')) {
 	function ui_button_primary($label, $attrs = [])
 	{
-		$baseClass = 'rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed';
+		$baseClass = 'rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white  hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed';
 		$attrParts = [];
 		foreach ($attrs as $key => $value) {
 			if ($key === 'class') {

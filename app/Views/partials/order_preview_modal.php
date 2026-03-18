@@ -1,5 +1,5 @@
 <div class="fixed inset-0 z-[99999] hidden items-center justify-center bg-black/40 p-3" data-order-preview-modal>
-	<div class="flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl" style="height: min(85vh, 48rem);">
+	<div class="flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white " style="height: min(85vh, 48rem);">
 		<div class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
 			<div>
 				<div class="text-sm font-semibold text-slate-800">
@@ -54,7 +54,7 @@
 						</div>
 					</div>
 
-					<div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+					<div class="rounded-lg border border-slate-200 bg-white ">
 						<div class="border-b border-slate-100 px-3 py-2">
 							<div class="h-4 w-20 rounded bg-slate-300"></div>
 						</div>
@@ -130,7 +130,7 @@
 							'<div class="mt-2 h-5 w-16 rounded bg-slate-300"></div>',
 						'</div>',
 					'</div>',
-					'<div class="rounded-lg border border-slate-200 bg-white shadow-sm">',
+					'<div class="rounded-lg border border-slate-200 bg-white ">',
 						'<div class="border-b border-slate-100 px-3 py-2">',
 							'<div class="h-4 w-20 rounded bg-slate-300"></div>',
 						'</div>',

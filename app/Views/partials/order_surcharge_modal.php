@@ -2,7 +2,7 @@
 $surchargeTitle = isset($surchargeTitle) ? $surchargeTitle : 'Phụ thu đơn hàng';
 ?>
 <div class="fixed inset-0 z-40 hidden flex items-center justify-center bg-slate-900/40 p-4" data-order-surcharge-modal>
-    <div class="w-full max-w-sm rounded-xl bg-white shadow-lg max-h-full flex flex-col">
+    <div class="w-full max-w-sm rounded-xl bg-white  max-h-full flex flex-col">
         <div class="flex items-center justify-between border-b border-slate-200 px-4 py-2">
             <div class="text-sm font-medium text-slate-900">
                 <?php echo htmlspecialchars($surchargeTitle); ?>

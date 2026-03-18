@@ -41,15 +41,15 @@ if ($orderStatus === 'cancelled') {
 }
 ?>
 
-<a href="<?php echo htmlspecialchars($orderCardUrl); ?>" class="relative block rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-100 transition hover:shadow-md" <?php echo $orderCardExtraAttrs; ?>>
-    <button type="button" class="absolute right-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-emerald-50 hover:text-emerald-600" data-order-preview-btn data-order-id="<?php echo (int) (isset($orderCardData['id']) ? $orderCardData['id'] : 0); ?>" data-order-code="<?php echo htmlspecialchars((string) $orderCode); ?>" data-order-date="<?php echo htmlspecialchars($timeText); ?>" data-order-customer="<?php echo htmlspecialchars($customerName); ?>">
+<a href="<?php echo htmlspecialchars($orderCardUrl); ?>" class="relative block rounded-2xl border border-slate-200 bg-white p-3 transition-colors hover:border-emerald-200" <?php echo $orderCardExtraAttrs; ?>>
+    <button type="button" class="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-emerald-50 hover:text-emerald-600" data-order-preview-btn data-order-id="<?php echo (int) (isset($orderCardData['id']) ? $orderCardData['id'] : 0); ?>" data-order-code="<?php echo htmlspecialchars((string) $orderCode); ?>" data-order-date="<?php echo htmlspecialchars($timeText); ?>" data-order-customer="<?php echo htmlspecialchars($customerName); ?>">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-4 w-4">
             <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
     </button>
 
-    <div class="space-y-1.5 pr-8 <?php echo $orderStatus === 'cancelled' ? 'opacity-60' : ''; ?>">
+    <div class="space-y-1.5 pr-10 <?php echo $orderStatus === 'cancelled' ? 'opacity-60' : ''; ?>">
         <div class="flex items-center gap-2">
             <div class="text-sm font-mono font-semibold text-emerald-700">#<?php echo htmlspecialchars((string) $orderCode); ?></div>
             <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium <?php echo $badgeClass; ?>"><?php echo htmlspecialchars($badgeLabel); ?></span>

@@ -15,7 +15,7 @@
 <?php $action = $supplier ? $basePath . '/supplier/update' : $basePath . '/supplier/store'; ?>
 
 <div class="space-y-4">
-	<div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+	<div class="rounded-lg border border-slate-200 bg-white ">
 		<form method="post" action="<?php echo $action; ?>" class="px-4 py-4">
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>" />
 		<?php if ($supplier) { ?>

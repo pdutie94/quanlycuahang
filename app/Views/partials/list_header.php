@@ -25,7 +25,7 @@ $chipsCfg = isset($cfg['chips']) && is_array($cfg['chips']) ? $cfg['chips'] : []
 			</div>
 			<?php if (!empty($primary) && isset($primary['url'])) { ?>
 				<div class="flex items-center gap-1.5">
-					<a href="<?php echo $basePath . '/' . ltrim((string) $primary['url'], '/'); ?>" class="inline-flex items-center justify-center rounded-full bg-emerald-600 p-2 text-white shadow-sm hover:bg-emerald-700 active:bg-emerald-800" title="<?php echo htmlspecialchars(isset($primary['tooltip']) ? (string) $primary['tooltip'] : '', ENT_QUOTES, 'UTF-8'); ?>">
+					<a href="<?php echo $basePath . '/' . ltrim((string) $primary['url'], '/'); ?>" class="inline-flex items-center justify-center rounded-full bg-emerald-600 p-2 text-white  hover:bg-emerald-700 active:bg-emerald-800" title="<?php echo htmlspecialchars(isset($primary['tooltip']) ? (string) $primary['tooltip'] : '', ENT_QUOTES, 'UTF-8'); ?>">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
 						</svg>

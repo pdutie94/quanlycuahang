@@ -27,7 +27,7 @@ $totalItems = count($items);
 			$qtyBase = isset($row['qty_base']) ? (float) $row['qty_base'] : 0.0;
 			$updatedAt = !empty($row['updated_at']) ? $row['updated_at'] : null;
 			?>
-			<div class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
+			<div class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 ">
 				<div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
 					<div class="min-w-0">
 						<div class="flex items-center gap-2">

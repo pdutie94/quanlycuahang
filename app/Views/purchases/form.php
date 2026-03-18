@@ -16,7 +16,7 @@ $isEdit = isset($purchase) && is_array($purchase);
 <?php } ?>
 
 <div class="space-y-4">
-	<div class="rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-sm">
+	<div class="rounded-lg border border-slate-200 bg-white px-4 py-4 ">
 		<form method="post" action="<?php echo $isEdit ? $basePath . '/purchase/update' : $basePath . '/purchase/store'; ?>" class="space-y-4">
 			<div hidden>
 				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">

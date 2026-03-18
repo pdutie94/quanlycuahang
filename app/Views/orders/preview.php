@@ -101,7 +101,7 @@ $items = isset($items) && is_array($items) ? $items : [];
     <?php } ?>
 
     <?php if (!empty($items)) { ?>
-        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="rounded-lg border border-slate-200 bg-white ">
             <div class="border-b border-slate-100 px-3 py-2 text-sm font-medium text-slate-800">Sản phẩm</div>
             <div class="divide-y divide-slate-100">
                 <?php foreach ($items as $item) {
@@ -122,7 +122,7 @@ $items = isset($items) && is_array($items) ? $items : [];
     <?php } ?>
 
     <?php if (!empty($manualItems)) { ?>
-        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="rounded-lg border border-slate-200 bg-white ">
             <div class="border-b border-slate-100 px-3 py-2 text-sm font-medium text-slate-800">Sản phẩm khác</div>
             <div class="divide-y divide-slate-100">
                 <?php foreach ($manualItems as $row) {

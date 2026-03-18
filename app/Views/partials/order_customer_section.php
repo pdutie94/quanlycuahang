@@ -1,4 +1,4 @@
-        <div class="rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5 shadow-sm ring-1 ring-slate-100">
+		<div class="rounded-lg border border-slate-200 bg-white px-4 py-4 lg:px-5 lg:py-5">
             <div class="mb-3 text-sm font-medium text-slate-800">
                 Thông tin khách hàng
             </div>
@@ -89,7 +89,7 @@
 							ui_input_text('payment_amount', '0', [
 								'inputmode' => 'numeric',
 								'data-money-input' => '1',
-								'class' => 'pr-9 text-right py-2',
+								'class' => 'pr-9 py-2 text-right text-base font-semibold tracking-tight',
 							]);
 							?>
 							<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
@@ -106,8 +106,8 @@
 				<input type="hidden" name="discount_amount" value="0" data-order-discount-amount-hidden data-pos-discount-hidden>
                 <input type="hidden" name="surcharge_amount" value="0" data-pos-surcharge-hidden>
 				<input type="hidden" name="round_total" value="0" data-order-round-total-flag>
-                <div class="mt-4 flex flex-wrap gap-2" data-floating-actions>
-                    <button type="button" data-pos-submit-order class="inline-flex flex-1 items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 active:bg-emerald-800" data-loading-button="1" data-floating-primary="1">
+				<div class="mt-4 flex flex-wrap gap-2" data-floating-actions>
+					<button type="button" data-pos-submit-order class="inline-flex flex-1 items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 active:bg-emerald-800" data-loading-button="1" data-floating-primary="1">
                         Nhập đơn
                     </button>
                 </div>
@@ -240,11 +240,11 @@
 					<input type="hidden" name="round_total" value="<?php echo $roundTotalFlagValue; ?>" data-order-round-total-flag>
 				</div>
 
-                <div class="mt-4 flex items-center justify-end gap-3" data-floating-actions>
+				<div class="mt-4 sticky bottom-[4.2rem] z-10 -mx-1 flex items-center justify-end gap-3 border-t border-slate-200 bg-white/95 px-1 pb-1 pt-2 backdrop-blur" data-floating-actions>
                     <a href="<?php echo $basePath; ?>/order/view?id=<?php echo $order['id']; ?>" class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
                         Hủy
                     </a>
-                    <button type="submit" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 active:bg-emerald-800" data-loading-button="1" data-floating-primary="1">
+					<button type="submit" class="inline-flex min-h-11 items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 active:bg-emerald-800" data-loading-button="1" data-floating-primary="1">
                         Lưu thay đổi
                     </button>
                 </div>

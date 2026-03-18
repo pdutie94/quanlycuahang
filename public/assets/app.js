@@ -5040,7 +5040,7 @@
             btn.type = 'button';
             btn.setAttribute('data-floating-save', '1');
             btn.setAttribute('aria-label', labelText);
-            btn.className = 'fixed bottom-[4.3rem] right-3 z-19 inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500';
+            btn.className = 'fixed bottom-[4.3rem] right-3 z-19 inline-flex items-center rounded-lg border border-emerald-600 bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500';
             btn.innerHTML = '<span>' + escapeHtml(labelText) + '</span>';
             btn.classList.add('hidden');
             btn.addEventListener('click', function (e) {

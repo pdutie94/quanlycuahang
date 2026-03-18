@@ -41,7 +41,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 ?>
 
 <div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/40" data-order-advanced-filter-root>
-	<div class="w-full max-w-sm rounded-2xl bg-white shadow-lg mx-4 my-6">
+	<div class="w-full max-w-sm rounded-2xl bg-white  mx-4 my-6">
 		<div class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
 			<h2 class="text-sm font-medium text-slate-800">Lọc nâng cao</h2>
 			<button type="button" class="text-slate-400 hover:text-slate-600" data-order-advanced-filter-close>

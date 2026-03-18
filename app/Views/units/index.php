@@ -8,7 +8,7 @@
     Đơn vị tính</h1>
 </div>
 
-<div class="mb-4 rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5 shadow-sm ring-1 ring-slate-100">
+<div class="mb-4 rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5  ring-1 ring-slate-100">
     <form method="post" action="<?php echo $basePath; ?>/unit/store" class="flex flex-col gap-2 sm:flex-row sm:items-center">
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
         <div class="flex-1">
@@ -29,7 +29,7 @@
     </form>
 </div>
 
-<div class="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+<div class="overflow-x-auto rounded-lg border border-slate-200 bg-white ">
     <table class="min-w-full text-left text-sm">
         <thead class="bg-slate-50 text-sm uppercase  text-slate-500">
         <tr>

@@ -2,7 +2,7 @@
 $customers = isset($customers) && is_array($customers) ? $customers : [];
 ?>
 <div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/40" data-pos-customer-modal>
-    <div class="flex h-full w-full flex-col overflow-hidden bg-white shadow-lg">
+    <div class="flex h-full w-full flex-col overflow-hidden bg-white ">
         <div class="flex items-center justify-between border-b border-slate-200 px-4 py-2">
             <div class="flex items-center gap-2">
                 <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">

@@ -22,7 +22,7 @@ if ($debt < 0) {
 <?php } ?>
 
 <div class="space-y-4">
-    <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+    <div class="rounded-lg border border-slate-200 bg-white ">
         <div class="border-b border-slate-100 px-4 py-2 text-sm font-medium text-slate-800">
             Thông tin đơn hàng
         </div>
@@ -54,7 +54,7 @@ if ($debt < 0) {
             <input type="hidden" name="order_id" value="<?php echo (int) $order['id']; ?>">
         </div>
 
-        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="rounded-lg border border-slate-200 bg-white ">
                 <div class="flex items-center justify-between border-b border-slate-100 px-4 py-2 text-sm">
                 <div class="font-medium text-slate-800">Chọn sản phẩm và số lượng trả</div>
                 <label class="inline-flex items-center gap-1.5 text-sm text-slate-700">
@@ -126,7 +126,7 @@ if ($debt < 0) {
                 </svg>
                 <span>Hủy</span>
             </a>
-            <button type="submit" class="inline-flex items-center gap-1.5 rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-rose-700 active:bg-rose-800">
+            <button type="submit" class="inline-flex items-center gap-1.5 rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white  hover:bg-rose-700 active:bg-rose-800">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                 </svg>

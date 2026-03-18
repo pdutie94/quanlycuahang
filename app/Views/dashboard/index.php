@@ -23,7 +23,7 @@ $lowStockPreview = array_slice($lowStockItems, 0, 5);
 ?>
 
 <div class="space-y-4">
-	<div class="rounded-2xl bg-slate-900 px-4 py-4 text-white shadow-sm">
+	<div class="rounded-2xl bg-slate-900 px-4 py-4 text-white ">
 		<div class="flex items-start justify-between gap-3">
 			<div>
 				<h1 class="text-base font-semibold">Tổng quan hôm nay</h1>
@@ -54,7 +54,7 @@ $lowStockPreview = array_slice($lowStockItems, 0, 5);
 	<div class="space-y-2">
 		<div class="text-sm font-semibold uppercase text-slate-500">Lối tắt nhanh</div>
 		<div class="grid grid-cols-2 gap-2">
-			<a href="<?php echo $basePath; ?>/pos" class="flex items-center gap-2 rounded-2xl bg-emerald-600 px-3 py-3 text-sm font-semibold text-white shadow-sm">
+			<a href="<?php echo $basePath; ?>/pos" class="flex items-center gap-2 rounded-2xl bg-emerald-600 px-3 py-3 text-sm font-semibold text-white ">
 				<span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/90">
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
@@ -62,7 +62,7 @@ $lowStockPreview = array_slice($lowStockItems, 0, 5);
 				</span>
 				<span>Tạo đơn</span>
 			</a>
-			<a href="<?php echo $basePath; ?>/order" class="flex items-center gap-2 rounded-2xl bg-white px-3 py-3 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-100">
+			<a href="<?php echo $basePath; ?>/order" class="flex items-center gap-2 rounded-2xl bg-white px-3 py-3 text-sm font-medium text-slate-700  ring-1 ring-slate-100">
 				<span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 3h6m-6 3h6M7.5 4.5h9.75A1.75 1.75 0 0 1 19 6.25v13a1.75 1.75 0 0 1-1.75 1.75H6.75A1.75 1.75 0 0 1 5 19.25v-13A1.75 1.75 0 0 1 6.75 4.5Z" />
@@ -70,7 +70,7 @@ $lowStockPreview = array_slice($lowStockItems, 0, 5);
 				</span>
 				<span>Đơn hàng</span>
 			</a>
-			<a href="<?php echo $basePath; ?>/product/create" class="flex items-center gap-2 rounded-2xl bg-white px-3 py-3 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-100">
+			<a href="<?php echo $basePath; ?>/product/create" class="flex items-center gap-2 rounded-2xl bg-white px-3 py-3 text-sm font-medium text-slate-700  ring-1 ring-slate-100">
 				<span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -78,7 +78,7 @@ $lowStockPreview = array_slice($lowStockItems, 0, 5);
 				</span>
 				<span>Thêm sản phẩm</span>
 			</a>
-			<a href="<?php echo $basePath; ?>/report" class="flex items-center gap-2 rounded-2xl bg-white px-3 py-3 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-100">
+			<a href="<?php echo $basePath; ?>/report" class="flex items-center gap-2 rounded-2xl bg-white px-3 py-3 text-sm font-medium text-slate-700  ring-1 ring-slate-100">
 				<span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
@@ -134,7 +134,7 @@ $lowStockPreview = array_slice($lowStockItems, 0, 5);
 		</div>
 
 		<?php if (empty($recentOrders)) { ?>
-			<div class="rounded-2xl bg-white px-4 py-3 text-sm text-slate-500 shadow-sm ring-1 ring-slate-100">Không có đơn hàng gần đây.</div>
+			<div class="rounded-2xl bg-white px-4 py-3 text-sm text-slate-500  ring-1 ring-slate-100">Không có đơn hàng gần đây.</div>
 		<?php } else { ?>
 			<div class="space-y-2">
 				<?php foreach ($recentOrders as $order) { ?>

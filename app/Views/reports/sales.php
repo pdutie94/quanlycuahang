@@ -41,7 +41,7 @@ if (preg_match('/^\d{4}-(\d{2})-\d{2}$/', $dayValue, $m)) {
 	?>
 </div>
 
-<form method="get" action="<?php echo $basePath; ?>/report/sales" class="mb-4 rounded-lg bg-white px-3 py-3 shadow-sm ring-1 ring-slate-100" data-sales-filter-form>
+<form method="get" action="<?php echo $basePath; ?>/report/sales" class="mb-4 rounded-lg bg-white px-3 py-3  ring-1 ring-slate-100" data-sales-filter-form>
 	<input type="hidden" name="r" value="report/sales">
 	<input type="hidden" name="filter_mode" value="<?php echo htmlspecialchars($rangeMode); ?>" data-sales-mode-input>
 	<div class="flex items-center justify-between gap-2">
@@ -206,23 +206,23 @@ document.addEventListener('DOMContentLoaded', function () {
 	<div class="mb-4 space-y-2">
 	<div class="text-sm font-medium uppercase  text-slate-500">Tổng quan doanh thu</div>
 	<div class="grid grid-cols-2 gap-3">
-		<div class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900 shadow-sm">
+		<div class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900 ">
 			<div class="text-sm font-medium uppercase  text-emerald-700">Số đơn hàng</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['order_count'], ''); ?></div>
 		</div>
-		<div class="rounded-lg border border-sky-200 bg-sky-50 px-3 py-3 text-sm text-sky-900 shadow-sm">
+		<div class="rounded-lg border border-sky-200 bg-sky-50 px-3 py-3 text-sm text-sky-900 ">
 			<div class="text-sm font-medium uppercase  text-sky-700">Tổng doanh thu</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['total_amount']); ?></div>
 		</div>
-		<div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900 shadow-sm">
+		<div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900 ">
 			<div class="text-sm font-medium uppercase  text-amber-700">Tổng lợi nhuận</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['profit']); ?></div>
 		</div>
-		<div class="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-3 text-sm text-indigo-900 shadow-sm">
+		<div class="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-3 text-sm text-indigo-900 ">
 			<div class="text-sm font-medium uppercase  text-indigo-700">Đã thu</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['paid_amount']); ?></div>
 		</div>
-		<div class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-3 text-sm text-rose-900 shadow-sm">
+		<div class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-3 text-sm text-rose-900 ">
 			<div class="text-sm font-medium uppercase  text-rose-700">Còn nợ</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['debt_amount']); ?></div>
 		</div>
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				}
 				$dayLabel = $dayDate ? date('d/m/Y', strtotime($dayDate)) : '';
 				?>
-				<div class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm">
+				<div class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm ">
 					<div class="flex items-center justify-between">
 						<div class="text-sm font-medium text-slate-800"><?php echo htmlspecialchars($dayLabel); ?></div>
 						<div class="text-sm text-slate-500"><?php echo $orderCount; ?> đơn</div>

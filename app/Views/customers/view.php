@@ -14,7 +14,7 @@
 					<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a1.5 1.5 0 110-3 1.5 1.5 0 010 3zM12 13.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zM12 20.25a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
 				</svg>
 			</button>
-			<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm shadow-lg overflow-hidden hidden" data-header-actions-dropdown>
+			<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm  overflow-hidden hidden" data-header-actions-dropdown>
 				<a href="<?php echo $basePath; ?>/customer/edit?id=<?php echo (int) $customer['id']; ?>" class="flex items-center justify-between gap-2 px-3 py-1.5 text-slate-700 hover:bg-slate-50">
 					<div class="flex items-center gap-1.5">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-slate-500">
@@ -41,7 +41,7 @@
 </div>
 <?php } ?>
 
-<div class="mb-4 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+<div class="mb-4 rounded-lg border border-slate-200 bg-white px-4 py-3 ">
     <div class="text-sm font-medium text-slate-800"><?php echo htmlspecialchars($customer['name']); ?></div>
     <div class="mt-1 text-sm text-slate-600">
         <?php if (!empty($customer['phone'])) { ?>
@@ -145,7 +145,7 @@
 				$badgeClass = 'bg-slate-100 text-slate-500';
 			}
 			?>
-			<a href="<?php echo $basePath; ?>/order/view?id=<?php echo $order['id']; ?>" class="relative block rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-100 transition hover:shadow-md" data-customer-order-item data-order-id="<?php echo (int) $order['id']; ?>" data-order-total="<?php echo $total; ?>" data-order-paid="<?php echo $paid; ?>" data-order-debt="<?php echo $debt; ?>">
+			<a href="<?php echo $basePath; ?>/order/view?id=<?php echo $order['id']; ?>" class="relative block rounded-2xl bg-white p-3  ring-1 ring-slate-100 transition hover:" data-customer-order-item data-order-id="<?php echo (int) $order['id']; ?>" data-order-total="<?php echo $total; ?>" data-order-paid="<?php echo $paid; ?>" data-order-debt="<?php echo $debt; ?>">
 				<div class="<?php echo $cardClasses; ?>">
 					<div class="min-w-0">
 						<div class="flex items-center gap-2">

@@ -31,7 +31,7 @@ $remaining = isset($order['total_amount']) && isset($order['paid_amount']) ? $or
 }
 </style>
 
-<div class="mx-auto mt-4 max-w-3xl rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200 invoice-print-wrapper">
+<div class="mx-auto mt-4 max-w-3xl rounded-xl bg-white p-6  ring-1 ring-slate-200 invoice-print-wrapper">
 	<div class="flex items-start justify-between gap-4 border-b border-dashed border-slate-200 pb-4">
 		<div>
 			<div class="text-sm font-medium uppercase  text-slate-500">Hóa đơn bán hàng</div>

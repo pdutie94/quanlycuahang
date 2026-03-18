@@ -2,7 +2,7 @@
     <h1 class="text-lg font-medium tracking-tight">Migration SQL</h1>
 </div>
 
-<div class="space-y-4 rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5 shadow-sm ring-1 ring-slate-100">
+<div class="space-y-4 rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5  ring-1 ring-slate-100">
     <?php if (!empty($error)) { ?>
         <div class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"><?php echo htmlspecialchars($error); ?></div>
     <?php } ?>
@@ -39,7 +39,7 @@
         <div class="space-y-3" data-migration-list>
             <?php foreach ($allVersions as $version) { ?>
                 <?php $isPending = in_array($version, $pendingVersions, true); ?>
-                <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm">
+                <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 ">
                     <div class="flex items-center justify-between gap-3">
                         <div>
                             <div class="text-sm uppercase text-slate-500">Phiên bản</div>
@@ -69,7 +69,7 @@
         <p class="text-sm text-slate-500">
             Khi bấm nút, các migration chờ sẽ được chạy lần lượt.
         </p>
-        <button type="button" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed" data-run-migration <?php echo empty($pendingVersions) ? 'disabled' : ''; ?>>
+        <button type="button" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white  hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed" data-run-migration <?php echo empty($pendingVersions) ? 'disabled' : ''; ?>>
             Chạy tất cả migration chờ
         </button>
     </div>

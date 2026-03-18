@@ -4,7 +4,7 @@
 			<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a1.5 1.5 0 110-3 1.5 1.5 0 010 3zM12 13.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zM12 20.25a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
 		</svg>
 	</button>
-	<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm shadow-lg overflow-hidden hidden" data-header-actions-dropdown>
+	<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm  overflow-hidden hidden" data-header-actions-dropdown>
 		<a href="<?php echo $basePath; ?>/supplier/delete?id=<?php echo $supplier['id']; ?>" onclick="return confirm('Xóa nhà cung cấp này?');" class="flex items-center justify-between gap-2 px-3 py-1.5 text-red-600 hover:bg-red-50">
 			<div class="flex items-center gap-1.5">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-red-500">

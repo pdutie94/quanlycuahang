@@ -15,7 +15,7 @@ $queryString = http_build_query($queryParams);
 			$paid = (float) $purchase['paid_amount'];
 			$debt = $total - $paid;
 			?>
-			<a href="<?php echo $basePath; ?>/purchase/view?id=<?php echo $purchase['id']; ?>" class="relative block rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-100 transition hover:shadow-md" data-infinite-item>
+			<a href="<?php echo $basePath; ?>/purchase/view?id=<?php echo $purchase['id']; ?>" class="relative block rounded-2xl bg-white p-3  ring-1 ring-slate-100 transition hover:" data-infinite-item>
 				<div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
 					<div class="min-w-0">
 						<div class="flex items-center gap-2">
@@ -72,7 +72,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 ?>
 
 <div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/40" data-purchase-advanced-filter-root>
-	<div class="mx-4 my-6 w-full max-w-sm rounded-2xl bg-white shadow-lg">
+	<div class="mx-4 my-6 w-full max-w-sm rounded-2xl bg-white ">
 		<div class="flex items-center justify-between border-b border-slate-200 px-4 py-2">
 			<h2 class="text-sm font-medium text-slate-800">Lọc phiếu nhập</h2>
 			<button type="button" class="text-slate-400 hover:text-slate-600" data-purchase-advanced-filter-close>

@@ -22,7 +22,7 @@ $backUrl = $isEdit ? $basePath . '/customer/view?id=' . $customerId : $basePath 
 <?php } ?>
 
 <div class="space-y-4">
-	<div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+	<div class="rounded-lg border border-slate-200 bg-white ">
 		<form method="post" action="<?php echo $action; ?>" class="px-4 py-4">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>" />
 			<?php if ($isEdit) { ?>
@@ -46,7 +46,7 @@ $backUrl = $isEdit ? $basePath . '/customer/view?id=' . $customerId : $basePath 
 				</div>
 
 				<div class="pt-2" data-floating-actions>
-					<button type="submit" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700" data-loading-button="1" data-floating-primary="1">
+					<button type="submit" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white  hover:bg-emerald-700" data-loading-button="1" data-floating-primary="1">
 						<?php echo $isEdit ? 'Lưu thay đổi' : 'Lưu'; ?>
 					</button>
 				</div>

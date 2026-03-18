@@ -25,8 +25,8 @@ $isPosManual = $manualContext === 'pos';
             Chưa có sản phẩm khác nào.
         </div>
         <div class="hidden" data-pos-manual-row-template>
-            <div class="pos-manual-item-row relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 shadow-sm" data-pos-manual-card>
-                <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-100 text-rose-600 shadow-sm ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-pos-manual-remove-row>
+            <div class="pos-manual-item-row relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 " data-pos-manual-card>
+                <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-100 text-rose-600  ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-pos-manual-remove-row>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3 w-3">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
@@ -82,8 +82,8 @@ $isPosManual = $manualContext === 'pos';
                     $displayPriceSell = $priceSell > 0 ? Money::format($priceSell) . ' đ' : '0 đ';
                     $displayAmountSell = $amountSell > 0 ? Money::format($amountSell) . ' đ' : '0 đ';
                     ?>
-                    <div class="order-edit-manual-item-row relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 shadow-sm">
-                        <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-100 text-rose-600 shadow-sm ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-order-edit-manual-remove-row>
+                    <div class="order-edit-manual-item-row relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 ">
+                        <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-100 text-rose-600  ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-order-edit-manual-remove-row>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3 w-3">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                             </svg>
@@ -114,8 +114,8 @@ $isPosManual = $manualContext === 'pos';
             Chưa có sản phẩm khác nào.
         </div>
         <div class="hidden" data-order-edit-manual-row-template>
-            <div class="order-edit-manual-item-row relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 shadow-sm">
-                <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-100 text-rose-600 shadow-sm ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-order-edit-manual-remove-row>
+            <div class="order-edit-manual-item-row relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 ">
+                <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-100 text-rose-600  ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-order-edit-manual-remove-row>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3 w-3">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>

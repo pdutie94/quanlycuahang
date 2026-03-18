@@ -23,7 +23,7 @@ $endDate = isset($endDate) ? $endDate : '';
 	?>
 </div>
 
-<form method="get" action="<?php echo $basePath; ?>/report/missing-cost" class="mb-4 rounded-lg bg-white px-3 py-3 shadow-sm ring-1 ring-slate-100 space-y-3">
+<form method="get" action="<?php echo $basePath; ?>/report/missing-cost" class="mb-4 rounded-lg bg-white px-3 py-3  ring-1 ring-slate-100 space-y-3">
 	<input type="hidden" name="r" value="report/missingCost">
 	<div class="grid grid-cols-1 gap-3 md:grid-cols-4">
 			<div class="space-y-1">
@@ -62,15 +62,15 @@ $endDate = isset($endDate) ? $endDate : '';
 	<div class="mb-4 space-y-2">
 	<div class="text-sm font-medium uppercase  text-slate-500">Tổng quan dữ liệu thiếu giá vốn</div>
 	<div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-		<div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900 shadow-sm">
+		<div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900 ">
 			<div class="text-sm font-medium uppercase  text-amber-700">Số dòng thiếu giá vốn</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['item_count'], ''); ?></div>
 		</div>
-		<div class="rounded-lg border border-sky-200 bg-sky-50 px-3 py-3 text-sm text-sky-900 shadow-sm">
+		<div class="rounded-lg border border-sky-200 bg-sky-50 px-3 py-3 text-sm text-sky-900 ">
 			<div class="text-sm font-medium uppercase  text-sky-700">Số đơn hàng bị ảnh hưởng</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['order_count'], ''); ?></div>
 		</div>
-		<div class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900 shadow-sm">
+		<div class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900 ">
 			<div class="text-sm font-medium uppercase  text-emerald-700">Tổng giá vốn dự kiến tăng</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['total_delta_cost']); ?></div>
 		</div>
@@ -102,7 +102,7 @@ $endDate = isset($endDate) ? $endDate : '';
 			</div>
 		</div>
 
-		<div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+		<div class="overflow-x-auto rounded-xl border border-slate-200 bg-white ">
 			<table class="min-w-full text-sm text-left text-slate-700">
 				<thead>
 					<tr class="bg-slate-50 text-sm uppercase  text-slate-500">

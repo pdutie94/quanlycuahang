@@ -8,7 +8,7 @@
 	</a>
 </div>
 
-<div class="mb-4 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+<div class="mb-4 rounded-lg border border-slate-200 bg-white px-4 py-3 ">
     <div class="text-sm font-medium text-slate-800"><?php echo htmlspecialchars($order['customer_name']); ?></div>
     <div class="mt-1 text-sm text-slate-600">
         <?php if (!empty($order['customer_phone'])) { ?>
@@ -34,7 +34,7 @@
     </div>
 </div>
 
-<div class="rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-sm">
+<div class="rounded-lg border border-slate-200 bg-white px-4 py-4 ">
     <form method="post" action="<?php echo $basePath; ?>/customer/payment/store" class="space-y-4">
         <input type="hidden" hidden name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
         <input type="hidden" name="order_id" value="<?php echo $order['id']; ?>">

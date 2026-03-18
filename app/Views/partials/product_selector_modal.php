@@ -1,5 +1,5 @@
 <div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/40" data-product-selector-root>
-	<div class="flex h-full w-full flex-col bg-white shadow-lg overflow-hidden">
+	<div class="flex h-full w-full flex-col bg-white  overflow-hidden">
         <div class="flex items-center justify-between border-b border-slate-200 px-4 py-2">
             <h2 class="text-sm font-medium text-slate-800">Chọn sản phẩm</h2>
             <button type="button" class="text-slate-400 hover:text-slate-600" data-product-selector-close>

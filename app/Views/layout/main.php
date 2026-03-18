@@ -54,6 +54,25 @@ if (!empty($_SERVER['SCRIPT_FILENAME'])) {
 if ($latestMtime > 0) {
 	$assetVersion = (string) $latestMtime;
 }
+
+$currentRoute = '';
+if (isset($_GET['r']) && is_string($_GET['r'])) {
+    $currentRoute = trim($_GET['r'], '/');
+}
+if ($currentRoute === '') {
+    $requestUri = isset($_SERVER['REQUEST_URI']) ? (string) $_SERVER['REQUEST_URI'] : '';
+    $uriPath = (string) parse_url($requestUri, PHP_URL_PATH);
+    if ($basePath !== '' && strpos($uriPath, $basePath) === 0) {
+        $uriPath = substr($uriPath, strlen($basePath));
+    }
+    $currentRoute = trim($uriPath, '/');
+}
+$currentRoute = strtolower($currentRoute);
+
+$isDashboardRoute = ($currentRoute === '' || $currentRoute === 'dashboard' || strpos($currentRoute, 'dashboard/') === 0);
+$isPosRoute = (strpos($currentRoute, 'pos') === 0);
+$isProductRoute = (strpos($currentRoute, 'product') === 0);
+$isReportRoute = (strpos($currentRoute, 'report') === 0);
 ?><!doctype html>
 <html lang="vi">
 <head>
@@ -108,28 +127,28 @@ if ($latestMtime > 0) {
 	<?php if ($user) { ?>
 		<nav class="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white">
 			<div class="mx-auto flex max-w-4xl text-center items-center justify-between text-xs font-medium text-slate-700">
-                <a href="<?php echo $basePath; ?>/dashboard" class="flex flex-1 flex-col items-center p-2">
+                <a href="<?php echo $basePath; ?>/dashboard" class="flex flex-1 flex-col items-center p-2 <?php echo $isDashboardRoute ? 'text-emerald-700 bg-emerald-50' : 'text-slate-600'; ?>">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
   <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
 </svg>
 
                     <span>Home</span>
                 </a>
-                <a href="<?php echo $basePath; ?>/pos" class="flex flex-1 flex-col items-center p-2">
+                <a href="<?php echo $basePath; ?>/pos" class="flex flex-1 flex-col items-center p-2 <?php echo $isPosRoute ? 'text-emerald-700 bg-emerald-50' : 'text-slate-600'; ?>">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
   <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z" />
 </svg>
         
                     <span>Tạo đơn</span>
                 </a>
-                <a href="<?php echo $basePath; ?>/product" class="flex flex-1 flex-col items-center p-2">
+                <a href="<?php echo $basePath; ?>/product" class="flex flex-1 flex-col items-center p-2 <?php echo $isProductRoute ? 'text-emerald-700 bg-emerald-50' : 'text-slate-600'; ?>">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
   <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
 </svg>
 
                     <span>Sản phẩm</span>
                 </a>
-                <a href="<?php echo $basePath; ?>/report" class="flex flex-1 flex-col items-center p-2">
+                <a href="<?php echo $basePath; ?>/report" class="flex flex-1 flex-col items-center p-2 <?php echo $isReportRoute ? 'text-emerald-700 bg-emerald-50' : 'text-slate-600'; ?>">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
   <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
   <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
@@ -147,7 +166,7 @@ if ($latestMtime > 0) {
             </div>
 		</nav>
 		<div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/40" data-app-menu-overlay>
-			<div class="flex h-full w-full flex-col bg-white shadow-lg overflow-hidden">
+			<div class="flex h-full w-full flex-col bg-white  overflow-hidden">
 		        <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
                     <div class="text-sm font-medium text-slate-800">Menu quản lý</div>
                     <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200" data-app-menu-close>

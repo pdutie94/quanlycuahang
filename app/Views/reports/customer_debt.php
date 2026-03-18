@@ -19,7 +19,7 @@ $showAll = !empty($showAll);
 	include __DIR__ . '/_report_nav.php';
 	?>
 
-	<form method="get" class="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm shadow-sm space-y-3">
+	<form method="get" class="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm  space-y-3">
 		<input type="hidden" name="r" value="report/customerDebt">
 		<div class="grid grid-cols-1 gap-3 sm:grid-cols-4">
 			<div class="space-y-1">
@@ -66,21 +66,21 @@ $showAll = !empty($showAll);
 
 <div class="space-y-4">
 	<div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-		<div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-900 shadow-sm">
+		<div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-900 ">
 			<div class="text-sm font-medium uppercase  text-slate-600">Tổng doanh số</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['total_amount']); ?></div>
 		</div>
-		<div class="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-3 text-sm text-emerald-900 shadow-sm">
+		<div class="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-3 text-sm text-emerald-900 ">
 			<div class="text-sm font-medium uppercase  text-emerald-700">Đã thu</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['paid_amount']); ?></div>
 		</div>
-		<div class="rounded-xl border border-red-100 bg-red-50 px-3 py-3 text-sm text-red-900 shadow-sm">
+		<div class="rounded-xl border border-red-100 bg-red-50 px-3 py-3 text-sm text-red-900 ">
 			<div class="text-sm font-medium uppercase  text-red-700">Còn nợ</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['debt_amount']); ?></div>
 		</div>
 	</div>
 
-		<div class="rounded-xl border border-slate-200 bg-white text-sm shadow-sm">
+		<div class="rounded-xl border border-slate-200 bg-white text-sm ">
 		<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 			<div class="text-sm font-medium uppercase  text-slate-500">Danh sách công nợ khách hàng</div>
 			<div class="text-sm text-slate-500">

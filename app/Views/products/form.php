@@ -17,7 +17,7 @@
 						<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM12 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM12 20.25a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
 					</svg>
 				</button>
-				<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm shadow-lg overflow-hidden hidden" data-header-actions-dropdown>
+				<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm  overflow-hidden hidden" data-header-actions-dropdown>
 					<a href="<?php echo $basePath; ?>/product/delete?id=<?php echo (int) $product['id']; ?>" class="flex items-center gap-2 px-3 py-1.5 text-red-600 hover:bg-rose-50" data-product-delete>
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -30,7 +30,7 @@
 	</div>
 </div>
 <?php } ?>
-<form method="post" enctype="multipart/form-data" action="<?php echo $basePath; ?>/product/<?php echo $product ? 'update' : 'store'; ?>" class="space-y-5 rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5 shadow-sm ring-1 ring-slate-100">
+<form method="post" enctype="multipart/form-data" action="<?php echo $basePath; ?>/product/<?php echo $product ? 'update' : 'store'; ?>" class="space-y-5 rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5  ring-1 ring-slate-100">
 	<input type="hidden" hidden name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
 	<?php if ($product) { ?>
 		<input type="hidden" name="id" value="<?php echo $product['id']; ?>" hidden>

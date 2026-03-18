@@ -106,7 +106,7 @@ if ($categoryId < 0) {
 				}
 			}
 			?>
-			<div class="relative cursor-pointer rounded-2xl bg-white px-3 py-2.5 shadow-sm ring-1 ring-slate-100 transition" data-product-edit-row data-url="<?php echo $basePath; ?>/product/edit?id=<?php echo $product['id']; ?>" data-infinite-item>
+			<div class="relative cursor-pointer rounded-2xl border border-slate-200 bg-white px-3 py-2.5 transition-colors hover:border-emerald-200" data-product-edit-row data-url="<?php echo $basePath; ?>/product/edit?id=<?php echo $product['id']; ?>" data-infinite-item>
 				<div class="flex items-center gap-2.5">
 					<div class="flex-none">
 						<?php if (!empty($product['image_path'])) { ?>
@@ -157,9 +157,20 @@ if ($categoryId < 0) {
 	<?php } ?>
 </div>
 
+<a
+	href="<?php echo $basePath; ?>/product/create"
+	class="fixed bottom-[5rem] right-3 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 text-white md:hidden"
+	title="Thêm sản phẩm"
+	aria-label="Thêm sản phẩm"
+>
+	<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
+		<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+	</svg>
+</a>
+
 <?php if (!empty($categoryList)) { ?>
 <div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/30" data-product-category-filter-root>
-	<div class="w-full max-w-sm rounded-2xl bg-white p-4 shadow-lg max-h-[90vh] flex flex-col">
+	<div class="w-full max-w-sm rounded-2xl bg-white p-4  max-h-[90vh] flex flex-col">
 		<div class="flex items-center justify-between gap-2">
 			<div class="text-sm font-medium text-slate-800">Lọc theo danh mục</div>
 			<button type="button" class="text-slate-400 hover:text-slate-600" data-product-category-filter-close>

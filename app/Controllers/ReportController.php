@@ -9,16 +9,49 @@ class ReportController extends Controller
         $pdo = Database::getInstance();
 
         $today = date('Y-m-d');
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
         $monthStart = date('Y-m-01');
         $monthEnd = date('Y-m-t');
 
+        $previousMonthStart = date('Y-m-01', strtotime('first day of last month'));
+        $previousMonthEnd = date('Y-m-t', strtotime('last day of last month'));
+
         $ordersToday = ReportService::sumOrdersByDateRange($pdo, $today . ' 00:00:00', $today . ' 23:59:59');
+        $ordersYesterday = ReportService::sumOrdersByDateRange($pdo, $yesterday . ' 00:00:00', $yesterday . ' 23:59:59');
         $ordersMonth = ReportService::sumOrdersByDateRange($pdo, $monthStart . ' 00:00:00', $monthEnd . ' 23:59:59');
+        $ordersPreviousMonth = ReportService::sumOrdersByDateRange($pdo, $previousMonthStart . ' 00:00:00', $previousMonthEnd . ' 23:59:59');
 
         $purchasesMonth = ReportService::sumPurchasesByDateRange($pdo, $monthStart . ' 00:00:00', $monthEnd . ' 23:59:59');
+        $purchasesPreviousMonth = ReportService::sumPurchasesByDateRange($pdo, $previousMonthStart . ' 00:00:00', $previousMonthEnd . ' 23:59:59');
 
         $customerDebt = ReportService::sumCustomerDebt($pdo);
         $supplierDebt = ReportService::sumSupplierDebt($pdo);
+
+        $openingCustomerDebtStmt = $pdo->prepare('SELECT COALESCE(SUM(total_amount - paid_amount), 0) AS debt
+            FROM orders
+            WHERE deleted_at IS NULL
+              AND (order_status IS NULL OR order_status <> \'cancelled\')
+              AND total_amount > paid_amount
+              AND order_date < ?');
+        $openingCustomerDebtStmt->execute([$monthStart . ' 00:00:00']);
+        $openingCustomerDebt = (float) $openingCustomerDebtStmt->fetchColumn();
+
+        $openingSupplierDebtStmt = $pdo->prepare('SELECT COALESCE(SUM(total_amount - paid_amount), 0) AS debt
+            FROM purchases
+            WHERE total_amount > paid_amount
+              AND purchase_date < ?');
+        $openingSupplierDebtStmt->execute([$monthStart . ' 00:00:00']);
+        $openingSupplierDebt = (float) $openingSupplierDebtStmt->fetchColumn();
+
+        $delta = [
+            'orders_month_total' => $this->buildDelta($ordersMonth['total_amount'], $ordersPreviousMonth['total_amount']),
+            'orders_month_profit' => $this->buildDelta($ordersMonth['profit'], $ordersPreviousMonth['profit']),
+            'orders_today_total' => $this->buildDelta($ordersToday['total_amount'], $ordersYesterday['total_amount']),
+            'orders_today_profit' => $this->buildDelta($ordersToday['profit'], $ordersYesterday['profit']),
+            'purchases_month_total' => $this->buildDelta($purchasesMonth['total_amount'], $purchasesPreviousMonth['total_amount']),
+            'customer_debt' => $this->buildDelta($customerDebt, $openingCustomerDebt),
+            'supplier_debt' => $this->buildDelta($supplierDebt, $openingSupplierDebt),
+        ];
 
         $this->render('reports/index', [
             'title' => 'Báo cáo tổng quan',
@@ -27,7 +60,30 @@ class ReportController extends Controller
             'purchasesMonth' => $purchasesMonth,
             'customerDebt' => $customerDebt,
             'supplierDebt' => $supplierDebt,
+            'delta' => $delta,
+            'updatedAtText' => date('H:i d/m'),
         ]);
+    }
+
+    private function buildDelta($current, $previous)
+    {
+        $currentVal = (float) $current;
+        $previousVal = (float) $previous;
+        $amount = $currentVal - $previousVal;
+        $percent = null;
+
+        if (abs($previousVal) > 0.00001) {
+            $percent = ($amount / abs($previousVal)) * 100;
+        } elseif (abs($currentVal) > 0.00001) {
+            $percent = $amount > 0 ? 100.0 : -100.0;
+        } else {
+            $percent = 0.0;
+        }
+
+        return [
+            'amount' => $amount,
+            'percent' => $percent,
+        ];
     }
 
     public function sales()

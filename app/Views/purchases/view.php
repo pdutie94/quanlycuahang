@@ -32,7 +32,7 @@ if ($noteRaw !== '') {
 					<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a1.5 1.5 0 110-3 1.5 1.5 0 010 3zM12 13.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zM12 20.25a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
 				</svg>
 			</button>
-			<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm shadow-lg overflow-hidden hidden" data-header-actions-dropdown>
+			<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm  overflow-hidden hidden" data-header-actions-dropdown>
 				<a href="<?php echo $basePath; ?>/purchase/edit?id=<?php echo (int) $purchase['id']; ?>" class="flex items-center justify-between gap-2 px-3 py-1.5 text-slate-700 hover:bg-slate-50">
 					<div class="flex items-center gap-1.5">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-slate-500">
@@ -56,7 +56,7 @@ if ($noteRaw !== '') {
 	</div>
 </div>
 <?php } ?>
-<div class="mb-4 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+<div class="mb-4 rounded-lg border border-slate-200 bg-white px-4 py-3 ">
 	<div class="flex flex-col gap-2">
 		<div class="flex items-center justify-between gap-3">
 			<div>
@@ -117,7 +117,7 @@ if ($noteRaw !== '') {
 		Phiếu nhập không có mặt hàng nào.
 	</div>
 <?php } else { ?>
-		<div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+		<div class="rounded-lg border border-slate-200 bg-white ">
 		<div class="border-b border-slate-100 px-4 py-2 text-sm font-medium text-slate-800">
 			Danh sách sản phẩm
 		</div>
@@ -149,7 +149,7 @@ if ($noteRaw !== '') {
 <?php } ?>
 
 <?php if (!empty($payments)) { ?>
-	<div class="mt-4 rounded-lg border border-slate-200 bg-white shadow-sm">
+	<div class="mt-4 rounded-lg border border-slate-200 bg-white ">
 		<div class="border-b border-slate-100 px-4 py-2 text-sm font-medium text-slate-800">
 			Lịch sử thanh toán
 		</div>
@@ -201,7 +201,7 @@ if ($noteRaw !== '') {
 <?php } ?>
 
 <?php if (!empty($logs)) { ?>
-	<div class="mt-4 rounded-lg border border-slate-200 bg-white shadow-sm">
+	<div class="mt-4 rounded-lg border border-slate-200 bg-white ">
 		<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 			<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
 				<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-amber-700">
@@ -272,7 +272,7 @@ if ($noteRaw !== '') {
 
 <?php if ($debt > 0) { ?>
 	<div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/40" data-purchase-payment-modal>
-		<div class="w-full max-w-md rounded-2xl bg-white shadow-lg">
+		<div class="w-full max-w-md rounded-2xl bg-white ">
 			<div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
 				<h2 class="text-sm font-medium text-slate-800">Thanh toán phiếu nhập</h2>
 				<button type="button" class="text-slate-400 hover:text-slate-600" data-purchase-payment-close>
