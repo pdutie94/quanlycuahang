@@ -6,30 +6,32 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["ui-sans-serif", "system-ui", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"],
+        display: ["ui-sans-serif", "system-ui", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"]
+      },
       colors: {
         brand: {
-          50: "#ecfdf5",
-          100: "#d1fae5",
-          500: "#10b981",
-          600: "#059669",
-          700: "#047857"
-        },
-        ink: {
-          950: "#0f172a"
-        },
-        surface: {
-          50: "#f8fafc",
-          100: "#f1f5f9",
-          200: "#e2e8f0"
+          50: "#eef9ff",
+          100: "#d9f1ff",
+          200: "#b9e5ff",
+          300: "#8fd5ff",
+          400: "#57bdff",
+          500: "#1d9bf0",
+          600: "#0b7fd0",
+          700: "#0a67a8",
+          800: "#0c4f7e",
+          900: "#103f62"
         }
       },
       borderRadius: {
-        app: "1rem",
-        chip: "9999px"
+        app: "1.125rem",
+        chip: "9999px",
+        card: "1.25rem"
       },
       boxShadow: {
-        app: "0 8px 24px rgba(15, 23, 42, 0.08)",
-        dock: "0 -8px 20px rgba(15, 23, 42, 0.08)"
+        app: "0 0 0 1px rgba(15, 23, 42, 0.08)",
+        dock: "0 -1px 0 rgba(15, 23, 42, 0.08)"
       },
       keyframes: {
         "slide-up-soft": {

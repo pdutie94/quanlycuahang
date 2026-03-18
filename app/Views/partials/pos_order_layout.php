@@ -15,7 +15,7 @@ $isPos = $layoutMode === 'pos';
                 <div class="flex items-center gap-2 text-sm font-medium text-slate-800">
                     <span>Sản phẩm</span>
                 </div>
-                <button type="button" class="inline-flex items-center rounded-lg border border-emerald-600 px-3 py-1 text-sm font-medium text-emerald-700 hover:bg-emerald-50" data-product-selector-open data-product-selector-mode="<?php echo $isPos ? 'pos' : 'order-edit-add'; ?>">
+                <button type="button" class="inline-flex items-center rounded-lg border border-brand-600 px-3 py-1 text-sm font-medium text-brand-700 hover:bg-brand-50" data-product-selector-open data-product-selector-mode="<?php echo $isPos ? 'pos' : 'order-edit-add'; ?>">
                     Thêm SP
                 </button>
             </div>
@@ -59,9 +59,7 @@ $isPos = $layoutMode === 'pos';
 									<?php if ($productImage !== '') { ?>
 										<img src="<?php echo htmlspecialchars($productImage); ?>" alt="<?php echo htmlspecialchars($item['product_name']); ?>" class="h-full w-full object-cover">
 									<?php } else { ?>
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-					  <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
-									</svg>
+										<?php echo ui_icon("archive-box", "size-6"); ?>
 									<?php } ?>
 									</div>
 									<div>
@@ -73,13 +71,11 @@ $isPos = $layoutMode === 'pos';
                                                 $priceText = isset($item['price_sell']) ? Money::format($item['price_sell']) : '';
                                                 if ($priceText !== '') {
                                                     ?>
-                                                    <button type="button" data-order-price-edit="1" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 hover:bg-emerald-50">
+                                                    <button type="button" data-order-price-edit="1" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 hover:bg-brand-50">
                                                         <span data-order-price-display class="font-medium text-slate-900"><?php echo $priceText; ?></span>
                                                         <span>/ <?php echo htmlspecialchars($item['unit_name']); ?></span>
-                                                        <span class="inline-flex h-4 w-4 items-center justify-center text-slate-400 group-hover:text-emerald-600">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3">
-                                                                <path d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-.793.793-2.828-2.828.793-.793ZM11.379 5.793 4 13.172V16h2.828l7.38-7.379-2.83-2.828Z" />
-                                                            </svg>
+                                                        <span class="inline-flex h-4 w-4 items-center justify-center text-slate-400 group-hover:text-brand-600">
+															<?php echo ui_icon("pencil-square", "h-3 w-3"); ?>
                                                         </span>
                                                     </button>
                                                     <?php
@@ -91,9 +87,7 @@ $isPos = $layoutMode === 'pos';
 										<div class="mt-1">
 												<div class="inline-flex items-stretch overflow-hidden rounded-full border border-slate-300 bg-slate-50">
 													<button type="button" data-order-existing-decrease="1" class="inline-flex h-6 w-6 items-center justify-center bg-slate-50 text-sm text-slate-700 hover:bg-slate-100">
-														<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3">
-					  <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
-					</svg>
+														<?php echo ui_icon("minus", "size-3"); ?>
 													</button>
                                                     <?php
                                                     $existingMin = 1;
@@ -117,9 +111,7 @@ $isPos = $layoutMode === 'pos';
                                                     ?>
 													<input type="number" min="<?php echo $existingMin; ?>" step="<?php echo $existingStep; ?>" value="<?php echo isset($item['qty']) ? (float) $item['qty'] : 0; ?>" data-order-existing-qty-input="1" class="h-6 w-10 border-0 bg-slate-50 px-1 text-sm font-medium text-center outline-none">
 													<button type="button" data-order-existing-increase="1" class="inline-flex h-6 w-6 items-center justify-center bg-slate-50 text-sm text-slate-700 hover:bg-slate-100">
-														<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3">
-					  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-					</svg>
+														<?php echo ui_icon("plus", "size-3"); ?>
 													</button>
 												</div>
 											</div>
@@ -129,12 +121,10 @@ $isPos = $layoutMode === 'pos';
 								<div class="flex flex-col items-end justify-between gap-2 flex-1">
 									<div class="flex w-full justify-end">
 										<button type="button" data-order-existing-remove="1" class="inline-flex h-5 w-5 items-center justify-center text-rose-500 hover:text-rose-600">
-											<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-					  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-					</svg>
+											<?php echo ui_icon("x-mark", "size-4"); ?>
 										</button>
 									</div>
-									<div class="text-sm font-medium text-emerald-600">
+									<div class="text-sm font-medium text-brand-600">
 										<span data-order-existing-amount><?php echo Money::format($item['amount']); ?></span>
 									</div>
 								</div>
@@ -156,9 +146,8 @@ $isPos = $layoutMode === 'pos';
                 ?>
             <?php } ?>
 
-            <div class="mt-3 border-t border-slate-200 pt-3">
-                <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Tạm tính</div>
-                <div class="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+            <div class="mt-3">
+                <div class="space-y-1.5">
                 <div class="flex items-center justify-between text-sm text-slate-600">
                     <span>Tạm tính</span>
                     <?php if ($isPos) { ?>
@@ -176,9 +165,7 @@ $isPos = $layoutMode === 'pos';
                             <span data-order-edit-discount-amount>-<?php echo Money::format(isset($order['discount_amount']) ? (float) $order['discount_amount'] : 0); ?> đ</span>
                         <?php } ?>
                         <span class="inline-flex h-4 w-4 items-center justify-center text-rose-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3">
-                                <path d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-.793.793-2.828-2.828.793-.793ZM11.379 5.793 4 13.172V16h2.828l7.38-7.379-2.83-2.828Z" />
-                            </svg>
+                            <?php echo ui_icon("pencil-square", "h-3 w-3"); ?>
                         </span>
                     </button>
                 </div>
@@ -191,10 +178,7 @@ $isPos = $layoutMode === 'pos';
                             <span data-order-edit-surcharge-amount>+<?php echo Money::format(isset($order['surcharge_amount']) ? (float) $order['surcharge_amount'] : 0); ?> đ</span>
                         <?php } ?>
                         <span class="inline-flex h-4 w-4 items-center justify-center text-amber-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3">
-                                <path d="M10.75 4.75a.75.75 0 1 0-1.5 0v10.5a.75.75 0 1 0 1.5 0V4.75Z" />
-                                <path d="M4.75 10a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5h-9A.75.75 0 0 1 4.75 10Z" />
-                            </svg>
+                            <?php echo ui_icon("plus-minus", "h-3 w-3"); ?>
                         </span>
                     </button>
                 </div>
@@ -202,14 +186,12 @@ $isPos = $layoutMode === 'pos';
                     <span class="font-medium text-slate-800">Tổng cộng</span>
                     <div class="flex items-center gap-1 text-right">
                         <?php if ($isPos) { ?>
-                            <div class="text-lg font-medium text-emerald-600" data-pos-total>0 đ</div>
+                            <div class="text-lg font-medium text-brand-600" data-pos-total>0 đ</div>
                         <?php } else { ?>
-                            <div class="text-lg font-medium text-emerald-600" data-order-edit-total><?php echo Money::format(isset($order['total_amount']) ? (float) $order['total_amount'] : 0); ?></div>
+                            <div class="text-lg font-medium text-brand-600" data-order-edit-total><?php echo Money::format(isset($order['total_amount']) ? (float) $order['total_amount'] : 0); ?></div>
                         <?php } ?>
                         <button type="button" class="inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600" title="Làm tròn tổng tiền" data-order-total-round>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3.5 w-3.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                            </svg>
+                            <?php echo ui_icon("arrow-path", "h-3.5 w-3.5"); ?>
                         </button>
                     </div>
                 </div>
@@ -218,29 +200,27 @@ $isPos = $layoutMode === 'pos';
         </div>
 
         <?php /* manual free item modal shared for POS and order edit */ ?>
-        <div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/40 p-4" hidden data-pos-manual-edit-modal>
-            <div class="flex max-h-full w-full max-w-sm flex-col rounded-2xl bg-white ">
-                <div class="flex items-center justify-between border-b border-slate-200 px-4 py-2">
-                    <h2 class="text-sm font-medium text-slate-800">Chỉnh sửa sản phẩm tự do</h2>
-                    <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600" data-pos-manual-edit-cancel>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
-                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414Z" clip-rule="evenodd" />
-                        </svg>
+        <div class="app-modal-overlay" hidden data-pos-manual-edit-modal>
+            <div class="app-modal-sheet-sm">
+                <div class="app-modal-header">
+                    <h2 class="app-modal-title">Chỉnh sửa sản phẩm tự do</h2>
+                    <button type="button" class="app-modal-close" data-pos-manual-edit-cancel>
+                        <?php echo ui_icon("x-mark", "h-4 w-4"); ?>
                     </button>
                 </div>
-                <div class="flex-1 space-y-3 overflow-y-auto px-4 py-3 text-sm">
+                <div class="app-modal-body space-y-3">
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-600">Tên hàng</label>
-                        <input type="text" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:bg-white" autocomplete="off" data-pos-manual-edit-name>
+                        <input type="text" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white" autocomplete="off" data-pos-manual-edit-name>
                     </div>
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div>
                             <label class="mb-1 block text-sm font-medium text-slate-600">Đơn vị</label>
-                            <input type="text" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:bg-white" autocomplete="off" data-pos-manual-edit-unit>
+                            <input type="text" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white" autocomplete="off" data-pos-manual-edit-unit>
                         </div>
                         <div>
                             <label class="mb-1 block text-sm font-medium text-slate-600">Số lượng</label>
-                            <input type="number" min="0" step="0.01" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-right outline-none focus:border-emerald-500 focus:bg-white" data-pos-manual-edit-qty>
+                            <input type="number" min="0" step="0.01" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-right outline-none focus:border-brand-500 focus:bg-white" data-pos-manual-edit-qty>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -248,14 +228,14 @@ $isPos = $layoutMode === 'pos';
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-slate-600">Giá nhập</label>
                                 <div class="relative">
-                                    <input type="text" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 pr-7 text-sm text-right outline-none focus:border-emerald-500 focus:bg-white" inputmode="numeric" autocomplete="off" data-money-input data-pos-manual-edit-price-buy>
+                                    <input type="text" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 pr-7 text-sm text-right outline-none focus:border-brand-500 focus:bg-white" inputmode="numeric" autocomplete="off" data-money-input data-pos-manual-edit-price-buy>
                                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-500">đ</span>
                                 </div>
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-slate-600">Tổng tiền nhập</label>
                                 <div class="relative">
-                                    <input type="text" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 pr-7 text-sm text-right outline-none focus:border-emerald-500 focus:bg-white" inputmode="numeric" autocomplete="off" data-money-input data-pos-manual-edit-amount-buy>
+                                    <input type="text" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 pr-7 text-sm text-right outline-none focus:border-brand-500 focus:bg-white" inputmode="numeric" autocomplete="off" data-money-input data-pos-manual-edit-amount-buy>
                                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-500">đ</span>
                                 </div>
                             </div>
@@ -263,15 +243,15 @@ $isPos = $layoutMode === 'pos';
                         <div>
                             <label class="mb-1 block text-sm font-medium text-slate-600">Giá bán</label>
                             <div class="relative">
-                                <input type="text" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 pr-7 text-sm text-right outline-none focus:border-emerald-500 focus:bg-white" inputmode="numeric" autocomplete="off" data-money-input data-pos-manual-edit-price-sell>
+                                <input type="text" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 pr-7 text-sm text-right outline-none focus:border-brand-500 focus:bg-white" inputmode="numeric" autocomplete="off" data-money-input data-pos-manual-edit-price-sell>
                                 <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-500">đ</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center justify-end gap-2 border-t border-slate-200 px-4 py-3">
-                    <button type="button" class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100" data-pos-manual-edit-cancel>Hủy</button>
-                    <button type="button" class="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 active:bg-emerald-800" data-pos-manual-edit-save>Lưu</button>
+                <div class="app-modal-footer">
+                    <button type="button" class="app-btn-secondary" data-pos-manual-edit-cancel>Hủy</button>
+                    <button type="button" class="app-btn-primary" data-pos-manual-edit-save>Lưu</button>
                 </div>
             </div>
         </div>
@@ -287,19 +267,17 @@ $isPos = $layoutMode === 'pos';
     <?php } ?>
 </div>
 
-<div class="fixed inset-0 z-40 hidden flex items-center justify-center bg-slate-900/40 p-4" data-pos-price-modal>
-        <div class="w-full max-w-sm rounded-xl bg-white  max-h-full flex flex-col">
-            <div class="flex items-center justify-between border-b border-slate-200 px-4 py-2">
-                <div class="text-sm font-medium text-slate-900">
+<div class="app-modal-overlay" data-pos-price-modal>
+        <div class="app-modal-sheet-sm">
+            <div class="app-modal-header">
+                <div class="app-modal-title">
                     Chỉnh đơn giá
                 </div>
-                <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600" data-pos-price-cancel>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                    </svg>
+                <button type="button" class="app-modal-close" data-pos-price-cancel>
+                    <?php echo ui_icon("x-mark", "h-4 w-4"); ?>
                 </button>
             </div>
-            <div class="flex-1 overflow-y-auto px-4 py-3">
+            <div class="app-modal-body">
                 <div class="mb-3 text-sm text-slate-600" data-pos-price-modal-product></div>
                 <div class="mb-3 space-y-1 rounded-lg bg-slate-50 p-2 text-sm text-slate-600">
                     <div class="flex items-center justify-between">
@@ -314,14 +292,14 @@ $isPos = $layoutMode === 'pos';
                 <div class="space-y-1">
                     <label class="block text-sm font-medium text-slate-700">Đơn giá mới</label>
                     <div class="relative">
-                        <input type="text" data-money-input="1" data-pos-price-modal-input class="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 pr-8 text-right text-sm font-medium text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" value="0">
+                        <input type="text" data-money-input="1" data-pos-price-modal-input class="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 pr-8 text-right text-sm font-medium text-slate-900 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500" value="0">
                         <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                     </div>
                 </div>
             </div>
-            <div class="flex items-center justify-end gap-2 border-t border-slate-200 px-4 py-3">
-                <button type="button" class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100" data-pos-price-cancel>Hủy</button>
-                <button type="button" class="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 active:bg-emerald-800" data-pos-price-save>Áp dụng</button>
+            <div class="app-modal-footer">
+                <button type="button" class="app-btn-secondary" data-pos-price-cancel>Hủy</button>
+                <button type="button" class="app-btn-primary" data-pos-price-save>Áp dụng</button>
             </div>
         </div>
     </div>

@@ -24,7 +24,7 @@ $paymentStatusLabel = 'Chờ thanh toán';
 $paymentStatusClass = 'bg-amber-50 text-amber-700';
 if ($paymentStatus === 'paid' || ($totalAmount > 0 && (isset($order['paid_amount']) ? (float) $order['paid_amount'] : 0.0) >= $totalAmount)) {
     $paymentStatusLabel = 'Đã thanh toán';
-    $paymentStatusClass = 'bg-emerald-50 text-emerald-700';
+    $paymentStatusClass = 'bg-brand-50 text-brand-700';
 } elseif ($remaining > 0) {
     $paymentStatusLabel = 'Còn nợ';
     $paymentStatusClass = 'bg-rose-50 text-rose-700';
@@ -61,7 +61,7 @@ $items = isset($items) && is_array($items) ? $items : [];
                 </div>
                 <div class="flex items-center justify-between gap-3">
                     <span class="text-slate-500">Giảm giá</span>
-                    <span class="font-medium <?php echo $discountAmount > 0 ? 'text-emerald-700' : 'text-slate-400'; ?>"><?php echo $discountAmount > 0 ? '-' . Money::format($discountAmount) : Money::format(0); ?></span>
+                    <span class="font-medium <?php echo $discountAmount > 0 ? 'text-brand-700' : 'text-slate-400'; ?>"><?php echo $discountAmount > 0 ? '-' . Money::format($discountAmount) : Money::format(0); ?></span>
                 </div>
                 <div class="flex items-center justify-between gap-3">
                     <span class="text-slate-500">Phụ thu</span>
@@ -78,7 +78,7 @@ $items = isset($items) && is_array($items) ? $items : [];
         <div class="grid grid-cols-2 gap-3">
             <div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
                 <div class="text-xs text-slate-500">Đã thanh toán</div>
-                <div class="mt-0.5 font-semibold text-emerald-700"><?php echo Money::format(isset($order['paid_amount']) ? (float)$order['paid_amount'] : 0); ?></div>
+                <div class="mt-0.5 font-semibold text-brand-700"><?php echo Money::format(isset($order['paid_amount']) ? (float)$order['paid_amount'] : 0); ?></div>
             </div>
             <div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
                 <div class="text-xs text-slate-500">Còn nợ</div>

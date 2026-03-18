@@ -41,7 +41,7 @@ if (preg_match('/^\d{4}-(\d{2})-\d{2}$/', $dayValue, $m)) {
 	?>
 </div>
 
-<form method="get" action="<?php echo $basePath; ?>/report/sales" class="mb-4 rounded-lg bg-white px-3 py-3  ring-1 ring-slate-100" data-sales-filter-form>
+<form method="get" action="<?php echo $basePath; ?>/report/sales" class="mb-4 rounded-lg bg-white px-3 py-3  border border-slate-200" data-sales-filter-form>
 	<input type="hidden" name="r" value="report/sales">
 	<input type="hidden" name="filter_mode" value="<?php echo htmlspecialchars($rangeMode); ?>" data-sales-mode-input>
 	<div class="flex items-center justify-between gap-2">
@@ -53,16 +53,16 @@ if (preg_match('/^\d{4}-(\d{2})-\d{2}$/', $dayValue, $m)) {
 		<?php } ?>
 	</div>
 	<div class="mt-2 flex flex-wrap items-center gap-2">
-		<button type="button" class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium data-[active=\"1\"]:border-emerald-600 data-[active=\"1\"]:bg-emerald-50 data-[active=\"1\"]:text-emerald-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="day">
+		<button type="button" class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium data-[active=\"1\"]:border-brand-600 data-[active=\"1\"]:bg-brand-50 data-[active=\"1\"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="day">
 			Ngày
 		</button>
-		<button type="button" class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium data-[active=\"1\"]:border-emerald-600 data-[active=\"1\"]:bg-emerald-50 data-[active=\"1\"]:text-emerald-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="month">
+		<button type="button" class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium data-[active=\"1\"]:border-brand-600 data-[active=\"1\"]:bg-brand-50 data-[active=\"1\"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="month">
 			Tháng
 		</button>
-		<button type="button" class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium data-[active=\"1\"]:border-emerald-600 data-[active=\"1\"]:bg-emerald-50 data-[active=\"1\"]:text-emerald-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="quarter">
+		<button type="button" class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium data-[active=\"1\"]:border-brand-600 data-[active=\"1\"]:bg-brand-50 data-[active=\"1\"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="quarter">
 			Quý
 		</button>
-		<button type="button" class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium data-[active=\"1\"]:border-emerald-600 data-[active=\"1\"]:bg-emerald-50 data-[active=\"1\"]:text-emerald-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="year">
+		<button type="button" class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium data-[active=\"1\"]:border-brand-600 data-[active=\"1\"]:bg-brand-50 data-[active=\"1\"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="year">
 			Năm
 		</button>
 	</div>
@@ -91,7 +91,7 @@ if (preg_match('/^\d{4}-(\d{2})-\d{2}$/', $dayValue, $m)) {
 			<label class="block text-sm font-medium text-slate-600">Chọn quý</label>
 			<div class="grid grid-cols-2 gap-2">
 				<div>
-					<select name="quarter" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-sm outline-none focus:border-emerald-500 focus:bg-white" data-sales-quarter-input>
+					<select name="quarter" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-sm outline-none focus:border-brand-500 focus:bg-white" data-sales-quarter-input>
 						<option value="">Chọn quý</option>
 						<option value="1" <?php echo $quarterValue === '1' ? 'selected' : ''; ?>>Quý 1</option>
 						<option value="2" <?php echo $quarterValue === '2' ? 'selected' : ''; ?>>Quý 2</option>
@@ -206,8 +206,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	<div class="mb-4 space-y-2">
 	<div class="text-sm font-medium uppercase  text-slate-500">Tổng quan doanh thu</div>
 	<div class="grid grid-cols-2 gap-3">
-		<div class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900 ">
-			<div class="text-sm font-medium uppercase  text-emerald-700">Số đơn hàng</div>
+		<div class="rounded-lg border border-brand-200 bg-brand-50 px-3 py-3 text-sm text-brand-900 ">
+			<div class="text-sm font-medium uppercase  text-brand-700">Số đơn hàng</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['order_count'], ''); ?></div>
 		</div>
 		<div class="rounded-lg border border-sky-200 bg-sky-50 px-3 py-3 text-sm text-sky-900 ">
@@ -259,11 +259,11 @@ document.addEventListener('DOMContentLoaded', function () {
 					</div>
 					<div class="mt-1 text-sm text-slate-500">
 						<span>Lợi nhuận:</span>
-						<span class="ml-1 font-medium text-emerald-600"><?php echo Money::format($profit); ?></span>
+						<span class="ml-1 font-medium text-brand-600"><?php echo Money::format($profit); ?></span>
 					</div>
 					<div class="mt-1 text-sm text-slate-500">
 						<span>Biên lợi nhuận:</span>
-						<span class="ml-1 font-medium <?php echo $margin >= 0 ? 'text-emerald-600' : 'text-rose-600'; ?>">
+						<span class="ml-1 font-medium <?php echo $margin >= 0 ? 'text-brand-600' : 'text-rose-600'; ?>">
 							<?php echo number_format($margin, 1); ?>%
 						</span>
 					</div>

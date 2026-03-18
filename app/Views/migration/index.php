@@ -2,13 +2,13 @@
     <h1 class="text-lg font-medium tracking-tight">Migration SQL</h1>
 </div>
 
-<div class="space-y-4 rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5  ring-1 ring-slate-100">
+<div class="space-y-4 rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5  border border-slate-200">
     <?php if (!empty($error)) { ?>
         <div class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"><?php echo htmlspecialchars($error); ?></div>
     <?php } ?>
 
     <?php if (!empty($success)) { ?>
-        <div class="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Đã chạy migration thành công.</div>
+        <div class="rounded-md border border-brand-200 bg-brand-50 px-3 py-2 text-sm text-brand-700">Đã chạy migration thành công.</div>
     <?php } ?>
 
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-3" data-migration-summary>
@@ -50,7 +50,7 @@
                                 <?php if ($isPending) { ?>
                                     <span class="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-sm font-medium text-amber-700">Chưa chạy</span>
                                 <?php } else { ?>
-                                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-sm font-medium text-emerald-700">Đã chạy hoặc cũ hơn</span>
+                                    <span class="inline-flex items-center rounded-full bg-brand-50 px-2 py-0.5 text-sm font-medium text-brand-700">Đã chạy hoặc cũ hơn</span>
                                 <?php } ?>
                             </div>
                             <div>
@@ -69,7 +69,7 @@
         <p class="text-sm text-slate-500">
             Khi bấm nút, các migration chờ sẽ được chạy lần lượt.
         </p>
-        <button type="button" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white  hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed" data-run-migration <?php echo empty($pendingVersions) ? 'disabled' : ''; ?>>
+        <button type="button" class="inline-flex items-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white  hover:bg-brand-700 active:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed" data-run-migration <?php echo empty($pendingVersions) ? 'disabled' : ''; ?>>
             Chạy tất cả migration chờ
         </button>
     </div>

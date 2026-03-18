@@ -4,7 +4,7 @@ unset($queryParams['page'], $queryParams['ajax']);
 $queryString = http_build_query($queryParams);
 ?>
 <?php if (empty($purchases)) { ?>
-	<div class="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-4 text-center text-sm text-slate-500">
+	<div class="rounded-card border border-dashed border-slate-300 bg-white px-4 py-5 text-center text-sm text-slate-500">
 		Chưa có phiếu nhập hàng nào.
 	</div>
 <?php } else { ?>
@@ -15,24 +15,22 @@ $queryString = http_build_query($queryParams);
 			$paid = (float) $purchase['paid_amount'];
 			$debt = $total - $paid;
 			?>
-			<a href="<?php echo $basePath; ?>/purchase/view?id=<?php echo $purchase['id']; ?>" class="relative block rounded-2xl bg-white p-3  ring-1 ring-slate-100 transition hover:" data-infinite-item>
+			<a href="<?php echo $basePath; ?>/purchase/view?id=<?php echo $purchase['id']; ?>" class="relative block rounded-card border border-slate-200 bg-white p-4 transition hover:border-slate-300" data-infinite-item>
 				<div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
 					<div class="min-w-0">
 						<div class="flex items-center gap-2">
-							<div class="text-sm font-mono font-medium text-emerald-700">
+							<div class="text-sm font-mono font-semibold text-brand-700">
 								#<?php echo htmlspecialchars($purchase['purchase_code']); ?>
 							</div>
 							<?php if ($purchase['status'] === 'paid') { ?>
-								<span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-0.5 text-sm font-medium text-emerald-700">Đã thanh toán</span>
+								<span class="inline-flex items-center rounded-chip border border-brand-200 bg-brand-50 px-3 py-0.5 text-sm font-medium text-brand-700">Đã thanh toán</span>
 							<?php } else { ?>
-								<span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-0.5 text-sm font-medium text-amber-700">Còn nợ</span>
+								<span class="inline-flex items-center rounded-chip border border-amber-200 bg-amber-50 px-3 py-0.5 text-sm font-medium text-amber-700">Còn nợ</span>
 							<?php } ?>
 						</div>
 						<div class="mt-1 text-sm text-slate-500">
 							<span class="inline-flex items-center gap-1">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3.5 w-3.5">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-								</svg>
+								<?php echo ui_icon("calendar", "h-3.5 w-3.5"); ?>
 								<span><?php echo htmlspecialchars(format_datetime($purchase['purchase_date'])); ?></span>
 							</span>
 						</div>
@@ -40,12 +38,12 @@ $queryString = http_build_query($queryParams);
 							<span class="text-slate-500">Nhà cung cấp: </span>
 							<span class="font-medium text-slate-800"><?php echo htmlspecialchars($purchase['supplier_name']); ?></span>
 						</div>
-						<div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600">
+						<div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600">
 							<span>
 								Tổng: <span class="font-medium text-slate-900"><?php echo Money::format($total); ?></span>
 							</span>
 							<span>
-								Đã trả: <span class="font-medium text-emerald-600"><?php echo Money::format($paid); ?></span>
+								Đã trả: <span class="font-medium text-brand-600"><?php echo Money::format($paid); ?></span>
 							</span>
 							<span>
 								Còn nợ: <span class="font-medium <?php echo $debt > 0 ? 'text-red-600' : 'text-slate-700'; ?>"><?php echo Money::format($debt); ?></span>
@@ -71,17 +69,15 @@ if (!empty($fromDate) || !empty($toDate)) {
 }
 ?>
 
-<div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/40" data-purchase-advanced-filter-root>
-	<div class="mx-4 my-6 w-full max-w-sm rounded-2xl bg-white ">
-		<div class="flex items-center justify-between border-b border-slate-200 px-4 py-2">
-			<h2 class="text-sm font-medium text-slate-800">Lọc phiếu nhập</h2>
-			<button type="button" class="text-slate-400 hover:text-slate-600" data-purchase-advanced-filter-close>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
-					<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414Z" clip-rule="evenodd" />
-				</svg>
+<div class="app-modal-overlay" data-purchase-advanced-filter-root>
+	<div class="app-modal-sheet-sm">
+		<div class="app-modal-header">
+			<h2 class="app-modal-title">Lọc phiếu nhập</h2>
+			<button type="button" class="app-modal-close" data-purchase-advanced-filter-close>
+				<?php echo ui_icon("x-mark", "h-4 w-4"); ?>
 			</button>
 		</div>
-		<form method="get" class="px-4 py-3 text-sm" data-order-filter-form>
+		<form method="get" class="app-modal-body" data-order-filter-form>
 			<input type="hidden" name="q" value="<?php echo isset($keyword) ? htmlspecialchars($keyword) : ''; ?>">
 			<div class="space-y-3">
 				<div>
@@ -111,7 +107,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 					<input type="hidden" name="to_date" value="<?php echo isset($toDate) ? htmlspecialchars($toDate) : ''; ?>" data-order-date-to />
 				</div>
 			</div>
-			<div class="mt-3 flex items-center justify-between gap-2">
+			<div class="mt-4 flex items-center justify-between gap-2">
 				<div>
 					<?php if (!empty($fromDate) || !empty($toDate)) { ?>
 						<a href="<?php echo $basePath; ?>/purchase" class="inline-flex items-center text-sm font-medium text-slate-400 hover:text-slate-600">
@@ -120,7 +116,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 					<?php } ?>
 				</div>
 				<div class="flex items-center gap-2">
-					<button type="button" class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100" data-purchase-advanced-filter-close>Đóng</button>
+					<button type="button" class="app-btn-secondary" data-purchase-advanced-filter-close>Đóng</button>
 					<?php ui_button_primary('Áp dụng', ['type' => 'submit', 'class' => 'py-1.5', 'data-loading-button' => '1']); ?>
 				</div>
 			</div>

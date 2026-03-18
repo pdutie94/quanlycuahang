@@ -157,7 +157,7 @@ $remaining = isset($order['total_amount']) && isset($order['paid_amount']) ? $or
 				</div>
 				<div class="mt-1 flex items-center justify-between">
 					<span>Đã thanh toán</span>
-					<span class="font-medium text-emerald-700"><?php echo Money::format($order['paid_amount']); ?></span>
+					<span class="font-medium text-brand-700"><?php echo Money::format($order['paid_amount']); ?></span>
 				</div>
 				<div class="mt-1 flex items-center justify-between">
 					<span>Còn nợ</span>
@@ -171,7 +171,7 @@ $remaining = isset($order['total_amount']) && isset($order['paid_amount']) ? $or
 		<button type="button" onclick="window.print()" class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50">
 			<span>In / Lưu PDF</span>
 		</button>
-		<a href="<?php echo $basePath; ?>/order/view?id=<?php echo (int) $order['id']; ?>" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">
+		<a href="<?php echo $basePath; ?>/order/view?id=<?php echo (int) $order['id']; ?>" class="text-sm font-medium text-brand-600 hover:text-brand-700">
 			Quay lại chi tiết đơn hàng
 		</a>
 	</div>

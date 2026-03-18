@@ -1,23 +1,21 @@
-<div class="fixed inset-0 z-[99999] hidden items-center justify-center bg-black/40 p-3" data-order-preview-modal>
-	<div class="flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white " style="height: min(85vh, 48rem);">
-		<div class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
+<div class="app-modal-overlay z-[99999]" data-order-preview-modal>
+	<div class="app-modal-sheet">
+		<div class="app-modal-header">
 			<div>
 				<div class="text-sm font-semibold text-slate-800">
 					<span class="order-preview-code-text" data-order-preview-code>Đơn hàng</span>
 				</div>
 				<div class="text-xs text-slate-500" data-order-preview-date>--</div>
 			</div>
-			<button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600" data-order-preview-close>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
-					<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414Z" clip-rule="evenodd" />
-				</svg>
+			<button type="button" class="app-modal-close" data-order-preview-close>
+				<?php echo ui_icon("x-mark", "h-4 w-4"); ?>
 			</button>
 		</div>
 		<div class="flex-1 min-h-0 overflow-y-auto p-3 text-sm" data-order-preview-content>
 			<div class="h-full min-h-full animate-pulse" aria-hidden="true">
 				<div class="space-y-3">
 					<div class="flex flex-wrap items-center gap-2">
-						<div class="h-6 w-24 rounded-full bg-emerald-100"></div>
+						<div class="h-6 w-24 rounded-full bg-brand-100"></div>
 						<div class="h-6 w-20 rounded-full bg-amber-100"></div>
 					</div>
 
@@ -29,7 +27,7 @@
 							</div>
 							<div class="flex items-center justify-between gap-3">
 								<div class="h-3 w-14 rounded bg-slate-200"></div>
-								<div class="h-4 w-16 rounded bg-emerald-100"></div>
+								<div class="h-4 w-16 rounded bg-brand-100"></div>
 							</div>
 							<div class="flex items-center justify-between gap-3">
 								<div class="h-3 w-12 rounded bg-slate-200"></div>
@@ -46,7 +44,7 @@
 					<div class="grid grid-cols-2 gap-3">
 						<div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
 							<div class="h-3 w-16 rounded bg-slate-200"></div>
-							<div class="mt-2 h-5 w-20 rounded bg-emerald-100"></div>
+							<div class="mt-2 h-5 w-20 rounded bg-brand-100"></div>
 						</div>
 						<div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
 							<div class="h-3 w-12 rounded bg-slate-200"></div>
@@ -78,9 +76,9 @@
 				</div>
 			</div>
 		</div>
-		<div class="flex items-center justify-end gap-2 border-t border-slate-200 bg-slate-50 px-3 py-2">
-			<a href="#" class="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700" data-order-preview-open-detail>Xem chi tiết</a>
-			<button type="button" class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100" data-order-preview-close>Đóng</button>
+		<div class="app-modal-footer bg-slate-50">
+			<a href="#" class="app-btn-primary" data-order-preview-open-detail>Xem chi tiết</a>
+			<button type="button" class="app-btn-secondary" data-order-preview-close>Đóng</button>
 		</div>
 	</div>
 </div>
@@ -96,7 +94,7 @@
 			'<div class="h-full min-h-full animate-pulse" aria-hidden="true">',
 				'<div class="space-y-3">',
 					'<div class="flex flex-wrap items-center gap-2">',
-						'<div class="h-6 w-24 rounded-full bg-emerald-100"></div>',
+						'<div class="h-6 w-24 rounded-full bg-brand-100"></div>',
 						'<div class="h-6 w-20 rounded-full bg-amber-100"></div>',
 					'</div>',
 					'<div class="rounded-lg bg-white">',
@@ -107,7 +105,7 @@
 							'</div>',
 							'<div class="flex items-center justify-between gap-3">',
 								'<div class="h-3 w-14 rounded bg-slate-200"></div>',
-								'<div class="h-4 w-16 rounded bg-emerald-100"></div>',
+								'<div class="h-4 w-16 rounded bg-brand-100"></div>',
 							'</div>',
 							'<div class="flex items-center justify-between gap-3">',
 								'<div class="h-3 w-12 rounded bg-slate-200"></div>',
@@ -123,7 +121,7 @@
 					'<div class="grid grid-cols-2 gap-3">',
 						'<div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">',
 							'<div class="h-3 w-16 rounded bg-slate-200"></div>',
-							'<div class="mt-2 h-5 w-20 rounded bg-emerald-100"></div>',
+							'<div class="mt-2 h-5 w-20 rounded bg-brand-100"></div>',
 						'</div>',
 						'<div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">',
 							'<div class="h-3 w-12 rounded bg-slate-200"></div>',

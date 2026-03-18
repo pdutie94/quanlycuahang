@@ -18,7 +18,7 @@
         if (type === 'error') {
             color = ' bg-red-600 text-white ring-red-500/70';
         } else if (type === 'success') {
-            color = ' bg-emerald-600 text-white ring-emerald-500/70';
+            color = ' bg-brand-600 text-white ring-brand-500/70';
         } else {
             color = ' bg-slate-800 text-white ring-slate-700/70';
         }
@@ -46,6 +46,13 @@
             }, 200);
         }, 3000);
     };
+
+    function appIcon(name, className) {
+        if (typeof window.appIcon === 'function') {
+            return window.appIcon(name, className);
+        }
+        return '';
+    }
 
     function initLoadingButtons() {
         $(document).on('submit', 'form', function () {
@@ -1489,7 +1496,7 @@
                 var searchText = ((item.label || '') + ' ' + (item.sub || '')).trim();
                 var classes = 'flex w-full items-center justify-between gap-3 border-b border-slate-100 px-3 py-2 text-left text-sm hover:bg-slate-50';
                 if (selectedMap[idStr]) {
-                    classes += ' bg-emerald-50';
+                    classes += ' bg-brand-50';
                 }
                 var $row = $('<button>', {
                     type: 'button',
@@ -1509,7 +1516,7 @@
 					});
 					$thumb.append($img);
 				} else {
-					$thumb.html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">\n  <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />\n</svg>');
+                    $thumb.html(appIcon('archive-box', 'size-5'));
 				}
 				$left.append($thumb);
 
@@ -1525,11 +1532,11 @@
                 var $right = $('<div>', { "class": 'flex items-center' });
                 var checkClasses = 'inline-flex h-5 w-5 items-center justify-center rounded-full border text-sm';
                 if (selectedMap[idStr]) {
-                    checkClasses += ' border-emerald-500 bg-emerald-500 text-white';
+                    checkClasses += ' border-brand-500 bg-brand-500 text-white';
                 } else {
                     checkClasses += ' border-slate-300 text-slate-300';
                 }
-                var $check = $('<span>', { "class": checkClasses }).html('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path fill-rule="evenodd" d="M16.704 5.29a1 1 0 0 1 .006 1.414l-7.25 7.5a1 1 0 0 1-1.438.012L3.29 9.707a1 1 0 0 1 1.42-1.414l3.017 3.03 6.54-6.764a1 1 0 0 1 1.437.03Z" clip-rule="evenodd" /></svg>');
+                var $check = $('<span>', { "class": checkClasses }).html(appIcon('check-solid', 'h-3 w-3'));
                 $right.append($check);
 
                 $row.append($left).append($right);
@@ -1561,7 +1568,7 @@
                     type: 'button',
                     "class": 'ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-sm text-slate-400 hover:border-rose-400 hover:text-rose-500',
                     'data-product-selector-remove-selected': String(item.id)
-                }).html('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414Z" clip-rule="evenodd" /></svg>');
+                }).html(appIcon('x-mark-solid', 'h-3 w-3'));
                 $row.append($label).append($remove);
                 $selected.append($row);
             });
@@ -1933,7 +1940,7 @@
                     var $btn = $(this);
                     var btnMode = $btn.attr('data-pos-customer-mode') || '';
                     var isActive = btnMode === mode;
-                    $btn.toggleClass('bg-emerald-600 text-white shadow-sm', isActive);
+                    $btn.toggleClass('bg-brand-600 text-white shadow-sm', isActive);
                     $btn.toggleClass('bg-slate-100 text-slate-700', !isActive);
                 });
             }
@@ -1965,7 +1972,7 @@
                 var $item = $(this);
                 var id = String($item.attr('data-customer-id') || '');
                 var active = selectedCustomerId != null && String(selectedCustomerId) === id;
-                $item.toggleClass('bg-emerald-50', active);
+                $item.toggleClass('bg-brand-50', active);
                 var $indicator = $item.find('[data-pos-customer-selected-indicator]');
                 if ($indicator.length) {
                     $indicator.toggleClass('hidden', !active);
@@ -2154,9 +2161,7 @@
 				});
 				$thumb.empty().append($img);
 			} else {
-				$thumb.html(`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-		  <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
-</svg>`);
+                $thumb.html(appIcon('archive-box', 'size-6'));
 			}
 
 			var $info = $('<div>');
@@ -2167,7 +2172,7 @@
             var $priceDisplay = $('<button>', {
                 type: 'button',
                 'data-pos-price-edit': '1',
-                "class": 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 hover:bg-emerald-50'
+                "class": 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 hover:bg-brand-50'
             });
             var $priceText = $('<span>', {
                 "class": 'font-medium text-slate-900',
@@ -2176,8 +2181,8 @@
             var unitNameText = unit.unit_name ? ('/ ' + unit.unit_name) : '';
             var $unitName = $('<span>').text(unitNameText);
             var $editIcon = $('<span>', {
-                "class": 'inline-flex h-4 w-4 items-center justify-center text-slate-400 group-hover:text-emerald-600'
-            }).html('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-.793.793-2.828-2.828.793-.793ZM11.379 5.793 4 13.172V16h2.828l7.38-7.379-2.83-2.828Z" /></svg>');
+                "class": 'inline-flex h-4 w-4 items-center justify-center text-slate-400 group-hover:text-brand-600'
+            }).html(appIcon('pencil-solid', 'h-3 w-3'));
             $priceDisplay.append($priceText).append($unitName).append($editIcon);
             $unitInfo.append($priceDisplay);
 		
@@ -2187,9 +2192,7 @@
 				type: 'button',
 				'data-pos-decrease': '1',
 				"class": 'inline-flex h-6 w-6 items-center justify-center bg-slate-50 text-sm text-slate-700 hover:bg-slate-100'
-			}).html(`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
-</svg>`);
+            }).html(appIcon('minus', 'size-3'));
             var min = 1;
             var step = 1;
             if (unit.allow_fraction) {
@@ -2208,9 +2211,7 @@
 				type: 'button',
 				'data-pos-increase': '1',
 				"class": 'inline-flex h-6 w-6 items-center justify-center bg-slate-50 text-sm text-slate-700 hover:bg-slate-100'
-			}).html(`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-</svg>`);
+            }).html(appIcon('plus', 'size-3'));
 
 			$qtyGroup.append($decreaseBtn).append($qtyInput).append($increaseBtn);
 		
@@ -2221,7 +2222,7 @@
 			var $right = $('<div>', { "class": 'flex flex-col items-end justify-between gap-2 flex-1' });
 			var $topRow = $('<div>', { "class": 'flex w-full justify-end' });
 		
-			var $line = $('<div>', { "class": 'text-sm font-medium text-emerald-600' });
+			var $line = $('<div>', { "class": 'text-sm font-medium text-brand-600' });
 			var $lineTotal = $('<span>', { 'data-pos-line-total': '1' }).text(formatCurrency(basePrice));
 			$line.append($lineTotal).append(' đ');
 		
@@ -2229,9 +2230,7 @@
 				type: 'button',
 				'data-pos-remove': '1',
 				"class": 'inline-flex h-5 w-5 items-center justify-center text-rose-500 hover:text-rose-600'
-			}).html(`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-</svg>`);
+            }).html(appIcon('x-mark', 'size-4'));
 		
 			$topRow.append($removeBtn);
 			$right.append($topRow).append($line);
@@ -2560,7 +2559,7 @@
             if ($input.length) {
                 $input.val(currentPrice > 0 ? formatCurrency(currentPrice) : '0');
             }
-            $modal.removeClass('hidden');
+            $modal.removeClass('hidden').addClass('flex');
         });
 
         $(document).on('click', '[data-pos-price-cancel]', function () {
@@ -2933,9 +2932,9 @@
                 var isActive = value === type;
                 $btn.attr('data-active', isActive ? 'true' : 'false');
                 if (isActive) {
-                    $btn.addClass('bg-emerald-600 text-white');
+                    $btn.addClass('bg-brand-600 text-white');
                 } else {
-                    $btn.removeClass('bg-emerald-600 text-white');
+                    $btn.removeClass('bg-brand-600 text-white');
                 }
             });
             var showFixed = type === 'fixed';
@@ -2994,7 +2993,7 @@
                 }
             }
 
-            $modal.removeClass('hidden');
+            $modal.removeClass('hidden').addClass('flex');
         });
 
         $(document).on('click', '[data-order-discount-type-option]', function () {
@@ -3004,14 +3003,14 @@
         });
 
         $(document).on('click', '[data-order-discount-cancel]', function () {
-            $modal.addClass('hidden');
+            $modal.addClass('hidden').removeClass('flex');
             $modal.removeData('root');
         });
 
         $(document).on('click', '[data-order-discount-save]', function () {
             var $root = $modal.data('root');
             if (!$root || !$root.length) {
-                $modal.addClass('hidden');
+                $modal.addClass('hidden').removeClass('flex');
                 $modal.removeData('root');
                 return;
             }
@@ -3065,7 +3064,7 @@
                 recalcTransactionTotals();
             }
 
-            $modal.addClass('hidden');
+            $modal.addClass('hidden').removeClass('flex');
             $modal.removeData('root');
         });
     }
@@ -3103,18 +3102,18 @@
                 $input.val(currentValue > 0 ? currentValue.toString() : '0');
             }
 
-            $modal.removeClass('hidden');
+            $modal.removeClass('hidden').addClass('flex');
         });
 
         $(document).on('click', '[data-order-surcharge-cancel]', function () {
-            $modal.addClass('hidden');
+            $modal.addClass('hidden').removeClass('flex');
             $modal.removeData('root');
         });
 
         $(document).on('click', '[data-order-surcharge-save]', function () {
             var $root = $modal.data('root');
             if (!$root || !$root.length) {
-                $modal.addClass('hidden');
+                $modal.addClass('hidden').removeClass('flex');
                 $modal.removeData('root');
                 return;
             }
@@ -3149,7 +3148,7 @@
                 recalcTransactionTotals();
             }
 
-            $modal.addClass('hidden');
+            $modal.addClass('hidden').removeClass('flex');
             $modal.removeData('root');
         });
     }
@@ -3258,7 +3257,7 @@
                     var $btn = $(this);
                     var btnMode = $btn.attr('data-order-customer-mode') || '';
                     var isActive = btnMode === mode;
-                    $btn.toggleClass('bg-emerald-600 text-white shadow-sm', isActive);
+                    $btn.toggleClass('bg-brand-600 text-white shadow-sm', isActive);
                     $btn.toggleClass('bg-slate-100 text-slate-700', !isActive);
                 });
             }
@@ -3290,7 +3289,7 @@
                 var $item = $(this);
                 var id = String($item.attr('data-customer-id') || '');
                 var active = selectedCustomerId != null && String(selectedCustomerId) === id;
-                $item.toggleClass('bg-emerald-50', active);
+                $item.toggleClass('bg-brand-50', active);
                 var $indicator = $item.find('[data-pos-customer-selected-indicator]');
                 if ($indicator.length) {
                     $indicator.toggleClass('hidden', !active);
@@ -3828,7 +3827,7 @@
 					});
 					$thumb.append($img);
 				} else {
-					$thumb.html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">\n  <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />\n</svg>');
+                    $thumb.html(appIcon('archive-box', 'size-6'));
 				}
 
                 var $info = $('<div>');
@@ -3841,7 +3840,7 @@
                 var $priceBtn = $('<button>', {
                     type: 'button',
                     'data-order-price-edit': '1',
-                    "class": 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 hover:bg-emerald-50'
+                    "class": 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 hover:bg-brand-50'
                 });
                 var $priceSpan = $('<span>', {
                     'data-order-price-display': '1',
@@ -3849,8 +3848,8 @@
                 }).text(priceText);
                 var $unitSpan = $('<span>').text(unitNameText);
                 var $editIcon = $('<span>', {
-                    "class": 'inline-flex h-4 w-4 items-center justify-center text-slate-400 group-hover:text-emerald-600'
-                }).html('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-.793.793-2.828-2.828.793-.793ZM11.379 5.793 4 13.172V16h2.828l7.38-7.379-2.83-2.828Z" /></svg>');
+                    "class": 'inline-flex h-4 w-4 items-center justify-center text-slate-400 group-hover:text-brand-600'
+                }).html(appIcon('pencil-solid', 'h-3 w-3'));
                 $priceBtn.append($priceSpan).append($unitSpan).append($editIcon);
                 $unitInfo.append($priceBtn);
                 $info.append($unitInfo);
@@ -3860,7 +3859,7 @@
                     type: 'button',
                     'data-order-edit-decrease': '1',
                     "class": 'inline-flex h-6 w-6 items-center justify-center bg-slate-50 text-sm text-slate-700 hover:bg-slate-100'
-                }).html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3">\n  <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />\n</svg>');
+                }).html(appIcon('minus', 'size-3'));
                 var min = 1;
                 var step = 1;
                 if (unit.allow_fraction) {
@@ -3879,7 +3878,7 @@
                     type: 'button',
                     'data-order-edit-increase': '1',
                     "class": 'inline-flex h-6 w-6 items-center justify-center bg-slate-50 text-sm text-slate-700 hover:bg-slate-100'
-                }).html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3">\n  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />\n</svg>');
+                }).html(appIcon('plus', 'size-3'));
 
                 $qtyGroup.append($decreaseBtn).append($qtyInput).append($increaseBtn);
 				var $qtyWrapper = $('<div>', { "class": 'mt-1' }).append($qtyGroup);
@@ -3890,7 +3889,7 @@
                 var $right = $('<div>', { "class": 'flex flex-col items-end justify-between gap-2 flex-1' });
                 var $topRow = $('<div>', { "class": 'flex w-full justify-end' });
 
-                var $line = $('<div>', { "class": 'text-sm font-medium text-emerald-600' });
+                var $line = $('<div>', { "class": 'text-sm font-medium text-brand-600' });
                 var $lineTotal = $('<span>', {
                     'data-order-new-amount': '1'
                 }).text(formatOrderCurrency(amount));
@@ -3900,7 +3899,7 @@
                     type: 'button',
                     'data-order-edit-remove': '1',
                     "class": 'inline-flex h-5 w-5 items-center justify-center text-rose-500 hover:text-rose-600'
-                }).html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">\n  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />\n</svg>');
+                }).html(appIcon('x-mark', 'size-4'));
 
                 $topRow.append($removeBtn);
                 $right.append($topRow).append($line);
@@ -4788,7 +4787,7 @@
             $list.find('[data-customer-order-item][data-selected="1"]').each(function () {
                 var $item = $(this);
                 $item.attr('data-selected', '0');
-                $item.removeClass('ring-emerald-200 bg-emerald-50');
+                $item.removeClass('ring-brand-200 bg-brand-50');
                 $item.addClass('bg-white');
             });
             selectMode = false;
@@ -4812,12 +4811,12 @@
             var selected = $item.attr('data-selected') === '1';
             if (selected) {
                 $item.attr('data-selected', '0');
-                $item.removeClass('ring-emerald-200 bg-emerald-50');
+                $item.removeClass('ring-brand-200 bg-brand-50');
                 $item.addClass('bg-white');
             } else {
                 $item.attr('data-selected', '1');
                 $item.removeClass('bg-white');
-                $item.addClass('ring-emerald-200 bg-emerald-50');
+                $item.addClass('ring-brand-200 bg-brand-50');
             }
             updateSummary();
         }
@@ -5032,7 +5031,6 @@
             if (!labelText) {
                 labelText = 'Lưu';
             }
-            var iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z" /></svg>';
             function escapeHtml(str) {
                 return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             }
@@ -5040,7 +5038,7 @@
             btn.type = 'button';
             btn.setAttribute('data-floating-save', '1');
             btn.setAttribute('aria-label', labelText);
-            btn.className = 'fixed bottom-[4.3rem] right-3 z-19 inline-flex items-center rounded-lg border border-emerald-600 bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500';
+            btn.className = 'fixed bottom-[4.5rem] right-3 z-19 inline-flex items-center rounded-lg border border-brand-600 bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500';
             btn.innerHTML = '<span>' + escapeHtml(labelText) + '</span>';
             btn.classList.add('hidden');
             btn.addEventListener('click', function (e) {

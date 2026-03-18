@@ -22,68 +22,59 @@ $recentOrders = isset($recentOrders) && is_array($recentOrders) ? $recentOrders 
 $lowStockPreview = array_slice($lowStockItems, 0, 5);
 ?>
 
-<div class="space-y-4">
-	<div class="rounded-2xl bg-slate-900 px-4 py-4 text-white ">
+<div class="space-y-5">
+	<div class="rounded-card border border-slate-200 bg-white px-4 py-5">
 		<div class="flex items-start justify-between gap-3">
 			<div>
-				<h1 class="text-base font-semibold">Tổng quan hôm nay</h1>
-				<p class="mt-1 text-sm text-slate-200 no-underline">Số liệu và thao tác nhanh trong ngày</p>
+				<h1 class="font-display text-lg font-bold tracking-tight text-slate-900">Tổng quan hôm nay</h1>
+				<p class="mt-1 text-sm text-slate-500 no-underline">Số liệu và thao tác nhanh trong ngày</p>
 			</div>
-			<span class="inline-flex rounded-full bg-white/15 px-2 py-0.5 text-sm font-medium text-slate-100"><?php echo date('d/m/Y'); ?></span>
+			<span class="inline-flex rounded-chip border border-slate-300 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-700"><?php echo date('d/m/Y'); ?></span>
 		</div>
 		<div class="mt-3 grid grid-cols-2 gap-2 text-sm">
-			<div class="rounded-xl bg-white/10 px-3 py-2">
-				<div class="text-sm text-slate-200">Doanh thu</div>
-				<div class="mt-0.5 font-semibold text-white"><?php echo Money::format($ordersToday['total_amount']); ?></div>
+			<div class="app-kpi-card">
+				<div class="text-sm text-slate-500">Doanh thu</div>
+				<div class="mt-1 font-semibold text-slate-900"><?php echo Money::format($ordersToday['total_amount']); ?></div>
 			</div>
-			<div class="rounded-xl bg-white/10 px-3 py-2">
-				<div class="text-sm text-slate-200">Lợi nhuận</div>
-				<div class="mt-0.5 font-semibold text-white"><?php echo Money::format($ordersToday['profit']); ?></div>
+			<div class="app-kpi-card">
+				<div class="text-sm text-slate-500">Lợi nhuận</div>
+				<div class="mt-1 font-semibold text-slate-900"><?php echo Money::format($ordersToday['profit']); ?></div>
 			</div>
-			<div class="rounded-xl bg-white/10 px-3 py-2">
-				<div class="text-sm text-slate-200">Đã thu</div>
-				<div class="mt-0.5 font-semibold text-white"><?php echo Money::format($ordersToday['paid_amount']); ?></div>
+			<div class="app-kpi-card">
+				<div class="text-sm text-slate-500">Đã thu</div>
+				<div class="mt-1 font-semibold text-slate-900"><?php echo Money::format($ordersToday['paid_amount']); ?></div>
 			</div>
-			<div class="rounded-xl bg-white/10 px-3 py-2">
-				<div class="text-sm text-slate-200">Còn nợ</div>
-				<div class="mt-0.5 font-semibold text-white"><?php echo Money::format($ordersToday['debt_amount']); ?></div>
+			<div class="app-kpi-card">
+				<div class="text-sm text-slate-500">Còn nợ</div>
+				<div class="mt-1 font-semibold text-slate-900"><?php echo Money::format($ordersToday['debt_amount']); ?></div>
 			</div>
 		</div>
 	</div>
 
-	<div class="space-y-2">
-		<div class="text-sm font-semibold uppercase text-slate-500">Lối tắt nhanh</div>
+	<div class="space-y-3">
+		<div class="text-sm font-semibold uppercase tracking-wide text-slate-500">Lối tắt nhanh</div>
 		<div class="grid grid-cols-2 gap-2">
-			<a href="<?php echo $basePath; ?>/pos" class="flex items-center gap-2 rounded-2xl bg-emerald-600 px-3 py-3 text-sm font-semibold text-white ">
-				<span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/90">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-					</svg>
+			<a href="<?php echo $basePath; ?>/pos" class="flex items-center gap-2 rounded-card border border-brand-600 bg-brand-600 px-3 py-3 text-sm font-semibold text-white">
+				<span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/20">
+					<?php echo ui_icon('cart', 'h-4 w-4'); ?>
 				</span>
 				<span>Tạo đơn</span>
 			</a>
-			<a href="<?php echo $basePath; ?>/order" class="flex items-center gap-2 rounded-2xl bg-white px-3 py-3 text-sm font-medium text-slate-700  ring-1 ring-slate-100">
-				<span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 3h6m-6 3h6M7.5 4.5h9.75A1.75 1.75 0 0 1 19 6.25v13a1.75 1.75 0 0 1-1.75 1.75H6.75A1.75 1.75 0 0 1 5 19.25v-13A1.75 1.75 0 0 1 6.75 4.5Z" />
-					</svg>
+			<a href="<?php echo $basePath; ?>/order" class="flex items-center gap-2 rounded-card border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-700">
+				<span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+					<?php echo ui_icon('clipboard-document', 'h-4 w-4'); ?>
 				</span>
 				<span>Đơn hàng</span>
 			</a>
-			<a href="<?php echo $basePath; ?>/product/create" class="flex items-center gap-2 rounded-2xl bg-white px-3 py-3 text-sm font-medium text-slate-700  ring-1 ring-slate-100">
-				<span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-					</svg>
+			<a href="<?php echo $basePath; ?>/product/create" class="flex items-center gap-2 rounded-card border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-700">
+				<span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+					<?php echo ui_icon('plus', 'h-4 w-4'); ?>
 				</span>
 				<span>Thêm sản phẩm</span>
 			</a>
-			<a href="<?php echo $basePath; ?>/report" class="flex items-center gap-2 rounded-2xl bg-white px-3 py-3 text-sm font-medium text-slate-700  ring-1 ring-slate-100">
-				<span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
-						<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
-					</svg>
+			<a href="<?php echo $basePath; ?>/report" class="flex items-center gap-2 rounded-card border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-700">
+				<span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+					<?php echo ui_icon('chart-pie', 'h-4 w-4'); ?>
 				</span>
 				<span>Báo cáo</span>
 			</a>
@@ -109,7 +100,7 @@ $lowStockPreview = array_slice($lowStockItems, 0, 5);
 						$qtyText = '0';
 					}
 					?>
-					<div class="flex items-center justify-between rounded-2xl border border-rose-100 bg-rose-50 px-3 py-2 text-sm">
+					<div class="flex items-center justify-between rounded-card border border-rose-100 bg-rose-50 px-3 py-2 text-sm">
 						<div class="min-w-0">
 							<div class="truncate font-medium text-rose-900"><?php echo htmlspecialchars($row['name']); ?></div>
 							<div class="mt-0.5 text-sm text-rose-700">Tồn: <?php echo $qtyText; ?> <?php echo htmlspecialchars($row['base_unit_name']); ?></div>
@@ -127,14 +118,14 @@ $lowStockPreview = array_slice($lowStockItems, 0, 5);
 		</div>
 	<?php } ?>
 
-	<div class="space-y-2">
+	<div class="space-y-3">
 		<div class="flex items-center justify-between">
-			<div class="text-sm font-semibold uppercase text-slate-500">Đơn hàng gần đây</div>
-			<a href="<?php echo $basePath; ?>/order" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">Xem tất cả</a>
+			<div class="text-sm font-semibold uppercase tracking-wide text-slate-500">Đơn hàng gần đây</div>
+			<a href="<?php echo $basePath; ?>/order" class="text-sm font-medium text-brand-600 hover:text-brand-700">Xem tất cả</a>
 		</div>
 
 		<?php if (empty($recentOrders)) { ?>
-			<div class="rounded-2xl bg-white px-4 py-3 text-sm text-slate-500  ring-1 ring-slate-100">Không có đơn hàng gần đây.</div>
+			<div class="rounded-card border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500">Không có đơn hàng gần đây.</div>
 		<?php } else { ?>
 			<div class="space-y-2">
 				<?php foreach ($recentOrders as $order) { ?>

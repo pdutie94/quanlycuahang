@@ -5,23 +5,17 @@
 	</h1>
 	<div class="flex flex-wrap items-center gap-1.5" data-header-actions-root>
 		<a href="<?php echo $basePath; ?>/product" class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
-			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-				<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-			</svg>
+			<?php echo ui_icon("chevron-left", "h-4 w-4"); ?>
 			<span>Quay lại</span>
 		</a>
 		<?php if ($product) { ?>
 			<div class="relative" data-header-actions-menu>
 				<button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 hover:bg-slate-100" data-header-actions-toggle>
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM12 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM12 20.25a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
-					</svg>
+					<?php echo ui_icon("ellipsis-vertical", "h-4 w-4"); ?>
 				</button>
 				<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm  overflow-hidden hidden" data-header-actions-dropdown>
 					<a href="<?php echo $basePath; ?>/product/delete?id=<?php echo (int) $product['id']; ?>" class="flex items-center gap-2 px-3 py-1.5 text-red-600 hover:bg-rose-50" data-product-delete>
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-						</svg>
+						<?php echo ui_icon("x-mark", "h-4 w-4"); ?>
 						<span>Xóa sản phẩm</span>
 					</a>
 				</div>
@@ -30,7 +24,7 @@
 	</div>
 </div>
 <?php } ?>
-<form method="post" enctype="multipart/form-data" action="<?php echo $basePath; ?>/product/<?php echo $product ? 'update' : 'store'; ?>" class="space-y-5 rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5  ring-1 ring-slate-100">
+<form method="post" enctype="multipart/form-data" action="<?php echo $basePath; ?>/product/<?php echo $product ? 'update' : 'store'; ?>" class="space-y-5 rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5  border border-slate-200">
 	<input type="hidden" hidden name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
 	<?php if ($product) { ?>
 		<input type="hidden" name="id" value="<?php echo $product['id']; ?>" hidden>
@@ -39,15 +33,13 @@
 	<div class="flex flex-col gap-3">
 		<div class="space-y-1">
 			<div class="flex items-start gap-2">
-            <button type="button" class="relative h-24 w-24 overflow-hidden rounded-lg border border-dashed border-slate-300 bg-slate-50 text-slate-400 text-sm flex items-center justify-center hover:border-emerald-400 hover:text-emerald-500" data-image-placeholder>
+            <button type="button" class="relative h-24 w-24 overflow-hidden rounded-lg border border-dashed border-slate-300 bg-slate-50 text-slate-400 text-sm flex items-center justify-center hover:border-brand-400 hover:text-brand-500" data-image-placeholder>
                 <img src="<?php echo $hasImage ? $basePath . '/' . htmlspecialchars($product['image_path']) : ''; ?>" alt="" data-image-preview class="<?php echo $hasImage ? 'h-full w-full object-cover' : 'hidden h-full w-full object-cover'; ?>">
                 <span data-image-placeholder-text class="px-1 <?php echo $hasImage ? 'hidden' : ''; ?>">Chọn ảnh sản phẩm</span>
             </button>
             <div class="flex flex-col items-center gap-2 <?php echo $hasImage ? '' : 'hidden'; ?>" data-image-actions>
                 <button type="button" class="inline-flex h-6 w-6 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 hover:bg-red-100" data-image-delete>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-</svg>
+                    <?php echo ui_icon("x-mark", "size-4"); ?>
 
 
                 </button>
@@ -192,14 +184,14 @@
         <div class="space-y-1">
             <div class="flex items-center gap-2">
                 <input type="hidden" name="allow_fraction" value="0">
-                <input type="checkbox" name="allow_fraction" value="1" <?php echo $allowFraction ? 'checked' : ''; ?> class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                <input type="checkbox" name="allow_fraction" value="1" <?php echo $allowFraction ? 'checked' : ''; ?> class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
                 <span class="text-sm text-slate-700">Cho phép bán lẻ (số lượng thập phân)</span>
             </div>
         </div>
         <div class="space-y-1">
             <label class="mb-1 block text-sm font-medium text-slate-600">Bước lẻ nhỏ nhất</label>
             <div class="relative max-w-xs">
-                <input type="text" name="min_step" value="<?php echo htmlspecialchars($displayMinStep); ?>" class="form-field block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500">
+                <input type="text" name="min_step" value="<?php echo htmlspecialchars($displayMinStep); ?>" class="form-field block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500">
                 <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">Ví dụ: 0,1 hoặc 0,25</span>
             </div>
         </div>

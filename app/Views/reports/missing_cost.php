@@ -23,7 +23,7 @@ $endDate = isset($endDate) ? $endDate : '';
 	?>
 </div>
 
-<form method="get" action="<?php echo $basePath; ?>/report/missing-cost" class="mb-4 rounded-lg bg-white px-3 py-3  ring-1 ring-slate-100 space-y-3">
+<form method="get" action="<?php echo $basePath; ?>/report/missing-cost" class="mb-4 rounded-lg bg-white px-3 py-3  border border-slate-200 space-y-3">
 	<input type="hidden" name="r" value="report/missingCost">
 	<div class="grid grid-cols-1 gap-3 md:grid-cols-4">
 			<div class="space-y-1">
@@ -70,8 +70,8 @@ $endDate = isset($endDate) ? $endDate : '';
 			<div class="text-sm font-medium uppercase  text-sky-700">Số đơn hàng bị ảnh hưởng</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['order_count'], ''); ?></div>
 		</div>
-		<div class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900 ">
-			<div class="text-sm font-medium uppercase  text-emerald-700">Tổng giá vốn dự kiến tăng</div>
+		<div class="rounded-lg border border-brand-200 bg-brand-50 px-3 py-3 text-sm text-brand-900 ">
+			<div class="text-sm font-medium uppercase  text-brand-700">Tổng giá vốn dự kiến tăng</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['total_delta_cost']); ?></div>
 		</div>
 	</div>
@@ -107,7 +107,7 @@ $endDate = isset($endDate) ? $endDate : '';
 				<thead>
 					<tr class="bg-slate-50 text-sm uppercase  text-slate-500">
 						<th class="px-3 py-2 border-b border-slate-200">
-							<input type="checkbox" class="h-4 w-4 rounded border-slate-300 text-emerald-600" data-missing-cost-master>
+							<input type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600" data-missing-cost-master>
 						</th>
 						<th class="px-3 py-2 border-b border-slate-200">Đơn hàng</th>
 						<th class="px-3 py-2 border-b border-slate-200">Khách hàng</th>
@@ -136,11 +136,11 @@ $endDate = isset($endDate) ? $endDate : '';
 						?>
 						<tr>
 							<td class="px-3 py-2 align-top">
-								<input type="checkbox" name="item_ids[]" value="<?php echo $itemId; ?>" class="h-4 w-4 rounded border-slate-300 text-emerald-600" data-missing-cost-item>
+								<input type="checkbox" name="item_ids[]" value="<?php echo $itemId; ?>" class="h-4 w-4 rounded border-slate-300 text-brand-600" data-missing-cost-item>
 							</td>
 							<td class="px-3 py-2 align-top">
 								<div class="flex flex-col">
-									<a href="<?php echo $basePath; ?>/order/view?id=<?php echo $orderId; ?>" class="font-mono text-sm font-medium text-emerald-700 hover:underline">
+									<a href="<?php echo $basePath; ?>/order/view?id=<?php echo $orderId; ?>" class="font-mono text-sm font-medium text-brand-700 hover:underline">
 										<?php echo htmlspecialchars($row['order_code']); ?>
 									</a>
 									<div class="text-sm text-slate-500">
@@ -194,13 +194,13 @@ $endDate = isset($endDate) ? $endDate : '';
 								<?php } ?>
 							</td>
 							<td class="px-3 py-2 align-top">
-								<div class="text-sm <?php echo $unitPriceCost > 0 ? 'text-emerald-700 font-medium' : 'text-slate-400'; ?>">
+								<div class="text-sm <?php echo $unitPriceCost > 0 ? 'text-brand-700 font-medium' : 'text-slate-400'; ?>">
 									<?php echo Money::format($unitPriceCost); ?>
 								</div>
 							</td>
 							<td class="px-3 py-2 align-top">
 								<?php if ($newCostTotal > 0) { ?>
-									<div class="text-sm text-emerald-700 font-medium">
+									<div class="text-sm text-brand-700 font-medium">
 										<?php echo Money::format($newCostTotal); ?>
 									</div>
 									<?php if ($newCostTotal > $oldCostTotal) { ?>

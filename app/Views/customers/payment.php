@@ -1,9 +1,7 @@
 <div class="mb-4 flex items-center justify-between gap-3">
 	<h1 class="text-lg font-medium tracking-tight">Thu tiền khách hàng</h1>
 	<a href="<?php echo $basePath; ?>/customer/view?id=<?php echo $order['customer_id']; ?>" class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
-		<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-			<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-		</svg>
+		<?php echo ui_icon("chevron-left", "h-4 w-4"); ?>
 		<span>Khách hàng</span>
 	</a>
 </div>
@@ -54,7 +52,7 @@
         </div>
         <div class="space-y-1">
             <label class="block text-sm text-slate-700">Ghi chú</label>
-            <textarea name="note" rows="3" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:bg-white"></textarea>
+            <textarea name="note" rows="3" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white"></textarea>
         </div>
         <div class="flex items-center justify-end gap-3">
             <a href="<?php echo $basePath; ?>/customer/view?id=<?php echo $order['customer_id']; ?>" class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">

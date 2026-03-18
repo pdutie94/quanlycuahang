@@ -12,9 +12,7 @@ if ($debt < 0) {
     <h1 class="text-lg font-medium tracking-tight">Trả hàng đơn <?php echo htmlspecialchars($order['order_code']); ?></h1>
     <div class="flex flex-wrap items-center gap-1.5">
         <a href="<?php echo $basePath; ?>/order/view?id=<?php echo (int) $order['id']; ?>" class="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-            </svg>
+            <?php echo ui_icon("chevron-left", "h-4 w-4"); ?>
             <span>Quay lại đơn hàng</span>
         </a>
     </div>
@@ -38,7 +36,7 @@ if ($debt < 0) {
                 </div>
                 <div>
                     <span class="text-slate-500">Đã thu: </span>
-                    <span class="font-medium text-emerald-600"><?php echo Money::format($paid); ?></span>
+                    <span class="font-medium text-brand-600"><?php echo Money::format($paid); ?></span>
                 </div>
                 <div>
                     <span class="text-slate-500">Còn nợ: </span>
@@ -58,7 +56,7 @@ if ($debt < 0) {
                 <div class="flex items-center justify-between border-b border-slate-100 px-4 py-2 text-sm">
                 <div class="font-medium text-slate-800">Chọn sản phẩm và số lượng trả</div>
                 <label class="inline-flex items-center gap-1.5 text-sm text-slate-700">
-                    <input type="checkbox" name="return_all" value="1" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                    <input type="checkbox" name="return_all" value="1" class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
                     <span>Trả toàn bộ số lượng</span>
                 </label>
             </div>
@@ -110,7 +108,7 @@ if ($debt < 0) {
                                     max="<?php echo $qty; ?>"
                                     step="0.01"
                                     placeholder="0"
-                                    class="h-8 w-24 rounded-md border border-slate-300 bg-slate-50 px-2 text-right text-sm outline-none focus:border-emerald-500 focus:bg-white"
+                                    class="h-8 w-24 rounded-md border border-slate-300 bg-slate-50 px-2 text-right text-sm outline-none focus:border-brand-500 focus:bg-white"
                                 >
                             </div>
                         </div>
@@ -121,15 +119,11 @@ if ($debt < 0) {
 
         <div class="flex flex-wrap items-center justify-end gap-2">
             <a href="<?php echo $basePath; ?>/order/view?id=<?php echo (int) $order['id']; ?>" class="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-                </svg>
+				<?php echo ui_icon("arrow-left-on-rectangle", "h-4 w-4"); ?>
                 <span>Hủy</span>
             </a>
             <button type="submit" class="inline-flex items-center gap-1.5 rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white  hover:bg-rose-700 active:bg-rose-800">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                </svg>
+				<?php echo ui_icon("arrow-path", "h-4 w-4"); ?>
                 <span>Ghi nhận trả hàng</span>
             </button>
         </div>

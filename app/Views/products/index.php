@@ -91,7 +91,7 @@ if ($categoryId < 0) {
                     $statusClass = 'text-amber-600';
                 } else {
                     $statusLabel = 'Còn hàng';
-                    $statusClass = 'text-emerald-600';
+                    $statusClass = 'text-brand-600';
                 }
 			}
 
@@ -106,16 +106,14 @@ if ($categoryId < 0) {
 				}
 			}
 			?>
-			<div class="relative cursor-pointer rounded-2xl border border-slate-200 bg-white px-3 py-2.5 transition-colors hover:border-emerald-200" data-product-edit-row data-url="<?php echo $basePath; ?>/product/edit?id=<?php echo $product['id']; ?>" data-infinite-item>
+			<div class="relative cursor-pointer rounded-card border border-slate-200 bg-white px-3 py-2.5 transition-colors hover:border-brand-200" data-product-edit-row data-url="<?php echo $basePath; ?>/product/edit?id=<?php echo $product['id']; ?>" data-infinite-item>
 				<div class="flex items-center gap-2.5">
 					<div class="flex-none">
 						<?php if (!empty($product['image_path'])) { ?>
 							<img src="<?php echo $basePath . '/' . htmlspecialchars($product['image_path']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="h-10 w-10 rounded-xl object-cover border border-slate-200">
 						<?php } else { ?>
 							<div class="h-10 w-10 rounded-xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-									<path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
-								</svg>
+								<?php echo ui_icon("archive-box", "size-5"); ?>
 							</div>
 						<?php } ?>
 					</div>
@@ -141,7 +139,7 @@ if ($categoryId < 0) {
 						</div>
 						<div class="mt-0.5 flex items-center gap-x-2 text-sm">
 							<?php if ($primaryPrice !== null) { ?>
-								<span class="font-medium text-emerald-600"><?php echo Money::format($primaryPrice); ?><?php if ($primaryUnit !== '') { ?>/<?php echo htmlspecialchars($primaryUnit); ?><?php } ?></span>
+								<span class="font-medium text-brand-600"><?php echo Money::format($primaryPrice); ?><?php if ($primaryUnit !== '') { ?>/<?php echo htmlspecialchars($primaryUnit); ?><?php } ?></span>
 								<?php if ($primaryCost !== null && $primaryCost > 0) { ?>
 									<span class="text-xs text-slate-400"><?php echo Money::format($primaryCost); ?><?php if ($primaryUnit !== '') { ?>/<?php echo htmlspecialchars($primaryUnit); ?><?php } ?></span>
 								<?php } ?>
@@ -159,35 +157,29 @@ if ($categoryId < 0) {
 
 <a
 	href="<?php echo $basePath; ?>/product/create"
-	class="fixed bottom-[5rem] right-3 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 text-white md:hidden"
+	class="fixed bottom-[5rem] right-3 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-600 text-white md:hidden"
 	title="Thêm sản phẩm"
 	aria-label="Thêm sản phẩm"
 >
-	<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
-		<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-	</svg>
+	<?php echo ui_icon("plus", "h-5 w-5"); ?>
 </a>
 
 <?php if (!empty($categoryList)) { ?>
-<div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/30" data-product-category-filter-root>
-	<div class="w-full max-w-sm rounded-2xl bg-white p-4  max-h-[90vh] flex flex-col">
-		<div class="flex items-center justify-between gap-2">
-			<div class="text-sm font-medium text-slate-800">Lọc theo danh mục</div>
-			<button type="button" class="text-slate-400 hover:text-slate-600" data-product-category-filter-close>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
-					<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414Z" clip-rule="evenodd" />
-				</svg>
+<div class="app-modal-overlay" data-product-category-filter-root>
+	<div class="app-modal-sheet-sm">
+		<div class="app-modal-header">
+			<div class="app-modal-title">Lọc theo danh mục</div>
+			<button type="button" class="app-modal-close" data-product-category-filter-close>
+				<?php echo ui_icon("x-mark", "h-4 w-4"); ?>
 			</button>
 		</div>
-		<div class="mt-3 flex-1 min-h-0 space-y-2 overflow-y-auto">
+		<div class="app-modal-body space-y-2">
 			<?php
 			$isAllSelected = $categoryId <= 0;
 			?>
-			<button type="button" class="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm <?php echo $isAllSelected ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'; ?>" data-product-category-option data-category-id="">
+			<button type="button" class="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm <?php echo $isAllSelected ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'; ?>" data-product-category-option data-category-id="">
 				<span>Tất cả danh mục</span>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4<?php echo $isAllSelected ? '' : ' hidden'; ?>" data-product-category-check="1">
-					<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.75a.75.75 0 1 1 1.08-1.04l3.894 4.108 7.48-9.817a.75.75 0 0 1 1.03-.128Z" clip-rule="evenodd" />
-				</svg>
+				<?php echo ui_icon("check", "h-4 w-4" . ($isAllSelected ? '' : ' hidden'), ['data-product-category-check' => '1']); ?>
 			</button>
 			<?php foreach ($categoryList as $cat) { ?>
 				<?php
@@ -201,11 +193,9 @@ if ($categoryId < 0) {
 				$name = isset($cat['name']) ? $cat['name'] : '';
 				$selected = $categoryId > 0 && $categoryId === $id;
 				?>
-				<button type="button" class="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm <?php echo $selected ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'; ?>" data-product-category-option data-category-id="<?php echo $id; ?>">
+				<button type="button" class="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm <?php echo $selected ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'; ?>" data-product-category-option data-category-id="<?php echo $id; ?>">
 					<span class="truncate"><?php echo htmlspecialchars($name); ?></span>
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4<?php echo $selected ? '' : ' hidden'; ?>" data-product-category-check="1">
-						<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.75a.75.75 0 1 1 1.08-1.04l3.894 4.108 7.48-9.817a.75.75 0 0 1 1.03-.128Z" clip-rule="evenodd" />
-					</svg>
+					<?php echo ui_icon("check", "h-4 w-4" . ($selected ? '' : ' hidden'), ['data-product-category-check' => '1']); ?>
 				</button>
 			<?php } ?>
 		</div>
@@ -231,9 +221,9 @@ document.addEventListener('DOMContentLoaded', function () {
 		var selectedValue = value || 'all';
 		form.querySelectorAll('[data-product-stock-filter]').forEach(function (btn) {
 			var isActive = (btn.getAttribute('data-product-stock-filter') || 'all') === selectedValue;
-			btn.classList.toggle('bg-emerald-600', isActive);
+			btn.classList.toggle('bg-brand-600', isActive);
 			btn.classList.toggle('text-white', isActive);
-			btn.classList.toggle('border-emerald-600', isActive);
+			btn.classList.toggle('border-brand-600', isActive);
 			btn.classList.toggle('bg-white', !isActive);
 			btn.classList.toggle('text-slate-700', !isActive);
 			btn.classList.toggle('border-slate-200', !isActive);
@@ -244,9 +234,9 @@ document.addEventListener('DOMContentLoaded', function () {
 		var selectedValue = value || '';
 		document.querySelectorAll('[data-product-category-option]').forEach(function (btn) {
 			var isActive = (btn.getAttribute('data-category-id') || '') === selectedValue;
-			btn.classList.toggle('border-emerald-500', isActive);
-			btn.classList.toggle('bg-emerald-50', isActive);
-			btn.classList.toggle('text-emerald-700', isActive);
+			btn.classList.toggle('border-brand-500', isActive);
+			btn.classList.toggle('bg-brand-50', isActive);
+			btn.classList.toggle('text-brand-700', isActive);
 			btn.classList.toggle('border-slate-200', !isActive);
 			btn.classList.toggle('bg-white', !isActive);
 			btn.classList.toggle('text-slate-700', !isActive);

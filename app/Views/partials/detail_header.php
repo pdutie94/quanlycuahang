@@ -16,9 +16,7 @@ $detailActionsView = isset($detailHeader['actions_view']) ? (string) $detailHead
 				<div class="flex flex-wrap items-center gap-1.5" data-header-actions-root>
 					<?php if ($detailBackUrl !== '') { ?>
 						<a href="<?php echo $basePath . '/' . ltrim($detailBackUrl, '/'); ?>" class="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-							</svg>
+							<?php echo ui_icon("chevron-left", "h-4 w-4"); ?>
 							<span><?php echo htmlspecialchars($detailBackLabel !== '' ? $detailBackLabel : 'Quay lại', ENT_QUOTES, 'UTF-8'); ?></span>
 						</a>
 					<?php } ?>

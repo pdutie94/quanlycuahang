@@ -52,7 +52,7 @@ $showAll = !empty($showAll);
 			<div class="space-y-1">
 				<label class="block text-sm font-medium uppercase  text-slate-500">Tùy chọn</label>
 				<label class="inline-flex items-center gap-2 text-sm text-slate-700">
-					<input type="checkbox" name="show_all" value="1" <?php echo $showAll ? 'checked' : ''; ?> class="h-3 w-3 rounded border-slate-300 text-emerald-600">
+					<input type="checkbox" name="show_all" value="1" <?php echo $showAll ? 'checked' : ''; ?> class="h-3 w-3 rounded border-slate-300 text-brand-600">
 					<span>Hiển thị cả nhà cung cấp đã thanh toán đủ</span>
 				</label>
 			</div>
@@ -70,8 +70,8 @@ $showAll = !empty($showAll);
 			<div class="text-sm font-medium uppercase  text-slate-600">Tổng nhập</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['total_amount']); ?></div>
 		</div>
-		<div class="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-3 text-sm text-emerald-900 ">
-			<div class="text-sm font-medium uppercase  text-emerald-700">Đã thanh toán</div>
+		<div class="rounded-xl border border-brand-100 bg-brand-50 px-3 py-3 text-sm text-brand-900 ">
+			<div class="text-sm font-medium uppercase  text-brand-700">Đã thanh toán</div>
 			<div class="mt-2 text-lg font-medium"><?php echo Money::format($summary['paid_amount']); ?></div>
 		</div>
 		<div class="rounded-xl border border-purple-100 bg-purple-50 px-3 py-3 text-sm text-purple-900 ">
@@ -127,7 +127,7 @@ $showAll = !empty($showAll);
 								<td class="px-3 py-2 align-top text-right">
 									<?php echo Money::format($row['total_amount']); ?>
 								</td>
-								<td class="px-3 py-2 align-top text-right text-emerald-700">
+								<td class="px-3 py-2 align-top text-right text-brand-700">
 									<?php echo Money::format($row['paid_amount']); ?>
 								</td>
 								<td class="px-3 py-2 align-top text-right <?php echo $row['debt_amount'] > 0 ? 'text-purple-700 font-medium' : 'text-slate-500'; ?>">

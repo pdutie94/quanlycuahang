@@ -11,7 +11,7 @@ $queryString = http_build_query($queryParams);
 	<div class="space-y-3" data-infinite-list data-infinite-url="<?php echo $basePath; ?>/customer" data-infinite-query="<?php echo htmlspecialchars($queryString); ?>" data-current-page="<?php echo isset($page) ? (int) $page : 1; ?>" data-has-more="<?php echo isset($totalPages) && isset($page) && $page < $totalPages ? '1' : '0'; ?>">
 		<?php foreach ($customers as $index => $customer) { ?>
 			<?php $debt = isset($customer['debt_amount']) ? (float) $customer['debt_amount'] : 0; ?>
-			<a href="<?php echo $basePath; ?>/customer/view?id=<?php echo $customer['id']; ?>" class="block cursor-pointer rounded-2xl bg-white p-3  ring-1 ring-slate-100 transition hover:bg-slate-50" data-infinite-item>
+			<a href="<?php echo $basePath; ?>/customer/view?id=<?php echo $customer['id']; ?>" class="block cursor-pointer rounded-card bg-white p-3  border border-slate-200 transition hover:bg-slate-50" data-infinite-item>
 				<div class="flex items-center justify-between gap-3">
 					<div class="min-w-0">
 						<div class="truncate text-sm font-medium text-slate-900">

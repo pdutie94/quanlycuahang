@@ -28,10 +28,8 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 	<div class="rounded-lg border border-slate-200 bg-white ">
 		<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 			<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
-				<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"></path>
-					</svg>
+				<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-50 text-brand-700">
+					<?php echo ui_icon("clipboard-document", "h-4 w-4"); ?>
 				</span>
 				<span class="text-sm font-medium text-slate-900 sm:text-sm">#<?php echo htmlspecialchars($order['order_code']); ?></span>
 			</div>
@@ -41,13 +39,13 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 				<span class="inline-flex items-center rounded-full bg-sky-50 px-2.5 py-0.5 text-sm font-medium text-sky-700">
 					<span><?php echo htmlspecialchars($orderDateFormatted); ?></span>
 				</span>
-				<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium <?php echo $order['status'] === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'; ?>">
+				<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium <?php echo $order['status'] === 'paid' ? 'bg-brand-50 text-brand-700' : 'bg-amber-50 text-amber-700'; ?>">
 					<?php echo $order['status'] === 'paid' ? 'Đã thanh toán' : 'Còn nợ'; ?>
 				</span>
 				<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium
 					<?php
 					if ($orderStatus === 'completed') {
-						echo 'bg-emerald-50 text-emerald-700';
+						echo 'bg-brand-50 text-brand-700';
 					} elseif ($orderStatus === 'cancelled') {
 						echo 'bg-rose-50 text-rose-700';
 					} else {
@@ -96,16 +94,14 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 					<div class="text-sm old-text-base font-medium text-slate-900"><?php echo Money::format($totalAmount); ?></div>
 				</div>
 
-				<div class="mt-3 flex items-center justify-between rounded-md px-3 py-2 <?php echo $profitOrder >= 0 ? 'bg-emerald-50' : 'bg-rose-50'; ?>">
+				<div class="mt-3 flex items-center justify-between rounded-md px-3 py-2 <?php echo $profitOrder >= 0 ? 'bg-brand-50' : 'bg-rose-50'; ?>">
 					<div class="flex items-center gap-2">
-						<span class="inline-flex h-6 w-6 items-center justify-center rounded-full <?php echo $profitOrder >= 0 ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'; ?>">
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5">
-								<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.22-9.78a.75.75 0 00-1.06-1.06L9 10.94 7.84 9.78a.75.75 0 10-1.06 1.06l1.75 1.75a.75.75 0 001.06 0l3.66-3.66z" clip-rule="evenodd" />
-							</svg>
+						<span class="inline-flex h-6 w-6 items-center justify-center rounded-full <?php echo $profitOrder >= 0 ? 'bg-brand-600 text-white' : 'bg-rose-600 text-white'; ?>">
+							<?php echo ui_icon("check", "h-3.5 w-3.5"); ?>
 						</span>
-						<span class="text-sm font-medium uppercase  <?php echo $profitOrder >= 0 ? 'text-emerald-700' : 'text-rose-700'; ?>">Lợi nhuận</span>
+						<span class="text-sm font-medium uppercase  <?php echo $profitOrder >= 0 ? 'text-brand-700' : 'text-rose-700'; ?>">Lợi nhuận</span>
 					</div>
-					<div class="text-sm old-text-base font-medium <?php echo $profitOrder >= 0 ? 'text-emerald-700' : 'text-rose-700'; ?>">
+					<div class="text-sm old-text-base font-medium <?php echo $profitOrder >= 0 ? 'text-brand-700' : 'text-rose-700'; ?>">
 						<?php echo ($profitOrder >= 0 ? '+' : '') . Money::format($profitOrder); ?>
 					</div>
 				</div>
@@ -133,15 +129,11 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 							<option value="cancelled" <?php echo $orderStatus === 'cancelled' ? 'selected' : ''; ?>>Đã hủy</option>
 						</select>
 						<span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-slate-400">
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
-								<path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd"></path>
-							</svg>
+							<?php echo ui_icon("chevron-down", "h-4 w-4"); ?>
 						</span>
 					</div>
 					<button type="submit" class="inline-flex items-center gap-1.5 rounded-md border border-sky-600 bg-sky-600 px-3 py-1.5 text-sm font-medium text-white hover:border-sky-700 hover:bg-sky-700">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-						</svg>
+						<?php echo ui_icon("arrow-path", "h-4 w-4"); ?>
 						<span>Cập nhật</span>
 					</button>
 				</form>
@@ -153,9 +145,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 		<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 			<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
 				<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-amber-700">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"></path>
-					</svg>
+						<?php echo ui_icon("user-group", "h-4 w-4"); ?>
 				</span>
 				<span>Khách hàng</span>
 			</div>
@@ -182,10 +172,8 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 						<div class="inline-flex items-center gap-1.5">
 							<span class="font-medium text-slate-900"><?php echo htmlspecialchars($order['customer_name']); ?></span>
 							<?php if (!empty($order['customer_id'])) { ?>
-								<a href="<?php echo $basePath; ?>/customer/view?id=<?php echo (int) $order['customer_id']; ?>" class="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700" title="Xem chi tiết khách hàng">
-									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-										<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-									</svg>
+								<a href="<?php echo $basePath; ?>/customer/view?id=<?php echo (int) $order['customer_id']; ?>" class="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700" title="Xem chi tiết khách hàng">
+									<?php echo ui_icon("external-link", "h-4 w-4"); ?>
 								</a>
 							<?php } ?>
 						</div>
@@ -197,10 +185,8 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 					<div class="flex items-center gap-x-2">
 						<span class="text-slate-500 min-w-20">SĐT: </span>
 						<span class="font-medium text-slate-900"><?php echo htmlspecialchars($order['customer_phone']); ?></span>
-						<a href="tel:<?php echo rawurlencode($order['customer_phone']); ?>" class="inline-flex h-6 w-6 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600 hover:border-emerald-300 hover:bg-emerald-100">
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h1.5a2.25 2.25 0 0 0 2.25-2.25v-1.386c0-.516-.351-.966-.852-1.091l-3.423-.856a1.125 1.125 0 0 0-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97a1.125 1.125 0 0 0 .417-1.173L6.977 3.102A1.125 1.125 0 0 0 5.886 2.25H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
-							</svg>
+						<a href="tel:<?php echo rawurlencode($order['customer_phone']); ?>" class="inline-flex h-6 w-6 items-center justify-center rounded-full border border-brand-200 bg-brand-50 text-brand-600 hover:border-brand-300 hover:bg-brand-100">
+							<?php echo ui_icon("phone", "h-4 w-4"); ?>
 						</a>
 					</div>
 				<?php } ?>
@@ -218,7 +204,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 				<?php } ?>
 				
 				<?php if ($noteRaw !== '') { ?>
-					<div class="rounded-md bg-emerald-50 px-3 py-2 text-slate-700">
+					<div class="rounded-md bg-brand-50 px-3 py-2 text-slate-700">
 						<?php echo nl2br(htmlspecialchars($noteRaw)); ?>
 					</div>
 				<?php } ?>
@@ -236,9 +222,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 				<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 					<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
 						<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-slate-700">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-  <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"></path>
-</svg>
+						<?php echo ui_icon("cube", "size-4"); ?>
 					</span>
 					<span>Sản phẩm</span>
 				</div>
@@ -263,9 +247,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 								<img src="<?php echo htmlspecialchars($productImage); ?>" alt="<?php echo htmlspecialchars($productName); ?>" class="h-10 w-10 rounded-md object-cover">
 							<?php } else { ?>
 								<div class="flex h-10 w-10 items-center justify-center rounded-md bg-slate-100 text-sm font-medium text-slate-500">
-									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-		  <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
-		</svg>
+									<?php echo ui_icon("archive-box", "size-5"); ?>
 								</div>
 							<?php } ?>
 							</div>
@@ -285,7 +267,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 											</div>
 											<div class="flex items-center gap-1">
 												<span class="text-slate-500">LN</span>
-												<span class="font-medium <?php echo $itemProfit >= 0 ? 'text-emerald-600' : 'text-rose-600'; ?>">
+												<span class="font-medium <?php echo $itemProfit >= 0 ? 'text-brand-600' : 'text-rose-600'; ?>">
 													<?php echo Money::format($itemProfit); ?>
 												</span>
 											</div>
@@ -307,9 +289,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 			<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 				<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
 					<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-amber-700">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-							<path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
-						</svg>
+						<?php echo ui_icon("archive-box", "h-4 w-4"); ?>
 					</span>
 					<span>Sản phẩm khác</span>
 				</div>
@@ -329,9 +309,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 					?>
 					<div class="flex items-start gap-3 px-4 py-3 text-sm">
 						<div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-amber-50 text-amber-700">
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
-								<path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
-							</svg>
+							<?php echo ui_icon("archive-box", "h-5 w-5"); ?>
 						</div>
 						<div class="min-w-0 flex-1">
 							<div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -358,7 +336,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 										<?php if ($amountBuy > 0 || $amountSell > 0) { ?>
 											<div class="flex items-center gap-1">
 												<span class="text-slate-500">LN</span>
-												<span class="font-medium <?php echo $lineProfit >= 0 ? 'text-emerald-600' : 'text-rose-600'; ?>">
+												<span class="font-medium <?php echo $lineProfit >= 0 ? 'text-brand-600' : 'text-rose-600'; ?>">
 													<?php echo Money::format($lineProfit); ?>
 												</span>
 											</div>
@@ -396,10 +374,8 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 					<div class="flex flex-col gap-x-2 gap-y-1 px-4 py-3 text-sm sm:flex-row sm:items-start sm:justify-between">
 						<div class="min-w-0">
 							<div class="flex flex-wrap items-center gap-2">
-								<span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-sm font-medium text-emerald-700">
-									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3.5 w-3.5">
-										<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
-									</svg>
+								<span class="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-sm font-medium text-brand-700">
+									<?php echo ui_icon("banknotes", "h-3.5 w-3.5"); ?>
 									<span>Thanh toán</span>
 								</span>
 								<span class="font-medium text-slate-900">
@@ -415,9 +391,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 						<div class="flex flex-col gap-1 text-sm text-slate-500">
 							<?php if ($timeText !== '') { ?>
 								<div class="inline-flex items-center gap-1">
-									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3.5 w-3.5">
-										<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-									</svg>
+									<?php echo ui_icon("clock", "h-3.5 w-3.5"); ?>
 									<span><?php echo htmlspecialchars($timeText); ?></span>
 								</div>
 							<?php } ?>
@@ -433,9 +407,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 			<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 				<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
 					<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-amber-700">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m3.75 0a8.25 8.25 0 1 1-16.5 0 8.25 8.25 0 0 1 16.5 0Z" />
-						</svg>
+						<?php echo ui_icon("clock", "h-4 w-4"); ?>
 					</span>
 					<span>Lịch sử thay đổi</span>
 				</div>
@@ -476,7 +448,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 										$totalAmount = isset($detailDecoded['total_amount']) ? (float) $detailDecoded['total_amount'] : 0.0;
 										$context = isset($detailDecoded['context']) ? $detailDecoded['context'] : 'add';
 										?>
-										<div class="leading-relaxed text-sm text-emerald-700">
+										<div class="leading-relaxed text-sm text-brand-700">
 											<?php if ($context === 'update') { ?>
 												Tăng số lượng cho <?php echo $itemsCount; ?> sản phẩm, + <?php echo Money::format($totalAmount); ?>
 											<?php } else { ?>
@@ -527,7 +499,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 									$methodText = isset($detailDecoded['method_text']) ? $detailDecoded['method_text'] : '';
 									$remainingAfter = isset($detailDecoded['remaining_after']) ? (float) $detailDecoded['remaining_after'] : null;
 									?>
-									<div class="leading-relaxed text-sm text-emerald-700">
+									<div class="leading-relaxed text-sm text-brand-700">
 										Thu <?php echo Money::format($amount); ?><?php if ($methodText !== '') { ?> (<?php echo htmlspecialchars($methodText); ?>)<?php } ?><?php if ($remainingAfter !== null) { ?>, còn nợ <?php echo Money::format($remainingAfter); ?><?php } ?>
 									</div>
 										<?php
@@ -543,7 +515,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 										$fromNumber = (float) str_replace(',', '.', $m[1]);
 										$toNumber = (float) str_replace(',', '.', $m[2]);
 										if ($toNumber > $fromNumber) {
-											$cssClass = 'text-emerald-700';
+											$cssClass = 'text-brand-700';
 										} elseif ($toNumber < $fromNumber) {
 											$cssClass = 'text-rose-700';
 										}
@@ -558,9 +530,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 											<?php echo htmlspecialchars($before); ?>
 											<?php echo htmlspecialchars($fromText); ?>
 											<span class="inline-flex items-center">
-												<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-</svg>
+												<?php echo ui_icon("arrow-right", "size-3"); ?>
 
 											</span>
 											<?php echo htmlspecialchars($toText); ?>
@@ -583,17 +553,15 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 	<?php } ?>
 </div>
 <?php if ($remaining > 0 && $orderStatus !== 'cancelled') { ?>
-	<div class="fixed p-3 inset-0 z-40 hidden items-center justify-center bg-black/40" data-order-payment-modal>
-		<div class="w-full max-w-md rounded-2xl bg-white ">
-			<div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-				<h2 class="text-sm font-medium text-slate-800">Thu tiền đơn hàng</h2>
-				<button type="button" class="text-slate-400 hover:text-slate-600" data-order-payment-close>
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
-						<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414Z" clip-rule="evenodd" />
-					</svg>
+	<div class="app-modal-overlay" data-order-payment-modal>
+		<div class="app-modal-sheet-sm">
+			<div class="app-modal-header">
+				<h2 class="app-modal-title">Thu tiền đơn hàng</h2>
+				<button type="button" class="app-modal-close" data-order-payment-close>
+					<?php echo ui_icon("x-mark", "h-4 w-4"); ?>
 				</button>
 			</div>
-			<form method="post" action="<?php echo $basePath; ?>/order/paymentStore" class="px-4 py-3 space-y-3">
+			<form method="post" action="<?php echo $basePath; ?>/order/paymentStore" class="app-modal-body space-y-3">
 				<div hidden>
 					<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
 					<input type="hidden" name="order_id" value="<?php echo $order['id']; ?>">
@@ -603,9 +571,9 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 					<div class="text-sm uppercase  text-slate-500">Tổng tiền</div>
 						<div class="mt-1 font-medium text-slate-900"><?php echo Money::format($order['total_amount']); ?></div>
 					</div>
-					<div class="rounded-md bg-emerald-50 px-3 py-2">
-					<div class="text-sm uppercase  text-emerald-600">Đã thu</div>
-						<div class="mt-1 font-medium text-emerald-700"><?php echo Money::format($order['paid_amount']); ?></div>
+					<div class="rounded-md bg-brand-50 px-3 py-2">
+					<div class="text-sm uppercase  text-brand-600">Đã thu</div>
+						<div class="mt-1 font-medium text-brand-700"><?php echo Money::format($order['paid_amount']); ?></div>
 					</div>
 					<div class="rounded-md bg-slate-50 px-3 py-2">
 					<div class="text-sm uppercase  text-slate-500">Còn nợ</div>
@@ -636,10 +604,10 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 				</div>
 				<div class="space-y-1">
 					<label class="block text-sm text-slate-700">Ghi chú</label>
-					<textarea name="note" rows="2" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:bg-white"></textarea>
+					<textarea name="note" rows="2" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white"></textarea>
 				</div>
-				<div class="mt-2 flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-					<button type="button" class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100" data-order-payment-close>Hủy</button>
+				<div class="app-modal-footer mt-2 pt-2 border-t border-slate-100 px-0 py-0">
+					<button type="button" class="app-btn-secondary" data-order-payment-close>Hủy</button>
 					<?php ui_button_primary('Xác nhận thu', ['type' => 'submit', 'class' => 'py-1.5', 'data-loading-button' => '1']); ?>
 				</div>
 			</form>

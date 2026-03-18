@@ -40,21 +40,19 @@ if (!empty($fromDate) || !empty($toDate)) {
 }
 ?>
 
-<div class="fixed inset-0 z-40 hidden items-center justify-center bg-black/40" data-order-advanced-filter-root>
-	<div class="w-full max-w-sm rounded-2xl bg-white  mx-4 my-6">
-		<div class="flex items-center justify-between border-b border-slate-200 px-3 py-2">
-			<h2 class="text-sm font-medium text-slate-800">Lọc nâng cao</h2>
-			<button type="button" class="text-slate-400 hover:text-slate-600" data-order-advanced-filter-close>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
-					<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414Z" clip-rule="evenodd" />
-				</svg>
+<div class="app-modal-overlay" data-order-advanced-filter-root>
+	<div class="app-modal-sheet-sm">
+		<div class="app-modal-header">
+			<h2 class="app-modal-title">Lọc nâng cao</h2>
+			<button type="button" class="app-modal-close" data-order-advanced-filter-close>
+				<?php echo ui_icon("x-mark", "h-4 w-4"); ?>
 			</button>
 		</div>
 		<?php $statusValue = isset($statusFilter) ? $statusFilter : ''; ?>
 		<?php
 		$hasFilter = $statusValue !== '' || $orderStatusValue !== '' || (!empty($fromDate) || !empty($toDate));
 		?>
-		<form method="get" class="space-y-4 px-3 py-2 text-sm" data-order-filter-form>
+		<form method="get" class="app-modal-body space-y-4" data-order-filter-form>
 			<input type="hidden" name="q" value="<?php echo isset($keyword) ? htmlspecialchars($keyword) : ''; ?>">
 			<input type="hidden" name="order_status" value="<?php echo htmlspecialchars($orderStatusValue); ?>">
 				<div>
@@ -72,9 +70,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 					]);
 					?>
 					<span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-slate-400">
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
-							<path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
-						</svg>
+						<?php echo ui_icon("chevron-down", "h-4 w-4"); ?>
 					</span>
 				</div>
 			</div>
@@ -109,7 +105,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 					<?php } ?>
 				</div>
 				<div class="flex items-center gap-2">
-					<button type="button" class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100" data-order-advanced-filter-close>Đóng</button>
+					<button type="button" class="app-btn-secondary" data-order-advanced-filter-close>Đóng</button>
 					<?php ui_button_primary('Áp dụng', ['type' => 'submit', 'class' => 'py-1.5', 'data-loading-button' => '1']); ?>
 				</div>
 			</div>

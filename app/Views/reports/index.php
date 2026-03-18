@@ -13,7 +13,7 @@ $formatDelta = function ($deltaItem, $periodLabel) {
 	$isUp = $amount > 0;
 	$isDown = $amount < 0;
 	$prefix = $isUp ? '+' : '';
-	$className = $isUp ? 'text-emerald-600' : ($isDown ? 'text-rose-600' : 'text-slate-500');
+	$className = $isUp ? 'text-brand-600' : ($isDown ? 'text-rose-600' : 'text-slate-500');
 	if ($percent !== null) {
 		$text = $prefix . rtrim(rtrim(number_format($percent, 1, '.', ''), '0'), '.') . '%';
 	} else {
@@ -40,7 +40,7 @@ $renderKpiCard = function ($config) {
 	$deltaClass = isset($config['delta_class']) ? (string) $config['delta_class'] : 'text-slate-500';
 	$borderClass = isset($config['border_class']) ? (string) $config['border_class'] : 'border-slate-200';
 	?>
-	<div class="rounded-2xl border <?php echo $borderClass; ?> bg-white p-3 text-sm text-slate-800">
+	<div class="rounded-card border <?php echo $borderClass; ?> bg-white p-3 text-sm text-slate-800">
 		<div class="min-w-0">
 			<div class="text-sm font-medium text-slate-500"><?php echo htmlspecialchars($title); ?></div>
 			<div class="mt-0.5 text-lg font-medium text-slate-900"><?php echo $value; ?></div>
@@ -80,14 +80,14 @@ $renderKpiCard = function ($config) {
 			'value' => Money::format($ordersMonth['profit']),
 			'delta_text' => $monthProfitDelta['text'],
 			'delta_class' => $monthProfitDelta['class'],
-			'border_class' => 'border-emerald-100',
+			'border_class' => 'border-brand-100',
 		]);
 		$renderKpiCard([
 			'title' => 'Doanh thu hôm nay',
 			'value' => Money::format($ordersToday['total_amount']),
 			'delta_text' => $todayTotalDelta['text'],
 			'delta_class' => $todayTotalDelta['class'],
-			'border_class' => 'border-emerald-100',
+			'border_class' => 'border-brand-100',
 		]);
 		$renderKpiCard([
 			'title' => 'Lợi nhuận hôm nay',

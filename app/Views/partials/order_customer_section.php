@@ -33,9 +33,7 @@
                         <button type="button" class="flex w-full items-center justify-between rounded-lg border border-dashed border-amber-300 bg-amber-50 px-3 py-2 text-left text-sm text-amber-800 hover:border-amber-400 hover:bg-amber-100" data-pos-existing-customer-placeholder>
                             <div class="flex items-center gap-2">
                                 <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                                    </svg>
+                                    <?php echo ui_icon("user", "h-4 w-4"); ?>
                                 </span>
                                 <div class="flex flex-col">
                                     <span class="font-medium" data-pos-existing-customer-name>Chưa chọn khách</span>
@@ -43,34 +41,32 @@
                                 </div>
                             </div>
                             <span class="ml-2 inline-flex h-6 w-6 items-center justify-center text-amber-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                </svg>
+                                <?php echo ui_icon("chevron-right", "h-4 w-4"); ?>
                             </span>
                         </button>
                     </div>
                     <div class="space-y-1 hidden" data-pos-new-customer>
                         <label class="block text-sm text-slate-700">Tên khách hàng</label>
-                        <input type="text" name="customer_name" value="" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 text-sm outline-none focus:border-emerald-500 focus:bg-white" />
+                        <input type="text" name="customer_name" value="" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 text-sm outline-none focus:border-brand-500 focus:bg-white" />
                     </div>
                     <div class="space-y-1 hidden" data-pos-new-customer>
                         <label class="block text-sm text-slate-700">Số điện thoại</label>
-                        <input type="text" name="customer_phone" value="" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 text-sm outline-none focus:border-emerald-500 focus:bg-white" />
+                        <input type="text" name="customer_phone" value="" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 text-sm outline-none focus:border-brand-500 focus:bg-white" />
                     </div>
                     <div class="space-y-1 md:col-span-2 hidden" data-pos-new-customer>
                         <label class="block text-sm text-slate-700">Địa chỉ</label>
-                        <input type="text" name="customer_address" value="" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 text-sm outline-none focus:border-emerald-500 focus:bg-white" />
+                        <input type="text" name="customer_address" value="" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 text-sm outline-none focus:border-brand-500 focus:bg-white" />
                     </div>
 					<div class="space-y-1 md:col-span-2">
                         <label class="block text-sm text-slate-700">Thanh toán</label>
 						<div class="flex w-full rounded-full bg-slate-100 p-0.5 text-sm text-slate-700">
 							<label class="inline-flex flex-1">
 								<input type="radio" name="payment_status" value="pay" class="peer sr-only" checked>
-								<span class="inline-flex flex-1 items-center justify-center rounded-full px-3 py-2 font-medium text-slate-700 peer-checked:bg-emerald-600 peer-checked:text-white">Thanh toán</span>
+								<span class="inline-flex flex-1 items-center justify-center rounded-full px-3 py-2 font-medium text-slate-700 peer-checked:bg-brand-600 peer-checked:text-white">Thanh toán</span>
 							</label>
 							<label class="inline-flex flex-1">
 								<input type="radio" name="payment_status" value="debt" class="peer sr-only">
-								<span class="inline-flex flex-1 items-center justify-center rounded-full px-3 py-2 font-medium text-slate-700 peer-checked:bg-emerald-600 peer-checked:text-white">Ghi nợ</span>
+								<span class="inline-flex flex-1 items-center justify-center rounded-full px-3 py-2 font-medium text-slate-700 peer-checked:bg-brand-600 peer-checked:text-white">Ghi nợ</span>
 							</label>
 						</div>
                     </div>
@@ -97,7 +93,7 @@
 					</div>
                     <div class="space-y-1 md:col-span-2">
                         <label class="block text-sm text-slate-700">Ghi chú</label>
-                        <textarea name="note" rows="3" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:bg-white"></textarea>
+                        <textarea name="note" rows="3" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white"></textarea>
                     </div>
                 </div>
                 <input type="hidden" name="items_json" value="" data-pos-items-json>
@@ -107,7 +103,7 @@
                 <input type="hidden" name="surcharge_amount" value="0" data-pos-surcharge-hidden>
 				<input type="hidden" name="round_total" value="0" data-order-round-total-flag>
 				<div class="mt-4 flex flex-wrap gap-2" data-floating-actions>
-					<button type="button" data-pos-submit-order class="inline-flex flex-1 items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 active:bg-emerald-800" data-loading-button="1" data-floating-primary="1">
+					<button type="button" data-pos-submit-order class="inline-flex flex-1 items-center justify-center rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 active:bg-brand-800" data-loading-button="1" data-floating-primary="1">
                         Nhập đơn
                     </button>
                 </div>
@@ -197,9 +193,7 @@
 						<button type="button" class="flex w-full items-center justify-between rounded-lg border border-dashed border-amber-300 bg-amber-50 px-3 py-2 text-left text-sm text-amber-800 hover:border-amber-400 hover:bg-amber-100" data-order-existing-customer-placeholder>
 							<div class="flex items-center gap-2">
 								<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-										<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-									</svg>
+									<?php echo ui_icon("user", "h-4 w-4"); ?>
 								</span>
 								<div class="flex flex-col">
 									<span class="font-medium" data-order-existing-customer-name><?php echo htmlspecialchars($currentCustomerNameLine); ?></span>
@@ -207,9 +201,7 @@
 								</div>
 							</div>
 							<span class="ml-2 inline-flex h-6 w-6 items-center justify-center text-amber-500">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-								</svg>
+								<?php echo ui_icon("chevron-right", "h-4 w-4"); ?>
 							</span>
 						</button>
 					</div>
@@ -227,11 +219,11 @@
 					</div>
 					<div class="space-y-1 md:col-span-2">
 						<label class="block text-sm text-slate-700">Ngày giờ đơn hàng</label>
-						<input type="datetime-local" name="order_date" value="<?php echo htmlspecialchars($orderDateValue); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:bg-white">
+						<input type="datetime-local" name="order_date" value="<?php echo htmlspecialchars($orderDateValue); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white">
 					</div>
 					<div class="space-y-1 md:col-span-2">
 						<label class="block text-sm text-slate-700">Ghi chú</label>
-						<textarea name="note" rows="3" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:bg-white"><?php echo htmlspecialchars($noteValue); ?></textarea>
+						<textarea name="note" rows="3" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white"><?php echo htmlspecialchars($noteValue); ?></textarea>
 					</div>
 					<input type="hidden" name="discount_type" value="<?php echo $discountTypeValue; ?>" data-order-discount-type>
 					<input type="hidden" name="discount_value" value="<?php echo $discountValueRaw; ?>" data-order-discount-value>
@@ -244,7 +236,7 @@
                     <a href="<?php echo $basePath; ?>/order/view?id=<?php echo $order['id']; ?>" class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
                         Hủy
                     </a>
-					<button type="submit" class="inline-flex min-h-11 items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 active:bg-emerald-800" data-loading-button="1" data-floating-primary="1">
+					<button type="submit" class="inline-flex min-h-11 items-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 active:bg-brand-800" data-loading-button="1" data-floating-primary="1">
                         Lưu thay đổi
                     </button>
                 </div>
