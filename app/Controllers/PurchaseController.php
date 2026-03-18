@@ -503,6 +503,7 @@ class PurchaseController extends Controller
             }
 
             $pdo->commit();
+            ReportService::clearReportCache();
             $this->setFlash('success', 'Đã tạo phiếu nhập hàng #' . $purchaseId . '.');
             $this->redirect('purchase');
         } catch (Exception $e) {
@@ -723,6 +724,7 @@ class PurchaseController extends Controller
             }
 
             $pdo->commit();
+            ReportService::clearReportCache();
             $this->setFlash('success', 'Đã cập nhật phiếu nhập hàng #' . $id . '.');
             $this->redirect('purchase/view?id=' . $id);
         } catch (Exception $e) {

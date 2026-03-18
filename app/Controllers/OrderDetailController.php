@@ -815,6 +815,7 @@ class OrderDetailController extends Controller
             }
 
             $pdo->commit();
+            ReportService::clearReportCache();
 
             $this->setFlash('success', 'Đã cập nhật đơn hàng.');
             $this->redirect('order/view?id=' . $id);
@@ -999,6 +1000,7 @@ class OrderDetailController extends Controller
             }
 
             $pdo->commit();
+            ReportService::clearReportCache();
             $this->setFlash('success', 'Đã thêm sản phẩm vào đơn hàng.');
             $this->redirect('order/view?id=' . $orderId);
         } catch (Exception $e) {
@@ -1173,6 +1175,7 @@ class OrderDetailController extends Controller
             }
 
             $pdo->commit();
+            ReportService::clearReportCache();
         } catch (Exception $e) {
             $pdo->rollBack();
             $this->setFlash('error', 'Không thể cập nhật trạng thái đơn hàng: ' . $e->getMessage());

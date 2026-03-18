@@ -293,6 +293,7 @@ class PosController extends Controller
 			}
 
             $pdo->commit();
+            ReportService::clearReportCache();
             $this->setFlash('success', 'Đã lưu đơn hàng #' . $orderId . '.');
             $this->redirect('pos');
         } catch (Exception $e) {

@@ -98,6 +98,7 @@ class PaymentService
             }
 
             $pdo->commit();
+            ReportService::clearReportCache();
         } catch (Exception $e) {
             $pdo->rollBack();
             throw $e;
@@ -187,6 +188,7 @@ class PaymentService
             }
 
             $pdo->commit();
+            ReportService::clearReportCache();
         } catch (Exception $e) {
             $pdo->rollBack();
             throw $e;

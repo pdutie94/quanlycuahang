@@ -164,4 +164,47 @@ class ReportService
         self::setCache($cacheKey, $debt, 600);
         return $debt;
     }
+
+    public static function clearReportCache()
+    {
+        $patterns = [
+            'sumOrdersByDateRange:*',
+            'sumCustomerDebt',
+            'sumPurchasesByDateRange:*',
+            'sumSupplierDebt',
+        ];
+
+        if (function_exists('apcu_delete') && ini_get('apc.enabled')) {
+            foreach ($patterns as $pattern) {
+                apcu_delete(new APCUIterator($pattern));
+            }
+            return;
+        }
+
+        if (extension_loaded('redis')) {
+            try {
+                $redis = new Redis();
+                $redis->connect('127.0.0.1', 6379);
+                foreach ($patterns as $pattern) {
+                    $pattern = str_replace('*', '', $pattern);
+                    $keys = $redis->keys($pattern . '*');
+                    if (!empty($keys)) {
+                        $redis->del(...$keys);
+                    }
+                }
+                return;
+            } catch (Exception $e) {
+                // fallback
+            }
+        }
+
+        $tempDir = sys_get_temp_dir();
+        $pattern = 'report_cache_';
+        $files = @glob($tempDir . DIRECTORY_SEPARATOR . $pattern . '*.cache');
+        if ($files) {
+            foreach ($files as $file) {
+                @unlink($file);
+            }
+        }
+    }
 }

@@ -141,6 +141,7 @@ class OrderPaymentController extends Controller
 			}
 
 			$pdo->commit();
+			ReportService::clearReportCache();
 			$this->setFlash('success', 'Đã đặt lại thanh toán về trạng thái còn nợ.');
 			$this->redirect('order/view?id=' . $id);
 		} catch (Exception $e) {
@@ -479,6 +480,7 @@ class OrderPaymentController extends Controller
             }
 
             $pdo->commit();
+            ReportService::clearReportCache();
             $this->setFlash('success', 'Đã ghi nhận trả hàng cho đơn #' . $orderId . '.');
             $this->redirect('order/view?id=' . $orderId);
         } catch (Exception $e) {
