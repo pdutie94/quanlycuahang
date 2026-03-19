@@ -7,21 +7,22 @@
 </div>
 
 <div class="mb-4 rounded-lg bg-white px-4 py-4 lg:px-5 lg:py-5  border border-slate-200">
-    <form method="post" action="<?php echo $basePath; ?>/unit/store" class="flex flex-col gap-2 sm:flex-row sm:items-center">
+    <form method="post" action="<?php echo $basePath; ?>/unit/store" class="flex flex-col gap-4 sm:flex-row sm:items-end">
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-        <div class="flex-1">
-            <label class="mb-1 block text-sm font-medium text-slate-700">Thêm đơn vị mới</label>
+        <div class="relative flex-1">
+            <label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Thêm đơn vị mới</label>
             <div class="grid grid-cols-1">
                 <?php
                 $unitNameValue = isset($_POST['name']) && is_string($_POST['name']) ? $_POST['name'] : '';
                 ui_input_text('name', $unitNameValue, [
                     'required' => 'required',
                     'placeholder' => 'Tên (ví dụ: Cái, Kg, Mét)',
+                    'class' => 'pt-3 pb-2.5',
                 ]);
                 ?>
             </div>
         </div>
-        <div class="pt-2 sm:pt-6">
+        <div>
             <?php ui_button_primary('Lưu', ['type' => 'submit', 'data-loading-button' => '1']); ?>
         </div>
     </form>
@@ -44,7 +45,7 @@
                 <td class="px-4 py-2 text-sm text-slate-800">
                     <input type="hidden" name="id" value="<?php echo $unit['id']; ?>" form="<?php echo $formId; ?>">
                     <div class="flex items-center gap-2">
-                        <input type="text" name="name" value="<?php echo htmlspecialchars($unit['name']); ?>" form="<?php echo $formId; ?>" class="form-field block flex-1 rounded-md border border-slate-300 bg-slate-50 px-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white" placeholder="Tên đơn vị" />
+                        <input type="text" name="name" value="<?php echo htmlspecialchars($unit['name']); ?>" form="<?php echo $formId; ?>" class="form-field block flex-1 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-brand-500" placeholder="Tên đơn vị" />
                     </div>
                 </td>
 				<td class="px-2 py-2 text-right text-sm align-middle w-px whitespace-nowrap">

@@ -53,10 +53,10 @@ if (!empty($fromDate) || !empty($toDate)) {
 		$hasFilter = $statusValue !== '' || $orderStatusValue !== '' || (!empty($fromDate) || !empty($toDate));
 		?>
 		<form method="get" class="app-modal-body space-y-4" data-order-filter-form>
-			<input type="hidden" name="q" value="<?php echo isset($keyword) ? htmlspecialchars($keyword) : ''; ?>">
-			<input type="hidden" name="order_status" value="<?php echo htmlspecialchars($orderStatusValue); ?>">
-				<div>
-					<label class="mb-1 block text-sm font-medium text-slate-500">Trạng thái thanh toán</label>
+			<input type="hidden" hidden name="q" value="<?php echo isset($keyword) ? htmlspecialchars($keyword) : ''; ?>">
+			<input type="hidden" hidden name="order_status" value="<?php echo htmlspecialchars($orderStatusValue); ?>">
+				<div class="relative">
+					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Trạng thái thanh toán</label>
 				<div class="relative">
 					<?php
 					$statusOptions = [
@@ -66,7 +66,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 					];
 					ui_select('status', $statusOptions, $statusValue, [
 						'data-no-select2' => '1',
-						'class' => 'appearance-none pr-8',
+						'class' => 'appearance-none pr-8 pt-3',
 					]);
 					?>
 					<span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-slate-400">
@@ -75,22 +75,22 @@ if (!empty($fromDate) || !empty($toDate)) {
 				</div>
 			</div>
 				<div>
-					<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-						<div>
-							<label class="mb-1 block text-sm font-medium text-slate-500">Từ ngày</label>
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+						<div class="relative">
+							<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Từ ngày</label>
 							<?php
 							ui_input_text('from_date', isset($fromDate) ? $fromDate : '', [
 								'type' => 'date',
-								'class' => 'px-3 py-1.5',
+								'class' => 'pt-3 pb-2.5',
 							]);
 							?>
 						</div>
-						<div>
-							<label class="mb-1 block text-sm font-medium text-slate-500">Đến ngày</label>
+						<div class="relative">
+							<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Đến ngày</label>
 							<?php
 							ui_input_text('to_date', isset($toDate) ? $toDate : '', [
 								'type' => 'date',
-								'class' => 'px-3 py-1.5',
+								'class' => 'pt-3 pb-2.5',
 							]);
 							?>
 						</div>
@@ -106,7 +106,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 				</div>
 				<div class="flex items-center gap-2">
 					<button type="button" class="app-btn-secondary" data-order-advanced-filter-close>Đóng</button>
-					<?php ui_button_primary('Áp dụng', ['type' => 'submit', 'class' => 'py-1.5', 'data-loading-button' => '1']); ?>
+					<?php ui_button_primary('Áp dụng', ['type' => 'submit', 'data-loading-button' => '1']); ?>
 				</div>
 			</div>
 		</form>

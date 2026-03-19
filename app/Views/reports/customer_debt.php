@@ -19,38 +19,38 @@ $showAll = !empty($showAll);
 	include __DIR__ . '/_report_nav.php';
 	?>
 
-	<form method="get" class="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm  space-y-3">
+	<form method="get" class="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm space-y-4">
 		<input type="hidden" name="r" value="report/customerDebt">
-		<div class="grid grid-cols-1 gap-3 sm:grid-cols-4">
-			<div class="space-y-1">
-				<label class="block text-sm font-medium uppercase  text-slate-500">Từ ngày</label>
+		<div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+			<div class="relative">
+				<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Từ ngày</label>
 				<?php
 				ui_input_text('start_date', $startDate, [
 					'type' => 'date',
-					'class' => 'px-3 py-1.5',
+					'class' => 'pt-3 pb-2.5',
 				]);
 				?>
 			</div>
-			<div class="space-y-1">
-				<label class="block text-sm font-medium uppercase  text-slate-500">Đến ngày</label>
+			<div class="relative">
+				<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Đến ngày</label>
 				<?php
 				ui_input_text('end_date', $endDate, [
 					'type' => 'date',
-					'class' => 'px-3 py-1.5',
+					'class' => 'pt-3 pb-2.5',
 				]);
 				?>
 			</div>
-			<div class="space-y-1">
-				<label class="block text-sm font-medium uppercase  text-slate-500">Từ khóa</label>
+			<div class="relative">
+				<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Từ khóa</label>
 				<?php
 				ui_input_text('q', $keyword, [
 					'placeholder' => 'Tên, SĐT, địa chỉ',
-					'class' => 'px-3 py-1.5',
+					'class' => 'pt-3 pb-2.5',
 				]);
 				?>
 			</div>
-			<div class="space-y-1">
-				<label class="block text-sm font-medium uppercase  text-slate-500">Tùy chọn</label>
+			<div class="space-y-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+				<label class="block text-sm font-medium text-slate-700">Tùy chọn</label>
 				<label class="inline-flex items-center gap-2 text-sm text-slate-700">
 					<input type="checkbox" name="show_all" value="1" <?php echo $showAll ? 'checked' : ''; ?> class="h-3 w-3 rounded border-slate-300 text-brand-600">
 					<span>Hiển thị cả khách đã thanh toán đủ</span>
@@ -58,8 +58,8 @@ $showAll = !empty($showAll);
 			</div>
 		</div>
 		<div class="flex items-center justify-end gap-2">
-			<a href="<?php echo $basePath; ?>/report/customer-debt" class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium text-slate-500 hover:bg-slate-100">Đặt lại</a>
-			<?php ui_button_primary('Lọc dữ liệu', ['type' => 'submit', 'class' => 'px-3 py-1 text-sm', 'data-loading-button' => '1']); ?>
+			<a href="<?php echo $basePath; ?>/report/customer-debt" class="inline-flex h-[34px] min-h-[34px] items-center justify-center rounded-lg px-4 text-sm font-medium text-slate-500 hover:bg-slate-100">Đặt lại</a>
+			<?php ui_button_primary('Lọc dữ liệu', ['type' => 'submit', 'data-loading-button' => '1']); ?>
 		</div>
 	</form>
 </div>

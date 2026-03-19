@@ -19,34 +19,35 @@
 		<?php if ($supplier) { ?>
 			<input type="hidden" name="id" value="<?php echo (int) $supplier['id']; ?>" />
 		<?php } ?>
-			<div class="flex flex-col gap-3">
-				<div class="space-y-1 md:col-span-2">
-					<label class="block text-sm font-medium text-slate-700">Tên nhà cung cấp</label>
+			<div class="flex flex-col gap-4">
+				<div class="relative md:col-span-2">
+					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Tên nhà cung cấp</label>
 					<?php
 					$supplierNameValue = $supplier ? $supplier['name'] : '';
 					ui_input_text('name', $supplierNameValue, [
 						'required' => 'required',
+						'class' => 'pt-3 pb-2.5',
 					]);
 					?>
 				</div>
-				<div class="space-y-1">
-					<label class="block text-sm font-medium text-slate-700">Số điện thoại</label>
+				<div class="relative">
+					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số điện thoại</label>
 					<?php
 					$supplierPhoneValue = $supplier ? $supplier['phone'] : '';
-					ui_input_text('phone', $supplierPhoneValue);
+					ui_input_text('phone', $supplierPhoneValue, ['class' => 'pt-3 pb-2.5']);
 					?>
 				</div>
-				<div class="space-y-1">
-					<label class="block text-sm font-medium text-slate-700">Địa chỉ</label>
+				<div class="relative">
+					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Địa chỉ</label>
 					<?php
 					$supplierAddressValue = $supplier ? $supplier['address'] : '';
-					ui_input_text('address', $supplierAddressValue);
+					ui_input_text('address', $supplierAddressValue, ['class' => 'pt-3 pb-2.5']);
 					?>
 				</div>
 				<div data-floating-actions>
 					<?php
 					$submitLabel = $supplier ? 'Cập nhật' : 'Lưu';
-					ui_button_primary($submitLabel, ['type' => 'submit', 'data-loading-button' => '1', 'data-floating-primary' => '1']);
+					ui_button_primary($submitLabel, ['type' => 'submit', 'class' => 'h-[34px] min-h-[34px]', 'data-loading-button' => '1', 'data-floating-primary' => '1']);
 					?>
 				</div>
 			</div>

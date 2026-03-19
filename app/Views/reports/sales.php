@@ -41,7 +41,7 @@ if (preg_match('/^\d{4}-(\d{2})-\d{2}$/', $dayValue, $m)) {
 	?>
 </div>
 
-<form method="get" action="<?php echo $basePath; ?>/report/sales" class="mb-4 rounded-lg bg-white px-3 py-3  border border-slate-200" data-sales-filter-form>
+<form method="get" action="<?php echo $basePath; ?>/report/sales" class="mb-4 rounded-lg bg-white px-3 py-3 border border-slate-200" data-sales-filter-form>
 	<input type="hidden" name="r" value="report/sales">
 	<input type="hidden" name="filter_mode" value="<?php echo htmlspecialchars($rangeMode); ?>" data-sales-mode-input>
 	<div class="flex items-center justify-between gap-2">
@@ -53,45 +53,46 @@ if (preg_match('/^\d{4}-(\d{2})-\d{2}$/', $dayValue, $m)) {
 		<?php } ?>
 	</div>
 	<div class="mt-2 flex flex-wrap items-center gap-2">
-		<button type="button" class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium data-[active=\"1\"]:border-brand-600 data-[active=\"1\"]:bg-brand-50 data-[active=\"1\"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="day">
+		<button type="button" class="inline-flex h-[34px] min-h-[34px] items-center rounded-xl border px-4 text-sm font-medium data-[active="1"]:border-brand-600 data-[active="1"]:bg-brand-50 data-[active="1"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="day">
 			Ngày
 		</button>
-		<button type="button" class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium data-[active=\"1\"]:border-brand-600 data-[active=\"1\"]:bg-brand-50 data-[active=\"1\"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="month">
+		<button type="button" class="inline-flex h-[34px] min-h-[34px] items-center rounded-xl border px-4 text-sm font-medium data-[active="1"]:border-brand-600 data-[active="1"]:bg-brand-50 data-[active="1"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="month">
 			Tháng
 		</button>
-		<button type="button" class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium data-[active=\"1\"]:border-brand-600 data-[active=\"1\"]:bg-brand-50 data-[active=\"1\"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="quarter">
+		<button type="button" class="inline-flex h-[34px] min-h-[34px] items-center rounded-xl border px-4 text-sm font-medium data-[active="1"]:border-brand-600 data-[active="1"]:bg-brand-50 data-[active="1"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="quarter">
 			Quý
 		</button>
-		<button type="button" class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium data-[active=\"1\"]:border-brand-600 data-[active=\"1\"]:bg-brand-50 data-[active=\"1\"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="year">
+		<button type="button" class="inline-flex h-[34px] min-h-[34px] items-center rounded-xl border px-4 text-sm font-medium data-[active="1"]:border-brand-600 data-[active="1"]:bg-brand-50 data-[active="1"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="year">
 			Năm
 		</button>
 	</div>
 	<div class="mt-3 space-y-2">
-		<div class="space-y-1" data-sales-input="day">
-			<label class="block text-sm font-medium text-slate-600">Chọn ngày</label>
+		<div class="relative" data-sales-input="day">
+			<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Chọn ngày</label>
 			<?php
 			ui_input_text('day', $dayValue, [
 				'type' => 'date',
-				'class' => 'px-2.5',
+				'class' => 'pt-3 pb-2.5',
 				'data-sales-day-input' => '1',
 			]);
 			?>
 		</div>
-		<div class="space-y-1 hidden" data-sales-input="month">
-			<label class="block text-sm font-medium text-slate-600">Chọn tháng</label>
+		<div class="relative hidden" data-sales-input="month">
+			<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Chọn tháng</label>
 			<?php
 			ui_input_text('month', $monthValue, [
 				'type' => 'month',
-				'class' => 'px-2.5',
+				'class' => 'pt-3 pb-2.5',
 				'data-sales-month-input' => '1',
 			]);
 			?>
 		</div>
-		<div class="space-y-1 hidden" data-sales-input="quarter">
-			<label class="block text-sm font-medium text-slate-600">Chọn quý</label>
+		<div class="space-y-2 hidden" data-sales-input="quarter">
+			<label class="block text-sm font-medium text-slate-700">Chọn quý</label>
 			<div class="grid grid-cols-2 gap-2">
-				<div>
-					<select name="quarter" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-sm outline-none focus:border-brand-500 focus:bg-white" data-sales-quarter-input>
+				<div class="relative">
+					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Quý</label>
+					<select name="quarter" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500" data-sales-quarter-input>
 						<option value="">Chọn quý</option>
 						<option value="1" <?php echo $quarterValue === '1' ? 'selected' : ''; ?>>Quý 1</option>
 						<option value="2" <?php echo $quarterValue === '2' ? 'selected' : ''; ?>>Quý 2</option>
@@ -99,34 +100,35 @@ if (preg_match('/^\d{4}-(\d{2})-\d{2}$/', $dayValue, $m)) {
 						<option value="4" <?php echo $quarterValue === '4' ? 'selected' : ''; ?>>Quý 4</option>
 					</select>
 				</div>
-				<div>
+				<div class="relative">
+					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Năm</label>
 					<?php
 					ui_input_text('quarter_year', $quarterYear, [
 						'type' => 'number',
 						'min' => '2000',
 						'max' => '2100',
-						'class' => 'px-2.5',
+						'class' => 'pt-3 pb-2.5',
 						'data-sales-quarter-year-input' => '1',
 					]);
 					?>
 				</div>
 			</div>
 		</div>
-		<div class="space-y-1 hidden" data-sales-input="year">
-			<label class="block text-sm font-medium text-slate-600">Chọn năm</label>
+		<div class="relative hidden" data-sales-input="year">
+			<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Chọn năm</label>
 			<?php
 			ui_input_text('year', $yearValue, [
 				'type' => 'number',
 				'min' => '2000',
 				'max' => '2100',
-				'class' => 'px-2.5',
+				'class' => 'pt-3 pb-2.5',
 				'data-sales-year-input' => '1',
 			]);
 			?>
 		</div>
 	</div>
 	<div class="mt-3 flex justify-end">
-		<?php ui_button_primary('Lọc', ['type' => 'submit', 'class' => 'px-3 py-1.5', 'data-loading-button' => '1']); ?>
+		<?php ui_button_primary('Lọc', ['type' => 'submit', 'data-loading-button' => '1']); ?>
 	</div>
 </form>
 

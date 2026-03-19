@@ -108,7 +108,7 @@ if ($debt < 0) {
                                     max="<?php echo $qty; ?>"
                                     step="0.01"
                                     placeholder="0"
-                                    class="h-8 w-24 rounded-md border border-slate-300 bg-slate-50 px-2 text-right text-sm outline-none focus:border-brand-500 focus:bg-white"
+                                    class="form-field h-[34px] min-h-[34px] w-24 rounded-xl border border-slate-300 bg-white px-2.5 text-right text-sm outline-none transition focus:border-brand-500"
                                 >
                             </div>
                         </div>
@@ -118,11 +118,11 @@ if ($debt < 0) {
         </div>
 
         <div class="flex flex-wrap items-center justify-end gap-2">
-            <a href="<?php echo $basePath; ?>/order/view?id=<?php echo (int) $order['id']; ?>" class="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+            <a href="<?php echo $basePath; ?>/order/view?id=<?php echo (int) $order['id']; ?>" class="inline-flex h-[34px] min-h-[34px] items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 hover:bg-slate-50">
 				<?php echo ui_icon("arrow-left-on-rectangle", "h-4 w-4"); ?>
                 <span>Hủy</span>
             </a>
-            <button type="submit" class="inline-flex items-center gap-1.5 rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white  hover:bg-rose-700 active:bg-rose-800">
+            <button type="submit" class="inline-flex h-[34px] min-h-[34px] items-center gap-1.5 rounded-lg bg-rose-600 px-4 text-sm font-medium text-white hover:bg-rose-700 active:bg-rose-800">
 				<?php echo ui_icon("arrow-path", "h-4 w-4"); ?>
                 <span>Ghi nhận trả hàng</span>
             </button>

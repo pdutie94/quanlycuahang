@@ -49,21 +49,22 @@ $totalItems = count($items);
 								<?php echo htmlspecialchars($row['base_unit_name']); ?>
 							</span>
 						</div>
-						<form method="post" action="<?php echo $basePath; ?>/report/inventoryAdjust" class="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+						<form method="post" action="<?php echo $basePath; ?>/report/inventoryAdjust" class="mt-2 flex flex-wrap items-end gap-2 text-sm text-slate-600">
 							<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
 							<input type="hidden" name="product_id" value="<?php echo (int) $row['id']; ?>">
 							<?php
 							$inventoryAdjustValue = rtrim(rtrim(number_format($qtyBase, 2, ',', ''), '0'), ',');
 							?>
-							<div class="w-24">
+							<div class="relative w-28">
+								<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số lượng</label>
 								<?php
 								ui_input_text('qty_base', $inventoryAdjustValue, [
-									'class' => 'h-8 px-2 text-right text-sm text-slate-800',
+									'class' => 'pt-3 pb-2.5 text-right text-sm text-slate-800',
 								]);
 								?>
 							</div>
 							<span class="text-slate-500"><?php echo htmlspecialchars($row['base_unit_name']); ?></span>
-							<?php ui_button_primary('Cập nhật tồn', ['type' => 'submit', 'class' => 'h-8 px-2.5 text-sm', 'data-loading-button' => '1']); ?>
+							<?php ui_button_primary('Cập nhật tồn', ['type' => 'submit', 'data-loading-button' => '1']); ?>
 						</form>
 					</div>
 					<div class="flex flex-col items-end justify-between gap-1 text-sm text-slate-500">

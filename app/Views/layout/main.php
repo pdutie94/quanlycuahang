@@ -94,7 +94,6 @@ $isReportRoute = (strpos($currentRoute, 'report') === 0);
     <link rel="apple-touch-icon" sizes="192x192" href="<?php echo $basePath; ?>/assets/icons/icon-192.png">
     <link rel="apple-touch-icon" sizes="512x512" href="<?php echo $basePath; ?>/assets/icons/icon-512.png">
 	<link href="<?php echo $basePath; ?>/assets/css/tailwind.css?v=<?php echo htmlspecialchars($assetVersion, ENT_QUOTES, 'UTF-8'); ?>" rel="stylesheet">
-	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 	<link href="<?php echo $basePath; ?>/assets/css/style.css?v=<?php echo htmlspecialchars($assetVersion, ENT_QUOTES, 'UTF-8'); ?>" rel="stylesheet">
 </head>
@@ -243,7 +242,6 @@ $isReportRoute = (strpos($currentRoute, 'report') === 0);
   src="https://code.jquery.com/jquery-3.7.1.min.js"
   integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
   crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="<?php echo $basePath; ?>/assets/icons.js?v=<?php echo htmlspecialchars($assetVersion, ENT_QUOTES, 'UTF-8'); ?>"></script>
 <script src="<?php echo $basePath; ?>/assets/app.js?v=<?php echo htmlspecialchars($assetVersion, ENT_QUOTES, 'UTF-8'); ?>"></script>

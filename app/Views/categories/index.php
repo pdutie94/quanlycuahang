@@ -6,17 +6,19 @@
         </button>
     </div>
     <div class="rounded-lg border border-slate-200 bg-white px-4 py-3  hidden" data-category-form>
-        <form method="post" action="<?php echo $basePath; ?>/category/store" class="flex items-center gap-3">
+        <form method="post" action="<?php echo $basePath; ?>/category/store" class="flex items-end gap-3">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-            <div class="flex-1">
+            <div class="relative flex-1">
+                <label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Tên danh mục</label>
                 <?php
                 $categoryNameValue = '';
                 if (isset($_POST['name']) && is_string($_POST['name'])) {
                     $categoryNameValue = $_POST['name'];
                 }
                 ui_input_text('name', $categoryNameValue, [
-                    'placeholder' => 'Tên danh mục',
+                    'placeholder' => 'Nhập tên danh mục',
                     'required' => 'required',
+                    'class' => 'pt-3 pb-2.5',
                 ]);
                 ?>
             </div>

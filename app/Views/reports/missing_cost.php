@@ -23,38 +23,38 @@ $endDate = isset($endDate) ? $endDate : '';
 	?>
 </div>
 
-<form method="get" action="<?php echo $basePath; ?>/report/missing-cost" class="mb-4 rounded-lg bg-white px-3 py-3  border border-slate-200 space-y-3">
+<form method="get" action="<?php echo $basePath; ?>/report/missing-cost" class="mb-4 rounded-lg bg-white px-3 py-3 border border-slate-200 space-y-4">
 	<input type="hidden" name="r" value="report/missingCost">
-	<div class="grid grid-cols-1 gap-3 md:grid-cols-4">
-			<div class="space-y-1">
-				<label class="block text-sm font-medium text-slate-600">Từ ngày</label>
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+			<div class="relative">
+				<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Từ ngày</label>
 			<?php
 			ui_input_text('start_date', $startDate, [
 				'type' => 'date',
-				'class' => 'px-2.5',
+				'class' => 'pt-3 pb-2.5',
 			]);
 			?>
 		</div>
-			<div class="space-y-1">
-				<label class="block text-sm font-medium text-slate-600">Đến ngày</label>
+			<div class="relative">
+				<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Đến ngày</label>
 			<?php
 			ui_input_text('end_date', $endDate, [
 				'type' => 'date',
-				'class' => 'px-2.5',
+				'class' => 'pt-3 pb-2.5',
 			]);
 			?>
 		</div>
-			<div class="space-y-1">
-				<label class="block text-sm font-medium text-slate-600">Tìm kiếm</label>
+			<div class="relative">
+				<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Tìm kiếm</label>
 			<?php
 			ui_input_text('q', $keyword, [
 				'placeholder' => 'Mã đơn, tên SP, khách hàng, số ĐT...',
-				'class' => 'px-2.5',
+				'class' => 'pt-3 pb-2.5',
 			]);
 			?>
 		</div>
 		<div class="flex items-end justify-end">
-			<?php ui_button_secondary('Lọc', ['type' => 'submit', 'class' => 'px-3 py-1.5 text-sm', 'data-loading-button' => '1']); ?>
+			<?php ui_button_secondary('Lọc', ['type' => 'submit', 'data-loading-button' => '1']); ?>
 		</div>
 	</div>
 </form>
@@ -91,14 +91,14 @@ $endDate = isset($endDate) ? $endDate : '';
 				<span class="font-medium"><?php echo (int) $summary['order_count']; ?></span> đơn bị ảnh hưởng.
 			</div>
 			<div class="flex flex-wrap items-center gap-2">
-				<button type="button" class="inline-flex items-center rounded-full border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100" data-missing-cost-select-all>
+				<button type="button" class="inline-flex h-[34px] min-h-[34px] items-center rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50" data-missing-cost-select-all>
 					Chọn tất cả
 				</button>
-				<button type="button" class="inline-flex items-center rounded-full border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100" data-missing-cost-unselect-all>
+				<button type="button" class="inline-flex h-[34px] min-h-[34px] items-center rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50" data-missing-cost-unselect-all>
 					Bỏ chọn
 				</button>
-				<?php ui_button_secondary('Cập nhật đã chọn', ['type' => 'submit', 'name' => 'mode', 'value' => 'selected', 'class' => 'px-3 py-1.5 text-sm', 'data-loading-button' => '1']); ?>
-				<?php ui_button_primary('Cập nhật tất cả', ['type' => 'submit', 'name' => 'mode', 'value' => 'all', 'class' => 'px-3 py-1.5 text-sm', 'data-loading-button' => '1']); ?>
+				<?php ui_button_secondary('Cập nhật đã chọn', ['type' => 'submit', 'name' => 'mode', 'value' => 'selected', 'data-loading-button' => '1']); ?>
+				<?php ui_button_primary('Cập nhật tất cả', ['type' => 'submit', 'name' => 'mode', 'value' => 'all', 'data-loading-button' => '1']); ?>
 			</div>
 		</div>
 

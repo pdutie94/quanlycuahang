@@ -175,7 +175,7 @@ if (!function_exists('ui_icon')) {
 if (!function_exists('ui_button_primary')) {
 	function ui_button_primary($label, $attrs = [])
 	{
-		$baseClass = 'inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 active:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50';
+		$baseClass = 'inline-flex h-[34px] min-h-[34px] items-center justify-center rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white transition hover:bg-brand-700 active:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50';
 		$attrParts = [];
 		foreach ($attrs as $key => $value) {
 			if ($key === 'class') {
@@ -193,7 +193,7 @@ if (!function_exists('ui_button_primary')) {
 if (!function_exists('ui_button_secondary')) {
 	function ui_button_secondary($label, $attrs = [])
 	{
-		$baseClass = 'inline-flex min-h-11 items-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50';
+		$baseClass = 'inline-flex h-[34px] min-h-[34px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50';
 		$attrParts = [];
 		foreach ($attrs as $key => $value) {
 			if ($key === 'class') {

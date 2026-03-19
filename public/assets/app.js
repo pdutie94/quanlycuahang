@@ -54,6 +54,56 @@
         return '';
     }
 
+    function hasVisibleAppModal() {
+        return $('.app-modal-overlay').filter(function () {
+            var $modal = $(this);
+            return !$modal.hasClass('hidden') && $modal.hasClass('flex');
+        }).length > 0;
+    }
+
+    function closeAppModal($modal) {
+        if (!$modal || !$modal.length) return;
+        $modal.addClass('hidden').removeClass('flex');
+        $modal.removeData('root');
+        if (!hasVisibleAppModal()) {
+            $('body').removeClass('overflow-hidden');
+        }
+    }
+
+    function closeAllAppModals($except) {
+        $('.app-modal-overlay').each(function () {
+            var $modal = $(this);
+            if ($except && $except.length && $modal.is($except)) {
+                return;
+            }
+            closeAppModal($modal);
+        });
+        if (!($except && $except.length && !$except.hasClass('hidden') && $except.hasClass('flex'))) {
+            $('body').removeClass('overflow-hidden');
+        }
+    }
+
+    function openAppModal($modal) {
+        if (!$modal || !$modal.length) return;
+        closeAllAppModals($modal);
+        $modal.removeAttr('hidden').removeClass('hidden').addClass('flex');
+        $('body').addClass('overflow-hidden');
+    }
+
+    function initGlobalModalControls() {
+        $(document).on('click.appModalOverlay', '.app-modal-overlay', function (e) {
+            if (e.target !== this) return;
+            closeAppModal($(this));
+        });
+
+        $(document).on('keydown.appModalOverlay', function (e) {
+            if (e.key !== 'Escape') return;
+            if (!hasVisibleAppModal()) return;
+            e.preventDefault();
+            closeAllAppModals();
+        });
+    }
+
     function initLoadingButtons() {
         $(document).on('submit', 'form', function () {
             var $form = $(this);
@@ -654,11 +704,11 @@
                     }
                 }
 
-                $modal.removeClass('hidden').addClass('flex');
+                openAppModal($modal);
             }
 
             function closeEditModal() {
-                $modal.addClass('hidden').removeClass('flex');
+                closeAppModal($modal);
                 currentRow = null;
             }
 
@@ -1021,8 +1071,7 @@
 		var $methodRadios = $modal.find('input[name="payment_method"]');
 
 		function open() {
-			$modal.removeClass('hidden').addClass('flex');
-			$('body').addClass('overflow-hidden');
+            openAppModal($modal);
 
 			if ($methodRadios.length) {
 				$methodRadios.filter('[value="cash"]').prop('checked', true).trigger('change');
@@ -1033,8 +1082,7 @@
 		}
 
 		function close() {
-			$modal.addClass('hidden').removeClass('flex');
-			$('body').removeClass('overflow-hidden');
+            closeAppModal($modal);
 		}
 
 		$openButtons.on('click', function (e) {
@@ -1090,8 +1138,7 @@
 		var $methodRadios = $modal.find('input[name="payment_method"]');
 
 		function open() {
-			$modal.removeClass('hidden').addClass('flex');
-			$('body').addClass('overflow-hidden');
+            openAppModal($modal);
 
 			if ($methodRadios.length) {
 				$methodRadios.filter('[value="cash"]').prop('checked', true).trigger('change');
@@ -1102,8 +1149,7 @@
 		}
 
 		function close() {
-			$modal.addClass('hidden').removeClass('flex');
-			$('body').removeClass('overflow-hidden');
+            closeAppModal($modal);
 		}
 
 		$openButtons.on('click', function (e) {
@@ -1149,8 +1195,7 @@
 		var $methodRadios = $modal.find('input[name="payment_method"]');
 
 		function open() {
-			$modal.removeClass('hidden').addClass('flex');
-			$('body').addClass('overflow-hidden');
+            openAppModal($modal);
 
 			if ($methodRadios.length) {
 				$methodRadios.filter('[value="cash"]').prop('checked', true).trigger('change');
@@ -1161,8 +1206,7 @@
 		}
 
 		function close() {
-			$modal.addClass('hidden').removeClass('flex');
-			$('body').removeClass('overflow-hidden');
+            closeAppModal($modal);
 		}
 
 		$openButtons.on('click', function (e) {
@@ -1265,18 +1309,15 @@
 		if (!$overlay.length) return;
 		$openButtons.on('click', function (e) {
 			e.preventDefault();
-			$overlay.removeClass('hidden').addClass('flex');
-			$('body').addClass('overflow-hidden');
+            openAppModal($overlay);
 		});
 		$closeButtons.on('click', function (e) {
 			e.preventDefault();
-			$overlay.addClass('hidden').removeClass('flex');
-			$('body').removeClass('overflow-hidden');
+            closeAppModal($overlay);
 		});
 		$overlay.on('click', function (e) {
 			if (e.target !== this) return;
-			$overlay.addClass('hidden').removeClass('flex');
-			$('body').removeClass('overflow-hidden');
+            closeAppModal($overlay);
 		});
 	}
 
@@ -1587,8 +1628,7 @@
             applyProductSelectorFilter();
             buildList();
             renderSelected();
-            $root.removeClass('hidden').addClass('flex');
-            $('body').addClass('overflow-hidden');
+            openAppModal($root);
         }
 
         function closeModal() {
@@ -1600,8 +1640,7 @@
             applyProductSelectorFilter();
             $list.empty();
             $selected.empty();
-            $root.addClass('hidden').removeClass('flex');
-            $('body').removeClass('overflow-hidden');
+            closeAppModal($root);
         }
 
         $(document).on('click', '[data-product-selector-open]', function () {
@@ -1993,7 +2032,7 @@
 
         function openCustomerModal() {
             if (!$customerModal.length) return;
-            $customerModal.removeClass('hidden').addClass('flex');
+            openAppModal($customerModal);
             if ($customerSearchInput.length) {
                 $customerSearchInput.val('');
             }
@@ -2012,7 +2051,7 @@
 
         function closeCustomerModal() {
             if (!$customerModal.length) return;
-            $customerModal.addClass('hidden').removeClass('flex');
+            closeAppModal($customerModal);
         }
 
         function applySelectedCustomer() {
@@ -2343,12 +2382,12 @@
                 }
             }
 
-            $manualEditModal.removeClass('hidden').addClass('flex');
+            openAppModal($manualEditModal);
         }
 
         function closeManualEditModal() {
             if (!$manualEditModal.length) return;
-            $manualEditModal.addClass('hidden').removeClass('flex');
+            closeAppModal($manualEditModal);
             currentManualRow = null;
         }
 
@@ -2559,13 +2598,13 @@
             if ($input.length) {
                 $input.val(currentPrice > 0 ? formatCurrency(currentPrice) : '0');
             }
-            $modal.removeClass('hidden').addClass('flex');
+            openAppModal($modal);
         });
 
         $(document).on('click', '[data-pos-price-cancel]', function () {
             var $modal = $('[data-pos-price-modal]');
             if (!$modal.length) return;
-            $modal.addClass('hidden');
+            closeAppModal($modal);
             $modal.removeData('row').removeData('basePrice').removeData('currentPrice').removeData('context');
         });
         
@@ -2574,7 +2613,7 @@
             if (!$modal.length) return;
             var $row = $modal.data('row');
             if (!$row || !$row.length) {
-                $modal.addClass('hidden');
+                closeAppModal($modal);
                 return;
             }
             var basePrice = parseFloat($modal.data('basePrice') || '0');
@@ -2605,7 +2644,7 @@
                 $display.addClass('text-slate-900');
             }
             recalcCart();
-            $modal.addClass('hidden');
+            closeAppModal($modal);
             $modal.removeData('row').removeData('basePrice').removeData('currentPrice').removeData('context');
         });
 
@@ -2993,7 +3032,7 @@
                 }
             }
 
-            $modal.removeClass('hidden').addClass('flex');
+            openAppModal($modal);
         });
 
         $(document).on('click', '[data-order-discount-type-option]', function () {
@@ -3003,14 +3042,14 @@
         });
 
         $(document).on('click', '[data-order-discount-cancel]', function () {
-            $modal.addClass('hidden').removeClass('flex');
+            closeAppModal($modal);
             $modal.removeData('root');
         });
 
         $(document).on('click', '[data-order-discount-save]', function () {
             var $root = $modal.data('root');
             if (!$root || !$root.length) {
-                $modal.addClass('hidden').removeClass('flex');
+                closeAppModal($modal);
                 $modal.removeData('root');
                 return;
             }
@@ -3064,7 +3103,7 @@
                 recalcTransactionTotals();
             }
 
-            $modal.addClass('hidden').removeClass('flex');
+            closeAppModal($modal);
             $modal.removeData('root');
         });
     }
@@ -3102,18 +3141,18 @@
                 $input.val(currentValue > 0 ? currentValue.toString() : '0');
             }
 
-            $modal.removeClass('hidden').addClass('flex');
+            openAppModal($modal);
         });
 
         $(document).on('click', '[data-order-surcharge-cancel]', function () {
-            $modal.addClass('hidden').removeClass('flex');
+            closeAppModal($modal);
             $modal.removeData('root');
         });
 
         $(document).on('click', '[data-order-surcharge-save]', function () {
             var $root = $modal.data('root');
             if (!$root || !$root.length) {
-                $modal.addClass('hidden').removeClass('flex');
+                closeAppModal($modal);
                 $modal.removeData('root');
                 return;
             }
@@ -3148,43 +3187,9 @@
                 recalcTransactionTotals();
             }
 
-            $modal.addClass('hidden').removeClass('flex');
+            closeAppModal($modal);
             $modal.removeData('root');
         });
-    }
-
-    function initSelect2() {
-        if (!$.fn || !$.fn.select2) return;
-
-        function enhance($context) {
-            $context.find('select').not('[data-no-select2]').each(function () {
-                var $select = $(this);
-                if ($select.data('select2')) return;
-
-                if ($select.closest('.flatpickr-calendar').length) {
-                    return;
-                }
-
-                $select.select2({
-                    width: '100%'
-                });
-            });
-        }
-
-        enhance($(document));
-
-        var observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
-                var $target = $(mutation.target);
-                if ($target.is('select')) {
-                    enhance($target.parent());
-                } else {
-                    enhance($target);
-                }
-            });
-        });
-
-        observer.observe(document.body, { childList: true, subtree: true });
     }
 
     function initOrderEdit() {
@@ -3310,7 +3315,7 @@
 
         function openOrderCustomerModal() {
             if (!$customerModal.length) return;
-            $customerModal.removeClass('hidden').addClass('flex');
+            openAppModal($customerModal);
             if ($customerSearchInput.length) {
                 $customerSearchInput.val('');
             }
@@ -3329,7 +3334,7 @@
 
         function closeOrderCustomerModal() {
             if (!$customerModal.length) return;
-            $customerModal.addClass('hidden').removeClass('flex');
+            closeAppModal($customerModal);
         }
 
         function applySelectedOrderCustomer() {
@@ -3402,12 +3407,12 @@
                 }
             }
 
-            $manualEditModal.removeClass('hidden').addClass('flex');
+            openAppModal($manualEditModal);
         }
 
         function closeOrderEditManualModal() {
             if (!$manualEditModal.length) return;
-            $manualEditModal.addClass('hidden').removeClass('flex');
+            closeAppModal($manualEditModal);
             currentManualRow = null;
         }
 
@@ -4011,13 +4016,13 @@
             if ($input.length) {
                 $input.val(currentPrice > 0 ? formatCurrency(currentPrice) : '0');
             }
-            $modal.removeClass('hidden');
+            openAppModal($modal);
         });
 
         $(document).on('click', '[data-pos-price-cancel]', function () {
             var $modal = $('[data-pos-price-modal]');
             if (!$modal.length) return;
-            $modal.addClass('hidden');
+            closeAppModal($modal);
             $modal.removeData('row').removeData('basePrice').removeData('currentPrice');
         });
 
@@ -4026,7 +4031,7 @@
             if (!$modal.length) return;
             var $row = $modal.data('row');
             if (!$row || !$row.length) {
-                $modal.addClass('hidden');
+                closeAppModal($modal);
                 return;
             }
             var basePrice = parseFloat($modal.data('basePrice') || '0');
@@ -4081,7 +4086,7 @@
             recalcOrderTotals();
             syncOrderHiddenInputs();
 
-            $modal.addClass('hidden');
+            closeAppModal($modal);
             $modal.removeData('row').removeData('basePrice').removeData('currentPrice');
         });
 
@@ -5133,6 +5138,7 @@
     }
 
     $(function () {
+        initGlobalModalControls();
         initLoadingButtons();
         var $body = $('body');
         var appBasePath = $body.data('base-path') || '';
@@ -5144,7 +5150,6 @@
             window.showToast(flashType, flashMessage);
         }
 
-        initSelect2();
         initUnitRows();
         initPurchaseItemRows();
         initProductList();

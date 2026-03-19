@@ -22,8 +22,8 @@ $isEdit = isset($purchase) && is_array($purchase);
 					<input type="hidden" name="id" value="<?php echo (int) $purchase['id']; ?>">
 				<?php } ?>
 			</div>
-			<div class="space-y-1">
-				<label class="block text-sm font-medium text-slate-700">Nhà cung cấp</label>
+			<div class="relative">
+				<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Nhà cung cấp</label>
 				<?php
 				$supplierOptions = ['' => 'Chọn nhà cung cấp'];
 				if (isset($suppliers) && is_array($suppliers)) {
@@ -37,6 +37,7 @@ $isEdit = isset($purchase) && is_array($purchase);
 				}
 				ui_select('supplier_id', $supplierOptions, $selectedSupplierId, [
 					'required' => 'required',
+					'class' => 'pt-3',
 				]);
 				?>
 			</div>
@@ -73,27 +74,27 @@ $isEdit = isset($purchase) && is_array($purchase);
 											<div class="mt-0.5 text-sm text-slate-500" data-purchase-product-sub></div>
 											</div>
 										</div>
-										<div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 items-center text-sm">
-											<div>
-												<div class="mb-1 text-sm font-medium uppercase  text-slate-500">Số lượng</div>
-												<input type="number" name="qty[]" min="0" step="0.001" value="<?php echo rtrim(rtrim(number_format($qty, 3, '.', ''), '0'), '.'); ?>" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-2 text-sm outline-none focus:border-brand-500 focus:bg-white" />
-											</div>
-										<div>
-											<div class="mb-1 text-sm font-medium uppercase  text-slate-500">Giá nhập</div>
+										<div class="mt-3 grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
 											<div class="relative">
-												<?php
-												$priceCostValue = $priceCost > 0 ? number_format($priceCost, 0, '', '.') : '';
-												ui_input_text('price_cost[]', $priceCostValue, [
-													'inputmode' => 'numeric',
-													'data-money-input' => '1',
-													'class' => 'pr-8 pl-2',
-												]);
-												?>
-												<span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-500">đ</span>
+												<label class="absolute left-2 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số lượng</label>
+												<input type="number" name="qty[]" min="0" step="0.001" value="<?php echo rtrim(rtrim(number_format($qty, 3, '.', ''), '0'), '.'); ?>" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-2 pt-3 pb-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white" />
 											</div>
-										</div>
-											<div>
-												<div class="mb-1 text-sm font-medium uppercase  text-slate-500 text-right">Thành tiền</div>
+											<div class="relative">
+												<label class="absolute left-2 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Giá nhập</label>
+												<div class="relative">
+													<?php
+													$priceCostValue = $priceCost > 0 ? number_format($priceCost, 0, '', '.') : '';
+													ui_input_text('price_cost[]', $priceCostValue, [
+														'inputmode' => 'numeric',
+														'data-money-input' => '1',
+														'class' => 'pr-8 pl-2 pt-3 pb-2.5 text-right',
+													]);
+													?>
+													<span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-500">đ</span>
+												</div>
+											</div>
+											<div class="relative">
+												<label class="absolute left-2 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Thành tiền</label>
 												<div class="relative">
 													<?php
 													$amountValue = $amount > 0 ? number_format($amount, 0, '', '.') : '';
@@ -101,7 +102,7 @@ $isEdit = isset($purchase) && is_array($purchase);
 														'inputmode' => 'numeric',
 														'data-money-input' => '1',
 														'data-purchase-amount-input' => '1',
-														'class' => 'pr-8 pl-2 text-right',
+														'class' => 'pr-8 pl-2 pt-3 pb-2.5 text-right',
 													]);
 													?>
 													<span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-500">đ</span>
@@ -126,33 +127,33 @@ $isEdit = isset($purchase) && is_array($purchase);
 											<div class="mt-0.5 text-sm text-slate-500" data-purchase-product-sub></div>
 										</div>
 									</div>
-									<div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 items-center text-sm">
-										<div>
-											<div class="mb-1 text-sm font-medium uppercase  text-slate-500">Số lượng</div>
-											<input type="number" name="qty[]" min="0" step="0.001" value="" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-2 text-sm outline-none focus:border-brand-500 focus:bg-white" />
+									<div class="mt-3 grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
+										<div class="relative">
+											<label class="absolute left-2 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số lượng</label>
+											<input type="number" name="qty[]" min="0" step="0.001" value="" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500" />
 										</div>
-										<div>
-											<div class="mb-1 text-sm font-medium uppercase  text-slate-500">Giá nhập</div>
+										<div class="relative">
+											<label class="absolute left-2 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Giá nhập</label>
 											<div class="relative">
 												<?php
 												ui_input_text('price_cost[]', '', [
 													'inputmode' => 'numeric',
 													'data-money-input' => '1',
-													'class' => 'pr-8 pl-2',
+													'class' => 'pr-8 pl-2 pt-3 pb-2.5 text-right',
 												]);
 												?>
 												<span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-500">đ</span>
 											</div>
 										</div>
-										<div>
-											<div class="mb-1 text-sm font-medium uppercase  text-slate-500 text-right">Thành tiền</div>
+										<div class="relative">
+											<label class="absolute left-2 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Thành tiền</label>
 											<div class="relative">
 												<?php
 												ui_input_text('amount[]', '', [
 													'inputmode' => 'numeric',
 													'data-money-input' => '1',
 													'data-purchase-amount-input' => '1',
-													'class' => 'pr-8 pl-2 text-right',
+													'class' => 'pr-8 pl-2 pt-3 pb-2.5 text-right',
 												]);
 												?>
 												<span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-500">đ</span>
@@ -170,8 +171,7 @@ $isEdit = isset($purchase) && is_array($purchase);
 				</div>
 			</div>
 
-			<div class="mt-3 grid grid-cols-1 gap-4">
-				<div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+			<div class="mt-3 grid grid-cols-1">
 					<div class="text-sm font-medium uppercase  text-slate-500">Tổng quan</div>
 					<div class="mt-2 space-y-1 text-sm">
 						<div class="flex items-center justify-between">
@@ -183,7 +183,6 @@ $isEdit = isset($purchase) && is_array($purchase);
 							<span class="text-sm old-text-base font-medium text-brand-700" data-purchase-summary-amount>0 đ</span>
 						</div>
 					</div>
-				</div>
 			</div>
 
 			<div class="space-y-4">
@@ -200,14 +199,14 @@ $isEdit = isset($purchase) && is_array($purchase);
 			<?php if (!$isEdit) { ?>
 			<div class="space-y-1">
 				<label class="block text-sm font-medium text-slate-700">Thanh toán</label>
-				<div class="flex w-full rounded-full bg-slate-100 p-0.5 text-sm text-slate-700" data-purchase-payment-status-wrapper>
+				<div class="flex w-full rounded-xl bg-slate-100 p-0.5 text-sm text-slate-700" data-purchase-payment-status-wrapper>
 					<label class="inline-flex flex-1">
 						<input type="radio" name="payment_status" value="pay" class="peer sr-only" <?php echo $paymentStatusValue === 'pay' ? 'checked' : ''; ?>>
-						<span class="inline-flex flex-1 items-center justify-center rounded-full px-3 py-2 font-medium text-slate-700 peer-checked:bg-brand-600 peer-checked:text-white">Thanh toán</span>
+						<span class="inline-flex flex-1 items-center justify-center rounded-xl px-3 py-2 font-medium text-slate-700 peer-checked:bg-brand-600 peer-checked:text-white">Thanh toán</span>
 					</label>
 					<label class="inline-flex flex-1">
 						<input type="radio" name="payment_status" value="debt" class="peer sr-only" <?php echo $paymentStatusValue === 'debt' ? 'checked' : ''; ?>>
-						<span class="inline-flex flex-1 items-center justify-center rounded-full px-3 py-2 font-medium text-slate-700 peer-checked:bg-brand-600 peer-checked:text-white">Ghi nợ</span>
+						<span class="inline-flex flex-1 items-center justify-center rounded-xl px-3 py-2 font-medium text-slate-700 peer-checked:bg-brand-600 peer-checked:text-white">Ghi nợ</span>
 					</label>
 				</div>
 			</div>
@@ -220,8 +219,8 @@ $isEdit = isset($purchase) && is_array($purchase);
 					include __DIR__ . '/../partials/payment_method_radios.php';
 					?>
 				</div>
-				<div class="space-y-1">
-					<label class="block text-sm font-medium text-slate-700">Số tiền thanh toán</label>
+				<div class="relative">
+					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số tiền thanh toán</label>
 					<div class="relative">
 						<?php
 						$paidValue = '';
@@ -231,7 +230,7 @@ $isEdit = isset($purchase) && is_array($purchase);
 						ui_input_text('paid_amount', $paidValue, [
 							'inputmode' => 'numeric',
 							'data-money-input' => '1',
-							'class' => 'pr-8 text-right',
+							'class' => 'pr-8 pt-3 pb-2.5 text-right',
 						]);
 						?>
 						<span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-500">đ</span>
@@ -249,16 +248,16 @@ $isEdit = isset($purchase) && is_array($purchase);
 				}
 			}
 			?>
-			<div class="space-y-1">
-				<label class="block text-sm font-medium text-slate-700">Ghi chú</label>
-				<textarea name="note" rows="3" class="form-field block w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white" placeholder="Nhập ghi chú cho phiếu nhập này..."><?php echo htmlspecialchars($noteValue); ?></textarea>
+			<div class="relative">
+				<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Ghi chú</label>
+				<textarea name="note" rows="3" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500" placeholder="Nhập ghi chú cho phiếu nhập này..."><?php echo htmlspecialchars($noteValue); ?></textarea>
 			</div>
 			</div>
 
 			<div class="pt-2" data-floating-actions>
 				<?php
 				$submitLabel = $isEdit ? 'Cập nhật phiếu' : 'Lưu phiếu';
-				ui_button_primary($submitLabel, ['type' => 'submit', 'class' => 'w-full py-2.5', 'data-loading-button' => '1', 'data-floating-primary' => '1']);
+				ui_button_primary($submitLabel, ['type' => 'submit', 'class' => 'w-full', 'data-loading-button' => '1', 'data-floating-primary' => '1']);
 				?>
 			</div>
 		</form>

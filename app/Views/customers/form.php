@@ -27,24 +27,24 @@ $backUrl = $isEdit ? $basePath . '/customer/view?id=' . $customerId : $basePath 
 				<input type="hidden" name="id" value="<?php echo $customerId; ?>" />
 			<?php } ?>
 
-			<div class="flex flex-col gap-3">
-				<div class="space-y-1">
-					<label class="mb-1 block text-sm font-medium text-slate-700">Tên khách hàng</label>
-					<input type="text" name="name" value="<?php echo htmlspecialchars($name); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white" required />
+			<div class="flex flex-col gap-4">
+				<div class="relative">
+					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Tên khách hàng</label>
+					<input type="text" name="name" value="<?php echo htmlspecialchars($name); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 pt-3 pb-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white" required />
 				</div>
 
-				<div class="space-y-1">
-					<label class="mb-1 block text-sm font-medium text-slate-700">Số điện thoại</label>
-					<input type="text" name="phone" value="<?php echo htmlspecialchars($phone); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white" />
+				<div class="relative">
+					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số điện thoại</label>
+					<input type="text" name="phone" value="<?php echo htmlspecialchars($phone); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 pt-3 pb-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white" />
 				</div>
 
-				<div class="space-y-1">
-					<label class="mb-1 block text-sm font-medium text-slate-700">Địa chỉ</label>
-					<input type="text" name="address" value="<?php echo htmlspecialchars($address); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white" />
+				<div class="relative">
+					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Địa chỉ</label>
+					<input type="text" name="address" value="<?php echo htmlspecialchars($address); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 pt-3 pb-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white" />
 				</div>
 
 				<div class="pt-2" data-floating-actions>
-					<button type="submit" class="inline-flex items-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white  hover:bg-brand-700" data-loading-button="1" data-floating-primary="1">
+					<button type="submit" class="inline-flex h-[34px] min-h-[34px] items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700" data-loading-button="1" data-floating-primary="1">
 						<?php echo $isEdit ? 'Lưu thay đổi' : 'Lưu'; ?>
 					</button>
 				</div>

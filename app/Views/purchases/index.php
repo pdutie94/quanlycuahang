@@ -77,11 +77,11 @@ if (!empty($fromDate) || !empty($toDate)) {
 				<?php echo ui_icon("x-mark", "h-4 w-4"); ?>
 			</button>
 		</div>
-		<form method="get" class="app-modal-body" data-order-filter-form>
+		<form method="get" class="app-modal-body space-y-4" data-order-filter-form>
 			<input type="hidden" name="q" value="<?php echo isset($keyword) ? htmlspecialchars($keyword) : ''; ?>">
-			<div class="space-y-3">
-				<div>
-					<label class="mb-1 block text-sm font-medium text-slate-500">Nhà cung cấp</label>
+			<div class="space-y-4">
+				<div class="relative">
+					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Nhà cung cấp</label>
 					<?php
 					$currentSupplierId = isset($supplierId) ? (int) $supplierId : 0;
 					$supplierOptions = ['' => 'Tất cả nhà cung cấp'];
@@ -91,16 +91,17 @@ if (!empty($fromDate) || !empty($toDate)) {
 							$supplierOptions[$id] = $supplier['name'];
 						}
 					}
-					ui_select('supplier_id', $supplierOptions, $currentSupplierId);
+					ui_select('supplier_id', $supplierOptions, $currentSupplierId, ['class' => 'pt-3']);
 					?>
 				</div>
-				<div>
-					<label class="mb-1 block text-sm font-medium text-slate-500">Thời gian</label>
+				<div class="relative">
+					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Thời gian</label>
 					<?php
 					ui_input_text('date_range', $dateRangeValue, [
 						'autocomplete' => 'off',
 						'placeholder' => 'VD: 2026-02-01 - 2026-02-29',
 						'data-order-date-range' => '1',
+						'class' => 'pt-3 pb-2.5',
 					]);
 					?>
 					<input type="hidden" name="from_date" value="<?php echo isset($fromDate) ? htmlspecialchars($fromDate) : ''; ?>" data-order-date-from />
@@ -117,7 +118,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 				</div>
 				<div class="flex items-center gap-2">
 					<button type="button" class="app-btn-secondary" data-purchase-advanced-filter-close>Đóng</button>
-					<?php ui_button_primary('Áp dụng', ['type' => 'submit', 'class' => 'py-1.5', 'data-loading-button' => '1']); ?>
+					<?php ui_button_primary('Áp dụng', ['type' => 'submit', 'data-loading-button' => '1']); ?>
 				</div>
 			</div>
 		</form>

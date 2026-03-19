@@ -17,7 +17,7 @@ $customers = isset($customers) && is_array($customers) ? $customers : [];
         <div class="app-modal-body flex flex-col min-h-0">
             <div class="mb-2 flex items-center">
                 <div class="relative flex-1">
-                    <input type="text" class="block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 pr-8 py-1.5 text-sm outline-none focus:border-brand-500 focus:bg-white" placeholder="Tìm theo tên, SĐT, địa chỉ..." autocomplete="off" data-pos-customer-search>
+                    <input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 pr-8 text-sm outline-none transition focus:border-brand-500" placeholder="Tìm theo tên, SĐT, địa chỉ..." autocomplete="off" data-pos-customer-search>
                     <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-slate-400">
                         <?php echo ui_icon("magnifying-glass-alt", "h-4 w-4"); ?>
                     </span>

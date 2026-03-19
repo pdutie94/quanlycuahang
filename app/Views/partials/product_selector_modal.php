@@ -10,7 +10,7 @@
 		<div class="app-modal-body flex flex-col min-h-0">
 			<div class="mb-2 flex items-center">
 				<div class="relative flex-1">
-					<input type="text" class="block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 pr-8 py-1.5 text-sm outline-none focus:border-brand-500 focus:bg-white" placeholder="Tìm sản phẩm..." data-product-selector-search>
+					<input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 pr-8 text-sm outline-none transition focus:border-brand-500" placeholder="Tìm sản phẩm..." data-product-selector-search>
 					<button type="button" class="absolute inset-y-0 right-2 flex items-center text-slate-400 hover:text-slate-600 hidden" data-product-selector-clear>
 						<?php echo ui_icon("x-mark", "h-4 w-4"); ?>
 					</button>
