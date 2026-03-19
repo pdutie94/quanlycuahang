@@ -1,5 +1,14 @@
-.form-field {
-	min-height: 38px;
+/* .form-field {
+	min-height: 48px;
+} */
+
+.form-field::placeholder {
+	color: #94a3b8;
+}
+
+textarea.form-field {
+	min-height: 112px;
+	resize: vertical;
 }
 
 input[type="number"]::-webkit-outer-spin-button,

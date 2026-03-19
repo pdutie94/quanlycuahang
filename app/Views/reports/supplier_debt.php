@@ -135,7 +135,7 @@ $showAll = !empty($showAll);
 								</td>
 								<td class="px-3 py-2 align-top text-right">
 									<?php if (!empty($row['id'])) { ?>
-										<a href="<?php echo $basePath; ?>/supplier/view?id=<?php echo (int) $row['id']; ?>" class="inline-flex items-center rounded-full border border-slate-300 px-2 py-1 text-sm font-medium text-slate-700 hover:bg-slate-100">
+										<a href="<?php echo $basePath; ?>/supplier/view?id=<?php echo (int) $row['id']; ?>" class="inline-flex items-center rounded-lg border border-slate-300 px-2 py-1 text-sm font-medium text-slate-700 hover:bg-slate-100">
 											Xem phiếu nhập
 										</a>
 									<?php } ?>

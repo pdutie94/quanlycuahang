@@ -15,7 +15,7 @@ $isPos = $layoutMode === 'pos';
                 <div class="flex items-center gap-2 text-sm font-medium text-slate-800">
                     <span>Sản phẩm</span>
                 </div>
-                <button type="button" class="inline-flex items-center rounded-lg border border-brand-600 px-3 py-1 text-sm font-medium text-brand-700 hover:bg-brand-50" data-product-selector-open data-product-selector-mode="<?php echo $isPos ? 'pos' : 'order-edit-add'; ?>">
+                <button type="button" class="inline-flex items-center rounded-md border border-brand-600 px-3 py-1 text-sm font-medium text-brand-700 hover:bg-brand-50" data-product-selector-open data-product-selector-mode="<?php echo $isPos ? 'pos' : 'order-edit-add'; ?>">
                     Thêm SP
                 </button>
             </div>
@@ -71,7 +71,7 @@ $isPos = $layoutMode === 'pos';
                                                 $priceText = isset($item['price_sell']) ? Money::format($item['price_sell']) : '';
                                                 if ($priceText !== '') {
                                                     ?>
-                                                    <button type="button" data-order-price-edit="1" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 hover:bg-brand-50">
+                                                    <button type="button" data-order-price-edit="1" class="inline-flex items-center gap-1 rounded-lg hover:bg-brand-50">
                                                         <span data-order-price-display class="font-medium text-slate-900"><?php echo $priceText; ?></span>
                                                         <span>/ <?php echo htmlspecialchars($item['unit_name']); ?></span>
                                                         <span class="inline-flex h-4 w-4 items-center justify-center text-slate-400 group-hover:text-brand-600">
@@ -85,7 +85,7 @@ $isPos = $layoutMode === 'pos';
                                                 ?>
 											</div>
 										<div class="mt-1">
-												<div class="inline-flex items-stretch overflow-hidden rounded-full border border-slate-300 bg-slate-50">
+												<div class="inline-flex items-stretch overflow-hidden rounded-lg border border-slate-300 bg-slate-50">
 													<button type="button" data-order-existing-decrease="1" class="inline-flex h-6 w-6 items-center justify-center bg-slate-50 text-sm text-slate-700 hover:bg-slate-100">
 														<?php echo ui_icon("minus", "size-3"); ?>
 													</button>
@@ -158,7 +158,7 @@ $isPos = $layoutMode === 'pos';
                 </div>
                 <div class="flex items-center justify-between text-sm text-slate-600" data-order-discount-row>
                     <span>Giảm giá</span>
-                    <button type="button" class="inline-flex items-center gap-1 rounded-full border border-transparent text-sm font-medium text-rose-600" data-order-discount-open>
+                    <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-transparent text-sm font-medium text-rose-600" data-order-discount-open>
                         <?php if ($isPos) { ?>
                             <span data-pos-discount-amount>-0 đ</span>
                         <?php } else { ?>
@@ -171,7 +171,7 @@ $isPos = $layoutMode === 'pos';
                 </div>
                 <div class="flex items-center justify-between text-sm text-slate-600" data-order-surcharge-row>
                     <span>Phụ thu</span>
-                    <button type="button" class="inline-flex items-center gap-1 rounded-full border border-transparent text-sm font-medium text-amber-600" data-order-surcharge-open>
+                    <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-transparent text-sm font-medium text-amber-600" data-order-surcharge-open>
                         <?php if ($isPos) { ?>
                             <span data-pos-surcharge-amount>+0 đ</span>
                         <?php } else { ?>
@@ -190,7 +190,7 @@ $isPos = $layoutMode === 'pos';
                         <?php } else { ?>
                             <div class="text-lg font-medium text-brand-600" data-order-edit-total><?php echo Money::format(isset($order['total_amount']) ? (float) $order['total_amount'] : 0); ?></div>
                         <?php } ?>
-                        <button type="button" class="inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600" title="Làm tròn tổng tiền" data-order-total-round>
+                        <button type="button" class="inline-flex h-5 w-5 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600" title="Làm tròn tổng tiền" data-order-total-round>
                             <?php echo ui_icon("arrow-path", "h-3.5 w-3.5"); ?>
                         </button>
                     </div>

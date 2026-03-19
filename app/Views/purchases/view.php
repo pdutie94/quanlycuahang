@@ -20,12 +20,12 @@ if ($noteRaw !== '') {
 <div class="mb-4 flex items-center justify-between gap-3">
 	<h1 class="text-lg font-medium tracking-tight">Chi tiết phiếu nhập</h1>
 	<div class="flex flex-wrap items-center gap-1.5" data-header-actions-root>
-		<a href="<?php echo $basePath; ?>/purchase" class="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
+		<a href="<?php echo $basePath; ?>/purchase" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
 			<?php echo ui_icon("chevron-left", "h-4 w-4"); ?>
 			<span>Danh sách</span>
 		</a>
 		<div class="relative" data-header-actions-menu>
-			<button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 hover:bg-slate-100" data-header-actions-toggle>
+			<button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100" data-header-actions-toggle>
 				<?php echo ui_icon("ellipsis-vertical", "h-4 w-4"); ?>
 			</button>
 			<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm  overflow-hidden hidden" data-header-actions-dropdown>
@@ -59,9 +59,9 @@ if ($noteRaw !== '') {
 			<div class="flex flex-col items-end gap-1 text-sm">
 				<div>
 					<?php if ($purchase['status'] === 'paid') { ?>
-						<span class="inline-flex items-center rounded-full bg-brand-50 px-3 py-0.5 text-sm font-medium text-brand-700">Đã thanh toán</span>
+						<span class="inline-flex items-center rounded-lg bg-brand-50 px-3 py-0.5 text-sm font-medium text-brand-700">Đã thanh toán</span>
 					<?php } else { ?>
-						<span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-0.5 text-sm font-medium text-amber-700">Còn nợ</span>
+						<span class="inline-flex items-center rounded-lg bg-amber-50 px-3 py-0.5 text-sm font-medium text-amber-700">Còn nợ</span>
 					<?php } ?>
 				</div>
 			</div>
@@ -160,7 +160,7 @@ if ($noteRaw !== '') {
 				<div class="flex flex-col gap-2 px-4 py-3 text-sm sm:flex-row sm:items-start sm:justify-between">
 					<div class="min-w-0">
 						<div class="flex flex-wrap items-center gap-2">
-							<span class="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-sm font-medium text-brand-700">
+							<span class="inline-flex items-center gap-1 rounded-lg bg-brand-50 px-2.5 py-0.5 text-sm font-medium text-brand-700">
 								<?php echo ui_icon("banknotes", "h-3.5 w-3.5"); ?>
 								<span>Thanh toán</span>
 							</span>
@@ -192,7 +192,7 @@ if ($noteRaw !== '') {
 	<div class="mt-4 rounded-lg border border-slate-200 bg-white ">
 		<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 			<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
-				<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-amber-700">
+				<span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
 					<?php echo ui_icon("clock", "h-4 w-4"); ?>
 				</span>
 				<span>Lịch sử phiếu nhập</span>
@@ -202,7 +202,7 @@ if ($noteRaw !== '') {
 			<?php foreach ($logs as $log) { ?>
 				<div class="px-4 py-2">
 					<div class="mb-1">
-						<span class="inline-flex items-center rounded-full bg-slate-50 px-2 py-0.5 text-sm font-medium text-slate-600">
+						<span class="inline-flex items-center rounded-lg bg-slate-50 px-2 py-0.5 text-sm font-medium text-slate-600">
 							<?php echo htmlspecialchars(format_datetime($log['created_at'])); ?>
 						</span>
 					</div>

@@ -9,12 +9,12 @@ $isPosManual = $manualContext === 'pos';
     <div class="mt-3 space-y-3" data-pos-manual-items-root>
         <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 text-sm font-medium text-amber-800">
-                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
                     <?php echo ui_icon("archive-box", "h-4 w-4"); ?>
                 </span>
                 <span>Sản phẩm khác</span>
             </div>
-            <button type="button" class="inline-flex items-center rounded-lg border border-brand-600 px-3 py-1 text-sm font-medium text-brand-700 hover:bg-brand-50" data-pos-manual-add-row>
+            <button type="button" class="inline-flex items-center rounded-md border border-brand-600 px-3 py-1 text-sm font-medium text-brand-700 hover:bg-brand-50" data-pos-manual-add-row>
                 <span>Thêm SP</span>
             </button>
         </div>
@@ -24,7 +24,7 @@ $isPosManual = $manualContext === 'pos';
         </div>
         <div class="hidden" data-pos-manual-row-template>
             <div class="pos-manual-item-row relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 " data-pos-manual-card>
-                <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-100 text-rose-600  ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-pos-manual-remove-row>
+                <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-lg bg-rose-100 text-rose-600  ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-pos-manual-remove-row>
                     <?php echo ui_icon("x-mark", "h-3 w-3"); ?>
                 </button>
                 <div class="min-w-0">
@@ -53,12 +53,12 @@ $isPosManual = $manualContext === 'pos';
     <div class="mt-3 space-y-3" data-order-edit-manual-root>
         <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 text-sm font-medium text-amber-800">
-                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
                     <?php echo ui_icon("archive-box", "h-4 w-4"); ?>
                 </span>
                 <span>Sản phẩm khác</span>
             </div>
-            <button type="button" class="inline-flex items-center rounded-lg border border-brand-600 px-3 py-1 text-sm font-medium text-brand-700 hover:bg-brand-50" data-order-edit-manual-add-row>
+            <button type="button" class="inline-flex items-center rounded-md border border-brand-600 px-3 py-1 text-sm font-medium text-brand-700 hover:bg-brand-50" data-order-edit-manual-add-row>
                 <span>Thêm SP</span>
             </button>
         </div>
@@ -77,7 +77,7 @@ $isPosManual = $manualContext === 'pos';
                     $displayAmountSell = $amountSell > 0 ? Money::format($amountSell) . ' đ' : '0 đ';
                     ?>
                     <div class="order-edit-manual-item-row relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 ">
-                        <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-100 text-rose-600  ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-order-edit-manual-remove-row>
+                        <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-lg bg-rose-100 text-rose-600  ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-order-edit-manual-remove-row>
                             <?php echo ui_icon("x-mark", "h-3 w-3"); ?>
                         </button>
                         <div class="min-w-0 pr-6">
@@ -107,7 +107,7 @@ $isPosManual = $manualContext === 'pos';
         </div>
         <div class="hidden" data-order-edit-manual-row-template>
             <div class="order-edit-manual-item-row relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 ">
-                <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-100 text-rose-600  ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-order-edit-manual-remove-row>
+                <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-lg bg-rose-100 text-rose-600  ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-order-edit-manual-remove-row>
                     <?php echo ui_icon("x-mark", "h-3 w-3"); ?>
                 </button>
                 <div class="min-w-0 pr-6">

@@ -15,8 +15,8 @@
 			<div class="h-full min-h-full animate-pulse" aria-hidden="true">
 				<div class="space-y-3">
 					<div class="flex flex-wrap items-center gap-2">
-						<div class="h-6 w-24 rounded-full bg-brand-100"></div>
-						<div class="h-6 w-20 rounded-full bg-amber-100"></div>
+						<div class="h-6 w-24 rounded-lg bg-brand-100"></div>
+						<div class="h-6 w-20 rounded-lg bg-amber-100"></div>
 					</div>
 
 					<div class="rounded-lg bg-white">
@@ -94,8 +94,8 @@
 			'<div class="h-full min-h-full animate-pulse" aria-hidden="true">',
 				'<div class="space-y-3">',
 					'<div class="flex flex-wrap items-center gap-2">',
-						'<div class="h-6 w-24 rounded-full bg-brand-100"></div>',
-						'<div class="h-6 w-20 rounded-full bg-amber-100"></div>',
+						'<div class="h-6 w-24 rounded-lg bg-brand-100"></div>',
+						'<div class="h-6 w-20 rounded-lg bg-amber-100"></div>',
 					'</div>',
 					'<div class="rounded-lg bg-white">',
 						'<div class="space-y-2">',

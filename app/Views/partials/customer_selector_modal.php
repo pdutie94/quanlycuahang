@@ -5,7 +5,7 @@ $customers = isset($customers) && is_array($customers) ? $customers : [];
     <div class="app-modal-sheet">
         <div class="app-modal-header">
             <div class="flex items-center gap-2">
-                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-50 text-brand-700">
+                <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
                     <?php echo ui_icon("user", "h-4 w-4"); ?>
                 </span>
                 <h2 class="app-modal-title">Chọn khách hàng</h2>
@@ -42,7 +42,7 @@ $customers = isset($customers) && is_array($customers) ? $customers : [];
                     ?>
                     <button type="button" class="flex w-full items-center justify-between gap-2 border-b border-slate-100 px-3 py-2 text-left text-sm text-slate-800" data-pos-customer-item data-customer-id="<?php echo $id; ?>" data-customer-name="<?php echo htmlspecialchars($name); ?>" data-customer-phone="<?php echo htmlspecialchars($phone); ?>" data-customer-address="<?php echo htmlspecialchars($address); ?>" data-search-text="<?php echo htmlspecialchars($searchText); ?>">
                         <div class="flex min-w-0 items-center gap-2">
-                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-50 text-brand-700">
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
                                 <?php echo ui_icon("user", "h-4 w-4"); ?>
                             </span>
                             <div class="min-w-0">
@@ -57,7 +57,7 @@ $customers = isset($customers) && is_array($customers) ? $customers : [];
                             </div>
                         </div>
                         <span class="hidden items-center gap-1 text-xs font-medium text-brand-700" data-pos-customer-selected-indicator>
-                            <span class="inline-flex h-4 w-4 items-center justify-center rounded-full bg-brand-100 text-brand-700">
+                            <span class="inline-flex h-4 w-4 items-center justify-center rounded-lg bg-brand-100 text-brand-700">
 								<?php echo ui_icon("check", "h-3 w-3"); ?>
                             </span>
                             <span>Đã chọn</span>

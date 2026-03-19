@@ -157,7 +157,7 @@ if ($categoryId < 0) {
 
 <a
 	href="<?php echo $basePath; ?>/product/create"
-	class="fixed bottom-[5rem] right-3 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-600 text-white md:hidden"
+	class="fixed bottom-[5rem] right-3 z-20 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-600 text-white md:hidden"
 	title="Thêm sản phẩm"
 	aria-label="Thêm sản phẩm"
 >

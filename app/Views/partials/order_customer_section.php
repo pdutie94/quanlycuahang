@@ -32,7 +32,7 @@
                         <label class="block text-sm text-slate-700">Khách cũ</label>
                         <button type="button" class="flex w-full items-center justify-between rounded-lg border border-dashed border-amber-300 bg-amber-50 px-3 py-2 text-left text-sm text-amber-800 hover:border-amber-400 hover:bg-amber-100" data-pos-existing-customer-placeholder>
                             <div class="flex items-center gap-2">
-                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
                                     <?php echo ui_icon("user", "h-4 w-4"); ?>
                                 </span>
                                 <div class="flex flex-col">
@@ -192,7 +192,7 @@
 						<label class="block text-sm text-slate-700">Khách cũ</label>
 						<button type="button" class="flex w-full items-center justify-between rounded-lg border border-dashed border-amber-300 bg-amber-50 px-3 py-2 text-left text-sm text-amber-800 hover:border-amber-400 hover:bg-amber-100" data-order-existing-customer-placeholder>
 							<div class="flex items-center gap-2">
-								<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+								<span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
 									<?php echo ui_icon("user", "h-4 w-4"); ?>
 								</span>
 								<div class="flex flex-col">

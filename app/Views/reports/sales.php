@@ -47,7 +47,7 @@ if (preg_match('/^\d{4}-(\d{2})-\d{2}$/', $dayValue, $m)) {
 	<div class="flex items-center justify-between gap-2">
 		<span class="flex text-sm font-medium text-slate-600">Thời gian</span>
 		<?php if (!empty($hasDateFilter)) { ?>
-			<a href="<?php echo $basePath; ?>/report/sales" class="inline-flex items-center rounded-full px-2 py-0.5 text-sm font-medium text-slate-400 hover:text-slate-600">
+			<a href="<?php echo $basePath; ?>/report/sales" class="inline-flex items-center rounded-lg px-2 py-0.5 text-sm font-medium text-slate-400 hover:text-slate-600">
 				Xóa lọc
 			</a>
 		<?php } ?>

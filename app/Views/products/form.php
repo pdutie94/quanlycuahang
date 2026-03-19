@@ -4,13 +4,13 @@
 		<?php echo $product ? 'Sửa sản phẩm' : 'Thêm sản phẩm'; ?>
 	</h1>
 	<div class="flex flex-wrap items-center gap-1.5" data-header-actions-root>
-		<a href="<?php echo $basePath; ?>/product" class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
+		<a href="<?php echo $basePath; ?>/product" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
 			<?php echo ui_icon("chevron-left", "h-4 w-4"); ?>
 			<span>Quay lại</span>
 		</a>
 		<?php if ($product) { ?>
 			<div class="relative" data-header-actions-menu>
-				<button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 hover:bg-slate-100" data-header-actions-toggle>
+				<button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100" data-header-actions-toggle>
 					<?php echo ui_icon("ellipsis-vertical", "h-4 w-4"); ?>
 				</button>
 				<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm  overflow-hidden hidden" data-header-actions-dropdown>
@@ -38,7 +38,7 @@
                 <span data-image-placeholder-text class="px-1 <?php echo $hasImage ? 'hidden' : ''; ?>">Chọn ảnh sản phẩm</span>
             </button>
             <div class="flex flex-col items-center gap-2 <?php echo $hasImage ? '' : 'hidden'; ?>" data-image-actions>
-                <button type="button" class="inline-flex h-6 w-6 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 hover:bg-red-100" data-image-delete>
+                <button type="button" class="inline-flex h-6 w-6 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100" data-image-delete>
                     <?php echo ui_icon("x-mark", "size-4"); ?>
 
 
@@ -329,7 +329,7 @@
 								<span class="text-sm font-medium text-slate-700"><?php echo htmlspecialchars($timeLabel); ?></span>
 							<?php } ?>
 							<?php if ($actionLabel !== '') { ?>
-								<span class="rounded-full bg-slate-50 px-1.5 py-0.5 text-sm uppercase  text-slate-500"><?php echo htmlspecialchars($actionLabel); ?></span>
+								<span class="rounded-lg bg-slate-50 px-1.5 py-0.5 text-sm uppercase  text-slate-500"><?php echo htmlspecialchars($actionLabel); ?></span>
 							<?php } ?>
 						</div>
 				<?php

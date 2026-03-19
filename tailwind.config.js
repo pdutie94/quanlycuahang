@@ -7,31 +7,31 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["ui-sans-serif", "system-ui", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"],
-        display: ["ui-sans-serif", "system-ui", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"]
+        sans: ["Roboto Flex", "Roboto", "ui-sans-serif", "system-ui", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"],
+        display: ["Lexend", "Roboto Flex", "ui-sans-serif", "system-ui", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"]
       },
       colors: {
         brand: {
-          50: "#effcf9",
-          100: "#d7f6ee",
-          200: "#b2ecde",
-          300: "#80dcc8",
-          400: "#4cc4ab",
-          500: "#2fa98f",
-          600: "#238a76",
-          700: "#1f6f61",
-          800: "#1d5a50",
-          900: "#1b4b43"
+          50: "#f0fdfa",
+          100: "#ccfbf1",
+          200: "#99f6e4",
+          300: "#5eead4",
+          400: "#2dd4bf",
+          500: "#14b8a6",
+          600: "#0d9488",
+          700: "#0f766e",
+          800: "#115e59",
+          900: "#134e4a"
         }
       },
       borderRadius: {
-        app: "1.125rem",
-        chip: "9999px",
-        card: "1.25rem"
+        app: "1rem",
+        chip: "1rem",
+        card: "1rem"
       },
       boxShadow: {
-        app: "0 0 0 1px rgba(15, 23, 42, 0.08)",
-        dock: "0 -1px 0 rgba(15, 23, 42, 0.08)"
+        app: "none",
+        dock: "none"
       },
       keyframes: {
         "slide-up-soft": {

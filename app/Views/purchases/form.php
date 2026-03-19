@@ -6,7 +6,7 @@ $isEdit = isset($purchase) && is_array($purchase);
 	<h1 class="text-lg font-medium tracking-tight">
 		<?php echo $isEdit ? 'Chỉnh sửa phiếu nhập' : 'Tạo phiếu nhập hàng'; ?>
 	</h1>
-	<a href="<?php echo $isEdit ? $basePath . '/purchase/view?id=' . (int) $purchase['id'] : $basePath . '/purchase'; ?>" class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
+	<a href="<?php echo $isEdit ? $basePath . '/purchase/view?id=' . (int) $purchase['id'] : $basePath . '/purchase'; ?>" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
 		<?php echo ui_icon("chevron-left", "h-4 w-4"); ?>
 		<span><?php echo $isEdit ? 'Chi tiết' : 'Danh sách'; ?></span>
 	</a>
@@ -45,7 +45,7 @@ $isEdit = isset($purchase) && is_array($purchase);
 			<div class="mt-2 rounded-lg border border-slate-200">
 				<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2 text-sm font-medium text-slate-800">
 					<div>Danh sách sản phẩm</div>
-					<button type="button" class="inline-flex items-center rounded-full border border-brand-600 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50" data-product-selector-open data-product-selector-mode="purchase-add">
+					<button type="button" class="inline-flex items-center rounded-md border border-brand-600 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50" data-product-selector-open data-product-selector-mode="purchase-add">
 						<?php echo ui_icon("plus", "mr-1 h-4 w-4"); ?>
 						Thêm SP
 					</button>

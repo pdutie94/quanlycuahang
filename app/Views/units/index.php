@@ -52,12 +52,12 @@
                     <div class="inline-flex items-center justify-end gap-2">
                         <form id="<?php echo $formId; ?>" method="post" action="<?php echo $basePath; ?>/unit/update">
                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-                            <button type="submit" class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100" title="Lưu">
+                            <button type="submit" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100" title="Lưu">
                                                                 <?php echo ui_icon("check", "size-4"); ?>
 
                             </button>
                         </form>
-                        <a href="<?php echo $basePath; ?>/unit/delete?id=<?php echo $unit['id']; ?>" onclick="return confirm('Xóa đơn vị này?');" class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 hover:bg-red-100" title="Xóa">
+                        <a href="<?php echo $basePath; ?>/unit/delete?id=<?php echo $unit['id']; ?>" onclick="return confirm('Xóa đơn vị này?');" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100" title="Xóa">
                             <?php echo ui_icon("x-mark", "size-4"); ?>
 
                         </a>

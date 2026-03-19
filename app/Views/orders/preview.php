@@ -48,8 +48,8 @@ $items = isset($items) && is_array($items) ? $items : [];
     <div class="space-y-3">
         <div>
             <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold <?php echo $paymentStatusClass; ?>"><?php echo htmlspecialchars($paymentStatusLabel); ?></span>
-                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold <?php echo $orderStatusClass; ?>"><?php echo htmlspecialchars($orderStatusLabel); ?></span>
+                <span class="inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-semibold <?php echo $paymentStatusClass; ?>"><?php echo htmlspecialchars($paymentStatusLabel); ?></span>
+                <span class="inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-semibold <?php echo $orderStatusClass; ?>"><?php echo htmlspecialchars($orderStatusLabel); ?></span>
             </div>
         </div>
 

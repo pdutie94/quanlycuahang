@@ -1,290 +1,196 @@
-# UI Guidelines – Minimal Flat Mobile SaaS (Border-based)
+# UI Guidelines - Material Design Commerce
 
-## Tổng quan
+## Tong quan
 
-Giao diện web app theo phong cách **minimal, flat**, tập trung vào:
+Giao dien web app theo phong cach Material Design hien dai, tap trung vao:
 
-- Rõ ràng
-- Gọn gàng
-- Dễ scan thông tin
-- Không dùng shadow
-- Dùng **border làm cấu trúc chính**
+- Ro rang
+- Co phan cap thi giac ro
+- De scan thong tin
+- Surface, elevation va motion co kiem soat
+- Icon dung Lucide
 
-Mục tiêu:
+Muc tieu:
 
-- Giống app mobile
-- Nhẹ, sạch, không rối mắt
-- Phân tách bằng spacing + border (không phải shadow)
-- Tránh “thiết kế giả chiều sâu”
+- Giong ung dung quan tri thuong mai hien dai
+- Mobile-first nhung van dep tren desktop
+- Dung surface, tonal color va elevation de tao cau truc
+- Tranh UI phang qua muc lam mat thu bac thao tac
 
----
+## Nguyen tac cot loi
 
-## Nguyên tắc cốt lõi
+- Mobile-first tuyet doi
+- Material surface + elevation vua du
+- Tonal palette nhat quan
+- Bo goc lon, than thien, hien dai
+- Consistency quan trong hon trang tri
 
-- Mobile-first tuyệt đối
-- Flat design (không shadow, không elevation)
-- Border + spacing thay cho shadow
-- Không lồng nhiều lớp UI (tránh card trong card)
-- Consistency quan trọng hơn đẹp
+## Layout
 
----
+- max-w-6xl mx-auto
+- Nen nhieu lop nhe: gradient + surface tint
+- Padding tong: px-4 md:px-6
+- Bottom space: pb-24
 
-## Layout (Mobile-first)
+Cau truc uu tien:
 
-- `max-w-md mx-auto`
-- Nền: `bg-gray-50` hoặc `bg-white`
-- Padding tổng: `p-4`
-- Bottom space: `pb-20`
+- Sticky top app bar
+- Content surface
+- Bottom navigation kieu Material
+- Modal/sheet bo lon
 
-Cấu trúc:
+Co the dung grid nhieu cot o desktop neu noi dung can scan nhanh.
 
-- Header
-- Content (scroll)
-- Bottom navigation
+## Mau sac
 
-Không dùng:
+- Primary: brand-500 xanh duong
+- Background: xanh xam nhat nhieu lop
+- Surface: trang ban mo / trang dac
 
-- Sidebar
-- Grid nhiều cột
-- Layout kiểu desktop
+Mau trang thai:
 
----
-
-## Màu sắc
-
-- Primary: `emerald-500`
-- Background: `gray-50` / `white`
-- Surface: `white`
-
-Màu trạng thái:
-
-- Success: emerald
+- Success: brand / teal
 - Info: blue
 - Warning: amber
 - Error: red
 
-Quy tắc:
+Quy tac:
 
-- 1 màu chính + màu trạng thái
-- UI chủ yếu là trắng + xám
-- Màu chỉ dùng cho:
-  - CTA
-  - trạng thái
-  - highlight nhỏ
+- 1 mau chinh + mau trang thai
+- Surface trang, text slate, accent xanh
+- Mau dung cho CTA, trang thai, vung active va chip
 
----
+## Surface va Elevation
 
-## Border (Quan trọng nhất)
+- Mac dinh: border-white/60 hoac border-slate-200/70
+- Shadow mem, ngan, khong qua toi
+- Backdrop blur chi dung cho bar, filter box, modal
 
-Đây là core của design.
+Quy tac:
 
-- Mặc định: `border border-gray-200`
-- Divider: `border-t border-gray-100`
-- Không dùng border dày
+- Co the ket hop border manh + shadow mem
+- Surface chinh la bg-white/85 hoac bg-white/95
+- Card long card chi khi that su la phan cap nghiep vu khac nhau
 
-### Quy tắc cực quan trọng:
+## Bo goc
 
-- ❌ Không lồng border trong border  
-  (Card có border → bên trong không thêm box có border nữa)
-- ❌ Không vừa border vừa shadow
-- ❌ Không tạo nhiều layer không cần thiết
+- Card: rounded-card
+- Button/Input/Filter: rounded-lg hoac rounded-[1.1rem]
+- Modal sheet: rounded-t-[1.75rem]
 
-### Thay thế:
+## Spacing va Size
 
-| Trường hợp        | Cách làm                      |
-|------------------|-------------------------------|
-| Card chứa list   | Dùng divider giữa item        |
-| Section trong card | Dùng spacing (`space-y`)     |
-| Nhóm input       | Dùng 1 border bao ngoài       |
-
----
-
-## Bo góc (Border Radius)
-
-- Card: `rounded-xl`
-- Button/Input: `rounded-lg`
-- Không dùng bo quá lớn
-
----
-
-## Spacing & Size
-
-- Button: `min-h-[44px]`
-- Padding chuẩn: `px-4 py-3`
-- Khoảng cách block:
-  - `space-y-4` (chính)
-  - `space-y-3` (dày hơn)
-
-Nguyên tắc:
-
-- Ưu tiên spacing thay vì thêm UI
-- Thoáng nhưng không loãng
-
----
+- Button: min-h-11
+- Input: min-h-12
+- Padding chuan: px-4 py-3
+- Khoang cach block: space-y-3 den space-y-5
 
 ## Typography
 
-- Title: `text-base font-semibold`
-- Nội dung: `text-sm`
-- Label: `text-xs text-gray-500`
+- Display: font-display voi Lexend
+- Body: font-sans voi Roboto Flex
+- Title: text-lg den text-2xl
+- Noi dung: text-sm
+- Label/meta: text-xs uppercase tracking-[0.18em]
 
-Quy tắc:
+Quy tac:
 
-- Không quá 3 size font
-- Không dùng font weight lung tung
-- Text phải dễ đọc
+- Giu hierarchy ro giua title, section label, supporting text
+- Dung tracking cho label dieu huong, khong dung cho body text
 
----
+## Button
 
-## Component Rules
+Primary:
 
-### Button
+- bg-brand-600 text-white
+- pill shape
+- co elevation nhe
 
-**Primary**
+Secondary:
 
-- `bg-emerald-500 text-white`
+- bg-white text-slate-700 border
+- hover tonal brand-50
 
-**Secondary**
+Tonal / Outline:
 
-- `bg-gray-100 text-gray-700`
+- border border-slate-300/80 bg-white/90
 
-**Outline**
+Tat ca button:
 
-- `border border-gray-200`
+- rounded-lg
+- min-h-11
+- transition
+- active:scale-[0.99]
 
-**Tất cả button**
+## Input
 
-- `rounded-lg`
-- `min-h-[44px]`
-- `transition`
-- `active:scale-95`
+- border border-slate-300/80
+- rounded-[1.1rem]
+- px-4 py-3
+- focus:border-brand-500
+- focus:ring-4 focus:ring-brand-100
 
----
+## Card
 
-### Input
+- bg-white/88
+- border border-white/60
+- rounded-card
+- p-4
+- shadow-app
 
-- `border border-gray-200`
-- `rounded-lg`
-- `px-3 py-3`
-- `focus:border-emerald-500`
+Gradient chi dung cho hero/CTA noi bat, khong dung cho moi card.
 
-Label:
+## List / Item
 
-- Nằm trên (tĩnh)
-- `text-xs text-gray-500 mb-1`
+Surface list:
 
----
+- rounded-card border bg-white/88
+- item dung spacing hoac divider manh
 
-### Card
+Quick action cards:
 
-- `bg-white`
-- `border border-gray-200`
-- `rounded-xl`
-- `p-4`
+- icon capsule ben trai
+- title ro
+- trang thai active dung tonal fill
 
-❌ Không:
+## Table
 
-- shadow
-- gradient
-- nhiều lớp card
+- Header: bg-slate-50/80
+- Row: border-b border-slate-100
+- Co the giu sticky header neu bang dai
 
----
-
-### List / Item
-
-#### 1. Flat list (khuyên dùng)
-
-- Không card
-- Dùng:
-  - `divide-y divide-gray-100`
-
-#### 2. Card list
-
-- 1 card bao ngoài
-- Item bên trong KHÔNG có border
-- Dùng padding + spacing
-
----
-
-### Table
-
-- Header: `bg-gray-50`
-- Row: `border-b border-gray-100`
-- Không border full ô
-
----
-
-### Navigation
+## Navigation
 
 Bottom nav:
 
-- `fixed bottom-0`
-- `bg-white border-t border-gray-200`
+- fixed bottom-0
+- bg-white/82 border-t border-white/60 backdrop-blur-xl
 
 Active:
 
-- `text-emerald-600`
-
----
+- bg-brand-50 text-brand-700
 
 ## Interaction
 
-- `transition 150–200ms`
+- transition 150-200ms
+- easing mem, khong gat
+- hover: bg-brand-50/60 hoac bg-slate-50
+- active: scale-[0.99]
 
-Hover (desktop):
+Khong dung animation phuc tap hoac bong qua manh.
 
-- `bg-gray-50`
+## Iconography
 
-Active:
+- Toan bo icon dung Lucide
+- Stroke dong nhat
+- Khong tron Heroicons hoac icon fill khac he
 
-- `scale-95`
+## Gradient
 
-❌ Không:
+Chi dung neu that su can:
 
-- shadow hover
-- animation phức tạp
+- CTA dac biet
+- Dashboard hero
+- Brand accent nho
 
----
-
-## Gradient (Hạn chế tối đa)
-
-Chỉ dùng nếu thật sự cần:
-
-- CTA đặc biệt (hiếm)
-- Banner
-
-Mặc định:
-
-- ❌ Không dùng gradient
-
----
-
-## Tránh
-
-- ❌ Shadow mọi cấp độ
-- ❌ Card lồng card
-- ❌ Border lồng border
-- ❌ Gradient tràn lan
-- ❌ UI nhiều layer
-- ❌ Mỗi màn 1 style khác nhau
-
----
-
-## Yêu cầu code
-
-- Tailwind rõ ràng, clean
-- Không inline style
-- 1 component = 1 style duy nhất
-- Tái sử dụng class/pattern
-
----
-
-## Quy tắc với AI / Copilot
-
-- Luôn ưu tiên:
-  - flat
-  - border
-  - spacing
-- Không tự thêm shadow/gradient
-- Không tạo thêm layer UI không cần thiết
-- Nếu phân vân → chọn cách đơn giản hơn
+Khong dung gradient tran lan tren card noi dung thuong.

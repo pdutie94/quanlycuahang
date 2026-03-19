@@ -1,4 +1,4 @@
-<div class="app-modal-overlay" data-product-selector-root>
+<div class="app-modal-overlay h-full" data-product-selector-root>
 	<div class="app-modal-sheet">
 		<div class="app-modal-header">
 			<h2 class="app-modal-title">Chọn sản phẩm</h2>
@@ -7,7 +7,7 @@
             </button>
         </div>
 
-		<div class="app-modal-body flex flex-col min-h-0">
+		<div class="app-modal-body pt-2 pb-3 flex flex-col min-h-0">
 			<div class="mb-2 flex items-center">
 				<div class="relative flex-1">
 					<input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 pr-8 text-sm outline-none transition focus:border-brand-500" placeholder="Tìm sản phẩm..." data-product-selector-search>

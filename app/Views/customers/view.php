@@ -2,12 +2,12 @@
 <div class="mb-4 flex items-center justify-between gap-3">
 	<h1 class="text-lg font-medium tracking-tight">Khách hàng</h1>
     <div class="flex items-center gap-2" data-header-actions-root>
-		<a href="<?php echo $basePath; ?>/customer" class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
+		<a href="<?php echo $basePath; ?>/customer" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
 			<?php echo ui_icon("chevron-left", "h-4 w-4"); ?>
 			<span>Danh sách</span>
 		</a>
 		<div class="relative" data-header-actions-menu>
-			<button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 hover:bg-slate-100" data-header-actions-toggle>
+			<button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100" data-header-actions-toggle>
 				<?php echo ui_icon("ellipsis-vertical", "h-4 w-4"); ?>
 			</button>
 			<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm  overflow-hidden hidden" data-header-actions-dropdown>
@@ -71,14 +71,14 @@
 <?php } else { ?>
 	<div class="mb-2 flex items-center justify-between text-sm text-slate-600">
 		<div class="font-medium uppercase  text-slate-500">Đơn hàng</div>
-		<button type="button" class="inline-flex items-center rounded-full border border-slate-300 px-2 py-0.5 text-sm font-medium text-slate-600 hover:bg-slate-100" data-customer-selection-toggle>
+		<button type="button" class="inline-flex items-center rounded-lg border border-slate-300 px-2 py-0.5 text-sm font-medium text-slate-600 hover:bg-slate-100" data-customer-selection-toggle>
 			<?php echo ui_icon("chevron-right", "mr-1 h-3.5 w-3.5"); ?>
 			<span>Chọn đơn</span>
 		</button>
 	</div>
 	<div class="mb-3 hidden rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm text-slate-700" data-customer-order-selection-panel>
 		<div class="flex items-center gap-1.5">
-			<span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-100 text-brand-700">
+			<span class="inline-flex h-5 w-5 items-center justify-center rounded-lg bg-brand-100 text-brand-700">
 				<?php echo ui_icon("arrow-left-on-rectangle", "h-3.5 w-3.5"); ?>
 			</span>
 			<span class="font-medium text-slate-800">Đã chọn <span data-customer-selected-count>0</span> đơn</span>
@@ -87,7 +87,7 @@
 			<span>Tổng: <span class="font-medium text-slate-900" data-customer-selected-total>0 đ</span></span>
 			<span>Đã thu: <span class="font-medium text-brand-700" data-customer-selected-paid>0 đ</span></span>
 			<span>Còn nợ: <span class="font-medium text-rose-600" data-customer-selected-debt>0 đ</span></span>
-			<button type="button" class="inline-flex items-center rounded-full border border-slate-300 px-2 py-0.5 text-sm font-medium text-slate-600 hover:bg-slate-100" data-customer-selection-clear>Hủy chọn</button>
+			<button type="button" class="inline-flex items-center rounded-lg border border-slate-300 px-2 py-0.5 text-sm font-medium text-slate-600 hover:bg-slate-100" data-customer-selection-clear>Hủy chọn</button>
 		</div>
 	</div>
 	<div class="space-y-3" data-customer-order-list>
@@ -140,7 +140,7 @@
 							<div class="text-sm font-mono font-medium text-brand-700">
 								#<?php echo htmlspecialchars($order['order_code']); ?>
 							</div>
-							<span class="inline-flex items-center rounded-full px-3 py-0.5 text-sm font-medium whitespace-nowrap <?php echo $badgeClass; ?>"><?php echo htmlspecialchars($badgeLabel); ?></span>
+							<span class="inline-flex items-center rounded-lg px-3 py-0.5 text-sm font-medium whitespace-nowrap <?php echo $badgeClass; ?>"><?php echo htmlspecialchars($badgeLabel); ?></span>
 						</div>
 						<div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
 							<?php if ($timeText !== '') { ?>

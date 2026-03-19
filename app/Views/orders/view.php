@@ -28,7 +28,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 	<div class="rounded-lg border border-slate-200 bg-white ">
 		<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 			<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
-				<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-50 text-brand-700">
+				<span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
 					<?php echo ui_icon("clipboard-document", "h-4 w-4"); ?>
 				</span>
 				<span class="text-sm font-medium text-slate-900 sm:text-sm">#<?php echo htmlspecialchars($order['order_code']); ?></span>
@@ -36,13 +36,13 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 		</div>
 		<div class="px-4 py-2">
 			<div class="flex flex-wrap items-center gap-2 text-sm sm:text-sm text-slate-600">
-				<span class="inline-flex items-center rounded-full bg-sky-50 px-2.5 py-0.5 text-sm font-medium text-sky-700">
+				<span class="inline-flex items-center rounded-lg bg-sky-50 px-2.5 py-0.5 text-sm font-medium text-sky-700">
 					<span><?php echo htmlspecialchars($orderDateFormatted); ?></span>
 				</span>
-				<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium <?php echo $order['status'] === 'paid' ? 'bg-brand-50 text-brand-700' : 'bg-amber-50 text-amber-700'; ?>">
+				<span class="inline-flex items-center rounded-lg px-2.5 py-0.5 text-sm font-medium <?php echo $order['status'] === 'paid' ? 'bg-brand-50 text-brand-700' : 'bg-amber-50 text-amber-700'; ?>">
 					<?php echo $order['status'] === 'paid' ? 'Đã thanh toán' : 'Còn nợ'; ?>
 				</span>
-				<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium
+				<span class="inline-flex items-center rounded-lg px-2.5 py-0.5 text-sm font-medium
 					<?php
 					if ($orderStatus === 'completed') {
 						echo 'bg-brand-50 text-brand-700';
@@ -96,7 +96,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 
 				<div class="mt-3 flex items-center justify-between rounded-md px-3 py-2 <?php echo $profitOrder >= 0 ? 'bg-brand-50' : 'bg-rose-50'; ?>">
 					<div class="flex items-center gap-2">
-						<span class="inline-flex h-6 w-6 items-center justify-center rounded-full <?php echo $profitOrder >= 0 ? 'bg-brand-600 text-white' : 'bg-rose-600 text-white'; ?>">
+						<span class="inline-flex h-6 w-6 items-center justify-center rounded-lg <?php echo $profitOrder >= 0 ? 'bg-brand-600 text-white' : 'bg-rose-600 text-white'; ?>">
 							<?php echo ui_icon("check", "h-3.5 w-3.5"); ?>
 						</span>
 						<span class="text-sm font-medium uppercase  <?php echo $profitOrder >= 0 ? 'text-brand-700' : 'text-rose-700'; ?>">Lợi nhuận</span>
@@ -144,7 +144,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 	<div class="rounded-lg border border-slate-200 bg-white ">
 		<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 			<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
-				<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-amber-700">
+				<span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
 						<?php echo ui_icon("user-group", "h-4 w-4"); ?>
 				</span>
 				<span>Khách hàng</span>
@@ -172,7 +172,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 						<div class="inline-flex items-center gap-1.5">
 							<span class="font-medium text-slate-900"><?php echo htmlspecialchars($order['customer_name']); ?></span>
 							<?php if (!empty($order['customer_id'])) { ?>
-								<a href="<?php echo $basePath; ?>/customer/view?id=<?php echo (int) $order['customer_id']; ?>" class="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700" title="Xem chi tiết khách hàng">
+								<a href="<?php echo $basePath; ?>/customer/view?id=<?php echo (int) $order['customer_id']; ?>" class="inline-flex h-6 w-6 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-500 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700" title="Xem chi tiết khách hàng">
 									<?php echo ui_icon("external-link", "h-4 w-4"); ?>
 								</a>
 							<?php } ?>
@@ -185,7 +185,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 					<div class="flex items-center gap-x-2">
 						<span class="text-slate-500 min-w-20">SĐT: </span>
 						<span class="font-medium text-slate-900"><?php echo htmlspecialchars($order['customer_phone']); ?></span>
-						<a href="tel:<?php echo rawurlencode($order['customer_phone']); ?>" class="inline-flex h-6 w-6 items-center justify-center rounded-full border border-brand-200 bg-brand-50 text-brand-600 hover:border-brand-300 hover:bg-brand-100">
+						<a href="tel:<?php echo rawurlencode($order['customer_phone']); ?>" class="inline-flex h-6 w-6 items-center justify-center rounded-lg border border-brand-200 bg-brand-50 text-brand-600 hover:border-brand-300 hover:bg-brand-100">
 							<?php echo ui_icon("phone", "h-4 w-4"); ?>
 						</a>
 					</div>
@@ -221,7 +221,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 			<div class="rounded-lg border border-slate-200 bg-white ">
 				<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 					<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
-						<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-slate-700">
+						<span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-50 text-slate-700">
 						<?php echo ui_icon("cube", "size-4"); ?>
 					</span>
 					<span>Sản phẩm</span>
@@ -288,7 +288,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 		<div class="mt-4 rounded-lg border border-slate-200 bg-white ">
 			<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 				<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
-					<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-amber-700">
+					<span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
 						<?php echo ui_icon("archive-box", "h-4 w-4"); ?>
 					</span>
 					<span>Sản phẩm khác</span>
@@ -374,7 +374,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 					<div class="flex flex-col gap-x-2 gap-y-1 px-4 py-3 text-sm sm:flex-row sm:items-start sm:justify-between">
 						<div class="min-w-0">
 							<div class="flex flex-wrap items-center gap-2">
-								<span class="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-sm font-medium text-brand-700">
+								<span class="inline-flex items-center gap-1 rounded-lg bg-brand-50 px-2.5 py-0.5 text-sm font-medium text-brand-700">
 									<?php echo ui_icon("banknotes", "h-3.5 w-3.5"); ?>
 									<span>Thanh toán</span>
 								</span>
@@ -406,7 +406,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 		<div class="rounded-lg border border-slate-200 bg-white ">
 			<div class="flex items-center justify-between border-b border-slate-100 px-4 py-2">
 				<div class="flex items-center gap-2 text-sm font-medium text-slate-800">
-					<span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-amber-700">
+					<span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
 						<?php echo ui_icon("clock", "h-4 w-4"); ?>
 					</span>
 					<span>Lịch sử thay đổi</span>
@@ -432,7 +432,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 					?>
 					<div class="px-4 py-2">
 						<div class="mb-1">
-							<span class="inline-flex items-center rounded-full bg-slate-50 py-0.5 text-sm font-medium text-slate-600">
+							<span class="inline-flex items-center rounded-lg bg-slate-50 py-0.5 text-sm font-medium text-slate-600">
 								<?php echo htmlspecialchars($timeText); ?>
 							</span>
 						</div>

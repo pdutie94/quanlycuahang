@@ -11,7 +11,7 @@ if ($debt < 0) {
 <div class="mb-4 flex items-center justify-between gap-3">
     <h1 class="text-lg font-medium tracking-tight">Trả hàng đơn <?php echo htmlspecialchars($order['order_code']); ?></h1>
     <div class="flex flex-wrap items-center gap-1.5">
-        <a href="<?php echo $basePath; ?>/order/view?id=<?php echo (int) $order['id']; ?>" class="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
+        <a href="<?php echo $basePath; ?>/order/view?id=<?php echo (int) $order['id']; ?>" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
             <?php echo ui_icon("chevron-left", "h-4 w-4"); ?>
             <span>Quay lại đơn hàng</span>
         </a>

@@ -4,21 +4,55 @@
 
 @layer base {
 	:root {
-		--app-bg: #f6f8fb;
+		--app-bg: #f8fafc;
+		--app-bg-accent: transparent;
 		--app-surface: #ffffff;
-		--app-border: #dbe2ea;
+		--app-surface-strong: #ffffff;
+		--app-border: #e2e8f0;
 		--app-text: #0f172a;
 		--app-muted: #64748b;
+	}
+
+	html {
+		scroll-behavior: smooth;
 	}
 
 	body {
 		@apply bg-slate-50 font-sans text-slate-900 antialiased;
 	}
+
+	::selection {
+		@apply bg-brand-200 text-slate-900;
+	}
+
+	a,
+	button,
+	input,
+	select,
+	textarea {
+		@apply transition duration-200 ease-out;
+	}
+
+	/* Enforce minimal style globally for legacy templates. */
+	* {
+		letter-spacing: 0 !important;
+	}
+
+	[class*='shadow-'] {
+		box-shadow: none !important;
+	}
+
+	[class*='rounded-lg'],
+	[class*='rounded-['],
+	[class*='rounded-card'],
+	[class*='rounded-chip'] {
+		border-radius: .75rem !important;
+	}
 }
 
 @layer components {
 	.app-shell {
-		@apply min-h-screen bg-slate-50;
+		@apply min-h-screen text-slate-900;
 		font-size: 15px;
 	}
 
@@ -27,94 +61,114 @@
 	}
 
 	.app-icon-btn {
-		@apply inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-700;
+		@apply inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-700;
 	}
 
 	.app-content-wrap {
-		@apply mx-auto w-full max-w-5xl px-4;
+		@apply mx-auto w-full max-w-6xl px-4 md:px-6;
 	}
 
 	.app-card {
 		@apply rounded-card border border-slate-200 bg-white p-4;
+		background: var(--app-surface);
 	}
 
 	.app-section-title {
-		@apply text-sm font-semibold uppercase tracking-wide text-slate-500;
+		@apply text-xs font-semibold uppercase text-slate-500;
 	}
 
 	.app-chip {
-		@apply inline-flex min-h-8 items-center rounded-chip border border-slate-300 bg-white px-3 py-1 text-sm font-medium text-slate-700;
+		@apply inline-flex min-h-8 items-center rounded-chip border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700;
 	}
 
 	.app-chip-active {
-		@apply border-brand-600 bg-brand-600 text-white;
+		@apply border-brand-600 bg-brand-50 text-brand-700;
 	}
 
+	.form-field,
 	.app-input {
-		@apply block min-h-8 w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none transition focus:border-brand-500;
+		@apply block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none;
+	}
+
+	.form-field:focus,
+	.app-input:focus {
+		@apply border-brand-500;
 	}
 
 	.app-btn-primary {
-		@apply inline-flex min-h-8 items-center justify-center rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-brand-700 active:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50;
+		@apply inline-flex min-h-9 items-center justify-center rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-brand-700 active:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50;
 	}
 
 	.app-btn-secondary {
-		@apply inline-flex min-h-8 items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50;
+		@apply inline-flex min-h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50;
 	}
 
 	.app-modal-overlay {
-		@apply fixed inset-0 z-40 hidden items-end justify-center bg-slate-900/35 px-2 pt-5;
+		@apply fixed inset-0 z-40 hidden items-end justify-center bg-slate-900/35 pt-6;
 	}
 
 	.app-modal-sheet {
-		@apply flex h-auto max-h-full w-full max-w-5xl flex-col overflow-hidden rounded-t-[1rem] bg-white;
+		@apply flex h-auto max-h-full w-full max-w-5xl flex-col overflow-hidden rounded-t-app border border-slate-200 bg-white;
 	}
 
 	.app-modal-sheet-sm {
-		@apply flex h-auto max-h-full w-full max-w-5xl flex-col overflow-hidden rounded-t-[1rem] bg-white;
+		@apply flex h-auto max-h-full w-full max-w-2xl flex-col overflow-hidden rounded-t-app  bg-white;
 	}
 
 	.app-modal-header {
-		@apply flex items-center justify-between border-b border-slate-200 px-3 py-2;
+		@apply flex items-center justify-between border-b border-slate-200/70 px-3 py-2;
 	}
 
 	.app-modal-title {
-		@apply text-sm font-medium text-slate-800;
+		@apply font-display text-base font-semibold text-slate-900;
 	}
 
 	.app-modal-close {
-		@apply inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-700;
+		@apply inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-700;
 	}
 
 	.app-modal-body {
-		@apply flex-1 overflow-y-auto px-3 pb-4 pt-3 text-sm;
+		@apply flex-1 overflow-y-auto p-3 text-sm;
 	}
 
 	.app-modal-footer {
-		@apply flex items-center justify-end gap-2 border-t border-slate-200 px-3 py-2;
+		@apply flex items-center justify-end gap-2 border-t border-slate-200/70 px-3 py-2;
+		background: #ffffff;
 	}
 
 	.app-modal-footer .app-btn-primary,
 	.app-modal-footer .app-btn-secondary,
 	.app-modal-footer > button,
 	.app-modal-footer > a {
-		@apply h-[34px] min-h-[34px] px-4;
+		@apply min-h-9 px-3;
 	}
 
 	.app-kpi-card {
-		@apply rounded-xl border border-slate-200 bg-white px-3 py-2;
+		@apply rounded-xl border border-slate-200 bg-white p-3;
+	}
+
+	.app-shortcut-link {
+		@apply flex items-center gap-3 rounded-lg bg-brand-50 p-3 text-sm font-semibold text-brand-900 transition hover:bg-brand-100;
+	}
+
+	.app-shortcut-icon {
+		@apply inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white text-brand-700;
 	}
 
 	.app-bottom-nav {
-		@apply fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur;
+		@apply fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white;
 	}
 
 	.app-bottom-nav-inner {
-		@apply mx-auto flex w-full max-w-5xl items-center justify-between gap-1 px-1.5 py-1 text-xs font-medium;
+		@apply mx-auto flex w-full max-w-6xl items-center justify-between gap-2 p-1 text-[12px] font-medium;
 	}
 
 	.app-bottom-nav-link {
-		@apply flex min-h-11 flex-1 flex-col items-center justify-center rounded-xl px-1.5 py-1.5 text-slate-500 transition;
+		@apply flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center rounded-lg p-1 text-slate-500 transition;
+	}
+
+	.app-bottom-nav-link span {
+		@apply block w-full overflow-hidden text-ellipsis whitespace-nowrap text-center;
 	}
 
 	.app-bottom-nav-link-active {

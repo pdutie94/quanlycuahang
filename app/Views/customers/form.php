@@ -12,7 +12,7 @@ $backUrl = $isEdit ? $basePath . '/customer/view?id=' . $customerId : $basePath 
 <?php if (!isset($detailHeader)) { ?>
 <div class="mb-4 flex items-center justify-between gap-3">
 	<h1 class="text-lg font-medium tracking-tight"><?php echo $titleText; ?></h1>
-	<a href="<?php echo $backUrl; ?>" class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
+	<a href="<?php echo $backUrl; ?>" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
 		<?php echo ui_icon("chevron-left", "h-4 w-4"); ?>
 		<span><?php echo $isEdit ? 'Chi tiết' : 'Danh sách'; ?></span>
 	</a>

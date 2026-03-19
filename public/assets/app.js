@@ -117,7 +117,7 @@
                 }
                 var originalHtml = $btn.html();
                 $btn.data('loading-original', originalHtml);
-                var spinner = '<span class="mr-1 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-transparent align-middle"></span>';
+                var spinner = '<span class="mr-1 inline-block h-4 w-4 animate-spin rounded-lg border-2 border-white/60 border-t-transparent align-middle"></span>';
                 $btn.html(spinner + originalHtml);
                 $btn.data('loading-applied', true);
             });
@@ -1571,7 +1571,7 @@
                 $left.append($text);
 
                 var $right = $('<div>', { "class": 'flex items-center' });
-                var checkClasses = 'inline-flex h-5 w-5 items-center justify-center rounded-full border text-sm';
+                var checkClasses = 'inline-flex h-5 w-5 items-center justify-center rounded-lg border text-sm';
                 if (selectedMap[idStr]) {
                     checkClasses += ' border-brand-500 bg-brand-500 text-white';
                 } else {
@@ -1607,7 +1607,7 @@
                 var $label = $('<div>', { "class": 'text-sm font-medium text-slate-800 truncate' }).text(item.label || '');
                 var $remove = $('<button>', {
                     type: 'button',
-                    "class": 'ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-sm text-slate-400 hover:border-rose-400 hover:text-rose-500',
+                    "class": 'ml-2 inline-flex h-5 w-5 items-center justify-center rounded-lg border border-slate-300 text-sm text-slate-400 hover:border-rose-400 hover:text-rose-500',
                     'data-product-selector-remove-selected': String(item.id)
                 }).html(appIcon('x-mark-solid', 'h-3 w-3'));
                 $row.append($label).append($remove);
@@ -2211,7 +2211,7 @@
             var $priceDisplay = $('<button>', {
                 type: 'button',
                 'data-pos-price-edit': '1',
-                "class": 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 hover:bg-brand-50'
+                "class": 'inline-flex items-center gap-1 rounded-lg hover:bg-brand-50'
             });
             var $priceText = $('<span>', {
                 "class": 'font-medium text-slate-900',
@@ -2225,7 +2225,7 @@
             $priceDisplay.append($priceText).append($unitName).append($editIcon);
             $unitInfo.append($priceDisplay);
 		
-			var $qtyGroup = $('<div>', { "class": 'inline-flex items-stretch overflow-hidden rounded-full border border-slate-300 bg-slate-50' });
+			var $qtyGroup = $('<div>', { "class": 'inline-flex items-stretch overflow-hidden rounded-lg border border-slate-300 bg-slate-50' });
 		
 			var $decreaseBtn = $('<button>', {
 				type: 'button',
@@ -3845,7 +3845,7 @@
                 var $priceBtn = $('<button>', {
                     type: 'button',
                     'data-order-price-edit': '1',
-                    "class": 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 hover:bg-brand-50'
+                    "class": 'inline-flex items-center gap-1 rounded-lg hover:bg-brand-50'
                 });
                 var $priceSpan = $('<span>', {
                     'data-order-price-display': '1',
@@ -3859,7 +3859,7 @@
                 $unitInfo.append($priceBtn);
                 $info.append($unitInfo);
 
-                var $qtyGroup = $('<div>', { "class": 'inline-flex items-stretch overflow-hidden rounded-full border border-slate-300 bg-slate-50' });
+                var $qtyGroup = $('<div>', { "class": 'inline-flex items-stretch overflow-hidden rounded-lg border border-slate-300 bg-slate-50' });
                 var $decreaseBtn = $('<button>', {
                     type: 'button',
                     'data-order-edit-decrease': '1',
@@ -5087,12 +5087,12 @@
     }
 
     function initStickyListHeaders() {
-        var forms = document.querySelectorAll('form[data-list-sticky]');
-        if (!forms.length) {
+        var stickyElements = document.querySelectorAll('[data-list-sticky]');
+        if (!stickyElements.length) {
             return;
         }
         var items = [];
-        forms.forEach(function (el) {
+        stickyElements.forEach(function (el) {
             var stickyTop = 0;
             try {
                 var computedStyle = window.getComputedStyle(el);

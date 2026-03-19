@@ -1,7 +1,7 @@
 <div class="mb-4 space-y-3">
     <div class="flex items-center justify-between gap-3">
         <h1 class="text-lg font-medium tracking-tight">Danh mục sản phẩm</h1>
-        <button type="button" data-category-toggle class="inline-flex items-center justify-center rounded-full bg-brand-600 p-2 text-white  hover:bg-brand-700 active:bg-brand-800">
+        <button type="button" data-category-toggle class="inline-flex items-center justify-center rounded-lg bg-brand-600 p-2 text-white  hover:bg-brand-700 active:bg-brand-800">
             <?php echo ui_icon("plus", "h-5 w-5"); ?>
         </button>
     </div>

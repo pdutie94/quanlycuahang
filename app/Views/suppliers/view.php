@@ -6,12 +6,12 @@ $totalDebt = isset($totalDebt) ? (float) $totalDebt : 0;
 <div class="mb-4 flex items-center justify-between gap-3">
 	<h1 class="text-lg font-medium tracking-tight">Nhà cung cấp</h1>
 		<div class="flex items-center gap-1.5" data-header-actions-root>
-		<a href="<?php echo $basePath; ?>/supplier" class="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
+		<a href="<?php echo $basePath; ?>/supplier" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
 			<?php echo ui_icon("chevron-left", "h-4 w-4"); ?>
 			<span>Danh sách</span>
 		</a>
 		<div class="relative" data-header-actions-menu>
-			<button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 hover:bg-slate-100" data-header-actions-toggle>
+			<button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100" data-header-actions-toggle>
 				<?php echo ui_icon("ellipsis-vertical", "h-4 w-4"); ?>
 			</button>
 			<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm  overflow-hidden hidden" data-header-actions-dropdown>
@@ -80,7 +80,7 @@ $totalDebt = isset($totalDebt) ? (float) $totalDebt : 0;
 								<div class="font-mono text-sm font-medium text-slate-800">
 									#<?php echo htmlspecialchars($purchase['purchase_code']); ?>
 								</div>
-								<span class="inline-flex items-center rounded-full px-3 py-0.5 text-sm font-medium whitespace-nowrap <?php echo $badgeClass; ?>">
+								<span class="inline-flex items-center rounded-lg px-3 py-0.5 text-sm font-medium whitespace-nowrap <?php echo $badgeClass; ?>">
 									<?php echo htmlspecialchars($badgeLabel); ?>
 								</span>
 							</div>

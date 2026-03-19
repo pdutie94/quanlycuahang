@@ -2,7 +2,7 @@
 <div class="mb-3 flex items-center justify-between gap-3">
 	<h1 class="text-lg font-medium tracking-tight"><?php echo $supplier ? 'Chỉnh sửa nhà cung cấp' : 'Thêm nhà cung cấp'; ?></h1>
 	<div class="flex flex-wrap items-center gap-1.5">
-		<a href="<?php echo $basePath; ?>/supplier" class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
+		<a href="<?php echo $basePath; ?>/supplier" class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
 			<?php echo ui_icon("chevron-left", "h-4 w-4"); ?>
 			<span>Danh sách</span>
 		</a>

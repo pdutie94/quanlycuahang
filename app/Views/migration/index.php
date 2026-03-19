@@ -48,13 +48,13 @@
                         <div class="flex flex-col items-end gap-2 text-sm">
                             <div>
                                 <?php if ($isPending) { ?>
-                                    <span class="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-sm font-medium text-amber-700">Chưa chạy</span>
+                                    <span class="inline-flex items-center rounded-lg bg-amber-50 px-2 py-0.5 text-sm font-medium text-amber-700">Chưa chạy</span>
                                 <?php } else { ?>
-                                    <span class="inline-flex items-center rounded-full bg-brand-50 px-2 py-0.5 text-sm font-medium text-brand-700">Đã chạy hoặc cũ hơn</span>
+                                    <span class="inline-flex items-center rounded-lg bg-brand-50 px-2 py-0.5 text-sm font-medium text-brand-700">Đã chạy hoặc cũ hơn</span>
                                 <?php } ?>
                             </div>
                             <div>
-                                <button type="button" class="inline-flex items-center rounded-full border border-slate-300 px-3 py-1 text-sm font-medium text-slate-700 hover:bg-slate-100" data-run-migration-version="<?php echo htmlspecialchars($version); ?>">
+                                <button type="button" class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1 text-sm font-medium text-slate-700 hover:bg-slate-100" data-run-migration-version="<?php echo htmlspecialchars($version); ?>">
                                     Chạy lại
                                 </button>
                             </div>
