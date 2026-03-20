@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Mar 15, 2026 at 06:56 PM
+-- Generation Time: Mar 20, 2026 at 06:00 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -198,6 +198,19 @@ CREATE TABLE `product_logs` (
   `detail` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_sales_summary`
+--
+
+DROP TABLE IF EXISTS `product_sales_summary`;
+CREATE TABLE `product_sales_summary` (
+  `product_id` int NOT NULL,
+  `sold_qty` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -412,7 +425,8 @@ ALTER TABLE `orders`
   ADD KEY `idx_orders_status` (`status`),
   ADD KEY `idx_orders_order_status` (`order_status`),
   ADD KEY `idx_orders_customer_id` (`customer_id`),
-  ADD KEY `idx_orders_deleted_at` (`deleted_at`);
+  ADD KEY `idx_orders_deleted_at` (`deleted_at`),
+  ADD KEY `idx_orders_filter` (`order_date`,`deleted_at`,`order_status`,`customer_id`);
 
 --
 -- Indexes for table `order_items`
@@ -421,7 +435,10 @@ ALTER TABLE `order_items`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_order_items_order` (`order_id`),
   ADD KEY `fk_order_items_product` (`product_id`),
-  ADD KEY `fk_order_items_product_unit` (`product_unit_id`);
+  ADD KEY `fk_order_items_product_unit` (`product_unit_id`),
+  ADD KEY `idx_order_items_order` (`order_id`,`product_id`),
+  ADD KEY `idx_order_items_order_id` (`order_id`),
+  ADD KEY `idx_order_items_product_id` (`product_id`);
 
 --
 -- Indexes for table `order_logs`
@@ -446,7 +463,9 @@ ALTER TABLE `payments`
   ADD KEY `idx_payments_supplier` (`supplier_id`),
   ADD KEY `idx_payments_order` (`order_id`),
   ADD KEY `idx_payments_purchase` (`purchase_id`),
-  ADD KEY `idx_payments_type` (`type`);
+  ADD KEY `idx_payments_type` (`type`),
+  ADD KEY `idx_payments_type_order` (`type`,`order_id`),
+  ADD KEY `idx_payments_type_purchase` (`type`,`purchase_id`);
 
 --
 -- Indexes for table `products`
@@ -457,7 +476,8 @@ ALTER TABLE `products`
   ADD KEY `fk_products_base_unit` (`base_unit_id`),
   ADD KEY `fk_products_category` (`category_id`),
   ADD KEY `idx_products_deleted_at` (`deleted_at`),
-  ADD KEY `idx_products_name` (`name`);
+  ADD KEY `idx_products_name` (`name`),
+  ADD KEY `idx_products_filter` (`deleted_at`,`name`,`category_id`);
 
 --
 -- Indexes for table `product_categories`
@@ -471,6 +491,13 @@ ALTER TABLE `product_categories`
 ALTER TABLE `product_logs`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_product_logs_product_id` (`product_id`);
+
+--
+-- Indexes for table `product_sales_summary`
+--
+ALTER TABLE `product_sales_summary`
+  ADD PRIMARY KEY (`product_id`),
+  ADD KEY `idx_product_sales_summary_sold_qty` (`sold_qty`);
 
 --
 -- Indexes for table `product_units`

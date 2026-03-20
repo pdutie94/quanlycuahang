@@ -88,7 +88,7 @@ $isReportRoute = (strpos($currentRoute, 'report') === 0);
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title><?php echo isset($title) ? $title . ' - ' . htmlspecialchars($config['app_name']) : htmlspecialchars($config['app_name']); ?></title>
 	<meta name="robots" content="noindex,nofollow,noarchive,noimageindex,nosnippet">
-	<meta name="theme-color" content="#2f80ed">
+	<meta name="theme-color" content="#0f766e">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600;8..144,700&display=swap" rel="stylesheet">
