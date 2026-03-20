@@ -144,7 +144,7 @@
 	}
 
 	.app-kpi-card {
-		@apply rounded-xl border border-slate-200 bg-brand-50/40 p-3;
+		@apply rounded-xl border border-slate-200 bg-white p-3;
 	}
 
 	.app-shortcut-link {

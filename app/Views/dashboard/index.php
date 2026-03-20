@@ -28,19 +28,19 @@ $lowStockPreview = array_slice($lowStockItems, 0, 5);
 	<div class="grid grid-cols-2 gap-3 text-sm xl:grid-cols-4">
 		<div class="app-kpi-card">
 			<div class="text-sm text-slate-500">Doanh thu</div>
-			<div class="mt-0.5 text-xl font-semibold text-slate-900"><?php echo Money::format($ordersToday['total_amount']); ?></div>
+			<div class="mt-0.5 text-xl font-semibold text-brand-700"><?php echo Money::format($ordersToday['total_amount']); ?></div>
 		</div>
 		<div class="app-kpi-card">
 			<div class="text-sm text-slate-500">Lợi nhuận</div>
-			<div class="mt-0.5 text-xl font-semibold text-slate-900"><?php echo Money::format($ordersToday['profit']); ?></div>
+			<div class="mt-0.5 text-xl font-semibold text-emerald-700"><?php echo Money::format($ordersToday['profit']); ?></div>
 		</div>
 		<div class="app-kpi-card">
 			<div class="text-sm text-slate-500">Đã thu</div>
-			<div class="mt-0.5 text-xl font-semibold text-slate-900"><?php echo Money::format($ordersToday['paid_amount']); ?></div>
+			<div class="mt-0.5 text-xl font-semibold text-cyan-700"><?php echo Money::format($ordersToday['paid_amount']); ?></div>
 		</div>
 		<div class="app-kpi-card">
 			<div class="text-sm text-slate-500">Còn nợ</div>
-			<div class="mt-0.5 text-xl font-semibold text-slate-900"><?php echo Money::format($ordersToday['debt_amount']); ?></div>
+			<div class="mt-0.5 text-xl font-semibold text-rose-700"><?php echo Money::format($ordersToday['debt_amount']); ?></div>
 		</div>
 	</div>
 	<div class="space-y-2">
