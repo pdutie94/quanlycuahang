@@ -3546,52 +3546,80 @@
         }
 
         function recalcOrderTotals() {
-            var base = 0;
+            var subtotal = 0;
             var hasAnyItems = false;
             if ($itemsList.length) {
                 $itemsList.find('[data-order-existing-item]').each(function () {
                     var $row = $(this);
-                    var $amountEl = $row.find('[data-order-existing-amount]');
-                    if (!$amountEl.length) return;
-                    var raw = $amountEl.text() || '0';
-                    var numeric = raw.replace(/[^\d]/g, '');
-                    var amount = parseFloat(numeric || '0');
+                    var qty = 0;
+                    var $qtyInput = $row.find('input[data-order-existing-qty-input]');
+                    if ($qtyInput.length) {
+                        qty = parseFloat($qtyInput.val() || '0');
+                    } else {
+                        qty = parseFloat($row.attr('data-base-qty') || '0');
+                    }
+                    if (!isFinite(qty) || qty < 0) {
+                        qty = 0;
+                    }
+
+                    var priceRaw = $row.attr('data-price') || $row.attr('data-base-price') || '0';
+                    var price = parseFloat(priceRaw || '0');
+                    if (!isFinite(price) || price < 0) {
+                        price = 0;
+                    }
+
+                    var amount = qty * price;
                     if (!isFinite(amount) || amount < 0) {
                         amount = 0;
                     }
-                    base += amount;
+
+                    var $qtyDisplay = $row.find('[data-order-existing-qty]');
+                    if ($qtyDisplay.length) {
+                        $qtyDisplay.text(formatOrderCurrency(qty));
+                    }
+                    var $amountEl = $row.find('[data-order-existing-amount]');
+                    if ($amountEl.length) {
+                        $amountEl.text(formatOrderCurrency(amount));
+                    }
+                    subtotal += amount;
                     hasAnyItems = true;
                 });
-                if (!hasAnyItems) {
-                    hasAnyItems = $itemsList.find('[data-order-edit-new-item]').length > 0;
-                }
+
+                $itemsList.find('[data-order-edit-new-item]').each(function () {
+                    var $row = $(this);
+                    var $qtyInput = $row.find('input[data-order-edit-qty]');
+                    var qty = $qtyInput.length ? parseFloat($qtyInput.val() || '0') : 0;
+                    if (!isFinite(qty) || qty < 0) {
+                        qty = 0;
+                    }
+
+                    var priceRaw = $row.attr('data-price') || $row.attr('data-base-price') || '0';
+                    var price = parseFloat(priceRaw || '0');
+                    if (!isFinite(price) || price < 0) {
+                        price = 0;
+                    }
+
+                    var amount = qty * price;
+                    if (!isFinite(amount) || amount < 0) {
+                        amount = 0;
+                    }
+
+                    var $amountEl = $row.find('[data-order-new-amount]');
+                    if ($amountEl.length) {
+                        $amountEl.text(formatOrderCurrency(amount));
+                    }
+
+                    if (qty > 0) {
+                        subtotal += amount;
+                        hasAnyItems = true;
+                    }
+                });
+
                 var $emptyBox = $itemsList.find('[data-order-edit-empty]').first();
                 if ($emptyBox.length) {
                     $emptyBox.toggleClass('hidden', hasAnyItems);
                 }
             }
-            baseTotal = base;
-
-            var addTotal = 0;
-            $.each(pendingItems, function (index, item) {
-                var unit = unitsById[String(item.product_unit_id)];
-                if (!unit) return;
-                var qty = parseFloat(item.qty || 0);
-                if (!isFinite(qty) || qty <= 0) return;
-                var price = 0;
-                if ($itemsList.length) {
-                    var $row = $itemsList.find('[data-order-edit-new-item][data-product-unit-id="' + String(unit.id) + '"]').first();
-                    if ($row.length) {
-                        var priceRaw = $row.attr('data-price') || '0';
-                        price = parseFloat(priceRaw);
-                    }
-                }
-                if (!isFinite(price) || price <= 0) {
-                    price = parseFloat(unit.price || unit.price_sell || 0);
-                }
-                if (!isFinite(price) || price <= 0) return;
-                addTotal += price * qty;
-            });
 
             var manualTotal = 0;
             var manualCount = 0;
@@ -3627,15 +3655,13 @@
                         }
                     }
                 });
-            }
-            if ($manualRoot.length) {
                 var $manualEmpty = $manualRoot.find('[data-order-edit-manual-empty]').first();
                 if ($manualEmpty.length) {
                     $manualEmpty.toggleClass('hidden', manualCount > 0);
                 }
             }
 
-            var subtotal = baseTotal + addTotal + manualTotal;
+            subtotal += manualTotal;
             if (!isFinite(subtotal) || subtotal < 0) {
                 subtotal = 0;
             }
