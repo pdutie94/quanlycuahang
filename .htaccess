@@ -48,6 +48,12 @@ RewriteRule ^category/update$ public/index.php?r=category/update [L,QSA]
 RewriteRule ^category/delete$ public/index.php?r=category/delete [L,QSA]
 
 RewriteRule ^pos$ public/index.php?r=pos/index [L,QSA]
+
+# Catch-all for SPA routing: rewrite non-existent files/dirs to public/index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/index.php [L,QSA]
+
 RewriteRule ^order$ public/index.php?r=orderList/index [L,QSA]
 RewriteRule ^order/delete$ public/index.php?r=orderList/delete [L,QSA]
 RewriteRule ^order/restore$ public/index.php?r=orderList/restore [L,QSA]

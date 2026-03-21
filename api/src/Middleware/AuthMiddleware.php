@@ -24,7 +24,7 @@ final class AuthMiddleware implements MiddlewareInterface
     {
         $authHeader = $request->getHeaderLine('Authorization');
         if (!preg_match('/^Bearer\s+(.*)$/i', $authHeader, $matches)) {
-            return Response::error(new \Slim\Psr7\Response(), 'Unauthorized', 401);
+            return Response::error(new \Slim\Psr7\Response(), 'Unauthorized: Missing or invalid Authorization header', 401);
         }
 
         $token = trim($matches[1]);
@@ -34,8 +34,10 @@ final class AuthMiddleware implements MiddlewareInterface
             $decoded = JWT::decode($token, new Key($config['jwt']['secret'], 'HS256'));
             $request = $request->withAttribute('auth', $decoded);
             return $handler->handle($request);
-        } catch (Throwable) {
-            return Response::error(new \Slim\Psr7\Response(), 'Unauthorized', 401);
+        } catch (\Firebase\JWT\ExpiredException $e) {
+            return Response::error(new \Slim\Psr7\Response(), 'Unauthorized: Token expired', 401);
+        } catch (Throwable $e) {
+            return Response::error(new \Slim\Psr7\Response(), 'Unauthorized: Invalid token', 401);
         }
     }
 }

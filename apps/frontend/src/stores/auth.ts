@@ -49,7 +49,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       user.value = await authService.getMe()
-    } catch {
+    } catch (err) {
+      console.error('Auth verification failed:', err)
       clearSession()
       throw new Error('Token invalid or expired')
     }
@@ -65,7 +66,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       await fetchMe()
-    } catch {
+    } catch (err) {
+      console.error('Auth init failed, user logged out:', err)
       // Token invalid: clearSession is already called in fetchMe.
     } finally {
       initialized.value = true
