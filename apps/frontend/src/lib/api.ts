@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { logger } from './logger'
 
 const TOKEN_KEY = 'admin_access_token'
 
@@ -16,22 +17,36 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+  logger.debug(`[API] ${config.method?.toUpperCase()} ${config.url}`)
   return config
 })
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    logger.debug(`[API] ${response.status} ${response.config.url}`)
+    return response
+  },
   (error) => {
-    // Don't auto-redirect on 401 — let auth store handle token refresh/logout
-    // Only redirect if we're not on login page and status is 401 from non-auth endpoints
     const status = error?.response?.status
     const path = error?.config?.url || ''
     const isAuthEndpoint = path.includes('/auth/')
+    const method = error?.config?.method?.toUpperCase() || 'UNKNOWN'
 
+    logger.error(`[API] ${method} ${path}: ${status}`, {
+      status,
+      isAuthEndpoint,
+      message: error?.response?.data?.message || error?.message,
+    })
+
+    // Only auto-redirect on 401 for non-auth endpoints
+    // Auth endpoints should handle their own 401 without redirect
     if (status === 401 && !isAuthEndpoint && window.location.pathname !== '/login') {
-      // Unauthorized on non-auth endpoint — clear token and redirect
-      localStorage.removeItem(TOKEN_KEY)
-      window.location.href = '/login'
+      logger.warn(`[API] Unauthorized on ${path}, will redirect to login in 1.5s`)
+      // Delay redirect to let error message show on screen
+      setTimeout(() => {
+        localStorage.removeItem(TOKEN_KEY)
+        window.location.href = '/login'
+      }, 1500)
     }
 
     return Promise.reject(error)
