@@ -11,8 +11,14 @@ RewriteRule ^$ public/index.php [L]
 # Nếu URL đã bắt đầu bằng /public thì giữ nguyên (để dev/test vẫn dùng được)
 RewriteRule ^public/ - [L]
 
+# API routes (Slim 4)
+RewriteRule ^api(?:/.*)?$ public/index.php [L,QSA]
+
 # Static assets: /assets/... -> /public/assets/...
 RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+
+# Frontend build assets: /admin/... -> /public/admin/...
+RewriteRule ^admin/(.*)$ public/admin/$1 [L]
 
 # Uploads: /uploads/... -> /public/uploads/...
 RewriteRule ^uploads/(.*)$ public/uploads/$1 [L]

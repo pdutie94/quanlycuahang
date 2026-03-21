@@ -3,6 +3,9 @@ RewriteEngine On
 # Nếu truy cập trực tiếp vào thư mục public/ thì ưu tiên dashboard hoặc login
 RewriteRule ^$ index.php [L]
 
+# API routes (Slim 4)
+RewriteRule ^api(?:/.*)?$ index.php [L,QSA]
+
 # Các route thân thiện
 RewriteRule ^login$ index.php?r=auth/login [L,QSA]
 RewriteRule ^logout$ index.php?r=auth/logout [L,QSA]

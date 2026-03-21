@@ -1,6 +1,14 @@
 node_modules/
+api/vendor/
+apps/frontend/node_modules/
+apps/frontend/.vite/
+apps/frontend/dist/
+public/admin/
 logs/*.log
 config/*.local.php
+.env
+.env.local
+.env.*.local
 public/uploads/
 uploads/
 .DS_Store

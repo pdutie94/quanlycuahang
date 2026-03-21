@@ -1,5 +1,20 @@
 <?php
 
+$uriPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+
+if (preg_match('#^/api(?:/|$)#', $uriPath) === 1) {
+    $app = require __DIR__ . '/../api/bootstrap.php';
+    $app->run();
+    exit;
+}
+
+$adminIndexPath = __DIR__ . '/admin/index.html';
+if (is_file($adminIndexPath)) {
+    header('Content-Type: text/html; charset=utf-8');
+    echo file_get_contents($adminIndexPath);
+    exit;
+}
+
 require __DIR__ . '/../config/config.php';
 require __DIR__ . '/../config/database.php';
 require __DIR__ . '/../app/Core/Database.php';
