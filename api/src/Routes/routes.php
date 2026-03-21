@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\BackupController;
 use App\Controllers\CategoryController;
 use App\Controllers\CustomerController;
 use App\Controllers\DashboardController;
+use App\Controllers\MigrationController;
 use App\Controllers\OrderController;
 use App\Controllers\OrderPaymentController;
 use App\Controllers\PurchaseController;
@@ -13,6 +15,7 @@ use App\Controllers\ProductController;
 use App\Controllers\ReportController;
 use App\Controllers\SupplierController;
 use App\Controllers\UnitController;
+use App\Controllers\UserController;
 use App\Middleware\AuthMiddleware;
 use App\Core\Response;
 use Psr\Container\ContainerInterface;
@@ -49,6 +52,31 @@ return static function (App $app): void {
         $group->get('/auth/me', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
             $controller = new AuthController($config);
             return $controller->me($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/users/change-password', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new UserController($config);
+            return $controller->changePassword($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/backup/database', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new BackupController($config);
+            return $controller->database($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/migrations', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new MigrationController($config);
+            return $controller->index($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/migrations/apply', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new MigrationController($config);
+            return $controller->apply($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/migrations/run', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new MigrationController($config);
+            return $controller->run($request, $response);
         })->add(new AuthMiddleware($container));
 
         $group->get('/dashboard/metrics', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {

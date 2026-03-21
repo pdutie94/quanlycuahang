@@ -194,12 +194,12 @@ Chuyển từ PHP render HTML sang:
 ---
 
 ## Phase 8 — Misc & Cleanup
-- [ ] **8.1** `api/src/Controllers/UserController.php` — đổi mật khẩu
-- [ ] **8.2** `api/src/Controllers/BackupController.php` — backup database
-- [ ] **8.3** `api/src/Controllers/MigrationController.php` — chạy SQL migration
-- [ ] **8.4** Xóa toàn bộ `app/Views/` cũ
-- [ ] **8.5** Xóa các Controller PHP render cũ trong `app/Controllers/`
-- [ ] **8.6** Dọn `public/index.php` — bỏ autoload PHP MVC cũ, chỉ còn Slim bootstrap
+- [x] **8.1** `api/src/Controllers/UserController.php` — đổi mật khẩu
+- [x] **8.2** `api/src/Controllers/BackupController.php` — backup database
+- [x] **8.3** `api/src/Controllers/MigrationController.php` — chạy SQL migration
+- [x] **8.4** Xóa toàn bộ `app/Views/` cũ
+- [x] **8.5** Xóa các Controller PHP render cũ trong `app/Controllers/`
+- [x] **8.6** Dọn `public/index.php` — bỏ autoload PHP MVC cũ, chỉ còn Slim bootstrap
 
 ---
 
