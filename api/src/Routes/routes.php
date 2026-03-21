@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
+use App\Controllers\ProductController;
 use App\Middleware\AuthMiddleware;
 use App\Core\Response;
 use Psr\Container\ContainerInterface;
@@ -45,6 +46,31 @@ return static function (App $app): void {
         $group->get('/dashboard/metrics', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
             $controller = new DashboardController($config);
             return $controller->metrics($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/products', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new ProductController($config);
+            return $controller->index($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/products/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new ProductController($config);
+            return $controller->show($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/products', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new ProductController($config);
+            return $controller->store($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->put('/products/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new ProductController($config);
+            return $controller->update($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->delete('/products/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new ProductController($config);
+            return $controller->delete($request, $response, $args);
         })->add(new AuthMiddleware($container));
     });
 };

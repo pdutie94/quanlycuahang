@@ -130,13 +130,13 @@ Chuyển từ PHP render HTML sang:
 > Mỗi module: Controller → Request class → Route → Service file (FE) → Store → Views
 
 ### 4A — Products
-- [ ] **4A.1** `api/src/Controllers/ProductController.php` — index (paginated), show, store, update, delete
-- [ ] **4A.2** `api/src/Requests/CreateProductRequest.php`, `UpdateProductRequest.php` — validate input
-- [ ] **4A.3** Routes: `GET|POST /api/products`, `GET|PUT|DELETE /api/products/{id}`
-- [ ] **4A.4** `src/services/productService.ts`
-- [ ] **4A.5** `src/stores/products.ts`
-- [ ] **4A.6** `src/views/products/ProductListView.vue` — skeleton loader, search/filter
-- [ ] **4A.7** `src/views/products/ProductFormView.vue` — create/edit, static label form style
+- [x] **4A.1** `api/src/Controllers/ProductController.php` — index (paginated), show, store, update, delete
+- [x] **4A.2** `api/src/Requests/CreateProductRequest.php`, `UpdateProductRequest.php` — validate input
+- [x] **4A.3** Routes: `GET|POST /api/products`, `GET|PUT|DELETE /api/products/{id}`
+- [x] **4A.4** `src/services/productService.ts`
+- [x] **4A.5** `src/stores/products.ts`
+- [x] **4A.6** `src/views/products/ProductListView.vue` — skeleton loader, search/filter
+- [x] **4A.7** `src/views/products/ProductFormView.vue` — create/edit, static label form style
 
 ### 4B — Categories
 - [ ] **4B.1** Controller + Routes `GET|POST /api/categories`, `PUT|DELETE /api/categories/{id}`

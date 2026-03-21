@@ -3,6 +3,8 @@ import AppLayout from '../layouts/AppLayout.vue'
 import DashboardView from '../views/DashboardView.vue'
 import LoginView from '../views/auth/LoginView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
+import ProductListView from '../views/products/ProductListView.vue'
+import ProductFormView from '../views/products/ProductFormView.vue'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
@@ -23,6 +25,21 @@ const router = createRouter({
           path: '',
           name: 'dashboard',
           component: DashboardView,
+        },
+        {
+          path: 'products',
+          name: 'products',
+          component: ProductListView,
+        },
+        {
+          path: 'products/new',
+          name: 'products-create',
+          component: ProductFormView,
+        },
+        {
+          path: 'products/:id/edit',
+          name: 'products-edit',
+          component: ProductFormView,
         },
       ],
     },
