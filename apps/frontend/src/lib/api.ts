@@ -41,12 +41,12 @@ api.interceptors.response.use(
     // Only auto-redirect on 401 for non-auth endpoints
     // Auth endpoints should handle their own 401 without redirect
     if (status === 401 && !isAuthEndpoint && window.location.pathname !== '/login') {
-      logger.warn(`[API] Unauthorized on ${path}, will redirect to login in 1.5s`)
-      // Delay redirect to let error message show on screen
+      logger.warn(`[API] Unauthorized on ${path}, will redirect to login in 10s (check console for errors)`)
+      // Delay redirect to let error message and logs show on screen
       setTimeout(() => {
         localStorage.removeItem(TOKEN_KEY)
         window.location.href = '/login'
-      }, 1500)
+      }, 10000)
     }
 
     return Promise.reject(error)
