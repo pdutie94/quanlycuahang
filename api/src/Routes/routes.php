@@ -171,5 +171,32 @@ return static function (App $app): void {
             $controller = new CustomerController($config);
             return $controller->delete($request, $response, $args);
         })->add(new AuthMiddleware($container));
+
+        // Debug endpoint for JWT verification
+        $group->get('/debug/token-verify', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $authHeader = $request->getHeaderLine('Authorization');
+            
+            if (!preg_match('/^Bearer\s+(.*)$/i', $authHeader, $matches)) {
+                return Response::error($response, 'Missing or invalid Authorization header', 400);
+            }
+
+            $token = trim($matches[1]);
+            
+            try {
+                $decoded = \Firebase\JWT\JWT::decode($token, new \Firebase\JWT\Key($config['jwt']['secret'], 'HS256'));
+                return Response::success($response, [
+                    'valid' => true,
+                    'payload' => (array) $decoded,
+                    'token_length' => strlen($token),
+                ], 'Token is valid');
+            } catch (\Firebase\JWT\ExpiredException $e) {
+                return Response::error($response, 'Token expired: ' . $e->getMessage(), 401);
+            } catch (\Throwable $e) {
+                return Response::error($response, 'Token invalid: ' . $e->getMessage(), 401, [
+                    'error_class' => get_class($e),
+                    'token_length' => strlen($token),
+                ]);
+            }
+        });
     });
 };
