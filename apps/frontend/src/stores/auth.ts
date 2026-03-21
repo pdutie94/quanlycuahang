@@ -12,15 +12,20 @@ type User = {
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
-  const token = ref<string>(localStorage.getItem(TOKEN_KEY) || '')
+  const token = ref<string>(localStorage.getItem(TOKEN_KEY)?.trim() || '')
   const initialized = ref(false)
 
   const isLoggedIn = computed(() => Boolean(token.value && user.value))
 
   function setToken(value: string): void {
-    token.value = value
-    localStorage.setItem(TOKEN_KEY, value)
-    logger.info('[Auth] Token set', { hasToken: Boolean(value) })
+    const sanitized = value.trim()
+    token.value = sanitized
+    localStorage.setItem(TOKEN_KEY, sanitized)
+    logger.info('[Auth] Token set', { 
+      hasToken: Boolean(sanitized),
+      length: sanitized.length,
+      preview: sanitized.substring(0, 30) + '...' + sanitized.substring(sanitized.length - 20),
+    })
   }
 
   function clearSession(): void {

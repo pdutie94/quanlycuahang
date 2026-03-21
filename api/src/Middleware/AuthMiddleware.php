@@ -28,21 +28,21 @@ final class AuthMiddleware implements MiddlewareInterface
             return Response::error(new \Slim\Psr7\Response(), 'Unauthorized: Missing or invalid Authorization header', 401);
         }
 
-        $token = trim($matches[1]);
+        $token = trim($matches[1]); // Sanitize token
         $config = $this->container->get('config');
 
-        error_log('[AuthMiddleware] Verifying token, secret: ' . substr($config['jwt']['secret'], 0, 10) . '...');
+        error_log('[AuthMiddleware] Verifying token, length: ' . strlen($token) . ', secret: ' . substr($config['jwt']['secret'], 0, 10) . '...');
 
         try {
             $decoded = JWT::decode($token, new Key($config['jwt']['secret'], 'HS256'));
-            error_log('[AuthMiddleware] Token verified successfully for user: ' . ($decoded->username ?? 'unknown'));
+            error_log('[AuthMiddleware] ✓ Token verified for user: ' . ($decoded->username ?? 'unknown'));
             $request = $request->withAttribute('auth', $decoded);
             return $handler->handle($request);
         } catch (\Firebase\JWT\ExpiredException $e) {
-            error_log('[AuthMiddleware] Token expired: ' . $e->getMessage());
+            error_log('[AuthMiddleware] ✗ ExpiredException: ' . $e->getMessage());
             return Response::error(new \Slim\Psr7\Response(), 'Unauthorized: Token expired', 401);
-        } catch (Throwable $e) {
-            error_log('[AuthMiddleware] Invalid token: ' . $e->getMessage() . ' | Token: ' . substr($token, 0, 20) . '...');
+        } catch (\Throwable $e) {
+            error_log('[AuthMiddleware] ✗ ' . get_class($e) . ': ' . $e->getMessage() . ' | Token length: ' . strlen($token));
             return Response::error(new \Slim\Psr7\Response(), 'Unauthorized: Invalid token', 401);
         }
     }

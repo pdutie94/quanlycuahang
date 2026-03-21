@@ -13,14 +13,14 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem(TOKEN_KEY)
+  const rawToken = localStorage.getItem(TOKEN_KEY)
+  const token = rawToken?.trim() // Sanitize token - remove whitespace
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
     logger.debug(`[API] ${config.method?.toUpperCase()} ${config.url}`, {
       token: token.substring(0, 50) + '...' + token.substring(token.length - 20),
       tokenLength: token.length,
     })
-    // Log full token to console for manual inspection
     console.log('[API] FULL TOKEN:', token)
   } else {
     logger.warn(`[API] ${config.method?.toUpperCase()} ${config.url} [NO TOKEN]`)
