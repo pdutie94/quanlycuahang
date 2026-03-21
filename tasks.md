@@ -102,15 +102,15 @@ Chuyển từ PHP render HTML sang:
 ## Phase 2 — Authentication
 > Mục tiêu: Login/logout hoàn chỉnh, auth guard hoạt động
 
-- [ ] **2.1** Tạo `api/src/Controllers/AuthController.php` — `login()`, `logout()`, `me()`
-- [ ] **2.2** Implement JWT: tạo/verify token bằng `firebase/php-jwt`, trả token trong JSON response body
-- [ ] **2.3** Routes: `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
-- [ ] **2.4** Tạo `src/views/auth/LoginView.vue` — form login (static label, border input), gọi `authService.login()`, lưu token vào localStorage → redirect
-- [ ] **2.5** Auth guard trong router: `beforeEach` check `auth.isLoggedIn`, redirect `/login` nếu chưa đăng nhập
-- [ ] **2.6** `fetchMe()` gọi `GET /api/auth/me` khi app khởi động để rehydrate user từ token đã lưu; nếu token invalid/hết hạn thì auto logout
-- [ ] **2.7** Tạo `src/services/authService.ts` — `login(payload)`, `logout()`, `getMe()`
-- [ ] **2.8** Logout: clear localStorage token, clear Pinia store, redirect `/login`
-- [ ] **2.9** Test: login → dashboard, route guard redirect, token persist sau reload
+- [x] **2.1** Tạo `api/src/Controllers/AuthController.php` — `login()`, `logout()`, `me()`
+- [x] **2.2** Implement JWT: tạo/verify token bằng `firebase/php-jwt`, trả token trong JSON response body
+- [x] **2.3** Routes: `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
+- [x] **2.4** Tạo `src/views/auth/LoginView.vue` — form login (static label, border input), gọi `authService.login()`, lưu token vào localStorage → redirect
+- [x] **2.5** Auth guard trong router: `beforeEach` check `auth.isLoggedIn`, redirect `/login` nếu chưa đăng nhập
+- [x] **2.6** `fetchMe()` gọi `GET /api/auth/me` khi app khởi động để rehydrate user từ token đã lưu; nếu token invalid/hết hạn thì auto logout
+- [x] **2.7** Tạo `src/services/authService.ts` — `login(payload)`, `logout()`, `getMe()`
+- [x] **2.8** Logout: clear localStorage token, clear Pinia store, redirect `/login`
+- [ ] **2.9** Test: login → dashboard, route guard redirect, token persist sau reload *(cần test thủ công với tài khoản thật trong DB)*
 
 ---
 
