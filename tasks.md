@@ -163,17 +163,17 @@ Chuyển từ PHP render HTML sang:
 ## Phase 5 — Orders & POS
 > Mục tiêu: Module phức tạp nhất — giữ toàn bộ Service layer logic, store quản lý cart độc lập với API
 
-- [ ] **5.1** Migrate `OrderService.php`, `PaymentService.php`, `ValidationService.php` sang namespace `App\Services`
-- [ ] **5.2** Migrate `OrderRepository.php` sang namespace `App\Repositories`
-- [ ] **5.3** `api/src/Controllers/OrderController.php` — index (paginated), show, store, update status, delete, restore
-- [ ] **5.4** `api/src/Controllers/OrderPaymentController.php` — paymentStore, returnStore
-- [ ] **5.5** Request classes: `CreateOrderRequest.php`, `UpdateOrderStatusRequest.php`
-- [ ] **5.6** Routes: `GET|POST /api/orders`, `GET|PUT|DELETE /api/orders/{id}`, `POST /api/orders/{id}/payment`, `POST /api/orders/{id}/return`
-- [ ] **5.7** `src/services/orderService.ts`
-- [ ] **5.8** `src/stores/orders.ts`
-- [ ] **5.9** `src/views/orders/` — OrderListView, OrderDetailView, OrderFormView
-- [ ] **5.10** `src/stores/pos.ts` — cart state hoàn toàn local, **không** phụ thuộc trực tiếp API response; optimistic add/remove item
-- [ ] **5.11** `src/views/pos/PosView.vue` — product selector, cart panel, checkout; submit → `orderService.create()`
+- [x] **5.1** Migrate `OrderService.php`, `PaymentService.php`, `ValidationService.php` sang namespace `App\Services`
+- [x] **5.2** Migrate `OrderRepository.php` sang namespace `App\Repositories`
+- [x] **5.3** `api/src/Controllers/OrderController.php` — index (paginated), show, store, update status, delete, restore
+- [x] **5.4** `api/src/Controllers/OrderPaymentController.php` — paymentStore, returnStore
+- [x] **5.5** Request classes: `CreateOrderRequest.php`, `UpdateOrderStatusRequest.php`
+- [x] **5.6** Routes: `GET|POST /api/orders`, `GET|PUT|DELETE /api/orders/{id}`, `POST /api/orders/{id}/payment`, `POST /api/orders/{id}/return`
+- [x] **5.7** `src/services/orderService.ts`
+- [x] **5.8** `src/stores/orders.ts`
+- [x] **5.9** `src/views/orders/` — OrderListView, OrderDetailView, OrderFormView
+- [x] **5.10** `src/stores/pos.ts` — cart state hoàn toàn local, **không** phụ thuộc trực tiếp API response; optimistic add/remove item
+- [x] **5.11** `src/views/pos/PosView.vue` — product selector, cart panel, checkout; submit → `orderService.create()`
 
 ---
 

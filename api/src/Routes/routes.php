@@ -6,6 +6,8 @@ use App\Controllers\AuthController;
 use App\Controllers\CategoryController;
 use App\Controllers\CustomerController;
 use App\Controllers\DashboardController;
+use App\Controllers\OrderController;
+use App\Controllers\OrderPaymentController;
 use App\Controllers\ProductController;
 use App\Controllers\SupplierController;
 use App\Controllers\UnitController;
@@ -170,6 +172,51 @@ return static function (App $app): void {
         $group->delete('/customers/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
             $controller = new CustomerController($config);
             return $controller->delete($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/orders/create-data', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new OrderController($config);
+            return $controller->createData($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/orders', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new OrderController($config);
+            return $controller->index($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/orders/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new OrderController($config);
+            return $controller->show($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/orders', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new OrderController($config);
+            return $controller->store($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->put('/orders/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new OrderController($config);
+            return $controller->update($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->delete('/orders/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new OrderController($config);
+            return $controller->delete($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/orders/{id}/restore', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new OrderController($config);
+            return $controller->restore($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/orders/{id}/payment', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new OrderPaymentController($config);
+            return $controller->paymentStore($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/orders/{id}/return', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new OrderPaymentController($config);
+            return $controller->returnStore($request, $response, $args);
         })->add(new AuthMiddleware($container));
 
     });

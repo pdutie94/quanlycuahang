@@ -13,6 +13,10 @@ import SupplierDetailView from '../views/suppliers/SupplierDetailView.vue'
 import CustomerListView from '../views/customers/CustomerListView.vue'
 import CustomerFormView from '../views/customers/CustomerFormView.vue'
 import CustomerDetailView from '../views/customers/CustomerDetailView.vue'
+import OrderListView from '../views/orders/OrderListView.vue'
+import OrderDetailView from '../views/orders/OrderDetailView.vue'
+import OrderFormView from '../views/orders/OrderFormView.vue'
+import PosView from '../views/pos/PosView.vue'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
@@ -98,6 +102,26 @@ const router = createRouter({
           path: 'customers/:id/edit',
           name: 'customers-edit',
           component: CustomerFormView,
+        },
+        {
+          path: 'orders',
+          name: 'orders',
+          component: OrderListView,
+        },
+        {
+          path: 'orders/new',
+          name: 'orders-create',
+          component: OrderFormView,
+        },
+        {
+          path: 'orders/:id',
+          name: 'orders-detail',
+          component: OrderDetailView,
+        },
+        {
+          path: 'pos',
+          name: 'pos',
+          component: PosView,
         },
       ],
     },

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
-import { House, Boxes, Users, Truck, Menu, X } from 'lucide-vue-next'
+import { House, ShoppingCart, Boxes, ClipboardList, Menu, X } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
@@ -9,9 +9,9 @@ const isMenuOpen = ref(false)
 
 const navItems = [
   { to: '/', label: 'Home', icon: House },
+  { to: '/pos', label: 'POS', icon: ShoppingCart },
   { to: '/products', label: 'Sản phẩm', icon: Boxes },
-  { to: '/customers', label: 'Khách hàng', icon: Users },
-  { to: '/suppliers', label: 'NCC', icon: Truck },
+  { to: '/orders', label: 'Đơn hàng', icon: ClipboardList },
 ]
 
 async function handleLogout(): Promise<void> {
@@ -82,6 +82,8 @@ async function handleLogout(): Promise<void> {
             <div class="grid grid-cols-2 gap-2">
               <RouterLink to="/" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">Dashboard</RouterLink>
               <RouterLink to="/products" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">Sản phẩm</RouterLink>
+              <RouterLink to="/pos" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">POS bán hàng</RouterLink>
+              <RouterLink to="/orders" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">Đơn hàng</RouterLink>
               <RouterLink to="/categories" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">Danh mục</RouterLink>
               <RouterLink to="/units" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">Đơn vị tính</RouterLink>
               <RouterLink to="/suppliers" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">Nhà cung cấp</RouterLink>
