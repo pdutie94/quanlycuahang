@@ -16,8 +16,10 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem(TOKEN_KEY)
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+    logger.debug(`[API] ${config.method?.toUpperCase()} ${config.url} [Token: ${token.substring(0, 20)}...${token.substring(token.length - 10)}]`)
+  } else {
+    logger.warn(`[API] ${config.method?.toUpperCase()} ${config.url} [NO TOKEN]`)
   }
-  logger.debug(`[API] ${config.method?.toUpperCase()} ${config.url}`)
   return config
 })
 
@@ -31,11 +33,15 @@ api.interceptors.response.use(
     const path = error?.config?.url || ''
     const isAuthEndpoint = path.includes('/auth/')
     const method = error?.config?.method?.toUpperCase() || 'UNKNOWN'
+    const token = localStorage.getItem(TOKEN_KEY)
 
     logger.error(`[API] ${method} ${path}: ${status}`, {
       status,
       isAuthEndpoint,
       message: error?.response?.data?.message || error?.message,
+      tokenPresent: Boolean(token),
+      tokenLength: token?.length,
+      fullResponse: error?.response?.data,
     })
 
     // Only auto-redirect on 401 for non-auth endpoints
