@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useUnitsStore } from '../../stores/units'
+import ConfirmSheet from '../../components/ConfirmSheet.vue'
 
 const units = useUnitsStore()
 const name = ref('')
 const editingId = ref<number | null>(null)
+const pendingDeleteId = ref<number | null>(null)
 
 onMounted(async () => {
   await units.fetchList()
@@ -33,8 +35,13 @@ async function submit(): Promise<void> {
 }
 
 async function remove(id: number): Promise<void> {
-  if (!window.confirm('Bạn chắc chắn muốn xóa đơn vị này?')) return
-  await units.remove(id)
+  pendingDeleteId.value = id
+}
+
+async function confirmDelete(): Promise<void> {
+  if (pendingDeleteId.value === null) return
+  await units.remove(pendingDeleteId.value)
+  pendingDeleteId.value = null
 }
 </script>
 
@@ -90,4 +97,13 @@ async function remove(id: number): Promise<void> {
       </table>
     </div>
   </section>
+
+  <ConfirmSheet
+    :model-value="pendingDeleteId !== null"
+    title="Xóa đơn vị"
+    message="Đơn vị tính này sẽ bị xóa khỏi danh sách hiện tại."
+    confirm-text="Xóa đơn vị"
+    @update:modelValue="(value) => { if (!value) pendingDeleteId = null }"
+    @confirm="confirmDelete"
+  />
 </template>

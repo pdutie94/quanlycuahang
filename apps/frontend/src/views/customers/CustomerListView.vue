@@ -2,9 +2,14 @@
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCustomersStore } from '../../stores/customers'
+import { usePullToRefresh } from '../../lib/pullToRefresh'
+import ConfirmSheet from '../../components/ConfirmSheet.vue'
 
 const customers = useCustomersStore()
 const keyword = ref('')
+const pendingDeleteId = ref<number | null>(null)
+
+usePullToRefresh(() => customers.fetchList({ page: customers.page || 1, search: customers.query }), 'Kéo để làm mới khách hàng')
 
 onMounted(async () => {
   await customers.fetchList({ page: 1 })
@@ -20,8 +25,13 @@ async function goToPage(nextPage: number): Promise<void> {
 }
 
 async function handleDelete(id: number): Promise<void> {
-  if (!window.confirm('Bạn chắc chắn muốn xóa khách hàng này?')) return
-  await customers.remove(id)
+  pendingDeleteId.value = id
+}
+
+async function confirmDelete(): Promise<void> {
+  if (pendingDeleteId.value === null) return
+  await customers.remove(pendingDeleteId.value)
+  pendingDeleteId.value = null
 }
 </script>
 
@@ -42,7 +52,42 @@ async function handleDelete(id: number): Promise<void> {
 
     <p v-if="customers.error" class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{{ customers.error }}</p>
 
-    <div class="overflow-hidden rounded-2xl border border-black/10 bg-white">
+    <div class="grid gap-3 md:hidden">
+      <article v-if="customers.loading" v-for="n in 6" :key="`mobile-${n}`" class="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+        <div class="h-5 w-2/3 animate-pulse rounded bg-black/10" />
+        <div class="mt-3 h-4 w-1/2 animate-pulse rounded bg-black/10" />
+        <div class="mt-4 h-16 animate-pulse rounded-2xl bg-black/10" />
+      </article>
+
+      <article v-else-if="customers.items.length === 0" class="rounded-2xl border border-dashed border-black/10 bg-white px-4 py-8 text-center text-sm text-ink/60">
+        Không có dữ liệu khách hàng.
+      </article>
+
+      <article v-else v-for="item in customers.items" :key="item.id" class="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h3 class="text-base font-semibold">{{ item.name }}</h3>
+            <p class="mt-1 text-sm text-ink/60">{{ item.phone || '-' }}</p>
+          </div>
+          <span class="rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600">Nợ {{ item.total_debt ?? 0 }}</span>
+        </div>
+
+        <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <div class="rounded-2xl bg-black/5 px-3 py-2 col-span-2">
+            <dt class="text-xs uppercase tracking-wide text-ink/50">Tổng mua</dt>
+            <dd class="mt-1 font-semibold">{{ item.total_spent ?? 0 }}</dd>
+          </div>
+        </dl>
+
+        <div class="mt-4 grid grid-cols-3 gap-2">
+          <RouterLink :to="`/customers/${item.id}`" class="rounded-xl border border-black/15 px-3 py-2 text-center text-sm font-medium">Chi tiết</RouterLink>
+          <RouterLink :to="`/customers/${item.id}/edit`" class="rounded-xl border border-black/15 px-3 py-2 text-center text-sm font-medium">Sửa</RouterLink>
+          <button type="button" class="rounded-xl border border-red-200 px-3 py-2 text-sm font-medium text-red-600" @click="handleDelete(item.id)">Xóa</button>
+        </div>
+      </article>
+    </div>
+
+    <div class="hidden overflow-hidden rounded-2xl border border-black/10 bg-white md:block">
       <table class="min-w-full text-sm">
         <thead class="bg-black/5 text-left text-xs uppercase tracking-wider text-ink/60">
           <tr>
@@ -77,12 +122,21 @@ async function handleDelete(id: number): Promise<void> {
       </table>
     </div>
 
-    <div class="flex items-center justify-between text-sm text-ink/70">
+    <div class="flex flex-col gap-3 text-sm text-ink/70 sm:flex-row sm:items-center sm:justify-between">
       <p>Trang {{ customers.page }} / {{ customers.totalPages }} · Tổng {{ customers.total }} khách hàng</p>
-      <div class="flex gap-2">
-        <button type="button" class="rounded-lg border border-black/15 px-3 py-1 disabled:opacity-50" :disabled="customers.page <= 1 || customers.loading" @click="goToPage(customers.page - 1)">Trước</button>
-        <button type="button" class="rounded-lg border border-black/15 px-3 py-1 disabled:opacity-50" :disabled="customers.page >= customers.totalPages || customers.loading" @click="goToPage(customers.page + 1)">Sau</button>
+      <div class="grid grid-cols-2 gap-2 sm:flex">
+        <button type="button" class="rounded-xl border border-black/15 px-3 py-2 disabled:opacity-50" :disabled="customers.page <= 1 || customers.loading" @click="goToPage(customers.page - 1)">Trước</button>
+        <button type="button" class="rounded-xl border border-black/15 px-3 py-2 disabled:opacity-50" :disabled="customers.page >= customers.totalPages || customers.loading" @click="goToPage(customers.page + 1)">Sau</button>
       </div>
     </div>
   </section>
+
+  <ConfirmSheet
+    :model-value="pendingDeleteId !== null"
+    title="Xóa khách hàng"
+    message="Thông tin khách hàng sẽ bị xóa khỏi danh sách quản lý."
+    confirm-text="Xóa khách"
+    @update:modelValue="(value) => { if (!value) pendingDeleteId = null }"
+    @confirm="confirmDelete"
+  />
 </template>

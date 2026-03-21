@@ -3,9 +3,14 @@ import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useOrdersStore } from '../../stores/orders'
 import { formatMoney } from '../../lib/format'
+import { usePullToRefresh } from '../../lib/pullToRefresh'
+import ConfirmSheet from '../../components/ConfirmSheet.vue'
 
 const orders = useOrdersStore()
 const keyword = ref('')
+const pendingDeleteId = ref<number | null>(null)
+
+usePullToRefresh(() => orders.fetchList({ page: orders.page || 1, q: orders.query }), 'Kéo để làm mới đơn hàng')
 
 onMounted(async () => {
   await orders.fetchList({ page: 1 })
@@ -17,12 +22,17 @@ async function handleSearch(): Promise<void> {
 }
 
 async function handleDelete(id: number): Promise<void> {
-  if (!window.confirm('Bạn chắc chắn muốn xóa đơn hàng này?')) return
-  await orders.remove(id)
+  pendingDeleteId.value = id
 }
 
 async function goToPage(nextPage: number): Promise<void> {
   await orders.fetchList({ page: nextPage })
+}
+
+async function confirmDelete(): Promise<void> {
+  if (pendingDeleteId.value === null) return
+  await orders.remove(pendingDeleteId.value)
+  pendingDeleteId.value = null
 }
 </script>
 
@@ -46,7 +56,51 @@ async function goToPage(nextPage: number): Promise<void> {
 
     <p v-if="orders.error" class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{{ orders.error }}</p>
 
-    <div class="overflow-hidden rounded-2xl border border-black/10 bg-white">
+    <div class="grid gap-3 md:hidden">
+      <article v-if="orders.loading" v-for="n in 6" :key="`mobile-${n}`" class="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+        <div class="h-5 w-1/2 animate-pulse rounded bg-black/10" />
+        <div class="mt-3 h-4 w-2/3 animate-pulse rounded bg-black/10" />
+        <div class="mt-4 h-16 animate-pulse rounded-2xl bg-black/10" />
+      </article>
+
+      <article v-else-if="orders.items.length === 0" class="rounded-2xl border border-dashed border-black/10 bg-white px-4 py-8 text-center text-sm text-ink/60">
+        Chưa có đơn hàng.
+      </article>
+
+      <article v-else v-for="item in orders.items" :key="item.id" class="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h3 class="text-base font-semibold">{{ item.order_code }}</h3>
+            <p class="mt-1 text-sm text-ink/60">{{ item.customer_name || 'Khách lẻ' }}</p>
+          </div>
+          <span class="rounded-full px-2.5 py-1 text-xs font-semibold" :class="item.order_status === 'completed' ? 'bg-emerald-100 text-emerald-700' : item.order_status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'">
+            {{ item.order_status }}
+          </span>
+        </div>
+
+        <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <div class="rounded-2xl bg-black/5 px-3 py-2">
+            <dt class="text-xs uppercase tracking-wide text-ink/50">Ngày</dt>
+            <dd class="mt-1 font-medium">{{ item.order_date }}</dd>
+          </div>
+          <div class="rounded-2xl bg-black/5 px-3 py-2">
+            <dt class="text-xs uppercase tracking-wide text-ink/50">Tổng tiền</dt>
+            <dd class="mt-1 font-semibold">{{ formatMoney(item.total_amount) }}</dd>
+          </div>
+          <div class="rounded-2xl bg-black/5 px-3 py-2 col-span-2">
+            <dt class="text-xs uppercase tracking-wide text-ink/50">Đã thu</dt>
+            <dd class="mt-1 font-semibold">{{ formatMoney(item.paid_amount) }}</dd>
+          </div>
+        </dl>
+
+        <div class="mt-4 flex gap-2">
+          <RouterLink :to="`/orders/${item.id}`" class="flex-1 rounded-xl border border-black/15 px-3 py-2 text-center text-sm font-medium">Chi tiết</RouterLink>
+          <button type="button" class="flex-1 rounded-xl border border-red-200 px-3 py-2 text-sm font-medium text-red-600" @click="handleDelete(item.id)">Xóa</button>
+        </div>
+      </article>
+    </div>
+
+    <div class="hidden overflow-hidden rounded-2xl border border-black/10 bg-white md:block">
       <table class="min-w-full text-sm">
         <thead class="bg-black/5 text-left text-xs uppercase tracking-wider text-ink/60">
           <tr>
@@ -88,12 +142,21 @@ async function goToPage(nextPage: number): Promise<void> {
       </table>
     </div>
 
-    <div class="flex items-center justify-between text-sm text-ink/70">
+    <div class="flex flex-col gap-3 text-sm text-ink/70 sm:flex-row sm:items-center sm:justify-between">
       <p>Trang {{ orders.page }} / {{ orders.totalPages }} · Tổng {{ orders.total }} đơn</p>
-      <div class="flex gap-2">
-        <button type="button" class="rounded-lg border border-black/15 px-3 py-1 disabled:opacity-50" :disabled="orders.page <= 1 || orders.loading" @click="goToPage(orders.page - 1)">Trước</button>
-        <button type="button" class="rounded-lg border border-black/15 px-3 py-1 disabled:opacity-50" :disabled="orders.page >= orders.totalPages || orders.loading" @click="goToPage(orders.page + 1)">Sau</button>
+      <div class="grid grid-cols-2 gap-2 sm:flex">
+        <button type="button" class="rounded-xl border border-black/15 px-3 py-2 disabled:opacity-50" :disabled="orders.page <= 1 || orders.loading" @click="goToPage(orders.page - 1)">Trước</button>
+        <button type="button" class="rounded-xl border border-black/15 px-3 py-2 disabled:opacity-50" :disabled="orders.page >= orders.totalPages || orders.loading" @click="goToPage(orders.page + 1)">Sau</button>
       </div>
     </div>
   </section>
+
+  <ConfirmSheet
+    :model-value="pendingDeleteId !== null"
+    title="Xóa đơn hàng"
+    message="Đơn hàng sẽ bị đánh dấu xóa và không còn xuất hiện trong danh sách chính."
+    confirm-text="Xóa đơn"
+    @update:modelValue="(value) => { if (!value) pendingDeleteId = null }"
+    @confirm="confirmDelete"
+  />
 </template>

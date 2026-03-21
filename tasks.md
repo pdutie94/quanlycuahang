@@ -204,14 +204,14 @@ Chuyển từ PHP render HTML sang:
 ---
 
 ## App-like UX Checklist
-- [ ] Bottom navigation persistent (Home / POS / Products / Reports / Menu)
-- [ ] Slide-up sheet component (thay thế modal dropdown)
-- [ ] Skeleton loader component (KHÔNG dùng text "Loading...")
-- [ ] Optimistic UI (add/remove không chờ API response)
-- [ ] Offline toast khi mất kết nối
-- [ ] Page transition (slide left/right theo route depth)
-- [ ] Pull-to-refresh (mobile)
-- [ ] PWA: service worker + cache strategy (đã có `manifest.webmanifest`)
+- [x] Bottom navigation persistent (Home / POS / Products / Reports / Menu)
+- [x] Slide-up sheet component (thay thế modal dropdown)
+- [x] Skeleton loader component (KHÔNG dùng text "Loading...")
+- [x] Optimistic UI (add/remove không chờ API response)
+- [x] Offline toast khi mất kết nối
+- [x] Page transition (slide left/right theo route depth)
+- [x] Pull-to-refresh (mobile)
+- [x] PWA: service worker + cache strategy (đã có `manifest.webmanifest`)
 
 ---
 

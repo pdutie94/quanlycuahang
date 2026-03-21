@@ -1,5 +1,7 @@
 import axios from 'axios'
 import { logger } from './logger'
+import { navigateTo } from './navigation'
+import { showToast } from './toast'
 
 const TOKEN_KEY = 'admin_access_token'
 
@@ -35,12 +37,15 @@ api.interceptors.response.use(
       message: error?.response?.data?.message || error?.message,
     })
 
+    if (!error?.response) {
+      showToast('Mất kết nối. Thử lại sau.', 'error')
+    }
+
     // Only auto-redirect on 401 for non-auth endpoints
     if (status === 401 && !isAuthEndpoint && window.location.pathname !== '/login') {
-      setTimeout(() => {
-        localStorage.removeItem(TOKEN_KEY)
-        window.location.href = '/login'
-      }, 3000)
+      localStorage.removeItem(TOKEN_KEY)
+      showToast('Phiên đăng nhập đã hết hạn.', 'warning')
+      navigateTo('/login')
     }
 
     return Promise.reject(error)

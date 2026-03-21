@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import type { Component } from 'vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import DashboardView from '../views/DashboardView.vue'
 import LoginView from '../views/auth/LoginView.vue'
@@ -29,6 +30,22 @@ import ReportInventoryView from '../views/reports/ReportInventoryView.vue'
 import ReportInventoryAdjustView from '../views/reports/ReportInventoryAdjustView.vue'
 import { useAuthStore } from '../stores/auth'
 
+const childRoute = (
+  path: string,
+  name: string,
+  component: Component,
+  depth: number,
+  pullToRefresh = false,
+) => ({
+  path,
+  name,
+  component,
+  meta: {
+    depth,
+    ...(pullToRefresh ? { pullToRefresh: true } : {}),
+  },
+})
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -36,164 +53,49 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
-      meta: { guestOnly: true },
+      meta: { guestOnly: true, depth: 0 },
     },
     {
       path: '/',
       component: AppLayout,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, depth: 0 },
       children: [
-        {
-          path: '',
-          name: 'dashboard',
-          component: DashboardView,
-        },
-        {
-          path: 'products',
-          name: 'products',
-          component: ProductListView,
-        },
-        {
-          path: 'products/new',
-          name: 'products-create',
-          component: ProductFormView,
-        },
-        {
-          path: 'products/:id/edit',
-          name: 'products-edit',
-          component: ProductFormView,
-        },
-        {
-          path: 'categories',
-          name: 'categories',
-          component: CategoriesView,
-        },
-        {
-          path: 'units',
-          name: 'units',
-          component: UnitsView,
-        },
-        {
-          path: 'suppliers',
-          name: 'suppliers',
-          component: SupplierListView,
-        },
-        {
-          path: 'suppliers/new',
-          name: 'suppliers-create',
-          component: SupplierFormView,
-        },
-        {
-          path: 'suppliers/:id',
-          name: 'suppliers-detail',
-          component: SupplierDetailView,
-        },
-        {
-          path: 'suppliers/:id/edit',
-          name: 'suppliers-edit',
-          component: SupplierFormView,
-        },
-        {
-          path: 'customers',
-          name: 'customers',
-          component: CustomerListView,
-        },
-        {
-          path: 'customers/new',
-          name: 'customers-create',
-          component: CustomerFormView,
-        },
-        {
-          path: 'customers/:id',
-          name: 'customers-detail',
-          component: CustomerDetailView,
-        },
-        {
-          path: 'customers/:id/edit',
-          name: 'customers-edit',
-          component: CustomerFormView,
-        },
-        {
-          path: 'orders',
-          name: 'orders',
-          component: OrderListView,
-        },
-        {
-          path: 'orders/new',
-          name: 'orders-create',
-          component: OrderFormView,
-        },
-        {
-          path: 'orders/:id',
-          name: 'orders-detail',
-          component: OrderDetailView,
-        },
-        {
-          path: 'pos',
-          name: 'pos',
-          component: PosView,
-        },
-        {
-          path: 'purchases',
-          name: 'purchases',
-          component: PurchaseListView,
-        },
-        {
-          path: 'purchases/new',
-          name: 'purchases-create',
-          component: PurchaseFormView,
-        },
-        {
-          path: 'purchases/:id',
-          name: 'purchases-detail',
-          component: PurchaseDetailView,
-        },
-        {
-          path: 'purchases/:id/edit',
-          name: 'purchases-edit',
-          component: PurchaseFormView,
-        },
-        {
-          path: 'reports',
-          name: 'reports',
-          component: ReportsHomeView,
-        },
-        {
-          path: 'reports/sales',
-          name: 'reports-sales',
-          component: ReportSalesView,
-        },
-        {
-          path: 'reports/customer-debt',
-          name: 'reports-customer-debt',
-          component: ReportCustomerDebtView,
-        },
-        {
-          path: 'reports/supplier-debt',
-          name: 'reports-supplier-debt',
-          component: ReportSupplierDebtView,
-        },
-        {
-          path: 'reports/missing-cost',
-          name: 'reports-missing-cost',
-          component: ReportMissingCostView,
-        },
-        {
-          path: 'reports/inventory',
-          name: 'reports-inventory',
-          component: ReportInventoryView,
-        },
-        {
-          path: 'reports/inventory-adjust',
-          name: 'reports-inventory-adjust',
-          component: ReportInventoryAdjustView,
-        },
+        childRoute('', 'dashboard', DashboardView, 1, true),
+        childRoute('products', 'products', ProductListView, 2, true),
+        childRoute('products/new', 'products-create', ProductFormView, 3),
+        childRoute('products/:id/edit', 'products-edit', ProductFormView, 3),
+        childRoute('categories', 'categories', CategoriesView, 2),
+        childRoute('units', 'units', UnitsView, 2),
+        childRoute('suppliers', 'suppliers', SupplierListView, 2, true),
+        childRoute('suppliers/new', 'suppliers-create', SupplierFormView, 3),
+        childRoute('suppliers/:id', 'suppliers-detail', SupplierDetailView, 3),
+        childRoute('suppliers/:id/edit', 'suppliers-edit', SupplierFormView, 3),
+        childRoute('customers', 'customers', CustomerListView, 2, true),
+        childRoute('customers/new', 'customers-create', CustomerFormView, 3),
+        childRoute('customers/:id', 'customers-detail', CustomerDetailView, 3),
+        childRoute('customers/:id/edit', 'customers-edit', CustomerFormView, 3),
+        childRoute('orders', 'orders', OrderListView, 2, true),
+        childRoute('orders/new', 'orders-create', OrderFormView, 3),
+        childRoute('orders/:id', 'orders-detail', OrderDetailView, 3),
+        childRoute('pos', 'pos', PosView, 2),
+        childRoute('purchases', 'purchases', PurchaseListView, 2, true),
+        childRoute('purchases/new', 'purchases-create', PurchaseFormView, 3),
+        childRoute('purchases/:id', 'purchases-detail', PurchaseDetailView, 3),
+        childRoute('purchases/:id/edit', 'purchases-edit', PurchaseFormView, 3),
+        childRoute('reports', 'reports', ReportsHomeView, 2),
+        childRoute('reports/sales', 'reports-sales', ReportSalesView, 3),
+        childRoute('reports/customer-debt', 'reports-customer-debt', ReportCustomerDebtView, 3),
+        childRoute('reports/supplier-debt', 'reports-supplier-debt', ReportSupplierDebtView, 3),
+        childRoute('reports/missing-cost', 'reports-missing-cost', ReportMissingCostView, 3),
+        childRoute('reports/inventory', 'reports-inventory', ReportInventoryView, 3),
+        childRoute('reports/inventory-adjust', 'reports-inventory-adjust', ReportInventoryAdjustView, 3),
       ],
     },
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: NotFoundView,
+      meta: { depth: 99 },
     },
   ],
 })

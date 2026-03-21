@@ -3,9 +3,12 @@ import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { usePurchasesStore } from '../../stores/purchases'
 import { formatMoney } from '../../lib/format'
+import { usePullToRefresh } from '../../lib/pullToRefresh'
 
 const purchases = usePurchasesStore()
 const keyword = ref('')
+
+usePullToRefresh(() => purchases.fetchList({ page: purchases.page || 1, q: purchases.query }), 'Kéo để làm mới phiếu nhập')
 
 onMounted(async () => {
   await purchases.fetchList({ page: 1 })
@@ -38,7 +41,45 @@ async function goToPage(nextPage: number): Promise<void> {
 
     <p v-if="purchases.error" class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{{ purchases.error }}</p>
 
-    <div class="overflow-hidden rounded-2xl border border-black/10 bg-white">
+    <div class="grid gap-3 md:hidden">
+      <article v-if="purchases.loading" v-for="n in 6" :key="`mobile-${n}`" class="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+        <div class="h-5 w-1/2 animate-pulse rounded bg-black/10" />
+        <div class="mt-3 h-4 w-2/3 animate-pulse rounded bg-black/10" />
+        <div class="mt-4 h-16 animate-pulse rounded-2xl bg-black/10" />
+      </article>
+
+      <article v-else-if="purchases.items.length === 0" class="rounded-2xl border border-dashed border-black/10 bg-white px-4 py-8 text-center text-sm text-ink/60">
+        Chưa có phiếu nhập hàng.
+      </article>
+
+      <article v-else v-for="item in purchases.items" :key="item.id" class="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h3 class="text-base font-semibold">{{ item.purchase_code }}</h3>
+            <p class="mt-1 text-sm text-ink/60">{{ item.supplier_name }}</p>
+          </div>
+        </div>
+
+        <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <div class="rounded-2xl bg-black/5 px-3 py-2 col-span-2">
+            <dt class="text-xs uppercase tracking-wide text-ink/50">Ngày nhập</dt>
+            <dd class="mt-1 font-medium">{{ item.purchase_date }}</dd>
+          </div>
+          <div class="rounded-2xl bg-black/5 px-3 py-2">
+            <dt class="text-xs uppercase tracking-wide text-ink/50">Tổng tiền</dt>
+            <dd class="mt-1 font-semibold">{{ formatMoney(item.total_amount) }}</dd>
+          </div>
+          <div class="rounded-2xl bg-black/5 px-3 py-2">
+            <dt class="text-xs uppercase tracking-wide text-ink/50">Đã trả</dt>
+            <dd class="mt-1 font-semibold">{{ formatMoney(item.paid_amount) }}</dd>
+          </div>
+        </dl>
+
+        <RouterLink :to="`/purchases/${item.id}`" class="mt-4 block rounded-xl border border-black/15 px-3 py-2 text-center text-sm font-medium">Chi tiết</RouterLink>
+      </article>
+    </div>
+
+    <div class="hidden overflow-hidden rounded-2xl border border-black/10 bg-white md:block">
       <table class="min-w-full text-sm">
         <thead class="bg-black/5 text-left text-xs uppercase tracking-wider text-ink/60">
           <tr>
@@ -71,11 +112,11 @@ async function goToPage(nextPage: number): Promise<void> {
       </table>
     </div>
 
-    <div class="flex items-center justify-between text-sm text-ink/70">
+    <div class="flex flex-col gap-3 text-sm text-ink/70 sm:flex-row sm:items-center sm:justify-between">
       <p>Trang {{ purchases.page }} / {{ purchases.totalPages }} · Tổng {{ purchases.total }} phiếu</p>
-      <div class="flex gap-2">
-        <button type="button" class="rounded-lg border border-black/15 px-3 py-1 disabled:opacity-50" :disabled="purchases.page <= 1 || purchases.loading" @click="goToPage(purchases.page - 1)">Trước</button>
-        <button type="button" class="rounded-lg border border-black/15 px-3 py-1 disabled:opacity-50" :disabled="purchases.page >= purchases.totalPages || purchases.loading" @click="goToPage(purchases.page + 1)">Sau</button>
+      <div class="grid grid-cols-2 gap-2 sm:flex">
+        <button type="button" class="rounded-xl border border-black/15 px-3 py-2 disabled:opacity-50" :disabled="purchases.page <= 1 || purchases.loading" @click="goToPage(purchases.page - 1)">Trước</button>
+        <button type="button" class="rounded-xl border border-black/15 px-3 py-2 disabled:opacity-50" :disabled="purchases.page >= purchases.totalPages || purchases.loading" @click="goToPage(purchases.page + 1)">Sau</button>
       </div>
     </div>
   </section>

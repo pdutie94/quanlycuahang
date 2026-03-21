@@ -1,7 +1,7 @@
 {
   "name": "Đại lý Đức Nam",
   "short_name": "Đức Nam",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0f766e",
   "theme_color": "#0f766e",

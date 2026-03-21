@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useCategoriesStore } from '../../stores/categories'
+import ConfirmSheet from '../../components/ConfirmSheet.vue'
 
 const categories = useCategoriesStore()
 const name = ref('')
 const editingId = ref<number | null>(null)
+const pendingDeleteId = ref<number | null>(null)
 
 onMounted(async () => {
   await categories.fetchList()
@@ -33,8 +35,13 @@ async function submit(): Promise<void> {
 }
 
 async function remove(id: number): Promise<void> {
-  if (!window.confirm('Bạn chắc chắn muốn xóa danh mục này?')) return
-  await categories.remove(id)
+  pendingDeleteId.value = id
+}
+
+async function confirmDelete(): Promise<void> {
+  if (pendingDeleteId.value === null) return
+  await categories.remove(pendingDeleteId.value)
+  pendingDeleteId.value = null
 }
 </script>
 
@@ -90,4 +97,13 @@ async function remove(id: number): Promise<void> {
       </table>
     </div>
   </section>
+
+  <ConfirmSheet
+    :model-value="pendingDeleteId !== null"
+    title="Xóa danh mục"
+    message="Danh mục này sẽ bị xóa khỏi dữ liệu sản phẩm."
+    confirm-text="Xóa danh mục"
+    @update:modelValue="(value) => { if (!value) pendingDeleteId = null }"
+    @confirm="confirmDelete"
+  />
 </template>

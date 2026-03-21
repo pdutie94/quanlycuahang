@@ -2,8 +2,11 @@
 import { computed, onMounted } from 'vue'
 import { useDashboardStore } from '../stores/dashboard'
 import { formatDate, formatMoney } from '../lib/format'
+import { usePullToRefresh } from '../lib/pullToRefresh'
 
 const dashboard = useDashboardStore()
+
+usePullToRefresh(() => dashboard.fetchMetrics(), 'Kéo để cập nhật tổng quan')
 
 const cards = computed(() => [
   {
