@@ -5,6 +5,14 @@ import LoginView from '../views/auth/LoginView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
 import ProductListView from '../views/products/ProductListView.vue'
 import ProductFormView from '../views/products/ProductFormView.vue'
+import CategoriesView from '../views/master-data/CategoriesView.vue'
+import UnitsView from '../views/master-data/UnitsView.vue'
+import SupplierListView from '../views/suppliers/SupplierListView.vue'
+import SupplierFormView from '../views/suppliers/SupplierFormView.vue'
+import SupplierDetailView from '../views/suppliers/SupplierDetailView.vue'
+import CustomerListView from '../views/customers/CustomerListView.vue'
+import CustomerFormView from '../views/customers/CustomerFormView.vue'
+import CustomerDetailView from '../views/customers/CustomerDetailView.vue'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
@@ -40,6 +48,56 @@ const router = createRouter({
           path: 'products/:id/edit',
           name: 'products-edit',
           component: ProductFormView,
+        },
+        {
+          path: 'categories',
+          name: 'categories',
+          component: CategoriesView,
+        },
+        {
+          path: 'units',
+          name: 'units',
+          component: UnitsView,
+        },
+        {
+          path: 'suppliers',
+          name: 'suppliers',
+          component: SupplierListView,
+        },
+        {
+          path: 'suppliers/new',
+          name: 'suppliers-create',
+          component: SupplierFormView,
+        },
+        {
+          path: 'suppliers/:id',
+          name: 'suppliers-detail',
+          component: SupplierDetailView,
+        },
+        {
+          path: 'suppliers/:id/edit',
+          name: 'suppliers-edit',
+          component: SupplierFormView,
+        },
+        {
+          path: 'customers',
+          name: 'customers',
+          component: CustomerListView,
+        },
+        {
+          path: 'customers/new',
+          name: 'customers-create',
+          component: CustomerFormView,
+        },
+        {
+          path: 'customers/:id',
+          name: 'customers-detail',
+          component: CustomerDetailView,
+        },
+        {
+          path: 'customers/:id/edit',
+          name: 'customers-edit',
+          component: CustomerFormView,
         },
       ],
     },

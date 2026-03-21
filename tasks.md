@@ -139,24 +139,24 @@ Chuyển từ PHP render HTML sang:
 - [x] **4A.7** `src/views/products/ProductFormView.vue` — create/edit, static label form style
 
 ### 4B — Categories
-- [ ] **4B.1** Controller + Routes `GET|POST /api/categories`, `PUT|DELETE /api/categories/{id}`
-- [ ] **4B.2** `src/services/categoryService.ts` + `src/views/categories/CategoryView.vue`
+- [x] **4B.1** Controller + Routes `GET|POST /api/categories`, `PUT|DELETE /api/categories/{id}`
+- [x] **4B.2** `src/services/categoryService.ts` + `src/views/master-data/CategoriesView.vue`
 
 ### 4C — Units
-- [ ] **4C.1** Controller + Routes `GET|POST /api/units`, `PUT|DELETE /api/units/{id}`
-- [ ] **4C.2** `src/services/unitService.ts` + `src/views/units/UnitView.vue`
+- [x] **4C.1** Controller + Routes `GET|POST /api/units`, `PUT|DELETE /api/units/{id}`
+- [x] **4C.2** `src/services/unitService.ts` + `src/views/master-data/UnitsView.vue`
 
 ### 4D — Suppliers
-- [ ] **4D.1** `api/src/Controllers/SupplierController.php` + Request classes
-- [ ] **4D.2** Routes `GET|POST /api/suppliers`, `GET|PUT|DELETE /api/suppliers/{id}`
-- [ ] **4D.3** `src/services/supplierService.ts`
-- [ ] **4D.4** `src/views/suppliers/` — SupplierListView, SupplierDetailView, SupplierFormView
+- [x] **4D.1** `api/src/Controllers/SupplierController.php` + Request classes
+- [x] **4D.2** Routes `GET|POST /api/suppliers`, `GET|PUT|DELETE /api/suppliers/{id}`
+- [x] **4D.3** `src/services/supplierService.ts`
+- [x] **4D.4** `src/views/suppliers/` — SupplierListView, SupplierDetailView, SupplierFormView
 
 ### 4E — Customers
-- [ ] **4E.1** `api/src/Controllers/CustomerController.php` + Request classes
-- [ ] **4E.2** Routes `GET|POST /api/customers`, `GET|PUT|DELETE /api/customers/{id}`, `POST /api/customers/{id}/payment`
-- [ ] **4E.3** `src/services/customerService.ts`
-- [ ] **4E.4** `src/views/customers/` — CustomerListView, CustomerDetailView, CustomerPaymentView
+- [x] **4E.1** `api/src/Controllers/CustomerController.php` + Request classes
+- [x] **4E.2** Routes `GET|POST /api/customers`, `GET|PUT|DELETE /api/customers/{id}`, `POST /api/customers/{id}/payment`
+- [x] **4E.3** `src/services/customerService.ts`
+- [x] **4E.4** `src/views/customers/` — CustomerListView, CustomerDetailView, CustomerFormView (tích hợp form thanh toán công nợ)
 
 ---
 

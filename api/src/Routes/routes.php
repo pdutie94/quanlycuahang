@@ -3,8 +3,12 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\CategoryController;
+use App\Controllers\CustomerController;
 use App\Controllers\DashboardController;
 use App\Controllers\ProductController;
+use App\Controllers\SupplierController;
+use App\Controllers\UnitController;
 use App\Middleware\AuthMiddleware;
 use App\Core\Response;
 use Psr\Container\ContainerInterface;
@@ -70,6 +74,101 @@ return static function (App $app): void {
 
         $group->delete('/products/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
             $controller = new ProductController($config);
+            return $controller->delete($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/categories', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new CategoryController($config);
+            return $controller->index($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/categories', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new CategoryController($config);
+            return $controller->store($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->put('/categories/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new CategoryController($config);
+            return $controller->update($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->delete('/categories/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new CategoryController($config);
+            return $controller->delete($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/units', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new UnitController($config);
+            return $controller->index($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/units', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new UnitController($config);
+            return $controller->store($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->put('/units/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new UnitController($config);
+            return $controller->update($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->delete('/units/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new UnitController($config);
+            return $controller->delete($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/suppliers', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new SupplierController($config);
+            return $controller->index($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/suppliers/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new SupplierController($config);
+            return $controller->show($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/suppliers', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new SupplierController($config);
+            return $controller->store($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->put('/suppliers/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new SupplierController($config);
+            return $controller->update($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->delete('/suppliers/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new SupplierController($config);
+            return $controller->delete($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/customers', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new CustomerController($config);
+            return $controller->index($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/customers/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new CustomerController($config);
+            return $controller->show($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/customers', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new CustomerController($config);
+            return $controller->store($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->put('/customers/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new CustomerController($config);
+            return $controller->update($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/customers/{id}/payment', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new CustomerController($config);
+            return $controller->payment($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->delete('/customers/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new CustomerController($config);
             return $controller->delete($request, $response, $args);
         })->add(new AuthMiddleware($container));
     });
