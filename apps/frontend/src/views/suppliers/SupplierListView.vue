@@ -36,7 +36,7 @@ async function handleDelete(id: number): Promise<void> {
     </header>
 
     <form class="flex gap-2" @submit.prevent="handleSearch">
-      <input v-model="keyword" type="text" class="w-full rounded-xl border border-gray-300 px-3 py-2" placeholder="Tìm theo tên, điện thoại, email" />
+      <input v-model="keyword" type="text" class="w-full rounded-xl border border-gray-300 px-3 py-2" placeholder="Tìm theo tên, điện thoại" />
       <button type="submit" class="rounded-xl border border-black/15 bg-white px-4 py-2 text-sm font-medium">Tìm</button>
     </form>
 
@@ -63,7 +63,7 @@ async function handleDelete(id: number): Promise<void> {
           <tr v-else v-for="item in suppliers.items" :key="item.id" class="border-t border-black/5">
             <td class="px-3 py-2 font-medium">{{ item.name }}</td>
             <td class="px-3 py-2">{{ item.phone || '-' }}</td>
-            <td class="px-3 py-2">{{ item.email || '-' }}</td>
+
             <td class="px-3 py-2">{{ item.total_debt ?? 0 }}</td>
             <td class="px-3 py-2">
               <div class="flex flex-wrap gap-2">

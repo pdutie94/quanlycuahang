@@ -36,7 +36,7 @@ onMounted(async () => {
       <div class="rounded-2xl border border-black/10 bg-white p-4">
         <h3 class="text-lg font-semibold">{{ suppliers.detail.supplier.name }}</h3>
         <p class="text-sm text-ink/70">SĐT: {{ suppliers.detail.supplier.phone || '-' }}</p>
-        <p class="text-sm text-ink/70">Email: {{ suppliers.detail.supplier.email || '-' }}</p>
+        <p class="text-sm text-ink/70">Điện thoại: {{ suppliers.detail.supplier.phone || '-' }}</p>
         <p class="text-sm text-ink/70">Địa chỉ: {{ suppliers.detail.supplier.address || '-' }}</p>
       </div>
 

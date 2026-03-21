@@ -1,4 +1,4 @@
-<script setup lang="ts">
+- <script setup lang="ts">
 import { computed, onMounted, reactive } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useCustomersStore } from '../../stores/customers'
@@ -56,7 +56,7 @@ async function submitPayment(): Promise<void> {
       <div class="rounded-2xl border border-black/10 bg-white p-4">
         <h3 class="text-lg font-semibold">{{ customers.detail.customer.name }}</h3>
         <p class="text-sm text-ink/70">SĐT: {{ customers.detail.customer.phone || '-' }}</p>
-        <p class="text-sm text-ink/70">Email: {{ customers.detail.customer.email || '-' }}</p>
+        <p class="text-sm text-ink/70">Điện thoại: {{ customers.detail.customer.phone || '-' }}</p>
         <p class="text-sm text-ink/70">Địa chỉ: {{ customers.detail.customer.address || '-' }}</p>
       </div>
 

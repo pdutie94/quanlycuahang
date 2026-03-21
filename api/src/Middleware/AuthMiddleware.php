@@ -28,22 +28,20 @@ final class AuthMiddleware implements MiddlewareInterface
             return Response::error(new \Slim\Psr7\Response(), 'Unauthorized: Missing or invalid Authorization header', 401);
         }
 
-        $token = trim($matches[1]); // Sanitize token
+        $token = trim($matches[1]);
         $config = $this->container->get('config');
 
-        error_log('[AuthMiddleware] Verifying token, length: ' . strlen($token) . ', secret: ' . substr($config['jwt']['secret'], 0, 10) . '...');
-
+        // Only catch JWT-specific exceptions — do NOT wrap $handler->handle() in try-catch
+        // so that route handler exceptions bubble up to ExceptionHandlerMiddleware
         try {
             $decoded = JWT::decode($token, new Key($config['jwt']['secret'], 'HS256'));
-            error_log('[AuthMiddleware] ✓ Token verified for user: ' . ($decoded->username ?? 'unknown'));
-            $request = $request->withAttribute('auth', $decoded);
-            return $handler->handle($request);
         } catch (\Firebase\JWT\ExpiredException $e) {
-            error_log('[AuthMiddleware] ✗ ExpiredException: ' . $e->getMessage());
             return Response::error(new \Slim\Psr7\Response(), 'Unauthorized: Token expired', 401);
-        } catch (\Throwable $e) {
-            error_log('[AuthMiddleware] ✗ ' . get_class($e) . ': ' . $e->getMessage() . ' | Token length: ' . strlen($token));
+        } catch (Throwable $e) {
             return Response::error(new \Slim\Psr7\Response(), 'Unauthorized: Invalid token', 401);
         }
+
+        $request = $request->withAttribute('auth', $decoded);
+        return $handler->handle($request);
     }
 }

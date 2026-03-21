@@ -29,7 +29,7 @@ final class CustomerController extends BaseController
         $where = '';
         $params = [];
         if ($search !== '') {
-            $where = ' WHERE c.name LIKE :search OR c.phone LIKE :search OR c.email LIKE :search ';
+            $where = ' WHERE c.name LIKE :search OR c.phone LIKE :search ';
             $params['search'] = '%' . $search . '%';
         }
 
@@ -38,9 +38,9 @@ final class CustomerController extends BaseController
         $total = (int) $countStmt->fetchColumn();
 
         $sql = <<<SQL
-SELECT c.id, c.name, c.phone, c.email, c.address, c.created_at,
-       COALESCE(SUM(o.final_amount), 0) AS total_spent,
-       COALESCE(SUM(o.debt_amount), 0) AS total_debt
+SELECT c.id, c.name, c.phone, c.address, c.created_at,
+       COALESCE(SUM(o.total_amount), 0) AS total_spent,
+       COALESCE(SUM(o.total_amount - o.paid_amount), 0) AS total_debt
 FROM customers c
 LEFT JOIN orders o ON o.customer_id = c.id AND o.deleted_at IS NULL
 {$where}
@@ -78,7 +78,7 @@ SQL;
 
         $pdo = Database::getInstance($this->config['db']);
         $stmt = $pdo->prepare(
-            'SELECT id, name, phone, email, address, created_at FROM customers WHERE id = ? LIMIT 1'
+            'SELECT id, name, phone, address, created_at FROM customers WHERE id = ? LIMIT 1'
         );
         $stmt->execute([$id]);
         $customer = $stmt->fetch();
@@ -88,22 +88,23 @@ SQL;
         }
 
         $summaryStmt = $pdo->prepare(
-            'SELECT COALESCE(SUM(final_amount), 0) AS total_spent, COALESCE(SUM(debt_amount), 0) AS total_debt
+            'SELECT COALESCE(SUM(total_amount), 0) AS total_spent,
+                    COALESCE(SUM(total_amount - paid_amount), 0) AS total_debt
              FROM orders WHERE customer_id = ? AND deleted_at IS NULL'
         );
         $summaryStmt->execute([$id]);
         $summary = $summaryStmt->fetch() ?: ['total_spent' => 0, 'total_debt' => 0];
 
         $latestOrdersStmt = $pdo->prepare(
-            'SELECT id, order_code, final_amount, debt_amount, order_date, order_status
+            'SELECT id, order_code, total_amount, (total_amount - paid_amount) AS debt_amount, order_date, order_status
              FROM orders WHERE customer_id = ? AND deleted_at IS NULL
              ORDER BY order_date DESC, id DESC LIMIT 10'
         );
         $latestOrdersStmt->execute([$id]);
 
         $paymentsStmt = $pdo->prepare(
-            'SELECT id, amount, payment_method, notes, payment_date
-             FROM payments WHERE customer_id = ? ORDER BY payment_date DESC, id DESC LIMIT 10'
+            'SELECT id, amount, note, paid_at
+             FROM payments WHERE customer_id = ? ORDER BY paid_at DESC, id DESC LIMIT 10'
         );
         $paymentsStmt->execute([$id]);
 
@@ -117,17 +118,20 @@ SQL;
 
     public function store(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $validated = (new CreateCustomerRequest($request))->validate();
+        $body = (array) ($request->getParsedBody() ?? []);
+        [$data, $errors] = CreateCustomerRequest::validate($body);
+        if (!empty($errors)) {
+            return $this->error($response, 'Dữ liệu không hợp lệ', 400, $errors);
+        }
 
         $pdo = Database::getInstance($this->config['db']);
         $stmt = $pdo->prepare(
-            'INSERT INTO customers (name, phone, email, address, created_at) VALUES (?, ?, ?, ?, NOW())'
+            'INSERT INTO customers (name, phone, address, created_at) VALUES (?, ?, ?, NOW())'
         );
         $stmt->execute([
-            $validated['name'],
-            $validated['phone'] ?: null,
-            $validated['email'] ?: null,
-            $validated['address'] ?: null,
+            $data['name'],
+            $data['phone'] ?: null,
+            $data['address'] ?: null,
         ]);
 
         return $this->success($response, ['id' => (int) $pdo->lastInsertId()], 'Tạo khách hàng thành công', 201);
@@ -140,17 +144,20 @@ SQL;
             return $this->error($response, 'ID không hợp lệ', 400);
         }
 
-        $validated = (new UpdateCustomerRequest($request))->validate();
+        $body = (array) ($request->getParsedBody() ?? []);
+        [$data, $errors] = UpdateCustomerRequest::validate($body);
+        if (!empty($errors)) {
+            return $this->error($response, 'Dữ liệu không hợp lệ', 400, $errors);
+        }
 
         $pdo = Database::getInstance($this->config['db']);
         $stmt = $pdo->prepare(
-            'UPDATE customers SET name = ?, phone = ?, email = ?, address = ? WHERE id = ?'
+            'UPDATE customers SET name = ?, phone = ?, address = ? WHERE id = ?'
         );
         $stmt->execute([
-            $validated['name'],
-            $validated['phone'] ?: null,
-            $validated['email'] ?: null,
-            $validated['address'] ?: null,
+            $data['name'],
+            $data['phone'] ?: null,
+            $data['address'] ?: null,
             $id,
         ]);
 
@@ -186,20 +193,19 @@ SQL;
 
         try {
             $insertPayment = $pdo->prepare(
-                'INSERT INTO payments (order_id, customer_id, amount, payment_method, notes, payment_date)
-                 VALUES (NULL, ?, ?, ?, ?, NOW())'
+                'INSERT INTO payments (type, customer_id, order_id, amount, note, paid_at)
+                 VALUES ("customer", ?, NULL, ?, ?, NOW())'
             );
             $insertPayment->execute([
                 $customerId,
-                $amount,
-                $paymentMethod !== '' ? $paymentMethod : 'cash',
+                (int) $amount,
                 $notes !== '' ? $notes : null,
             ]);
 
-            $remaining = $amount;
+            $remaining = (int) $amount;
             $ordersStmt = $pdo->prepare(
-                'SELECT id, debt_amount FROM orders
-                 WHERE customer_id = ? AND debt_amount > 0 AND deleted_at IS NULL
+                'SELECT id, total_amount, paid_amount FROM orders
+                 WHERE customer_id = ? AND total_amount > paid_amount AND deleted_at IS NULL
                  ORDER BY order_date ASC, id ASC'
             );
             $ordersStmt->execute([$customerId]);
@@ -207,13 +213,8 @@ SQL;
 
             $updateOrderStmt = $pdo->prepare(
                 'UPDATE orders
-                 SET paid_amount = paid_amount + ?,
-                     debt_amount = GREATEST(0, debt_amount - ?),
-                     payment_status = CASE
-                        WHEN GREATEST(0, debt_amount - ?) = 0 THEN "paid"
-                        WHEN paid_amount + ? > 0 THEN "partial"
-                        ELSE payment_status
-                     END
+                 SET paid_amount = LEAST(total_amount, paid_amount + ?),
+                     status = CASE WHEN paid_amount + ? >= total_amount THEN "paid" ELSE "debt" END
                  WHERE id = ?'
             );
 
@@ -222,7 +223,7 @@ SQL;
                     break;
                 }
 
-                $orderDebt = (float) $order['debt_amount'];
+                $orderDebt = (int) $order['total_amount'] - (int) $order['paid_amount'];
                 $payForOrder = min($remaining, $orderDebt);
 
                 if ($payForOrder <= 0) {
@@ -230,8 +231,6 @@ SQL;
                 }
 
                 $updateOrderStmt->execute([
-                    $payForOrder,
-                    $payForOrder,
                     $payForOrder,
                     $payForOrder,
                     (int) $order['id'],

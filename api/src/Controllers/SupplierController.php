@@ -29,7 +29,7 @@ final class SupplierController extends BaseController
         $where = '';
         $params = [];
         if ($search !== '') {
-            $where = ' WHERE s.name LIKE :search OR s.phone LIKE :search OR s.email LIKE :search ';
+            $where = ' WHERE s.name LIKE :search OR s.phone LIKE :search ';
             $params['search'] = '%' . $search . '%';
         }
 
@@ -38,9 +38,9 @@ final class SupplierController extends BaseController
         $total = (int) $countStmt->fetchColumn();
 
         $sql = <<<SQL
-SELECT s.id, s.name, s.phone, s.email, s.address, s.created_at,
+SELECT s.id, s.name, s.phone, s.address, s.created_at,
        COALESCE(SUM(p.total_amount), 0) AS total_purchases,
-       COALESCE(SUM(p.debt_amount), 0) AS total_debt
+       COALESCE(SUM(p.total_amount - p.paid_amount), 0) AS total_debt
 FROM suppliers s
 LEFT JOIN purchases p ON p.supplier_id = s.id
 {$where}
@@ -78,7 +78,7 @@ SQL;
 
         $pdo = Database::getInstance($this->config['db']);
         $stmt = $pdo->prepare(
-            'SELECT id, name, phone, email, address, created_at FROM suppliers WHERE id = ? LIMIT 1'
+            'SELECT id, name, phone, address, created_at FROM suppliers WHERE id = ? LIMIT 1'
         );
         $stmt->execute([$id]);
         $supplier = $stmt->fetch();
@@ -88,14 +88,15 @@ SQL;
         }
 
         $summaryStmt = $pdo->prepare(
-            'SELECT COALESCE(SUM(total_amount), 0) AS total_purchases, COALESCE(SUM(debt_amount), 0) AS total_debt
+            'SELECT COALESCE(SUM(total_amount), 0) AS total_purchases,
+                    COALESCE(SUM(total_amount - paid_amount), 0) AS total_debt
              FROM purchases WHERE supplier_id = ?'
         );
         $summaryStmt->execute([$id]);
         $summary = $summaryStmt->fetch() ?: ['total_purchases' => 0, 'total_debt' => 0];
 
         $latestStmt = $pdo->prepare(
-            'SELECT id, reference_code, total_amount, paid_amount, debt_amount, purchase_date
+            'SELECT id, purchase_code, total_amount, paid_amount, (total_amount - paid_amount) AS debt_amount, purchase_date
              FROM purchases WHERE supplier_id = ? ORDER BY purchase_date DESC, id DESC LIMIT 10'
         );
         $latestStmt->execute([$id]);
@@ -109,17 +110,20 @@ SQL;
 
     public function store(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $validated = (new CreateSupplierRequest($request))->validate();
+        $body = (array) ($request->getParsedBody() ?? []);
+        [$data, $errors] = CreateSupplierRequest::validate($body);
+        if (!empty($errors)) {
+            return $this->error($response, 'Dữ liệu không hợp lệ', 400, $errors);
+        }
 
         $pdo = Database::getInstance($this->config['db']);
         $stmt = $pdo->prepare(
-            'INSERT INTO suppliers (name, phone, email, address, created_at) VALUES (?, ?, ?, ?, NOW())'
+            'INSERT INTO suppliers (name, phone, address, created_at) VALUES (?, ?, ?, NOW())'
         );
         $stmt->execute([
-            $validated['name'],
-            $validated['phone'] ?: null,
-            $validated['email'] ?: null,
-            $validated['address'] ?: null,
+            $data['name'],
+            $data['phone'] ?: null,
+            $data['address'] ?: null,
         ]);
 
         return $this->success($response, ['id' => (int) $pdo->lastInsertId()], 'Tạo nhà cung cấp thành công', 201);
@@ -132,17 +136,20 @@ SQL;
             return $this->error($response, 'ID không hợp lệ', 400);
         }
 
-        $validated = (new UpdateSupplierRequest($request))->validate();
+        $body = (array) ($request->getParsedBody() ?? []);
+        [$data, $errors] = UpdateSupplierRequest::validate($body);
+        if (!empty($errors)) {
+            return $this->error($response, 'Dữ liệu không hợp lệ', 400, $errors);
+        }
 
         $pdo = Database::getInstance($this->config['db']);
         $stmt = $pdo->prepare(
-            'UPDATE suppliers SET name = ?, phone = ?, email = ?, address = ? WHERE id = ?'
+            'UPDATE suppliers SET name = ?, phone = ?, address = ? WHERE id = ?'
         );
         $stmt->execute([
-            $validated['name'],
-            $validated['phone'] ?: null,
-            $validated['email'] ?: null,
-            $validated['address'] ?: null,
+            $data['name'],
+            $data['phone'] ?: null,
+            $data['address'] ?: null,
             $id,
         ]);
 

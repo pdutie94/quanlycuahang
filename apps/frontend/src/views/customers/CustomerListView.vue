@@ -36,7 +36,7 @@ async function handleDelete(id: number): Promise<void> {
     </header>
 
     <form class="flex gap-2" @submit.prevent="handleSearch">
-      <input v-model="keyword" type="text" class="w-full rounded-xl border border-gray-300 px-3 py-2" placeholder="Tìm theo tên, điện thoại, email" />
+      <input v-model="keyword" type="text" class="w-full rounded-xl border border-gray-300 px-3 py-2" placeholder="Tìm theo tên, điện thoại" />
       <button type="submit" class="rounded-xl border border-black/15 bg-white px-4 py-2 text-sm font-medium">Tìm</button>
     </form>
 
@@ -48,7 +48,6 @@ async function handleDelete(id: number): Promise<void> {
           <tr>
             <th class="px-3 py-2">Tên</th>
             <th class="px-3 py-2">Điện thoại</th>
-            <th class="px-3 py-2">Email</th>
             <th class="px-3 py-2">Tổng mua</th>
             <th class="px-3 py-2">Công nợ</th>
             <th class="px-3 py-2">Thao tác</th>
@@ -56,15 +55,14 @@ async function handleDelete(id: number): Promise<void> {
         </thead>
         <tbody>
           <tr v-if="customers.loading" v-for="n in 6" :key="n" class="border-t border-black/5">
-            <td class="px-3 py-2" colspan="6"><div class="h-6 animate-pulse rounded bg-black/10" /></td>
+            <td class="px-3 py-2" colspan="5"><div class="h-6 animate-pulse rounded bg-black/10" /></td>
           </tr>
           <tr v-else-if="customers.items.length === 0" class="border-t border-black/5">
-            <td class="px-3 py-4 text-center text-ink/60" colspan="6">Không có dữ liệu khách hàng.</td>
+            <td class="px-3 py-4 text-center text-ink/60" colspan="5">Không có dữ liệu khách hàng.</td>
           </tr>
           <tr v-else v-for="item in customers.items" :key="item.id" class="border-t border-black/5">
             <td class="px-3 py-2 font-medium">{{ item.name }}</td>
             <td class="px-3 py-2">{{ item.phone || '-' }}</td>
-            <td class="px-3 py-2">{{ item.email || '-' }}</td>
             <td class="px-3 py-2">{{ item.total_spent ?? 0 }}</td>
             <td class="px-3 py-2 text-red-600">{{ item.total_debt ?? 0 }}</td>
             <td class="px-3 py-2">

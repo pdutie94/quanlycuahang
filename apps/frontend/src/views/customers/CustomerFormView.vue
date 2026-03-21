@@ -11,7 +11,6 @@ const loadError = ref('')
 const form = reactive({
   name: '',
   phone: '',
-  email: '',
   address: '',
 })
 
@@ -32,7 +31,6 @@ onMounted(async () => {
     if (customer) {
       form.name = customer.name
       form.phone = customer.phone ?? ''
-      form.email = customer.email ?? ''
       form.address = customer.address ?? ''
     }
   } catch {
@@ -44,7 +42,6 @@ async function submit(): Promise<void> {
   const payload = {
     name: form.name.trim(),
     phone: form.phone.trim(),
-    email: form.email.trim(),
     address: form.address.trim(),
   }
 
@@ -79,10 +76,6 @@ async function submit(): Promise<void> {
         <div class="space-y-1">
           <label class="text-sm font-medium">Điện thoại</label>
           <input v-model="form.phone" type="text" class="w-full rounded-xl border border-gray-300 px-3 py-2" />
-        </div>
-        <div class="space-y-1">
-          <label class="text-sm font-medium">Email</label>
-          <input v-model="form.email" type="email" class="w-full rounded-xl border border-gray-300 px-3 py-2" />
         </div>
       </div>
 
