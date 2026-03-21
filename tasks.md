@@ -178,10 +178,10 @@ Chuyển từ PHP render HTML sang:
 ---
 
 ## Phase 6 — Purchases
-- [ ] **6.1** `api/src/Controllers/PurchaseController.php` + Request classes
-- [ ] **6.2** Routes `GET|POST /api/purchases`, `GET|PUT /api/purchases/{id}`, `POST /api/purchases/{id}/payment`
-- [ ] **6.3** `src/services/purchaseService.ts`
-- [ ] **6.4** `src/views/purchases/` — list + detail + form
+- [x] **6.1** `api/src/Controllers/PurchaseController.php` + Request classes
+- [x] **6.2** Routes `GET|POST /api/purchases`, `GET|PUT /api/purchases/{id}`, `POST /api/purchases/{id}/payment`
+- [x] **6.3** `src/services/purchaseService.ts`
+- [x] **6.4** `src/views/purchases/` — list + detail + form
 
 ---
 

@@ -17,6 +17,9 @@ import OrderListView from '../views/orders/OrderListView.vue'
 import OrderDetailView from '../views/orders/OrderDetailView.vue'
 import OrderFormView from '../views/orders/OrderFormView.vue'
 import PosView from '../views/pos/PosView.vue'
+import PurchaseListView from '../views/purchases/PurchaseListView.vue'
+import PurchaseDetailView from '../views/purchases/PurchaseDetailView.vue'
+import PurchaseFormView from '../views/purchases/PurchaseFormView.vue'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
@@ -122,6 +125,26 @@ const router = createRouter({
           path: 'pos',
           name: 'pos',
           component: PosView,
+        },
+        {
+          path: 'purchases',
+          name: 'purchases',
+          component: PurchaseListView,
+        },
+        {
+          path: 'purchases/new',
+          name: 'purchases-create',
+          component: PurchaseFormView,
+        },
+        {
+          path: 'purchases/:id',
+          name: 'purchases-detail',
+          component: PurchaseDetailView,
+        },
+        {
+          path: 'purchases/:id/edit',
+          name: 'purchases-edit',
+          component: PurchaseFormView,
         },
       ],
     },

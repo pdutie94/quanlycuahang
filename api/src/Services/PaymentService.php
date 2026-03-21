@@ -78,6 +78,73 @@ final class PaymentService
         }
     }
 
+    public function recordPurchasePayment(int $purchaseId, float $amount, string $note, string $paymentMethod = 'cash'): void
+    {
+        $this->pdo->beginTransaction();
+
+        try {
+            $stmt = $this->pdo->prepare('SELECT * FROM purchases WHERE id = ? FOR UPDATE');
+            $stmt->execute([$purchaseId]);
+            $purchase = $stmt->fetch();
+
+            if (!$purchase) {
+                throw new \RuntimeException('Không tìm thấy phiếu nhập.');
+            }
+
+            $totalAmount = (float) ($purchase['total_amount'] ?? 0);
+            $paidOld = max(0, (float) ($purchase['paid_amount'] ?? 0));
+
+            if ($totalAmount <= 0) {
+                throw new \RuntimeException('Phiếu nhập không có giá trị để thanh toán.');
+            }
+
+            $remaining = $totalAmount - $paidOld;
+            if ($remaining <= 0) {
+                throw new \RuntimeException('Phiếu nhập này đã được thanh toán đủ.');
+            }
+
+            $amount = min($amount, $remaining);
+            if ($amount <= 0) {
+                throw new \RuntimeException('Số tiền thanh toán không hợp lệ.');
+            }
+
+            $methodText = $paymentMethod === 'bank' ? 'Chuyển khoản' : 'Tiền mặt';
+            $paymentNote = trim($note);
+            if ($paymentNote === '') {
+                $paymentNote = 'Thanh toán ' . $methodText;
+            }
+
+            $insertPayment = $this->pdo->prepare(
+                'INSERT INTO payments (type, customer_id, supplier_id, order_id, purchase_id, amount, note, paid_at)
+                 VALUES ("supplier", NULL, ?, NULL, ?, ?, ?, NOW())'
+            );
+            $insertPayment->execute([
+                isset($purchase['supplier_id']) ? (int) $purchase['supplier_id'] : null,
+                $purchaseId,
+                (int) round($amount),
+                $paymentNote,
+            ]);
+
+            $newPaid = min($totalAmount, $paidOld + $amount);
+            $status = $newPaid >= $totalAmount ? 'paid' : 'debt';
+
+            $updatePurchase = $this->pdo->prepare('UPDATE purchases SET paid_amount = ?, status = ? WHERE id = ?');
+            $updatePurchase->execute([
+                (int) round($newPaid),
+                $status,
+                $purchaseId,
+            ]);
+
+            $this->pdo->commit();
+        } catch (\Throwable $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $e;
+        }
+    }
+
     public function recordOrderReturn(int $orderId, array $returnItems, string $note = '', bool $returnAll = false): array
     {
         $this->pdo->beginTransaction();

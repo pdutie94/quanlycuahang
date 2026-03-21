@@ -84,6 +84,7 @@ async function handleLogout(): Promise<void> {
               <RouterLink to="/products" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">Sản phẩm</RouterLink>
               <RouterLink to="/pos" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">POS bán hàng</RouterLink>
               <RouterLink to="/orders" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">Đơn hàng</RouterLink>
+              <RouterLink to="/purchases" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">Phiếu nhập</RouterLink>
               <RouterLink to="/categories" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">Danh mục</RouterLink>
               <RouterLink to="/units" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">Đơn vị tính</RouterLink>
               <RouterLink to="/suppliers" class="rounded-xl border border-black/10 p-3" @click="isMenuOpen = false">Nhà cung cấp</RouterLink>

@@ -8,6 +8,7 @@ use App\Controllers\CustomerController;
 use App\Controllers\DashboardController;
 use App\Controllers\OrderController;
 use App\Controllers\OrderPaymentController;
+use App\Controllers\PurchaseController;
 use App\Controllers\ProductController;
 use App\Controllers\SupplierController;
 use App\Controllers\UnitController;
@@ -217,6 +218,36 @@ return static function (App $app): void {
         $group->post('/orders/{id}/return', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
             $controller = new OrderPaymentController($config);
             return $controller->returnStore($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/purchases/create-data', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new PurchaseController($config);
+            return $controller->createData($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/purchases', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new PurchaseController($config);
+            return $controller->index($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/purchases/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new PurchaseController($config);
+            return $controller->show($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/purchases', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new PurchaseController($config);
+            return $controller->store($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->put('/purchases/{id}', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new PurchaseController($config);
+            return $controller->update($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->post('/purchases/{id}/payment', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
+            $controller = new PurchaseController($config);
+            return $controller->payment($request, $response, $args);
         })->add(new AuthMiddleware($container));
 
     });
