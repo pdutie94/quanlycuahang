@@ -186,10 +186,10 @@ Chuyển từ PHP render HTML sang:
 ---
 
 ## Phase 7 — Reports
-- [ ] **7.1** `api/src/Controllers/ReportController.php` — sales, customerDebt, supplierDebt, missingCost, inventory, inventoryAdjust
-- [ ] **7.2** Tất cả report endpoints trả theo pagination format chuẩn
-- [ ] **7.3** `src/services/reportService.ts`
-- [ ] **7.4** `src/views/reports/` — ReportSalesView, ReportCustomerDebtView, ReportInventoryView, ...
+- [x] **7.1** `api/src/Controllers/ReportController.php` — sales, customerDebt, supplierDebt, missingCost, inventory, inventoryAdjust
+- [x] **7.2** Tất cả report endpoints trả theo pagination format chuẩn
+- [x] **7.3** `src/services/reportService.ts`
+- [x] **7.4** `src/views/reports/` — ReportSalesView, ReportCustomerDebtView, ReportInventoryView, ...
 
 ---
 

@@ -20,6 +20,13 @@ import PosView from '../views/pos/PosView.vue'
 import PurchaseListView from '../views/purchases/PurchaseListView.vue'
 import PurchaseDetailView from '../views/purchases/PurchaseDetailView.vue'
 import PurchaseFormView from '../views/purchases/PurchaseFormView.vue'
+import ReportsHomeView from '../views/reports/ReportsHomeView.vue'
+import ReportSalesView from '../views/reports/ReportSalesView.vue'
+import ReportCustomerDebtView from '../views/reports/ReportCustomerDebtView.vue'
+import ReportSupplierDebtView from '../views/reports/ReportSupplierDebtView.vue'
+import ReportMissingCostView from '../views/reports/ReportMissingCostView.vue'
+import ReportInventoryView from '../views/reports/ReportInventoryView.vue'
+import ReportInventoryAdjustView from '../views/reports/ReportInventoryAdjustView.vue'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
@@ -145,6 +152,41 @@ const router = createRouter({
           path: 'purchases/:id/edit',
           name: 'purchases-edit',
           component: PurchaseFormView,
+        },
+        {
+          path: 'reports',
+          name: 'reports',
+          component: ReportsHomeView,
+        },
+        {
+          path: 'reports/sales',
+          name: 'reports-sales',
+          component: ReportSalesView,
+        },
+        {
+          path: 'reports/customer-debt',
+          name: 'reports-customer-debt',
+          component: ReportCustomerDebtView,
+        },
+        {
+          path: 'reports/supplier-debt',
+          name: 'reports-supplier-debt',
+          component: ReportSupplierDebtView,
+        },
+        {
+          path: 'reports/missing-cost',
+          name: 'reports-missing-cost',
+          component: ReportMissingCostView,
+        },
+        {
+          path: 'reports/inventory',
+          name: 'reports-inventory',
+          component: ReportInventoryView,
+        },
+        {
+          path: 'reports/inventory-adjust',
+          name: 'reports-inventory-adjust',
+          component: ReportInventoryAdjustView,
         },
       ],
     },

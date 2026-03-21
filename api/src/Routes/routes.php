@@ -10,6 +10,7 @@ use App\Controllers\OrderController;
 use App\Controllers\OrderPaymentController;
 use App\Controllers\PurchaseController;
 use App\Controllers\ProductController;
+use App\Controllers\ReportController;
 use App\Controllers\SupplierController;
 use App\Controllers\UnitController;
 use App\Middleware\AuthMiddleware;
@@ -248,6 +249,36 @@ return static function (App $app): void {
         $group->post('/purchases/{id}/payment', function (ServerRequestInterface $request, ResponseInterface $response, array $args) use ($config): ResponseInterface {
             $controller = new PurchaseController($config);
             return $controller->payment($request, $response, $args);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/reports/sales', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new ReportController($config);
+            return $controller->sales($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/reports/customer-debt', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new ReportController($config);
+            return $controller->customerDebt($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/reports/supplier-debt', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new ReportController($config);
+            return $controller->supplierDebt($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/reports/missing-cost', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new ReportController($config);
+            return $controller->missingCost($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/reports/inventory', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new ReportController($config);
+            return $controller->inventory($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/reports/inventory-adjust', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new ReportController($config);
+            return $controller->inventoryAdjust($request, $response);
         })->add(new AuthMiddleware($container));
 
     });
