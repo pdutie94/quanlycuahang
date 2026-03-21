@@ -110,18 +110,18 @@ Chuyển từ PHP render HTML sang:
 - [x] **2.6** `fetchMe()` gọi `GET /api/auth/me` khi app khởi động để rehydrate user từ token đã lưu; nếu token invalid/hết hạn thì auto logout
 - [x] **2.7** Tạo `src/services/authService.ts` — `login(payload)`, `logout()`, `getMe()`
 - [x] **2.8** Logout: clear localStorage token, clear Pinia store, redirect `/login`
-- [ ] **2.9** Test: login → dashboard, route guard redirect, token persist sau reload *(cần test thủ công với tài khoản thật trong DB)*
+- [x] **2.9** Test: login → dashboard, route guard redirect, token persist sau reload *(cần test thủ công với tài khoản thật trong DB)*
 
 ---
 
 ## Phase 3 — Dashboard
 > Mục tiêu: Trang dashboard với metrics cơ bản
 
-- [ ] **3.1** Tạo `api/src/Controllers/DashboardController.php` — migrate logic từ `DashboardController.php` cũ
-- [ ] **3.2** Route: `GET /api/dashboard/metrics`
-- [ ] **3.3** Tạo `src/services/dashboardService.ts`
-- [ ] **3.4** Tạo `src/stores/dashboard.ts`
-- [ ] **3.5** Tạo `src/views/DashboardView.vue` — metrics cards dùng skeleton loader khi chờ data
+- [x] **3.1** Tạo `api/src/Controllers/DashboardController.php` — migrate logic từ `DashboardController.php` cũ
+- [x] **3.2** Route: `GET /api/dashboard/metrics`
+- [x] **3.3** Tạo `src/services/dashboardService.ts`
+- [x] **3.4** Tạo `src/stores/dashboard.ts`
+- [x] **3.5** Tạo `src/views/DashboardView.vue` — metrics cards dùng skeleton loader khi chờ data
 
 ---
 

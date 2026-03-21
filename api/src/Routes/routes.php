@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\DashboardController;
 use App\Middleware\AuthMiddleware;
 use App\Core\Response;
 use Psr\Container\ContainerInterface;
@@ -39,6 +40,11 @@ return static function (App $app): void {
         $group->get('/auth/me', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
             $controller = new AuthController($config);
             return $controller->me($request, $response);
+        })->add(new AuthMiddleware($container));
+
+        $group->get('/dashboard/metrics', function (ServerRequestInterface $request, ResponseInterface $response) use ($config): ResponseInterface {
+            $controller = new DashboardController($config);
+            return $controller->metrics($request, $response);
         })->add(new AuthMiddleware($container));
     });
 };
