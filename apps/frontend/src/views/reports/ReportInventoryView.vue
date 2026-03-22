@@ -49,36 +49,25 @@ onMounted(async () => {
 
     <p v-if="error" class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{{ error }}</p>
 
-    <div class="overflow-hidden rounded-2xl border border-black/10 bg-white">
-      <table class="min-w-full text-sm">
-        <thead class="bg-black/5 text-left text-xs uppercase tracking-wider text-ink/60">
-          <tr>
-            <th class="px-3 py-2">Sản phẩm</th>
-            <th class="px-3 py-2">Mã</th>
-            <th class="px-3 py-2">Tồn kho</th>
-            <th class="px-3 py-2">Tồn tối thiểu</th>
-            <th class="px-3 py-2">Cảnh báo</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="loading" v-for="n in 6" :key="n" class="border-t border-black/5">
-            <td class="px-3 py-2" colspan="5"><div class="h-6 animate-pulse rounded bg-black/10" /></td>
-          </tr>
-          <tr v-else-if="rows.length === 0" class="border-t border-black/5">
-            <td class="px-3 py-4 text-center text-ink/60" colspan="5">Không có dữ liệu.</td>
-          </tr>
-          <tr v-else v-for="row in rows" :key="row.id" class="border-t border-black/5">
-            <td class="px-3 py-2">{{ row.name }}</td>
-            <td class="px-3 py-2">{{ row.code }}</td>
-            <td class="px-3 py-2">{{ row.qty_base }} {{ row.base_unit_name }}</td>
-            <td class="px-3 py-2">{{ row.min_stock_qty ?? 0 }}</td>
-            <td class="px-3 py-2">
-              <span v-if="row.is_low_stock" class="rounded-lg bg-red-100 px-2 py-1 text-xs text-red-700">Thiếu hàng</span>
-              <span v-else class="rounded-lg bg-emerald-100 px-2 py-1 text-xs text-emerald-700">Ổn</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="space-y-2">
+      <div v-if="loading" v-for="n in 6" :key="n" class="rounded-2xl border border-black/10 bg-white p-4">
+        <div class="h-6 animate-pulse rounded bg-black/10" />
+      </div>
+      <div v-else-if="rows.length === 0" class="rounded-2xl border border-black/10 bg-white px-3 py-4 text-center text-sm text-ink/60">Không có dữ liệu.</div>
+      <article v-else v-for="row in rows" :key="row.id" class="rounded-2xl border border-black/10 bg-white p-4">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h3 class="font-semibold">{{ row.name }}</h3>
+            <p class="text-xs text-ink/60">{{ row.code }}</p>
+          </div>
+          <span v-if="row.is_low_stock" class="rounded-lg bg-red-100 px-2 py-1 text-xs text-red-700">Thiếu hàng</span>
+          <span v-else class="rounded-lg bg-emerald-100 px-2 py-1 text-xs text-emerald-700">Ổn</span>
+        </div>
+        <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
+          <p class="rounded-xl bg-black/5 px-3 py-2">Tồn kho: <strong>{{ row.qty_base }} {{ row.base_unit_name }}</strong></p>
+          <p class="rounded-xl bg-black/5 px-3 py-2">Tối thiểu: <strong>{{ row.min_stock_qty ?? 0 }}</strong></p>
+        </div>
+      </article>
     </div>
 
     <div class="flex items-center justify-between text-sm text-ink/70">

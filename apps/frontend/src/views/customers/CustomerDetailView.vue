@@ -1,10 +1,13 @@
-- <script setup lang="ts">
-import { computed, onMounted, reactive } from 'vue'
+<script setup lang="ts">
+import { computed, onMounted, reactive, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useCustomersStore } from '../../stores/customers'
+import OrderSummaryCard from '../../components/orders/OrderSummaryCard.vue'
+import OrderPreviewModal from '../../components/orders/OrderPreviewModal.vue'
 
 const route = useRoute()
 const customers = useCustomersStore()
+const previewOrderId = ref<number | null>(null)
 
 const customerId = computed(() => Number(route.params.id || 0))
 
@@ -32,6 +35,19 @@ async function submitPayment(): Promise<void> {
 
   paymentForm.amount = ''
   paymentForm.notes = ''
+}
+
+function openPreview(orderId: number): void {
+  previewOrderId.value = orderId
+}
+
+function closePreview(): void {
+  previewOrderId.value = null
+}
+
+function debtTone(value: number | string): string {
+  const debt = Number(String(value).replace(/[^0-9-]/g, '')) || 0
+  return debt > 0 ? 'tone-rose' : 'tone-mint'
 }
 </script>
 
@@ -87,55 +103,64 @@ async function submitPayment(): Promise<void> {
         </button>
       </form>
 
-      <div class="overflow-hidden rounded-2xl border border-black/10 bg-white">
-        <h3 class="border-b border-black/10 px-3 py-2 text-sm font-semibold">Đơn hàng gần đây</h3>
-        <table class="min-w-full text-sm">
-          <thead class="bg-black/5 text-left text-xs uppercase tracking-wider text-ink/60">
-            <tr>
-              <th class="px-3 py-2">Mã đơn</th>
-              <th class="px-3 py-2">Ngày</th>
-              <th class="px-3 py-2">Giá trị</th>
-              <th class="px-3 py-2">Nợ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="customers.detail.latest_orders.length === 0" class="border-t border-black/5">
-              <td class="px-3 py-4 text-center text-ink/60" colspan="4">Chưa có đơn hàng gần đây.</td>
-            </tr>
-            <tr v-else v-for="order in customers.detail.latest_orders" :key="order.id" class="border-t border-black/5">
-              <td class="px-3 py-2">{{ order.order_code }}</td>
-              <td class="px-3 py-2">{{ order.order_date }}</td>
-              <td class="px-3 py-2">{{ order.final_amount }}</td>
-              <td class="px-3 py-2 text-red-600">{{ order.debt_amount }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="rounded-2xl border border-black/10 bg-white p-4">
+        <h3 class="text-sm font-semibold">Đơn hàng gần đây</h3>
+        <div class="mt-3 space-y-2">
+          <div
+            v-if="customers.detail.latest_orders.length === 0"
+            class="rounded-xl bg-black/5 px-3 py-3 text-center text-sm text-ink/60"
+          >
+            Chưa có đơn hàng gần đây.
+          </div>
+          <article
+            v-else
+            v-for="order in customers.detail.latest_orders"
+            :key="order.id"
+            class="space-y-2"
+          >
+            <OrderSummaryCard
+              :order="{
+                id: order.id,
+                orderCode: order.order_code,
+                customerName: customers.detail.customer.name,
+                orderDate: order.order_date,
+                totalAmount: order.final_amount,
+                debtAmount: order.debt_amount,
+                orderStatus: order.order_status,
+              }"
+              :tone="debtTone(order.debt_amount)"
+              @preview="openPreview"
+            />
+          </article>
+        </div>
       </div>
 
-      <div class="overflow-hidden rounded-2xl border border-black/10 bg-white">
-        <h3 class="border-b border-black/10 px-3 py-2 text-sm font-semibold">Thanh toán gần đây</h3>
-        <table class="min-w-full text-sm">
-          <thead class="bg-black/5 text-left text-xs uppercase tracking-wider text-ink/60">
-            <tr>
-              <th class="px-3 py-2">Ngày</th>
-              <th class="px-3 py-2">Số tiền</th>
-              <th class="px-3 py-2">Phương thức</th>
-              <th class="px-3 py-2">Ghi chú</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="customers.detail.recent_payments.length === 0" class="border-t border-black/5">
-              <td class="px-3 py-4 text-center text-ink/60" colspan="4">Chưa có thanh toán gần đây.</td>
-            </tr>
-            <tr v-else v-for="payment in customers.detail.recent_payments" :key="payment.id" class="border-t border-black/5">
-              <td class="px-3 py-2">{{ payment.payment_date }}</td>
-              <td class="px-3 py-2">{{ payment.amount }}</td>
-              <td class="px-3 py-2">{{ payment.payment_method }}</td>
-              <td class="px-3 py-2">{{ payment.notes || '-' }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="rounded-2xl border border-black/10 bg-white p-4">
+        <h3 class="text-sm font-semibold">Thanh toán gần đây</h3>
+        <div class="mt-3 space-y-2">
+          <div
+            v-if="customers.detail.recent_payments.length === 0"
+            class="rounded-xl bg-black/5 px-3 py-3 text-center text-sm text-ink/60"
+          >
+            Chưa có thanh toán gần đây.
+          </div>
+          <article
+            v-else
+            v-for="payment in customers.detail.recent_payments"
+            :key="payment.id"
+            class="rounded-xl border border-black/10 p-3"
+          >
+            <div class="flex items-start justify-between gap-2">
+              <p class="text-sm font-medium">{{ payment.payment_method }}</p>
+              <p class="text-xs text-ink/60">{{ payment.payment_date }}</p>
+            </div>
+            <p class="mt-2 text-sm">Số tiền: <strong>{{ payment.amount }}</strong></p>
+            <p class="text-xs text-ink/60">{{ payment.notes || '-' }}</p>
+          </article>
+        </div>
       </div>
     </template>
+
+    <OrderPreviewModal :open="previewOrderId !== null" :order-id="previewOrderId" @close="closePreview" />
   </section>
 </template>

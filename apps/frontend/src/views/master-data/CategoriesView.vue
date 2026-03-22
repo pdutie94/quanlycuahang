@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useCategoriesStore } from '../../stores/categories'
-import ConfirmSheet from '../../components/ConfirmSheet.vue'
 
 const categories = useCategoriesStore()
 const name = ref('')
 const editingId = ref<number | null>(null)
-const pendingDeleteId = ref<number | null>(null)
 
 onMounted(async () => {
   await categories.fetchList()
@@ -35,13 +33,8 @@ async function submit(): Promise<void> {
 }
 
 async function remove(id: number): Promise<void> {
-  pendingDeleteId.value = id
-}
-
-async function confirmDelete(): Promise<void> {
-  if (pendingDeleteId.value === null) return
-  await categories.remove(pendingDeleteId.value)
-  pendingDeleteId.value = null
+  if (!window.confirm('Bạn chắc chắn muốn xóa danh mục này?')) return
+  await categories.remove(id)
 }
 </script>
 
@@ -67,43 +60,25 @@ async function confirmDelete(): Promise<void> {
 
     <p v-if="categories.error" class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{{ categories.error }}</p>
 
-    <div class="overflow-hidden rounded-2xl border border-black/10 bg-white">
-      <table class="min-w-full text-sm">
-        <thead class="bg-black/5 text-left text-xs uppercase tracking-wider text-ink/60">
-          <tr>
-            <th class="px-3 py-2">ID</th>
-            <th class="px-3 py-2">Tên danh mục</th>
-            <th class="px-3 py-2">Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="categories.loading" v-for="n in 4" :key="n" class="border-t border-black/5">
-            <td class="px-3 py-2" colspan="3"><div class="h-6 animate-pulse rounded bg-black/10" /></td>
-          </tr>
-          <tr v-else-if="categories.items.length === 0" class="border-t border-black/5">
-            <td class="px-3 py-4 text-center text-ink/60" colspan="3">Chưa có danh mục nào.</td>
-          </tr>
-          <tr v-else v-for="item in categories.items" :key="item.id" class="border-t border-black/5">
-            <td class="px-3 py-2">{{ item.id }}</td>
-            <td class="px-3 py-2 font-medium">{{ item.name }}</td>
-            <td class="px-3 py-2">
-              <div class="flex gap-2">
-                <button type="button" class="rounded-lg border border-black/15 px-2 py-1 text-xs" @click="startEdit(item.id, item.name)">Sửa</button>
-                <button type="button" class="rounded-lg border border-red-200 px-2 py-1 text-xs text-red-600" @click="remove(item.id)">Xóa</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="space-y-2">
+      <div v-if="categories.loading" v-for="n in 4" :key="n" class="rounded-2xl border border-black/10 bg-white p-4">
+        <div class="h-6 animate-pulse rounded bg-black/10" />
+      </div>
+      <div v-else-if="categories.items.length === 0" class="rounded-2xl border border-black/10 bg-white px-3 py-4 text-center text-sm text-ink/60">
+        Chưa có danh mục nào.
+      </div>
+      <article v-else v-for="item in categories.items" :key="item.id" class="rounded-2xl border border-black/10 bg-white p-4">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <p class="text-xs text-ink/50">ID #{{ item.id }}</p>
+            <h3 class="font-semibold">{{ item.name }}</h3>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" class="rounded-lg border border-black/15 px-2 py-1 text-xs" @click="startEdit(item.id, item.name)">Sửa</button>
+            <button type="button" class="rounded-lg border border-red-200 px-2 py-1 text-xs text-red-600" @click="remove(item.id)">Xóa</button>
+          </div>
+        </div>
+      </article>
     </div>
   </section>
-
-  <ConfirmSheet
-    :model-value="pendingDeleteId !== null"
-    title="Xóa danh mục"
-    message="Danh mục này sẽ bị xóa khỏi dữ liệu sản phẩm."
-    confirm-text="Xóa danh mục"
-    @update:modelValue="(value) => { if (!value) pendingDeleteId = null }"
-    @confirm="confirmDelete"
-  />
 </template>

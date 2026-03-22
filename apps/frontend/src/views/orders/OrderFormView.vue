@@ -82,30 +82,20 @@ async function submitOrder(): Promise<void> {
 
     <div class="rounded-2xl border border-black/10 bg-white p-4">
       <h3 class="mb-3 text-base font-semibold">Giỏ hàng</h3>
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm">
-          <thead class="bg-black/5 text-left text-xs uppercase tracking-wider text-ink/60">
-            <tr>
-              <th class="px-3 py-2">Sản phẩm</th>
-              <th class="px-3 py-2">SL</th>
-              <th class="px-3 py-2">Giá</th>
-              <th class="px-3 py-2">Thành tiền</th>
-              <th class="px-3 py-2">#</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="pos.cart.length === 0" class="border-t border-black/5">
-              <td class="px-3 py-4 text-center text-ink/60" colspan="5">Giỏ hàng trống.</td>
-            </tr>
-            <tr v-for="line in pos.cart" :key="line.key" class="border-t border-black/5">
-              <td class="px-3 py-2">{{ line.productName }} ({{ line.unitName }})</td>
-              <td class="px-3 py-2"><input :value="line.qty" type="number" min="0" class="w-24 rounded-lg border border-gray-300 px-2 py-1" @input="pos.updateQty(line.key, Number(($event.target as HTMLInputElement).value))" /></td>
-              <td class="px-3 py-2"><input :value="line.priceSell" type="number" min="0" class="w-32 rounded-lg border border-gray-300 px-2 py-1" @input="pos.updatePrice(line.key, Number(($event.target as HTMLInputElement).value))" /></td>
-              <td class="px-3 py-2">{{ formatMoney(line.qty * line.priceSell) }}</td>
-              <td class="px-3 py-2"><button type="button" class="rounded-lg border border-red-200 px-2 py-1 text-xs text-red-600" @click="pos.removeItem(line.key)">Xóa</button></td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="space-y-2">
+        <div v-if="pos.cart.length === 0" class="rounded-xl bg-black/5 px-3 py-4 text-center text-sm text-ink/60">Giỏ hàng trống.</div>
+        <article v-for="line in pos.cart" :key="line.key" class="rounded-xl border border-black/10 p-3">
+          <div class="flex items-start justify-between gap-2">
+            <h4 class="font-medium">{{ line.productName }}</h4>
+            <p class="text-xs text-ink/60">{{ line.unitName }}</p>
+          </div>
+          <div class="mt-2 grid gap-2 sm:grid-cols-3">
+            <input :value="line.qty" type="number" min="0" class="rounded-lg border border-gray-300 px-2 py-1 text-sm" @input="pos.updateQty(line.key, Number(($event.target as HTMLInputElement).value))" />
+            <input :value="line.priceSell" type="number" min="0" class="rounded-lg border border-gray-300 px-2 py-1 text-sm" @input="pos.updatePrice(line.key, Number(($event.target as HTMLInputElement).value))" />
+            <p class="rounded-lg bg-black/5 px-2 py-1 text-sm">{{ formatMoney(line.qty * line.priceSell) }}</p>
+          </div>
+          <button type="button" class="mt-2 rounded-lg border border-red-200 px-2 py-1 text-xs text-red-600" @click="pos.removeItem(line.key)">Xóa</button>
+        </article>
       </div>
 
       <div class="mt-4 grid gap-3 md:grid-cols-4">

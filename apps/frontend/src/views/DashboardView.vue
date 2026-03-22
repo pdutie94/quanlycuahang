@@ -1,105 +1,222 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useDashboardStore } from '../stores/dashboard'
 import { formatDate, formatMoney } from '../lib/format'
-import { usePullToRefresh } from '../lib/pullToRefresh'
+import PullToRefresh from '../components/PullToRefresh.vue'
+import SkeletonBlock from '../components/SkeletonBlock.vue'
+import { ShoppingCart, ClipboardList, Plus, PieChart } from 'lucide-vue-next'
+import OrderSummaryCard from '../components/orders/OrderSummaryCard.vue'
+import OrderPreviewModal from '../components/orders/OrderPreviewModal.vue'
 
 const dashboard = useDashboardStore()
+const previewOrderId = ref<number | null>(null)
 
-usePullToRefresh(() => dashboard.fetchMetrics(), 'Kéo để cập nhật tổng quan')
+const todayLabel = computed(() => formatDate(new Date()))
 
 const cards = computed(() => [
   {
-    key: 'today_revenue',
-    title: 'Doanh thu hôm nay',
+    key: 'revenue',
+    title: 'Doanh thu',
     value: formatMoney(dashboard.metrics.orders_today.total_amount),
-    helper: `Lợi nhuận: ${formatMoney(dashboard.metrics.orders_today.profit)}`,
+    variant: 'brand',
   },
   {
-    key: 'month_revenue',
-    title: 'Doanh thu tháng',
-    value: formatMoney(dashboard.metrics.orders_month.total_amount),
-    helper: `Còn nợ: ${formatMoney(dashboard.metrics.orders_month.debt_amount)}`,
+    key: 'profit',
+    title: 'Lợi nhuận',
+    value: formatMoney(dashboard.metrics.orders_today.profit),
+    variant: 'brand',
   },
   {
-    key: 'purchase_month',
-    title: 'Nhập hàng tháng',
-    value: formatMoney(dashboard.metrics.purchases_month.total_amount),
-    helper: `Đã trả: ${formatMoney(dashboard.metrics.purchases_month.paid_amount)}`,
+    key: 'paid',
+    title: 'Đã thu',
+    value: formatMoney(dashboard.metrics.orders_today.paid_amount),
+    variant: 'brand',
   },
   {
-    key: 'customer_debt',
-    title: 'Nợ khách hàng',
-    value: formatMoney(dashboard.metrics.customer_debt),
-    helper: 'Cộng dồn tất cả đơn chưa thanh toán đủ',
-  },
-  {
-    key: 'supplier_debt',
-    title: 'Nợ nhà cung cấp',
-    value: formatMoney(dashboard.metrics.supplier_debt),
-    helper: 'Cộng dồn tất cả phiếu nhập chưa trả đủ',
+    key: 'debt',
+    title: 'Còn nợ',
+    value: formatMoney(dashboard.metrics.orders_today.debt_amount),
+    variant: 'alert',
   },
 ])
+
+const quickLinks = [
+  { to: '/pos', label: 'Tạo đơn', icon: ShoppingCart },
+  { to: '/orders', label: 'Đơn hàng', icon: ClipboardList },
+  { to: '/products/new', label: 'Thêm SP', icon: Plus },
+  { to: '/reports', label: 'Báo cáo', icon: PieChart },
+]
 
 onMounted(async () => {
   await dashboard.fetchMetrics()
 })
+
+async function handleRefresh(): Promise<void> {
+  await dashboard.fetchMetrics()
+}
+
+function openPreview(orderId: number): void {
+  previewOrderId.value = orderId
+}
+
+function closePreview(): void {
+  previewOrderId.value = null
+}
 </script>
 
 <template>
-  <section class="space-y-5">
-    <header class="space-y-1">
-      <h2 class="text-xl font-semibold">Tổng quan kinh doanh</h2>
-      <p class="text-sm text-ink/60">Số liệu realtime từ API dashboard metrics.</p>
-    </header>
+  <PullToRefresh @refresh="handleRefresh">
+    <section class="space-y-5">
+      <header class="flex items-center justify-between gap-3">
+        <h2 class="text-2xl font-semibold text-slate-900">Hôm nay</h2>
+        <div class="dashboard-date-pill px-3 py-1 text-xs font-semibold">
+          {{ todayLabel }}
+        </div>
+      </header>
 
-    <p v-if="dashboard.error" class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">
-      {{ dashboard.error }}
-    </p>
+      <p v-if="dashboard.error" class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">
+        {{ dashboard.error }}
+      </p>
 
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <article
-        v-for="card in cards"
-        :key="card.key"
-        class="rounded-2xl border border-black/10 bg-white p-4 shadow-sm"
-      >
-        <template v-if="dashboard.loading">
-          <div class="h-4 w-28 animate-pulse rounded bg-black/10" />
-          <div class="mt-3 h-8 w-36 animate-pulse rounded bg-black/10" />
-          <div class="mt-2 h-3 w-44 animate-pulse rounded bg-black/10" />
-        </template>
-        <template v-else>
-          <p class="text-xs uppercase tracking-wider text-ink/60">{{ card.title }}</p>
-          <p class="mt-2 text-2xl font-semibold">{{ card.value }}</p>
-          <p class="mt-1 text-xs text-ink/60">{{ card.helper }}</p>
-        </template>
-      </article>
-    </div>
-
-    <section class="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
-      <h3 class="text-sm font-semibold uppercase tracking-wider text-ink/70">Đơn gần đây</h3>
-
-      <div v-if="dashboard.loading" class="mt-3 space-y-2">
-        <div v-for="n in 4" :key="n" class="h-10 animate-pulse rounded bg-black/10" />
-      </div>
-
-      <div v-else-if="dashboard.metrics.recent_orders.length === 0" class="mt-3 rounded-xl bg-black/5 px-3 py-2 text-sm text-ink/60">
-        Chưa có đơn hàng gần đây.
-      </div>
-
-      <ul v-else class="mt-3 space-y-2">
-        <li
-          v-for="order in dashboard.metrics.recent_orders"
-          :key="order.id"
-          class="flex items-center justify-between rounded-xl border border-black/10 px-3 py-2"
+      <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <article
+          v-for="card in cards"
+          :key="card.key"
+          class="dashboard-kpi-card rounded-2xl px-3 py-3"
+          :class="card.variant === 'alert' ? 'dashboard-kpi-card--alert' : ''"
         >
-          <div>
-            <p class="text-sm font-medium">#{{ order.id }} · {{ order.customer_name || 'Khách lẻ' }}</p>
-            <p class="text-xs text-ink/60">{{ formatDate(order.order_date) }} · {{ order.items_count }} sản phẩm</p>
+          <template v-if="dashboard.loading">
+            <SkeletonBlock height-class="h-3" width-class="w-16" />
+            <div class="mt-2"><SkeletonBlock height-class="h-6" width-class="w-20" /></div>
+          </template>
+          <template v-else>
+            <p class="text-sm text-slate-500">{{ card.title }}</p>
+            <p class="mt-1 text-2xl font-semibold text-slate-900">{{ card.value }}</p>
+          </template>
+        </article>
+      </div>
+
+      <section class="space-y-3">
+        <h3 class="text-sm font-semibold text-slate-700">Lối tắt</h3>
+        <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <RouterLink
+            v-for="item in quickLinks"
+            :key="item.label"
+            :to="item.to"
+            class="dashboard-link-card flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-800"
+          >
+            <span class="dashboard-link-icon inline-flex h-8 w-8 items-center justify-center rounded-xl text-slate-700">
+              <component :is="item.icon" :size="16" />
+            </span>
+            {{ item.label }}
+          </RouterLink>
+        </div>
+      </section>
+
+      <section class="space-y-3">
+        <div class="flex items-center justify-between gap-3">
+          <h3 class="text-sm font-semibold text-slate-700">Đơn hàng gần đây</h3>
+          <RouterLink to="/orders" class="text-sm font-semibold text-teal-700">Xem tất cả</RouterLink>
+        </div>
+
+        <div v-if="dashboard.loading" class="mt-3 space-y-3">
+          <div
+            v-for="n in 4"
+            :key="n"
+            class="dashboard-order-skeleton rounded-xl px-3 py-3"
+          >
+            <div class="animate-pulse">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <div class="h-4 w-32 rounded-md bg-black/10"></div>
+                    <div class="h-5 w-16 rounded-md bg-black/10"></div>
+                  </div>
+                  <div class="mt-2 h-3 w-40 rounded-md bg-black/10"></div>
+                </div>
+                <div class="h-8 w-8 shrink-0 rounded-lg bg-black/10"></div>
+              </div>
+
+              <div class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-2">
+                <div class="h-4 w-10 rounded-md bg-black/10"></div>
+                <div class="h-4 w-24 rounded-md bg-black/10"></div>
+                <div class="h-4 w-16 rounded-md bg-black/10"></div>
+                <div class="h-4 w-20 rounded-md bg-black/10"></div>
+              </div>
+            </div>
           </div>
-          <p class="text-sm font-semibold">{{ formatMoney(order.total_amount) }}</p>
-        </li>
-      </ul>
+        </div>
+
+        <div v-else-if="dashboard.metrics.recent_orders.length === 0" class="dashboard-empty rounded-2xl px-3 py-3 text-sm text-slate-600">
+          Chưa có đơn hàng gần đây.
+        </div>
+
+        <ul v-else class="mt-3 space-y-3">
+          <li v-for="order in dashboard.metrics.recent_orders" :key="order.id">
+            <OrderSummaryCard
+              :order="{
+                id: order.id,
+                orderCode: `DH-${order.id}`,
+                customerName: order.customer_name,
+                orderDate: order.order_date,
+                totalAmount: order.total_amount,
+                paidAmount: order.paid_amount,
+              }"
+              tone="tone-brand"
+              @preview="openPreview"
+            />
+          </li>
+        </ul>
+      </section>
     </section>
-  </section>
+
+    <OrderPreviewModal :open="previewOrderId !== null" :order-id="previewOrderId" @close="closePreview" />
+  </PullToRefresh>
 </template>
+
+<style scoped>
+.dashboard-date-pill {
+  color: #0f766e;
+  background: linear-gradient(145deg, #ecfeff, #dcfce7);
+  box-shadow: inset 0 0 0 1px rgba(20, 184, 166, 0.12);
+  border-radius: 0.375rem;
+}
+
+.dashboard-kpi-card {
+  background: linear-gradient(155deg, #f8fffe, #ebfffb);
+  box-shadow:
+    inset 0 0 0 1px rgba(20, 184, 166, 0.08),
+    0 10px 20px -22px rgba(13, 148, 136, 0.3);
+}
+
+.dashboard-kpi-card--alert {
+  background: linear-gradient(155deg, #fff7f8, #fff0f3);
+  box-shadow:
+    inset 0 0 0 1px rgba(244, 63, 94, 0.12),
+    0 10px 20px -22px rgba(244, 63, 94, 0.2);
+}
+
+.dashboard-link-card {
+  background: linear-gradient(140deg, #ffffff, #f0fdfa);
+  box-shadow:
+    inset 0 0 0 1px rgba(20, 184, 166, 0.09),
+    0 10px 18px -20px rgba(15, 118, 110, 0.28);
+}
+
+.dashboard-link-icon {
+  background: linear-gradient(145deg, #ccfbf1, #99f6e4);
+  box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.12);
+}
+
+.dashboard-empty {
+  background: linear-gradient(145deg, #f8fffe, #f0fdfa);
+  box-shadow: inset 0 0 0 1px rgba(20, 184, 166, 0.08);
+}
+
+.dashboard-order-skeleton {
+  width: 100%;
+  background: linear-gradient(145deg, #ffffff, #f8fffe);
+  box-shadow: inset 0 0 0 1px rgba(20, 184, 166, 0.08);
+}
+</style>

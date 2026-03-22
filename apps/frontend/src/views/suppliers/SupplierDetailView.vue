@@ -51,30 +51,29 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="overflow-hidden rounded-2xl border border-black/10 bg-white">
-        <table class="min-w-full text-sm">
-          <thead class="bg-black/5 text-left text-xs uppercase tracking-wider text-ink/60">
-            <tr>
-              <th class="px-3 py-2">Mã phiếu</th>
-              <th class="px-3 py-2">Ngày nhập</th>
-              <th class="px-3 py-2">Tổng tiền</th>
-              <th class="px-3 py-2">Đã trả</th>
-              <th class="px-3 py-2">Còn nợ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="suppliers.detail.latest_purchases.length === 0" class="border-t border-black/5">
-              <td class="px-3 py-4 text-center text-ink/60" colspan="5">Chưa có phiếu nhập gần đây.</td>
-            </tr>
-            <tr v-else v-for="purchase in suppliers.detail.latest_purchases" :key="purchase.id" class="border-t border-black/5">
-              <td class="px-3 py-2">{{ purchase.reference_code }}</td>
-              <td class="px-3 py-2">{{ purchase.purchase_date }}</td>
-              <td class="px-3 py-2">{{ purchase.total_amount }}</td>
-              <td class="px-3 py-2">{{ purchase.paid_amount }}</td>
-              <td class="px-3 py-2 text-red-600">{{ purchase.debt_amount }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="space-y-2">
+        <div
+          v-if="suppliers.detail.latest_purchases.length === 0"
+          class="rounded-2xl border border-black/10 bg-white px-3 py-4 text-center text-sm text-ink/60"
+        >
+          Chưa có phiếu nhập gần đây.
+        </div>
+        <article
+          v-else
+          v-for="purchase in suppliers.detail.latest_purchases"
+          :key="purchase.id"
+          class="rounded-2xl border border-black/10 bg-white p-4"
+        >
+          <div class="flex items-start justify-between gap-2">
+            <h3 class="font-semibold">{{ purchase.reference_code }}</h3>
+            <p class="text-xs text-ink/60">{{ purchase.purchase_date }}</p>
+          </div>
+          <div class="mt-3 grid grid-cols-3 gap-2 text-sm">
+            <p class="rounded-xl bg-black/5 px-3 py-2">Tổng: <strong>{{ purchase.total_amount }}</strong></p>
+            <p class="rounded-xl bg-black/5 px-3 py-2">Đã trả: <strong>{{ purchase.paid_amount }}</strong></p>
+            <p class="rounded-xl bg-red-50 px-3 py-2 text-red-600">Nợ: <strong>{{ purchase.debt_amount }}</strong></p>
+          </div>
+        </article>
       </div>
     </template>
   </section>

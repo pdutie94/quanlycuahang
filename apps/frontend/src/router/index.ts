@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import type { Component } from 'vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import DashboardView from '../views/DashboardView.vue'
 import LoginView from '../views/auth/LoginView.vue'
@@ -29,22 +28,7 @@ import ReportMissingCostView from '../views/reports/ReportMissingCostView.vue'
 import ReportInventoryView from '../views/reports/ReportInventoryView.vue'
 import ReportInventoryAdjustView from '../views/reports/ReportInventoryAdjustView.vue'
 import { useAuthStore } from '../stores/auth'
-
-const childRoute = (
-  path: string,
-  name: string,
-  component: Component,
-  depth: number,
-  pullToRefresh = false,
-) => ({
-  path,
-  name,
-  component,
-  meta: {
-    depth,
-    ...(pullToRefresh ? { pullToRefresh: true } : {}),
-  },
-})
+import { useUiStore } from '../stores/ui'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -58,51 +42,201 @@ const router = createRouter({
     {
       path: '/',
       component: AppLayout,
-      meta: { requiresAuth: true, depth: 0 },
+      meta: { requiresAuth: true, depth: 1 },
       children: [
-        childRoute('', 'dashboard', DashboardView, 1, true),
-        childRoute('products', 'products', ProductListView, 2, true),
-        childRoute('products/new', 'products-create', ProductFormView, 3),
-        childRoute('products/:id/edit', 'products-edit', ProductFormView, 3),
-        childRoute('categories', 'categories', CategoriesView, 2),
-        childRoute('units', 'units', UnitsView, 2),
-        childRoute('suppliers', 'suppliers', SupplierListView, 2, true),
-        childRoute('suppliers/new', 'suppliers-create', SupplierFormView, 3),
-        childRoute('suppliers/:id', 'suppliers-detail', SupplierDetailView, 3),
-        childRoute('suppliers/:id/edit', 'suppliers-edit', SupplierFormView, 3),
-        childRoute('customers', 'customers', CustomerListView, 2, true),
-        childRoute('customers/new', 'customers-create', CustomerFormView, 3),
-        childRoute('customers/:id', 'customers-detail', CustomerDetailView, 3),
-        childRoute('customers/:id/edit', 'customers-edit', CustomerFormView, 3),
-        childRoute('orders', 'orders', OrderListView, 2, true),
-        childRoute('orders/new', 'orders-create', OrderFormView, 3),
-        childRoute('orders/:id', 'orders-detail', OrderDetailView, 3),
-        childRoute('pos', 'pos', PosView, 2),
-        childRoute('purchases', 'purchases', PurchaseListView, 2, true),
-        childRoute('purchases/new', 'purchases-create', PurchaseFormView, 3),
-        childRoute('purchases/:id', 'purchases-detail', PurchaseDetailView, 3),
-        childRoute('purchases/:id/edit', 'purchases-edit', PurchaseFormView, 3),
-        childRoute('reports', 'reports', ReportsHomeView, 2),
-        childRoute('reports/sales', 'reports-sales', ReportSalesView, 3),
-        childRoute('reports/customer-debt', 'reports-customer-debt', ReportCustomerDebtView, 3),
-        childRoute('reports/supplier-debt', 'reports-supplier-debt', ReportSupplierDebtView, 3),
-        childRoute('reports/missing-cost', 'reports-missing-cost', ReportMissingCostView, 3),
-        childRoute('reports/inventory', 'reports-inventory', ReportInventoryView, 3),
-        childRoute('reports/inventory-adjust', 'reports-inventory-adjust', ReportInventoryAdjustView, 3),
+        {
+          path: '',
+          name: 'dashboard',
+          component: DashboardView,
+          meta: { depth: 1 },
+        },
+        {
+          path: 'products',
+          name: 'products',
+          component: ProductListView,
+          meta: { depth: 2 },
+        },
+        {
+          path: 'products/new',
+          name: 'products-create',
+          component: ProductFormView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'products/:id/edit',
+          name: 'products-edit',
+          component: ProductFormView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'categories',
+          name: 'categories',
+          component: CategoriesView,
+          meta: { depth: 2 },
+        },
+        {
+          path: 'units',
+          name: 'units',
+          component: UnitsView,
+          meta: { depth: 2 },
+        },
+        {
+          path: 'suppliers',
+          name: 'suppliers',
+          component: SupplierListView,
+          meta: { depth: 2 },
+        },
+        {
+          path: 'suppliers/new',
+          name: 'suppliers-create',
+          component: SupplierFormView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'suppliers/:id',
+          name: 'suppliers-detail',
+          component: SupplierDetailView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'suppliers/:id/edit',
+          name: 'suppliers-edit',
+          component: SupplierFormView,
+          meta: { depth: 4 },
+        },
+        {
+          path: 'customers',
+          name: 'customers',
+          component: CustomerListView,
+          meta: { depth: 2 },
+        },
+        {
+          path: 'customers/new',
+          name: 'customers-create',
+          component: CustomerFormView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'customers/:id',
+          name: 'customers-detail',
+          component: CustomerDetailView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'customers/:id/edit',
+          name: 'customers-edit',
+          component: CustomerFormView,
+          meta: { depth: 4 },
+        },
+        {
+          path: 'orders',
+          name: 'orders',
+          component: OrderListView,
+          meta: { depth: 2 },
+        },
+        {
+          path: 'orders/new',
+          name: 'orders-create',
+          component: OrderFormView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'orders/:id',
+          name: 'orders-detail',
+          component: OrderDetailView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'pos',
+          name: 'pos',
+          component: PosView,
+          meta: { depth: 2 },
+        },
+        {
+          path: 'purchases',
+          name: 'purchases',
+          component: PurchaseListView,
+          meta: { depth: 2 },
+        },
+        {
+          path: 'purchases/new',
+          name: 'purchases-create',
+          component: PurchaseFormView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'purchases/:id',
+          name: 'purchases-detail',
+          component: PurchaseDetailView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'purchases/:id/edit',
+          name: 'purchases-edit',
+          component: PurchaseFormView,
+          meta: { depth: 4 },
+        },
+        {
+          path: 'reports',
+          name: 'reports',
+          component: ReportsHomeView,
+          meta: { depth: 2 },
+        },
+        {
+          path: 'reports/sales',
+          name: 'reports-sales',
+          component: ReportSalesView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'reports/customer-debt',
+          name: 'reports-customer-debt',
+          component: ReportCustomerDebtView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'reports/supplier-debt',
+          name: 'reports-supplier-debt',
+          component: ReportSupplierDebtView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'reports/missing-cost',
+          name: 'reports-missing-cost',
+          component: ReportMissingCostView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'reports/inventory',
+          name: 'reports-inventory',
+          component: ReportInventoryView,
+          meta: { depth: 3 },
+        },
+        {
+          path: 'reports/inventory-adjust',
+          name: 'reports-inventory-adjust',
+          component: ReportInventoryAdjustView,
+          meta: { depth: 3 },
+        },
       ],
     },
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: NotFoundView,
-      meta: { depth: 99 },
+      meta: { depth: 1 },
     },
   ],
 })
 
-router.beforeEach(async (to) => {
+router.beforeEach(async (to, from) => {
   const auth = useAuthStore()
+  const ui = useUiStore()
   await auth.init()
+
+  const toDepth = Number(to.meta.depth ?? 1)
+  const fromDepth = Number(from.meta.depth ?? 1)
+  ui.setTransitionName(toDepth >= fromDepth ? 'slide-left' : 'slide-right')
 
   if (to.meta.requiresAuth && !auth.isLoggedIn) {
     return { name: 'login' }

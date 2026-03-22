@@ -1,29 +1,34 @@
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600;8..144,700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: 'Lexend', 'Segoe UI', sans-serif;
+  font-family: 'Roboto Flex', 'Segoe UI', sans-serif;
+  --app-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --app-ease-soft: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --app-duration-fast: 180ms;
+  --app-duration-base: 280ms;
 }
 
 html,
 body,
 #app {
   min-height: 100%;
-  height: 100%;
 }
 
 body {
   margin: 0;
-  color: #1f2421;
-  background: #f7f5ef;
+  color: #0f172a;
+  background: #f8fafc;
+  font-optical-sizing: auto;
   overscroll-behavior-y: contain;
 }
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button,
@@ -38,6 +43,172 @@ a {
   text-decoration: none;
 }
 
-.route-panel {
-  min-height: 100%;
+.app-content-wrap {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 72rem;
+}
+
+.fancy-box {
+  border: 1px solid transparent;
+  background-image:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.84)),
+    linear-gradient(135deg, var(--box-tone-start, #cfe8ff), var(--box-tone-end, #c4f2e7));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.fancy-box-soft {
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03), 0 10px 24px -24px rgba(15, 23, 42, 0.45);
+}
+
+.tone-sky {
+  --box-tone-start: #bfdbfe;
+  --box-tone-end: #93c5fd;
+}
+
+.tone-mint {
+  --box-tone-start: #99f6e4;
+  --box-tone-end: #67e8f9;
+}
+
+.tone-amber {
+  --box-tone-start: #fde68a;
+  --box-tone-end: #fcd34d;
+}
+
+.tone-rose {
+  --box-tone-start: #fecdd3;
+  --box-tone-end: #fda4af;
+}
+
+.tone-violet {
+  --box-tone-start: #ddd6fe;
+  --box-tone-end: #c4b5fd;
+}
+
+.tone-lime {
+  --box-tone-start: #d9f99d;
+  --box-tone-end: #bef264;
+}
+
+.tone-brand {
+  --box-tone-start: #ccfbf1;
+  --box-tone-end: #99f6e4;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(31, 36, 33, 0.18);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes card-reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+main .space-y-2 > article,
+main .space-y-2 > a {
+  animation: card-reveal-up var(--app-duration-base) var(--app-ease-out) both;
+}
+
+main .space-y-2 > article:nth-child(2),
+main .space-y-2 > a:nth-child(2) {
+  animation-delay: 28ms;
+}
+
+main .space-y-2 > article:nth-child(3),
+main .space-y-2 > a:nth-child(3) {
+  animation-delay: 56ms;
+}
+
+main .space-y-2 > article:nth-child(4),
+main .space-y-2 > a:nth-child(4) {
+  animation-delay: 84ms;
+}
+
+main .space-y-2 > article:nth-child(5),
+main .space-y-2 > a:nth-child(5) {
+  animation-delay: 112ms;
+}
+
+main .space-y-2 > article:nth-child(6),
+main .space-y-2 > a:nth-child(6) {
+  animation-delay: 140ms;
+}
+
+/* Route page transitions — must be global (not scoped) so Vue can apply them to dynamic child components */
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: transform 0.18s ease-out, opacity 0.18s ease-out;
+  will-change: transform, opacity;
+}
+
+.slide-left-enter-from,
+.slide-right-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.slide-left-leave-to,
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+/* Modal sheet — backdrop fades, panel slides up from bottom */
+.modal-sheet-panel {
+  will-change: transform;
+}
+
+.modal-sheet-enter-active,
+.modal-sheet-leave-active {
+  transition: opacity 0.24s ease;
+}
+
+.modal-sheet-enter-active .modal-sheet-panel {
+  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.modal-sheet-leave-active .modal-sheet-panel {
+  transition: transform 0.24s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.modal-sheet-enter-from,
+.modal-sheet-leave-to {
+  opacity: 0;
+}
+
+.modal-sheet-enter-from .modal-sheet-panel,
+.modal-sheet-leave-to .modal-sheet-panel {
+  transform: translateY(100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

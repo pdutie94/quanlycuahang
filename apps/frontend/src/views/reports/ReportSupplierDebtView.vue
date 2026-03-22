@@ -56,33 +56,20 @@ onMounted(async () => {
 
     <p v-if="error" class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{{ error }}</p>
 
-    <div class="overflow-hidden rounded-2xl border border-black/10 bg-white">
-      <table class="min-w-full text-sm">
-        <thead class="bg-black/5 text-left text-xs uppercase tracking-wider text-ink/60">
-          <tr>
-            <th class="px-3 py-2">Nhà cung cấp</th>
-            <th class="px-3 py-2">Điện thoại</th>
-            <th class="px-3 py-2">Tổng nhập</th>
-            <th class="px-3 py-2">Đã trả</th>
-            <th class="px-3 py-2">Còn nợ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="loading" v-for="n in 6" :key="n" class="border-t border-black/5">
-            <td class="px-3 py-2" colspan="5"><div class="h-6 animate-pulse rounded bg-black/10" /></td>
-          </tr>
-          <tr v-else-if="rows.length === 0" class="border-t border-black/5">
-            <td class="px-3 py-4 text-center text-ink/60" colspan="5">Không có dữ liệu.</td>
-          </tr>
-          <tr v-else v-for="row in rows" :key="row.id" class="border-t border-black/5">
-            <td class="px-3 py-2">{{ row.name }}</td>
-            <td class="px-3 py-2">{{ row.phone || '-' }}</td>
-            <td class="px-3 py-2">{{ formatMoney(row.total_amount) }}</td>
-            <td class="px-3 py-2">{{ formatMoney(row.paid_amount) }}</td>
-            <td class="px-3 py-2 text-red-600">{{ formatMoney(row.debt_amount) }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="space-y-2">
+      <div v-if="loading" v-for="n in 6" :key="n" class="rounded-2xl border border-black/10 bg-white p-4">
+        <div class="h-6 animate-pulse rounded bg-black/10" />
+      </div>
+      <div v-else-if="rows.length === 0" class="rounded-2xl border border-black/10 bg-white px-3 py-4 text-center text-sm text-ink/60">Không có dữ liệu.</div>
+      <article v-else v-for="row in rows" :key="row.id" class="rounded-2xl border border-black/10 bg-white p-4">
+        <h3 class="font-semibold">{{ row.name }}</h3>
+        <p class="text-xs text-ink/60">{{ row.phone || '-' }}</p>
+        <div class="mt-3 grid gap-2 sm:grid-cols-3 text-sm">
+          <p class="rounded-xl bg-black/5 px-3 py-2">Tổng nhập: <strong>{{ formatMoney(row.total_amount) }}</strong></p>
+          <p class="rounded-xl bg-black/5 px-3 py-2">Đã trả: <strong>{{ formatMoney(row.paid_amount) }}</strong></p>
+          <p class="rounded-xl bg-red-50 px-3 py-2 text-red-600">Còn nợ: <strong>{{ formatMoney(row.debt_amount) }}</strong></p>
+        </div>
+      </article>
     </div>
 
     <div class="flex items-center justify-between text-sm text-ink/70">

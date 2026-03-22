@@ -10,6 +10,17 @@ Tạo trải nghiệm **giống mobile app native**, không phải web truyền 
 * Mượt
 * Phản hồi nhanh
 * Cảm giác “instant”
+* Chỉ 1 thiết kế dạng app-like cho mọi màn hình, không cần responsive riêng cho từng màn
+* Sử dụng card, dạng click cả card thay vì sử dụng table
+---
+## KHÔNG
+* Sử dụng table.
+---
+# 📱 Layout
+## Structure
+* [ Header ]
+* [ Content (scroll) ]
+* [ Bottom Nav ]
 
 ---
 
@@ -17,7 +28,7 @@ Tạo trải nghiệm **giống mobile app native**, không phải web truyền 
 
 ## Yêu cầu
 
-* Luôn hiển thị ở dưới cùng màn hình
+* Luôn hiển thị cố ở dưới cùng màn hình
 * Không re-render khi chuyển route
 * Có từ 4–5 item:
 
@@ -34,6 +45,8 @@ Tạo trải nghiệm **giống mobile app native**, không phải web truyền 
 
   * text đậm hơn hoặc đổi màu
 * Chiều cao tối thiểu: `56px`
+
+## Icon sử dụng lucide icon
 
 ## Layout
 
@@ -150,37 +163,7 @@ Loading...
 ## Mục tiêu
 
 * Cảm giác giống app mobile (iOS style)
-* Trượt ngang mượt
-
----
-
-## Rules
-
-* Forward → slide từ phải sang trái
-* Back → slide từ trái sang phải
-
----
-
-## Router Requirement
-
-Mỗi route phải có `meta.depth`
-
-```js
-{
-  path: '/products',
-  component: ProductListView,
-  meta: { depth: 2 }
-}
-```
-
----
-
-## Direction Logic
-
-* depth tăng → forward
-* depth giảm → back
-
----
+* Hiệu ứng dạng fadeInUp khi chuyển page.
 
 ## Vue Setup
 
