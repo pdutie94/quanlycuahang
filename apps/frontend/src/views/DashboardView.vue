@@ -69,7 +69,7 @@ function closePreview(): void {
   <PullToRefresh @refresh="handleRefresh">
     <section class="space-y-5">
       <header class="flex items-center justify-between gap-3">
-        <h2 class="text-2xl font-semibold text-slate-900">Hôm nay</h2>
+        <h2 class="text-2xl font-bold text-slate-900">Hôm nay</h2>
         <div class="dashboard-date-pill px-3 py-1 text-xs font-semibold">
           {{ todayLabel }}
         </div>

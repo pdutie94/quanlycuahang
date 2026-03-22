@@ -218,19 +218,19 @@ function handleMenuTouchEnd(): void {
       </main>
 
       <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white">
-        <div class="app-content-wrap grid h-16 w-full grid-cols-5 gap-1 px-1 py-1">
+        <div class="app-content-wrap grid w-full grid-cols-5 p-1.5">
           <RouterLink
             v-for="item in navItems"
             :key="item.label"
             :to="item.to"
             :class="route.path === item.to ? 'fancy-box tone-mint text-teal-700' : 'text-slate-500'"
-            class="flex h-full flex-col items-center justify-center rounded-xl p-1 text-sm font-medium transition duration-200 hover:bg-slate-50 active:scale-[0.98]"
+            class="flex h-full flex-col items-center justify-center rounded-xl p-1.5 text-xs font-medium transition duration-200 hover:bg-slate-50 active:scale-[0.98]"
           >
             <component :is="item.icon" :size="18" />
               <span class="block w-full whitespace-nowrap overflow-hidden text-ellipsis text-center">{{ item.label }}</span>
           </RouterLink>
           <button
-            class="flex h-full flex-col items-center justify-center rounded-xl p-1 text-sm font-medium text-slate-500 transition duration-200 hover:bg-slate-50"
+            class="flex h-full flex-col items-center justify-center rounded-xl p-1.5 text-xs font-medium text-slate-500 transition duration-200 hover:bg-slate-50"
             type="button"
             @click="isMenuOpen = true"
           >
