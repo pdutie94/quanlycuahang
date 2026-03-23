@@ -27,7 +27,11 @@ export const useProductsStore = defineStore('products', () => {
         per_page: perPage.value,
         q: query.value || undefined,
       })
-      items.value = result.data
+      if (page.value > 1) {
+        items.value = [...items.value, ...result.data]
+      } else {
+        items.value = result.data
+      }
       total.value = result.meta.total
       page.value = result.meta.page
       perPage.value = result.meta.per_page

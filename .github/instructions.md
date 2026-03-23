@@ -1,0 +1,2 @@
+* Luôn chạy run build sau khi hoàn thành một tính năng mới hoặc sửa lỗi để đảm bảo rằng mã không bị lỗi biên dịch, nếu có lỗi thì tự động fix rồi chạy lại tới khi không còn lỗi.
+* Cần kiểm tra kỹ khi thay đổi nội dung, không bao giờ được thay nội dung dạng ... exists code vì sẽ mất code đã có.

@@ -51,6 +51,7 @@ final class ProductController extends BaseController
                 p.base_unit_id,
                 u.name AS base_unit_name,
                 p.min_stock_qty,
+                COALESCE(pu.price_sell, 0) AS price_sell,
                 p.created_at,
                 p.updated_at,
                 COALESCE(i.qty_base, 0) AS inventory_qty_base
@@ -58,6 +59,7 @@ final class ProductController extends BaseController
             JOIN units u ON p.base_unit_id = u.id
             LEFT JOIN product_categories c ON p.category_id = c.id
             LEFT JOIN inventory i ON i.product_id = p.id
+            LEFT JOIN product_units pu ON pu.product_id = p.id AND pu.unit_id = p.base_unit_id
             WHERE {$whereSql}
             ORDER BY p.name ASC
             LIMIT :limit OFFSET :offset";

@@ -83,8 +83,8 @@ function closePreview(): void {
         <article
           v-for="card in cards"
           :key="card.key"
-          class="dashboard-kpi-card rounded-2xl px-3 py-3"
-          :class="card.variant === 'alert' ? 'dashboard-kpi-card--alert' : ''"
+          class="fancy-box fancy-box-soft rounded-xl px-3 py-3"
+          :class="card.variant === 'alert' ? 'tone-rose' : 'tone-brand'"
         >
           <template v-if="dashboard.loading">
             <SkeletonBlock height-class="h-3" width-class="w-16" />
@@ -104,7 +104,7 @@ function closePreview(): void {
             v-for="item in quickLinks"
             :key="item.label"
             :to="item.to"
-            class="dashboard-link-card flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-800"
+            class="fancy-box fancy-box-soft tone-brand flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-800"
           >
             <span class="dashboard-link-icon inline-flex h-8 w-8 items-center justify-center rounded-xl text-slate-700">
               <component :is="item.icon" :size="16" />
@@ -124,7 +124,7 @@ function closePreview(): void {
           <div
             v-for="n in 4"
             :key="n"
-            class="dashboard-order-skeleton rounded-xl px-3 py-3"
+            class="fancy-box fancy-box-soft tone-brand rounded-xl px-3 py-3"
           >
             <div class="animate-pulse">
               <div class="flex items-start justify-between gap-3">
@@ -148,7 +148,7 @@ function closePreview(): void {
           </div>
         </div>
 
-        <div v-else-if="dashboard.metrics.recent_orders.length === 0" class="dashboard-empty rounded-2xl px-3 py-3 text-sm text-slate-600">
+        <div v-else-if="dashboard.metrics.recent_orders.length === 0" class="fancy-box fancy-box-soft tone-brand rounded-xl px-3 py-3 text-sm text-slate-600">
           Chưa có đơn hàng gần đây.
         </div>
 
@@ -183,40 +183,10 @@ function closePreview(): void {
   border-radius: 0.375rem;
 }
 
-.dashboard-kpi-card {
-  background: linear-gradient(155deg, #f8fffe, #ebfffb);
-  box-shadow:
-    inset 0 0 0 1px rgba(20, 184, 166, 0.08),
-    0 10px 20px -22px rgba(13, 148, 136, 0.3);
-}
-
-.dashboard-kpi-card--alert {
-  background: linear-gradient(155deg, #fff7f8, #fff0f3);
-  box-shadow:
-    inset 0 0 0 1px rgba(244, 63, 94, 0.12),
-    0 10px 20px -22px rgba(244, 63, 94, 0.2);
-}
-
-.dashboard-link-card {
-  background: linear-gradient(140deg, #ffffff, #f0fdfa);
-  box-shadow:
-    inset 0 0 0 1px rgba(20, 184, 166, 0.09),
-    0 10px 18px -20px rgba(15, 118, 110, 0.28);
-}
-
 .dashboard-link-icon {
   background: linear-gradient(145deg, #ccfbf1, #99f6e4);
   box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.12);
 }
 
-.dashboard-empty {
-  background: linear-gradient(145deg, #f8fffe, #f0fdfa);
-  box-shadow: inset 0 0 0 1px rgba(20, 184, 166, 0.08);
-}
 
-.dashboard-order-skeleton {
-  width: 100%;
-  background: linear-gradient(145deg, #ffffff, #f8fffe);
-  box-shadow: inset 0 0 0 1px rgba(20, 184, 166, 0.08);
-}
 </style>

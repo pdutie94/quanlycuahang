@@ -105,7 +105,12 @@ function onTouchMove(e: TouchEvent) {
   const bodyAtTop   = (bodyEl?.scrollTop ?? 0) <= 0
   const pullingDown = dy > 0
 
+
   if (!isDragging.value) {
+    // Nếu đang full screen thì không cho swipe xuống nữa
+    if (isExpanded.value && pullingDown) {
+      return // Không cho phép kéo xuống khi đã full screen
+    }
     if (pullingDown && bodyAtTop) {
       isDragging.value = true
     } else if (!pullingDown && !isExpanded.value) {
@@ -203,7 +208,7 @@ function onTouchEnd() {
           @touchcancel="onTouchEnd"
         >
           <!-- drag handle -->
-          <div class="mx-auto mt-3 h-1.5 w-14 flex-none cursor-grab rounded-full bg-black/10 active:cursor-grabbing" />
+          <div class="mx-auto mt-2 h-1 w-10 flex-none cursor-grab rounded-full bg-black/10 active:cursor-grabbing" />
 
           <!-- header -->
           <header class="flex flex-none items-start gap-3 border-b border-slate-200 px-4 py-3">

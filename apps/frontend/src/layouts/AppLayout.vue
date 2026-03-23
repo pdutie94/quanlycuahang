@@ -207,8 +207,10 @@ function handleMenuTouchEnd(): void {
     </header>
 
     <div class="flex min-h-[calc(100vh-49px)] w-full flex-col">
-      <main class="relative flex-1 overflow-hidden px-4 py-5 pb-24">
-        <div class="app-content-wrap route-stage px-0">
+      <main class="relative flex-1 py-5 pb-24">
+        <div v-show="route.name === 'products-list'" id="app-sticky-title-host"></div>
+        <div id="app-sticky-filter-host" class="sticky top-0 z-20 mb-3"></div>
+        <div class="app-content-wrap route-stage px-4">
           <RouterView v-slot="{ Component, route }">
             <transition :name="transitionName" mode="out-in">
               <component :is="Component" :key="route.fullPath" class="route-page" />
@@ -251,11 +253,11 @@ function handleMenuTouchEnd(): void {
             @touchcancel="handleMenuTouchEnd"
           >
             <!-- drag handle -->
-            <div class="mx-auto mt-3 h-1.5 w-14 flex-none cursor-grab rounded-full bg-black/10 active:cursor-grabbing" />
+            <div class="mx-auto mt-2 h-1 w-10 flex-none cursor-grab rounded-full bg-black/10 active:cursor-grabbing" />
 
             <!-- header -->
             <header class="flex flex-none items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
-              <h2 class="text-base font-semibold">Menu nhanh</h2>
+              <h2 class="text-xl font-semibold text-slate-800">Menu nhanh</h2>
               <button class="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50" type="button" @click="closeMenu">
                 <X :size="16" />
               </button>

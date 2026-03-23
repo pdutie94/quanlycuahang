@@ -16,8 +16,13 @@ const formError = ref('')
 const form = reactive({
   name: '',
   code: '',
-  base_unit_id: 1,
+  unit_id: null as number | null,
   category_id: null as number | null,
+  price_sell: null as number | null,
+  price_cost: null as number | null,
+  allow_fraction: false,
+  min_step: 1,
+  qty: null as number | null,
   min_stock_qty: null as number | null,
 })
 
@@ -29,9 +34,14 @@ onMounted(async () => {
     const data = await productService.getById(id.value)
     form.name = data.name
     form.code = data.code
-    form.base_unit_id = data.base_unit_id
+    form.unit_id = data.base_unit_id
     form.category_id = data.category_id
-    form.min_stock_qty = data.min_stock_qty
+    form.price_sell = data.price_sell || null
+    form.price_cost = data.price_cost || null
+    form.allow_fraction = !!data.allow_fraction
+    form.min_step = data.min_step || 1
+    form.qty = data.inventory_qty_base || null
+    form.min_stock_qty = data.min_stock_qty || null
   } catch {
     formError.value = 'Không tải được dữ liệu sản phẩm.'
   } finally {
@@ -42,11 +52,20 @@ onMounted(async () => {
 async function handleSubmit(): Promise<void> {
   formError.value = ''
   try {
+    if (!form.unit_id) {
+      formError.value = 'Vui lòng chọn đơn vị tính.'
+      return
+    }
     const payload = {
       name: form.name.trim(),
       code: form.code.trim() || undefined,
-      base_unit_id: Number(form.base_unit_id),
+      base_unit_id: Number(form.unit_id),
       category_id: form.category_id,
+      price_sell: form.price_sell,
+      price_cost: form.price_cost,
+      allow_fraction: form.allow_fraction,
+      min_step: form.allow_fraction ? form.min_step : 1,
+      qty: form.qty,
       min_stock_qty: form.min_stock_qty,
     }
 
@@ -73,37 +92,64 @@ async function handleSubmit(): Promise<void> {
     <form class="space-y-4 rounded-2xl border border-black/10 bg-white p-4 shadow-sm" @submit.prevent="handleSubmit">
       <div>
         <label class="mb-1 block text-sm font-medium text-gray-700">Tên sản phẩm</label>
-        <input v-model="form.name" type="text" class="w-full rounded-xl border border-gray-300 p-3" required />
+        <input v-model="form.name" type="text" class="w-full rounded-xl border border-gray-300 p-2" required />
       </div>
-
       <div>
         <label class="mb-1 block text-sm font-medium text-gray-700">Mã sản phẩm</label>
-        <input v-model="form.code" type="text" class="w-full rounded-xl border border-gray-300 p-3" placeholder="Để trống để tự sinh" />
+        <input v-model="form.code" type="text" class="w-full rounded-xl border border-gray-300 p-2" placeholder="Để trống để tự sinh" />
       </div>
-
       <div>
-        <label class="mb-1 block text-sm font-medium text-gray-700">ID đơn vị cơ bản</label>
-        <input v-model.number="form.base_unit_id" type="number" min="1" class="w-full rounded-xl border border-gray-300 p-3" required />
+        <label class="mb-1 block text-sm font-medium text-gray-700">Đơn vị tính</label>
+        <select v-model="form.unit_id" class="w-full rounded-xl border border-gray-300 p-2 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white" required>
+          <option value="">Chọn đơn vị</option>
+          <option value="1">Cái</option>
+          <option value="2">Kg</option>
+          <option value="3">Lít</option>
+        </select>
       </div>
-
       <div>
-        <label class="mb-1 block text-sm font-medium text-gray-700">ID danh mục (tùy chọn)</label>
-        <input v-model.number="form.category_id" type="number" min="1" class="w-full rounded-xl border border-gray-300 p-3" />
+        <label class="mb-1 block text-sm font-medium text-gray-700">Danh mục</label>
+        <select v-model="form.category_id" class="w-full rounded-xl border border-gray-300 p-2 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white">
+          <option value="">Chưa phân loại</option>
+          <option value="1">Đồ uống</option>
+          <option value="2">Thực phẩm</option>
+        </select>
       </div>
-
+      <hr class="my-4 border-gray-200" />
       <div>
-        <label class="mb-1 block text-sm font-medium text-gray-700">Tồn tối thiểu</label>
-        <input v-model.number="form.min_stock_qty" type="number" step="0.0001" min="0" class="w-full rounded-xl border border-gray-300 p-3" />
+        <div class="mb-2 font-semibold text-gray-800">Giá sản phẩm</div>
+        <label class="mb-1 block text-sm font-medium text-gray-700">Giá bán</label>
+        <input v-model.number="form.price_sell" type="number" min="0" class="w-full rounded-xl border border-gray-300 p-2" required />
       </div>
-
-      <p v-if="formError" class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{{ formError }}</p>
-
+      <div>
+        <label class="mb-1 block text-sm font-medium text-gray-700">Giá nhập</label>
+        <input v-model.number="form.price_cost" type="number" min="0" class="w-full rounded-xl border border-gray-300 p-2" required />
+      </div>
+      <div class="flex items-center gap-2">
+        <input id="allow_fraction" v-model="form.allow_fraction" type="checkbox" class="h-4 w-4 rounded border-gray-300" />
+        <label for="allow_fraction" class="text-sm font-medium text-gray-700">Cho phép bán lẻ (số lượng thập phân)</label>
+      </div>
+      <div v-if="form.allow_fraction">
+        <label class="mb-1 block text-sm font-medium text-gray-700">Bước lẻ nhỏ nhất</label>
+        <input v-model.number="form.min_step" type="number" min="0.01" step="0.01" class="w-full rounded-xl border border-gray-300 p-2" />
+      </div>
+      <hr class="my-4 border-gray-200" />
+      <div>
+        <div class="mb-2 font-semibold text-gray-800">Tồn kho</div>
+        <label class="mb-1 block text-sm font-medium text-gray-700">Số lượng tồn kho</label>
+        <input v-model.number="form.qty" type="number" min="0" class="w-full rounded-xl border border-gray-300 p-2" />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-gray-700">Ngưỡng tồn kho thấp</label>
+        <input v-model.number="form.min_stock_qty" type="number" min="0" class="w-full rounded-xl border border-gray-300 p-2" />
+      </div>
       <div class="flex items-center gap-2">
         <button type="submit" class="rounded-xl bg-pine px-4 py-2 font-medium text-white" :disabled="products.saving || loading">
           {{ products.saving ? 'Đang lưu...' : 'Lưu' }}
         </button>
         <RouterLink to="/products" class="rounded-xl border border-black/15 px-4 py-2 text-sm">Hủy</RouterLink>
       </div>
+    <!-- end form -->
     </form>
   </section>
 </template>

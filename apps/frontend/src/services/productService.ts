@@ -26,6 +26,12 @@ export type Product = {
   base_unit_id: number
   base_unit_name: string
   min_stock_qty: number | null
+  price_sell: number | null
+  price_cost: number | null
+  allow_fraction: boolean
+  min_step: number
+  qty: number | null
+  unit_id?: number | null
   created_at: string
   updated_at: string | null
   inventory_qty_base: number
@@ -37,6 +43,12 @@ export type ProductPayload = {
   category_id?: number | null
   base_unit_id: number
   min_stock_qty?: number | null
+  price_sell?: number | null
+  price_cost?: number | null
+  allow_fraction?: boolean
+  min_step?: number
+  qty?: number | null
+  unit_id?: number | null
 }
 
 export const productService = {
