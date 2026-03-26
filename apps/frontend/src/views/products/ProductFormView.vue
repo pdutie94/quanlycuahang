@@ -1,5 +1,46 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+
+import { MoreVertical, ChevronLeft, Trash2 } from 'lucide-vue-next'
+const showMenu = ref(false)
+const menuBtnRef = ref<HTMLElement | null>(null)
+const menuDropdownRef = ref<HTMLElement | null>(null)
+
+
+function handleMenuClick() {
+  showMenu.value = !showMenu.value
+}
+
+function handleClickOutside(event: MouseEvent) {
+  const target = event.target as Node
+  if (
+    showMenu.value &&
+    !menuBtnRef.value?.contains(target) &&
+    !menuDropdownRef.value?.contains(target)
+  ) {
+    showMenu.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('mousedown', handleClickOutside)
+  // ...existing code...
+})
+onUnmounted(() => {
+  document.removeEventListener('mousedown', handleClickOutside)
+  // ...existing code...
+})
+async function handleDeleteProduct() {
+  showMenu.value = false
+  if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return
+  try {
+    await products.remove(id.value)
+    alert('Đã xóa sản phẩm thành công!')
+    await router.push('/products')
+  } catch (e) {
+    alert('Không thể xóa sản phẩm.')
+  }
+}
 import { useRoute, useRouter } from 'vue-router'
 import { useProductsStore } from '../../stores/products'
 import { productService } from '../../services/productService'
@@ -114,17 +155,34 @@ async function handleSubmit(): Promise<void> {
 
     <Teleport v-if="stickyTeleportTarget" :to="stickyTeleportTarget">
      <div
-      class="py-2 transition-colors duration-200"
+      class="py-2 transition-colors duration-200 text-gray-700"
       :class="isScrolled ? 'border-b border-slate-200 bg-white/95 backdrop-blur-sm' : 'border-b border-transparent bg-transparent'"
     >
       <div class="app-content-wrap px-4">
-          <h2 class="text-xl font-semibold">{{ isEdit ? 'Sửa sản phẩm' : 'Thêm sản phẩm' }}</h2>
+        <div class="flex items-center gap-2">
+          <button @click="router.back()" class="flex items-center justify-center">
+            <ChevronLeft :size="22" />
+          </button>
+          <h2 class="flex-1 truncate text-xl font-semibold text-slate-900 text-left">{{ isEdit ? 'Sửa sản phẩm' : 'Thêm sản phẩm' }}</h2>
+          <div class="relative">
+            <button ref="menuBtnRef" class="app-dropdown-menu flex items-center justify-center" @click="handleMenuClick">
+              <MoreVertical :size="22" />
+            </button>
+            <div
+              v-if="showMenu"
+              ref="menuDropdownRef"
+              class="absolute right-0 mt-2 w-48 rounded-xl border border-slate-200 bg-white py-1 shadow-xl z-50 overflow-hidden"
+            >
+              <button @click="handleDeleteProduct" class="flex w-full items-center gap-2 px-3 py-1 text-left text-sm text-rose-600 hover:bg-rose-50">
+                <Trash2 :size="16" />
+                Xóa sản phẩm
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       </div>
     </Teleport>
-    <div v-else class="app-content-wrap mb-3 px-4">
-      <h2 class="text-xl font-semibold">{{ isEdit ? 'Sửa sản phẩm' : 'Thêm sản phẩm' }}</h2>
-    </div>
 
     <form class="space-y-4 rounded-2xl border border-black/10 bg-white p-4 shadow-sm" @submit.prevent="handleSubmit">
       <div>
