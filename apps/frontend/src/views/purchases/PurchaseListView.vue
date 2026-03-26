@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { usePurchasesStore } from '../../stores/purchases'
 import { formatMoney } from '../../lib/format'
-import PullToRefresh from '../../components/PullToRefresh.vue'
 import SkeletonBlock from '../../components/SkeletonBlock.vue'
 
 const purchases = usePurchasesStore()

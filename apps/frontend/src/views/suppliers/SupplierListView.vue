@@ -2,7 +2,6 @@
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useSuppliersStore } from '../../stores/suppliers'
-import PullToRefresh from '../../components/PullToRefresh.vue'
 import SkeletonBlock from '../../components/SkeletonBlock.vue'
 
 const suppliers = useSuppliersStore()

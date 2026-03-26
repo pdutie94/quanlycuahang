@@ -2,7 +2,6 @@
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useOrdersStore } from '../../stores/orders'
-import PullToRefresh from '../../components/PullToRefresh.vue'
 import SkeletonBlock from '../../components/SkeletonBlock.vue'
 import OrderSummaryCard from '../../components/orders/OrderSummaryCard.vue'
 import OrderPreviewModal from '../../components/orders/OrderPreviewModal.vue'

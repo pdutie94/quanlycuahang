@@ -2,7 +2,6 @@
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCustomersStore } from '../../stores/customers'
-import PullToRefresh from '../../components/PullToRefresh.vue'
 import SkeletonBlock from '../../components/SkeletonBlock.vue'
 
 const customers = useCustomersStore()
@@ -26,13 +25,9 @@ async function handleDelete(id: number): Promise<void> {
   await customers.remove(id)
 }
 
-async function handleRefresh(): Promise<void> {
-  await customers.fetchList({ page: 1, search: keyword.value.trim() || undefined })
-}
 </script>
 
 <template>
-  <PullToRefresh @refresh="handleRefresh">
   <section class="space-y-4">
     <header class="flex flex-wrap items-center justify-between gap-3">
       <div>
@@ -83,5 +78,4 @@ async function handleRefresh(): Promise<void> {
       </div>
     </div>
   </section>
-  </PullToRefresh>
 </template>
