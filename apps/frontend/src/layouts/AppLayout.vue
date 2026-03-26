@@ -5,6 +5,24 @@ import { House, ShoppingCart, Package, PieChart, Menu, X, UserRound, LogOut } fr
 import { useAuthStore } from '../stores/auth'
 import { useUiStore } from '../stores/ui'
 
+
+// Danh sách các route cần show app-title-host
+const showTitleHostRoutes = [
+  '/products',
+  '/customers',
+  '/purchases',
+  '/orders',
+  '/suppliers',
+]
+const hideStickyHostRoutes = [
+  '/',
+  '/login',
+  '/dashboard',
+]
+
+const shouldHideStickyHost = computed(() => hideStickyHostRoutes.includes(route.path))
+const shouldShowTitleHost = computed(() => showTitleHostRoutes.includes(route.path))
+
 const auth = useAuthStore()
 const ui = useUiStore()
 const router = useRouter()
@@ -187,8 +205,8 @@ function handleMenuTouchEnd(): void {
 
 <template>
   <div class="app-shell min-h-screen bg-slate-50 text-slate-900">
-    <header class="app-topbar border-b border-slate-200 bg-white px-4 py-2">
-      <div class="app-content-wrap flex items-center justify-between gap-3 px-0">
+    <header class="app-topbar border-b border-slate-200 bg-white py-2">
+      <div class="app-content-wrap flex items-center justify-between gap-3 px-4">
         <div class="flex items-center gap-2">
           <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-500">
             <House :size="14" />
@@ -207,9 +225,9 @@ function handleMenuTouchEnd(): void {
     </header>
 
     <div class="flex min-h-[calc(100vh-49px)] w-full flex-col">
-      <main class="relative flex-1 py-5 pb-24">
-        <div v-show="route.name === 'products-list'" id="app-sticky-title-host"></div>
-        <div id="app-sticky-filter-host" class="sticky top-0 z-20 mb-3"></div>
+      <main class="relative flex-1 pb-24">
+        <div v-if="shouldShowTitleHost" :class="'pt-4'" id="app-title-host"></div>
+        <div v-if="!shouldHideStickyHost" id="app-sticky-host" class="sticky top-0 z-20 mb-3"></div>
         <div class="app-content-wrap route-stage px-4">
           <RouterView v-slot="{ Component, route }">
             <transition :name="transitionName" mode="out-in">

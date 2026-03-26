@@ -26,12 +26,12 @@ const emit = defineEmits<{
 
 const isScrolled = ref(false)
 const titleTeleportTarget = ref<string | null>(null)
-const filterTeleportTarget = ref<string | null>(null)
-let filterHostEl: HTMLElement | null = null
+const stickyTeleportTarget = ref<string | null>(null)
+let stickyHostEl: HTMLElement | null = null
 
 function updateScrolledState(): void {
-  if (filterHostEl) {
-    isScrolled.value = filterHostEl.getBoundingClientRect().top <= 0
+  if (stickyHostEl) {
+    isScrolled.value = stickyHostEl.getBoundingClientRect().top <= 0
     return
   }
 
@@ -39,9 +39,9 @@ function updateScrolledState(): void {
 }
 
 onMounted(() => {
-  titleTeleportTarget.value = document.getElementById('app-sticky-title-host') ? '#app-sticky-title-host' : null
-  filterTeleportTarget.value = document.getElementById('app-sticky-filter-host') ? '#app-sticky-filter-host' : null
-  filterHostEl = document.getElementById('app-sticky-filter-host')
+  titleTeleportTarget.value = document.getElementById('app-title-host') ? '#app-title-host' : null
+  stickyTeleportTarget.value = document.getElementById('app-sticky-host') ? '#app-sticky-host' : null
+  stickyHostEl = document.getElementById('app-sticky-host')
   updateScrolledState()
   window.addEventListener('scroll', updateScrolledState, { passive: true })
   window.addEventListener('resize', updateScrolledState, { passive: true })
@@ -86,7 +86,7 @@ function clearAllFilters(): void {
     </header>
   </Teleport>
 
-  <Teleport v-if="filterTeleportTarget" :to="filterTeleportTarget">
+  <Teleport v-if="stickyTeleportTarget" :to="stickyTeleportTarget">
     <div
       class="py-2 transition-colors duration-200"
       :class="isScrolled ? 'border-b border-slate-200 bg-white/95 backdrop-blur-sm' : 'border-b border-transparent bg-transparent'"
@@ -149,7 +149,7 @@ function clearAllFilters(): void {
     </div>
   </Teleport>
 
-  <div v-if="!titleTeleportTarget || !filterTeleportTarget">
+  <div v-if="!titleTeleportTarget || !stickyTeleportTarget">
     <header class="mb-3 flex items-start justify-between gap-3">
       <div>
         <h2 class="text-2xl font-semibold leading-none text-slate-900">Sản phẩm</h2>

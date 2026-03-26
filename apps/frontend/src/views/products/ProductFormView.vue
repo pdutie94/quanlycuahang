@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProductsStore } from '../../stores/products'
 import { productService } from '../../services/productService'
@@ -12,6 +12,19 @@ const id = computed(() => Number(route.params.id || 0))
 const isEdit = computed(() => id.value > 0)
 const loading = ref(false)
 const formError = ref('')
+const stickyTeleportTarget = ref<string | null>(null)
+
+const isScrolled = ref(false)
+let stickyHostEl: HTMLElement | null = null
+function updateScrolledState(): void {
+  if (stickyHostEl) {
+    isScrolled.value = stickyHostEl.getBoundingClientRect().top <= 0
+    return
+  }
+
+  isScrolled.value = window.scrollY > 0
+}
+
 
 const form = reactive({
   name: '',
@@ -27,6 +40,13 @@ const form = reactive({
 })
 
 onMounted(async () => {
+  // Xác định target teleport tiêu đề sticky
+  stickyTeleportTarget.value = document.getElementById('app-sticky-host') ? '#app-sticky-host' : null
+  stickyHostEl = document.getElementById('app-sticky-host')
+  updateScrolledState()
+  window.addEventListener('scroll', updateScrolledState, { passive: true })
+  window.addEventListener('resize', updateScrolledState, { passive: true })
+
   if (!isEdit.value) return
   loading.value = true
   formError.value = ''
@@ -47,6 +67,13 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+})
+
+onUnmounted(() => {
+  stickyTeleportTarget.value = null
+  stickyHostEl = null
+  window.removeEventListener('scroll', updateScrolledState)
+  window.removeEventListener('resize', updateScrolledState)
 })
 
 async function handleSubmit(): Promise<void> {
@@ -84,10 +111,20 @@ async function handleSubmit(): Promise<void> {
 
 <template>
   <section class="space-y-4">
-    <header>
-      <h2 class="text-xl font-semibold">{{ isEdit ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm' }}</h2>
-      <p class="text-sm text-ink/60">Điền thông tin cơ bản cho sản phẩm.</p>
-    </header>
+
+    <Teleport v-if="stickyTeleportTarget" :to="stickyTeleportTarget">
+     <div
+      class="py-2 transition-colors duration-200"
+      :class="isScrolled ? 'border-b border-slate-200 bg-white/95 backdrop-blur-sm' : 'border-b border-transparent bg-transparent'"
+    >
+      <div class="app-content-wrap px-4">
+          <h2 class="text-xl font-semibold">{{ isEdit ? 'Sửa sản phẩm' : 'Thêm sản phẩm' }}</h2>
+      </div>
+      </div>
+    </Teleport>
+    <div v-else class="app-content-wrap mb-3 px-4">
+      <h2 class="text-xl font-semibold">{{ isEdit ? 'Sửa sản phẩm' : 'Thêm sản phẩm' }}</h2>
+    </div>
 
     <form class="space-y-4 rounded-2xl border border-black/10 bg-white p-4 shadow-sm" @submit.prevent="handleSubmit">
       <div>
