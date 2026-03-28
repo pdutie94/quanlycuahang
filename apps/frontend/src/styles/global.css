@@ -27,3 +27,9 @@
 .modal-sheet-panel.fullscreen .mx-auto.cursor-grab {
   cursor: none !important;
 }
+
+/* Hide outline for all input, select, textarea fields in product forms */
+input:focus, select:focus, textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
