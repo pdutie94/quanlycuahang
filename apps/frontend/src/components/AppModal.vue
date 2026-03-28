@@ -53,7 +53,10 @@ const panelStyle = computed(() => {
     return { transition: tr, height: '100dvh' }
   }
 
-  const style: Record<string, string> = { transition: tr, maxHeight: '90dvh' }
+  // Nếu đang swipe lên (drag up) và chưa full, bỏ maxHeight để cho phép kéo vượt 90dvh
+  const isDragUp = isDragging.value && panelH.value > 0 && panelH.value > (window.innerHeight * 0.9)
+  const style: Record<string, string> = { transition: tr }
+  if (!isDragUp) style.maxHeight = '90dvh'
   if (panelH.value > 0)  style.height    = `${panelH.value}px`
   if (dragY.value > 0)   style.transform = `translateY(${dragY.value}px)`
   return style
@@ -94,6 +97,11 @@ function onTouchStart(e: TouchEvent) {
   lastTime     = Date.now()
   velocityY    = 0
   isDragging.value = false
+
+  // Nếu modal đang ở maxHeight (90dvh) và chưa full, cho phép swipe lên để expand
+  if (!isExpanded.value && Math.abs(startHeight - window.innerHeight * 0.9) < 2) {
+    isDragging.value = true
+  }
 }
 
 function onTouchMove(e: TouchEvent) {
@@ -114,9 +122,10 @@ function onTouchMove(e: TouchEvent) {
     if (isExpanded.value && pullingDown) {
       return // Không cho phép kéo xuống khi đã full screen
     }
-    if (pullingDown && bodyAtTop) {
+    // Cho phép swipe lên để expand nếu modal đã đạt max chiều cao (trường hợp màn hình nhỏ)
+    if (!isExpanded.value && !pullingDown) {
       isDragging.value = true
-    } else if (!pullingDown && !isExpanded.value) {
+    } else if (pullingDown && bodyAtTop) {
       isDragging.value = true
     } else {
       return  // let body scroll naturally
@@ -183,8 +192,10 @@ function onTouchEnd() {
     return
   }
 
+  // Nếu panelH đã vượt qua 90dvh hoặc lớn hơn 0.9*window.innerHeight, cho phép expand full screen
   const grew = panelH.value - startHeight
-  if (grew > EXPAND_THRESHOLD || velocityY < -CLOSE_VELOCITY) {
+  const reachedFull = panelH.value >= window.innerHeight * 0.98
+  if (grew > EXPAND_THRESHOLD || velocityY < -CLOSE_VELOCITY || reachedFull) {
     isExpanded.value = true
     panelH.value     = 0
   } else {
@@ -211,7 +222,10 @@ function onTouchEnd() {
           @touchcancel="onTouchEnd"
         >
           <!-- drag handle -->
-          <div class="mx-auto mt-2 h-1 w-10 flex-none cursor-grab rounded-full bg-black/10 active:cursor-grabbing" />
+          <div
+            v-if="!isExpanded"
+            class="mx-auto mt-2 h-1 w-10 flex-none cursor-grab rounded-full bg-black/10 active:cursor-grabbing"
+          />
 
           <!-- header -->
           <header class="flex flex-none items-center gap-3 border-b border-slate-200 px-4 py-3">
