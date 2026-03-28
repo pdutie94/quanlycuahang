@@ -63,7 +63,7 @@ const panelClass = computed(() => {
   // Keep full-screen corner style through collapse drag, then switch after collapse.
   const full = isExpanded.value
   return full
-    ? 'modal-sheet-panel flex w-full flex-col rounded-none bg-white'
+    ? 'modal-sheet-panel fullscreen flex w-full flex-col rounded-none bg-white'
     : 'modal-sheet-panel flex w-full flex-col rounded-t-3xl bg-white'
 })
 
@@ -73,6 +73,9 @@ watch(() => props.open, (v) => {
     isExpanded.value = false
     dragY.value      = 0
     panelH.value     = 0
+    document.body.classList.remove('modal-open')
+  } else {
+    document.body.classList.add('modal-open')
   }
 })
 
@@ -211,19 +214,21 @@ function onTouchEnd() {
           <div class="mx-auto mt-2 h-1 w-10 flex-none cursor-grab rounded-full bg-black/10 active:cursor-grabbing" />
 
           <!-- header -->
-          <header class="flex flex-none items-start gap-3 border-b border-slate-200 px-4 py-3">
+          <header class="flex flex-none items-center gap-3 border-b border-slate-200 px-4 py-3">
             <div class="flex-1">
               <slot name="header">
-                <h3 v-if="title" class="text-xl font-semibold text-slate-800">{{ title }}</h3>
-                <p v-if="subtitle" class="mt-0.5 text-sm text-slate-500">{{ subtitle }}</p>
+                <h3 v-if="title" class="text-lg font-semibold text-slate-800">{{ title }}</h3>
+                <p v-if="subtitle" class="text-xs text-slate-500">{{ subtitle }}</p>
               </slot>
             </div>
             <button
               type="button"
-              class="mt-0.5 flex-none rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50"
+              class="text-slate-500 hover:bg-slate-100 focus:outline-none"
+              style="width: 20px; height: 20px; min-width: 20px; min-height: 20px; border: none; padding: 0; margin-left: 8px;"
               @click="handleClose"
+              aria-label="Đóng"
             >
-              <X :size="16" />
+              <X :size="20" />
             </button>
           </header>
 
@@ -241,3 +246,32 @@ function onTouchEnd() {
     </Transition>
   </Teleport>
 </template>
+
+<style scoped>
+/* 1. Ngăn scroll body khi modal mở */
+.modal-open {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+/* 2. Thu nhỏ scroll bar trong modal body */
+.modal-body {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.modal-body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+/* 3. Ẩn cursor-grab khi full screen modal */
+.modal-sheet-panel.fullscreen .mx-auto.cursor-grab {
+  cursor: none !important;
+}
+</style>

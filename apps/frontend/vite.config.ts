@@ -10,6 +10,8 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    host: 'quanlycuahang.test',
+    origin: 'http://quanlycuahang.test',
     proxy: {
       '/api': {
         target: 'http://localhost',
