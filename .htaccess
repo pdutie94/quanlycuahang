@@ -1,3 +1,4 @@
+
 RewriteEngine On
 
 # Chặn index bởi search engine ở cấp HTTP header
@@ -17,47 +18,21 @@ RewriteRule ^api(?:/.*)?$ public/index.php [L,QSA]
 # Static assets: /assets/... -> /public/assets/...
 RewriteRule ^assets/(.*)$ public/assets/$1 [L]
 
-# Frontend build assets: /admin/... -> /public/admin/...
-RewriteRule ^admin/(.*)$ public/admin/$1 [L]
+# Frontend build assets: /admin/assets/... -> /public/admin/assets/...
+RewriteRule ^admin/assets/(.*)$ public/admin/assets/$1 [L]
 
 # Uploads: /uploads/... -> /public/uploads/...
 RewriteRule ^uploads/(.*)$ public/uploads/$1 [L]
 
-# Route thân thiện
-RewriteRule ^login$ public/index.php?r=auth/login [L,QSA]
-RewriteRule ^logout$ public/index.php?r=auth/logout [L,QSA]
-RewriteRule ^dashboard$ public/index.php?r=dashboard/index [L,QSA]
-
-RewriteRule ^product$ public/index.php?r=product/index [L,QSA]
-RewriteRule ^product/create$ public/index.php?r=product/create [L,QSA]
-RewriteRule ^product/edit$ public/index.php?r=product/edit [L,QSA]
-RewriteRule ^product/delete$ public/index.php?r=product/delete [L,QSA]
-RewriteRule ^migration$ public/index.php?r=migration/index [L,QSA]
-RewriteRule ^migration/apply$ public/index.php?r=migration/apply [L,QSA]
-RewriteRule ^migration/run$ public/index.php?r=migration/run [L,QSA]
-RewriteRule ^unit$ public/index.php?r=unit/index [L,QSA]
-RewriteRule ^unit/store$ public/index.php?r=unit/store [L,QSA]
-RewriteRule ^unit/update$ public/index.php?r=unit/update [L,QSA]
-RewriteRule ^unit/delete$ public/index.php?r=unit/delete [L,QSA]
-
-RewriteRule ^category$ public/index.php?r=category/index [L,QSA]
-RewriteRule ^category/create$ public/index.php?r=category/create [L,QSA]
-RewriteRule ^category/edit$ public/index.php?r=category/edit [L,QSA]
-RewriteRule ^category/store$ public/index.php?r=category/store [L,QSA]
-RewriteRule ^category/update$ public/index.php?r=category/update [L,QSA]
-RewriteRule ^category/delete$ public/index.php?r=category/delete [L,QSA]
-
-RewriteRule ^pos$ public/index.php?r=pos/index [L,QSA]
-
-# Catch-all for SPA routing: rewrite non-existent files/dirs to public/index.php
+# SPA: /admin/... (trừ assets) -> /public/admin/index.html (history mode)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ public/index.php [L,QSA]
+RewriteRule ^admin($|/.*) public/admin/index.html [L]
 
-RewriteRule ^order$ public/index.php?r=orderList/index [L,QSA]
-RewriteRule ^order/delete$ public/index.php?r=orderList/delete [L,QSA]
-RewriteRule ^order/restore$ public/index.php?r=orderList/restore [L,QSA]
-RewriteRule ^order/purgeDeleted$ public/index.php?r=orderList/purgeDeleted [L,QSA]
+# Catch-all cho API hoặc fallback
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . public/index.php [L]
 RewriteRule ^order/view$ public/index.php?r=orderDetail/view [L,QSA]
 RewriteRule ^order/preview$ public/index.php?r=orderDetail/preview [L,QSA]
 RewriteRule ^order/invoice$ public/index.php?r=orderDetail/invoice [L,QSA]
