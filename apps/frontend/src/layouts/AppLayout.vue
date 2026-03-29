@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router'
-import { House, ShoppingCart, Package, PieChart, Menu, X, UserRound, LogOut, Users, ClipboardList, FileBarChart2, Layers, Tag, Ruler, Truck, User2 } from 'lucide-vue-next'
+import { House, ShoppingCart, Package, PieChart, Menu, UserRound, LogOut, Users, ClipboardList, FileBarChart2, Layers, Tag, Ruler, Truck } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/auth'
 import { useUiStore } from '../stores/ui'
 import AppModal from '../components/AppModal.vue'

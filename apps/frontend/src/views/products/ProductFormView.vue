@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 
-import { MoreVertical, ChevronLeft, Trash2, Package, Layers, DollarSign, AlertCircle, Archive } from 'lucide-vue-next'
+import { MoreVertical, ChevronLeft, Trash2, Package, Layers, DollarSign } from 'lucide-vue-next'
 const showMenu = ref(false)
 const menuBtnRef = ref<HTMLElement | null>(null)
 const menuDropdownRef = ref<HTMLElement | null>(null)
