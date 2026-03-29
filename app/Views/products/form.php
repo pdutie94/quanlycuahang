@@ -31,23 +31,7 @@
 	<?php } ?>
 	<?php $hasImage = $product && !empty($product['image_path']); ?>
 	<div class="flex flex-col gap-4">
-		<div class="space-y-1">
-			<div class="flex items-start gap-2">
-            <button type="button" class="relative h-24 w-24 overflow-hidden rounded-lg border border-dashed border-slate-300 bg-slate-50 text-slate-400 text-sm flex items-center justify-center hover:border-brand-400 hover:text-brand-500" data-image-placeholder>
-                <img src="<?php echo $hasImage ? $basePath . '/' . htmlspecialchars($product['image_path']) : ''; ?>" alt="" data-image-preview class="<?php echo $hasImage ? 'h-full w-full object-cover' : 'hidden h-full w-full object-cover'; ?>">
-                <span data-image-placeholder-text class="px-1 <?php echo $hasImage ? 'hidden' : ''; ?>">Chọn ảnh sản phẩm</span>
-            </button>
-            <div class="flex flex-col items-center gap-2 <?php echo $hasImage ? '' : 'hidden'; ?>" data-image-actions>
-                <button type="button" class="inline-flex h-6 w-6 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100" data-image-delete>
-                    <?php echo ui_icon("x-mark", "size-4"); ?>
-
-
-                </button>
-            </div>
-			<input type="file" name="image" accept="image/*" class="hidden" data-image-input>
-			<input type="hidden" name="image_remove" value="0" data-image-remove>
-		</div>
-		</div>
+		
 		<div class="flex flex-col gap-4">
 			<div class="relative">
 				<label for="product-code" class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Mã sản phẩm (tùy chọn)</label>

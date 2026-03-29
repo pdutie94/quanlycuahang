@@ -230,10 +230,6 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 				<div class="divide-y divide-slate-100">
 					<?php foreach ($items as $item) { ?>
 						<?php
-						$productImage = '';
-						if (!empty($item['product_image_path'])) {
-							$productImage = $basePath . '/' . ltrim($item['product_image_path'], '/');
-						}
 						$productName = isset($item['product_name']) ? $item['product_name'] : '';
 						$qtyDisplay = rtrim(rtrim(number_format($item['qty'], 2, ',', ''), '0'), ',');
 						$qty = isset($item['qty']) ? (float) $item['qty'] : 0.0;
@@ -242,15 +238,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 						$itemProfit = $qty * ($priceSell - $priceCost);
 						?>
 						<div class="flex items-start gap-3 px-4 py-3 text-sm">
-							<div class="flex-shrink-0">
-							<?php if ($productImage !== '') { ?>
-								<img src="<?php echo htmlspecialchars($productImage); ?>" alt="<?php echo htmlspecialchars($productName); ?>" class="h-10 w-10 rounded-md object-cover">
-							<?php } else { ?>
-								<div class="flex h-10 w-10 items-center justify-center rounded-md bg-slate-100 text-sm font-medium text-slate-500">
-									<?php echo ui_icon("archive-box", "size-5"); ?>
-								</div>
-							<?php } ?>
-							</div>
+							<!-- Đã bỏ phần hiển thị ảnh sản phẩm -->
 							<div class="min-w-0 flex-1">
 								<div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
 									<div class="min-w-0">

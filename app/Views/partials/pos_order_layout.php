@@ -47,21 +47,8 @@ $isPos = $layoutMode === 'pos';
                             }
                             ?>
 						<?php foreach ($items as $item) { ?>
-							<?php
-							$productImage = '';
-							if (!empty($item['product_image_path'])) {
-								$productImage = $basePath . '/' . ltrim($item['product_image_path'], '/');
-							}
-							?>
 							<div class="flex items-center justify-between gap-3 py-2 border-b border-slate-200 last:border-b-0" data-order-existing-item="1" data-order-item-id="<?php echo (int) $item['id']; ?>" data-product-id="<?php echo (int) $item['product_id']; ?>" data-product-unit-id="<?php echo (int) $item['product_unit_id']; ?>" data-base-qty="<?php echo isset($item['qty']) ? (float) $item['qty'] : 0; ?>" data-price="<?php echo isset($item['price_sell']) ? (float) $item['price_sell'] : 0; ?>" data-base-price="<?php echo isset($item['price_sell']) ? (float) $item['price_sell'] : 0; ?>">
 								<div class="flex items-center gap-3">
-									<div class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-slate-100 text-sm font-medium text-slate-400">
-									<?php if ($productImage !== '') { ?>
-										<img src="<?php echo htmlspecialchars($productImage); ?>" alt="<?php echo htmlspecialchars($item['product_name']); ?>" class="h-full w-full object-cover">
-									<?php } else { ?>
-										<?php echo ui_icon("archive-box", "size-6"); ?>
-									<?php } ?>
-									</div>
 									<div>
 									<div class="text-sm font-medium text-slate-900"><?php echo htmlspecialchars($item['product_name']); ?></div>
 									<div class="mt-0.5 text-sm text-slate-500">

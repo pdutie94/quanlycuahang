@@ -108,15 +108,7 @@ if ($categoryId < 0) {
 			?>
 			<div class="relative cursor-pointer rounded-card border border-slate-200 bg-white px-3 py-2.5 transition-colors hover:border-brand-200" data-product-edit-row data-url="<?php echo $basePath; ?>/product/edit?id=<?php echo $product['id']; ?>" data-infinite-item>
 				<div class="flex items-center gap-2.5">
-					<div class="flex-none">
-						<?php if (!empty($product['image_path'])) { ?>
-							<img src="<?php echo $basePath . '/' . htmlspecialchars($product['image_path']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="h-10 w-10 rounded-xl object-cover border border-slate-200">
-						<?php } else { ?>
-							<div class="h-10 w-10 rounded-xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300">
-								<?php echo ui_icon("archive-box", "size-5"); ?>
-							</div>
-						<?php } ?>
-					</div>
+					<!-- Đã bỏ phần hiển thị ảnh sản phẩm ở danh sách -->
 					<div class="flex-1 min-w-0">
 						<div class="flex items-center justify-between gap-x-2">
 							<div class="truncate text-sm font-medium text-slate-900"><?php echo htmlspecialchars($product['name']); ?></div>

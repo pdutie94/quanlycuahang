@@ -979,67 +979,7 @@
         });
     }
 
-    function initImageUpload() {
-        var $imageInput = $('[data-image-input]');
-        var $imagePlaceholder = $('[data-image-placeholder]');
-        var $imagePreview = $('[data-image-preview]');
-        var $imagePlaceholderText = $('[data-image-placeholder-text]');
-        var $imageActions = $('[data-image-actions]');
-        var $imageEditButton = $('[data-image-edit]');
-        var $imageDeleteButton = $('[data-image-delete]');
-        var $imageRemoveInput = $('[data-image-remove]');
-
-        if ($imagePlaceholder.length && $imageInput.length) {
-            $imagePlaceholder.on('click', function (e) {
-                e.preventDefault();
-                $imageInput.trigger('click');
-            });
-        }
-
-        if ($imageEditButton.length && $imageInput.length) {
-            $imageEditButton.on('click', function (e) {
-                e.preventDefault();
-                $imageInput.trigger('click');
-            });
-        }
-
-        if ($imageDeleteButton.length && $imagePreview.length && $imagePlaceholderText.length) {
-            $imageDeleteButton.on('click', function (e) {
-                e.preventDefault();
-                if ($imageInput.length) {
-                    $imageInput.val('');
-                }
-                $imagePreview.attr('src', '').addClass('hidden');
-                $imagePlaceholderText.removeClass('hidden');
-                if ($imageActions.length) {
-                    $imageActions.addClass('hidden');
-                }
-                if ($imageRemoveInput.length) {
-                    $imageRemoveInput.val('1');
-                }
-            });
-        }
-
-        if ($imageInput.length && $imagePreview.length && $imagePlaceholderText.length && window.FileReader) {
-            $imageInput.on('change', function () {
-                var file = this.files && this.files[0];
-                if (!file) return;
-                if (file.type && file.type.indexOf('image/') !== 0) return;
-                var reader = new FileReader();
-                reader.onload = function (event) {
-                    $imagePreview.attr('src', event.target.result).removeClass('hidden');
-                    $imagePlaceholderText.addClass('hidden');
-                    if ($imageActions.length) {
-                        $imageActions.removeClass('hidden');
-                    }
-                    if ($imageRemoveInput.length) {
-                        $imageRemoveInput.val('0');
-                    }
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-    }
+    // Đã xóa toàn bộ function xử lý upload/hiển thị ảnh sản phẩm
 
 	function initProductInventoryUnit() {
 		var $baseUnitSelect = $('select[name="base_unit_id"]');
@@ -1559,7 +1499,7 @@
 				} else {
                     $thumb.html(appIcon('archive-box', 'size-5'));
 				}
-				$left.append($thumb);
+				// $left.append($thumb);
 
 				var $text = $('<div>', { "class": 'min-w-0' });
                 var $name = $('<div>', { "class": 'truncate font-medium text-slate-800' }).text(item.label || '');
@@ -2256,7 +2196,7 @@
 		
             var $qtyWrapper = $('<div>', { "class": 'mt-1' }).append($qtyGroup);
 			$info.append($productText).append($unitInfo).append($qtyWrapper);
-			$left.append($thumb).append($info);
+			$left.append($info);
 		
 			var $right = $('<div>', { "class": 'flex flex-col items-end justify-between gap-2 flex-1' });
 			var $topRow = $('<div>', { "class": 'flex w-full justify-end' });
@@ -3915,7 +3855,7 @@
 				var $qtyWrapper = $('<div>', { "class": 'mt-1' }).append($qtyGroup);
                 $info.append($qtyWrapper);
 
-                $left.append($thumb).append($info);
+                $left.append($info);
 
                 var $right = $('<div>', { "class": 'flex flex-col items-end justify-between gap-2 flex-1' });
                 var $topRow = $('<div>', { "class": 'flex w-full justify-end' });
@@ -5179,7 +5119,6 @@
         initUnitRows();
         initPurchaseItemRows();
         initProductList();
-        initImageUpload();
 		initProductInventoryUnit();
         initAppMenu();
         initMigration(appBasePath);
