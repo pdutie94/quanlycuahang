@@ -6,13 +6,13 @@
         <?php } ?>
         <form method="post" class="rounded-lg bg-white px-4 py-5  border border-slate-200 space-y-4">
             <input type="hidden" hidden name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-            <div class="relative">
-                <label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Tài khoản</label>
-                <input type="text" name="username" value="admin" required class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none ring-0 transition focus:border-brand-500" />
+            <div class="flex flex-col gap-1">
+                <label for="login-username" class="block text-sm text-slate-700">Tài khoản</label>
+                <input id="login-username" type="text" name="username" value="admin" required class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pb-2.5 text-sm outline-none ring-0 transition focus:border-brand-500" />
             </div>
-            <div class="relative">
-                <label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Mật khẩu</label>
-                <input type="password" name="password" required autofocus class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none ring-0 transition focus:border-brand-500" />
+            <div class="flex flex-col gap-1">
+                <label for="login-password" class="block text-sm text-slate-700">Mật khẩu</label>
+                <input id="login-password" type="password" name="password" required autofocus class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pb-2.5 text-sm outline-none ring-0 transition focus:border-brand-500" />
             </div>
             <button type="submit" class="mt-2 inline-flex h-[34px] min-h-[34px] w-full items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700 active:bg-brand-800">Đăng nhập</button>
         </form>

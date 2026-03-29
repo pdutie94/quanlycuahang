@@ -45,18 +45,18 @@
                             </span>
                         </button>
                     </div>
-                    <div class="relative hidden" data-pos-new-customer>
-						<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Tên khách hàng</label>
-	                        <input type="text" name="customer_name" value="" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500" />
-                    </div>
-                    <div class="relative hidden" data-pos-new-customer>
-						<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số điện thoại</label>
-	                        <input type="text" name="customer_phone" value="" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500" />
-                    </div>
-                    <div class="relative md:col-span-2 hidden" data-pos-new-customer>
-						<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Địa chỉ</label>
-	                        <input type="text" name="customer_address" value="" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500" />
-                    </div>
+					<div class="flex flex-col gap-1 hidden" data-pos-new-customer>
+						<label for="customer_name" class="block text-sm text-slate-700">Tên khách hàng</label>
+	                        <input id="customer_name" type="text" name="customer_name" value="" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm outline-none transition focus:border-brand-500" />
+	                    </div>
+					<div class="flex flex-col gap-1 hidden" data-pos-new-customer>
+						<label for="customer_phone" class="block text-sm text-slate-700">Số điện thoại</label>
+	                        <input id="customer_phone" type="text" name="customer_phone" value="" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm outline-none transition focus:border-brand-500" />
+	                    </div>
+					<div class="flex flex-col gap-1 md:col-span-2 hidden" data-pos-new-customer>
+						<label for="customer_address" class="block text-sm text-slate-700">Địa chỉ</label>
+	                        <input id="customer_address" type="text" name="customer_address" value="" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm outline-none transition focus:border-brand-500" />
+	                    </div>
 					<div class="space-y-1 md:col-span-2">
                         <label class="block text-sm text-slate-700">Thanh toán</label>
 						<div class="flex w-full rounded-xl bg-slate-100 p-0.5 text-sm text-slate-700">
@@ -78,23 +78,24 @@
 						include __DIR__ . '/payment_method_radios.php';
 						?>
                     </div>
-				<div class="relative md:col-span-2" data-pos-payment-method-wrapper>
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số tiền thanh toán</label>
-					<div class="relative">
-						<?php
-						ui_input_text('payment_amount', '0', [
-							'inputmode' => 'numeric',
-							'data-money-input' => '1',
-							'class' => 'pr-9 pt-3 pb-2.5 text-right text-base font-semibold tracking-tight',
-							]);
+					<div class="flex flex-col gap-1 md:col-span-2" data-pos-payment-method-wrapper>
+						<label for="payment_amount" class="block text-sm text-slate-700">Số tiền thanh toán</label>
+						<div class="relative">
+							<?php
+							ui_input_text('payment_amount', '0', [
+								'id' => 'payment_amount',
+								'inputmode' => 'numeric',
+								'data-money-input' => '1',
+								'class' => 'pr-9 py-2 text-right text-base font-semibold tracking-tight',
+								]);
 							?>
 							<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
 						</div>
 					</div>
-                    <div class="relative md:col-span-2">
-						<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Ghi chú</label>
-                        <textarea name="note" rows="3" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500"></textarea>
-                    </div>
+					<div class="flex flex-col gap-1 md:col-span-2">
+						<label for="note" class="block text-sm text-slate-700">Ghi chú</label>
+						<textarea id="note" name="note" rows="3" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm outline-none transition focus:border-brand-500"></textarea>
+					</div>
                 </div>
                 <input type="hidden" name="items_json" value="" data-pos-items-json>
 				<input type="hidden" name="discount_type" value="none" data-order-discount-type>

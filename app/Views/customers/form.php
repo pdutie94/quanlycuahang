@@ -28,19 +28,19 @@ $backUrl = $isEdit ? $basePath . '/customer/view?id=' . $customerId : $basePath 
 			<?php } ?>
 
 			<div class="flex flex-col gap-4">
-				<div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Tên khách hàng</label>
-					<input type="text" name="name" value="<?php echo htmlspecialchars($name); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 pt-3 pb-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white" required />
+				<div class="flex flex-col gap-1">
+					<label for="customer-name" class="block text-sm text-slate-700">Tên khách hàng</label>
+					<input id="customer-name" type="text" name="name" value="<?php echo htmlspecialchars($name); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 pb-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white" required />
 				</div>
 
-				<div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số điện thoại</label>
-					<input type="text" name="phone" value="<?php echo htmlspecialchars($phone); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 pt-3 pb-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white" />
+				<div class="flex flex-col gap-1">
+					<label for="customer-phone" class="block text-sm text-slate-700">Số điện thoại</label>
+					<input id="customer-phone" type="text" name="phone" value="<?php echo htmlspecialchars($phone); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 pb-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white" />
 				</div>
 
-				<div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Địa chỉ</label>
-					<input type="text" name="address" value="<?php echo htmlspecialchars($address); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 pt-3 pb-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white" />
+				<div class="flex flex-col gap-1">
+					<label for="customer-address" class="block text-sm text-slate-700">Địa chỉ</label>
+					<input id="customer-address" type="text" name="address" value="<?php echo htmlspecialchars($address); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 pb-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white" />
 				</div>
 
 				<div class="pt-2" data-floating-actions>

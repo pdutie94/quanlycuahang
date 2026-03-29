@@ -33,30 +33,30 @@
 	<div class="flex flex-col gap-4">
 		
 		<div class="flex flex-col gap-4">
-			<div class="relative">
-				<label for="product-code" class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Mã sản phẩm (tùy chọn)</label>
+			<div class="flex flex-col gap-1">
+				<label for="product-code" class="block text-sm text-slate-700">Mã sản phẩm (tùy chọn)</label>
 				<?php
 				$productCodeValue = $product ? $product['code'] : '';
 				ui_input_text('code', $productCodeValue, [
 					'id' => 'product-code',
 					'placeholder' => 'Bỏ trống để tự sinh theo tên (vd: san pham 1 -> sp1)',
-					'class' => 'pt-3 pb-2.5',
+					'class' => 'pb-2.5',
 				]);
 				?>
 			</div>
-			<div class="relative">
-				<label for="product-name" class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Tên sản phẩm</label>
+			<div class="flex flex-col gap-1">
+				<label for="product-name" class="block text-sm text-slate-700">Tên sản phẩm</label>
 				<?php
 				$productNameValue = $product ? $product['name'] : '';
 				ui_input_text('name', $productNameValue, [
 					'id' => 'product-name',
 					'required' => 'required',
-					'class' => 'pt-3 pb-2.5',
+					'class' => 'pb-2.5',
 				]);
 				?>
 			</div>
-			<div class="relative">
-				<label for="base-unit-id" class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Đơn vị tồn kho</label>
+			<div class="flex flex-col gap-1">
+				<label for="base-unit-id" class="block text-sm text-slate-700">Đơn vị tồn kho</label>
 				<div class="grid">
 					<?php
 					$baseUnitOptions = ['' => 'Chọn đơn vị'];
@@ -73,8 +73,8 @@
 					<span class="pointer-events-none col-start-1 row-start-1 mr-3 flex items-center justify-end text-slate-400"><?php echo ui_icon('chevron-down', 'h-4 w-4'); ?></span>
 				</div>
 			</div>
-			<div class="relative">
-				<label for="category-id" class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Danh mục</label>
+			<div class="flex flex-col gap-1">
+				<label for="category-id" class="block text-sm text-slate-700">Danh mục</label>
 				<div class="grid">
 					<?php
 					$categoryOptions = [];
@@ -147,8 +147,8 @@
     }
 	?>
 	<div class="mt-3 flex flex-col gap-4">
-		<div class="relative">
-			<label for="price-sell-single" class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Giá bán</label>
+		<div class="flex flex-col gap-1">
+			<label for="price-sell-single" class="block text-sm text-slate-700">Giá bán</label>
 			<div class="relative">
 				<?php
 				ui_input_text('price_sell_single', $displayPriceSell, [
@@ -161,8 +161,8 @@
 				<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
 			</div>
 		</div>
-		<div class="relative">
-			<label for="price-cost-single" class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Giá nhập</label>
+		<div class="flex flex-col gap-1">
+			<label for="price-cost-single" class="block text-sm text-slate-700">Giá nhập</label>
 			<div class="relative">
 				<?php
 				ui_input_text('price_cost_single', $displayPriceCost, [
@@ -182,13 +182,13 @@
                 <span class="text-sm text-slate-700">Cho phép bán lẻ (số lượng thập phân)</span>
             </div>
         </div>
-		<div class="relative max-w-xs">
-			<label for="min-step" class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Bước lẻ nhỏ nhất</label>
+		<div class="flex flex-col gap-1 max-w-xs">
+			<label for="min-step" class="block text-sm text-slate-700">Bước lẻ nhỏ nhất</label>
 			<?php
 			ui_input_text('min_step', $displayMinStep, [
 				'id' => 'min-step',
 				'placeholder' => 'Ví dụ: 0,1 hoặc 0,25',
-				'class' => 'pt-3 pb-2.5',
+				'class' => 'pb-2.5',
 			]);
 			?>
 		</div>
@@ -234,8 +234,8 @@
 		<h2 class="text-sm font-medium text-slate-800">Tồn kho</h2>
 		<p class="mt-1 text-sm text-slate-500">Thiết lập tồn kho ban đầu hoặc cập nhật số lượng hiện tại.</p>
 		<div class="mt-3 flex flex-col gap-4">
-			<div class="relative">
-				<label for="inventory-qty-base" class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số lượng</label>
+			<div class="flex flex-col gap-1">
+				<label for="inventory-qty-base" class="block text-sm text-slate-700">Số lượng</label>
 				<div class="relative">
 					<?php
 					ui_input_text('inventory_qty_base', $inventoryInputValue, [
@@ -246,8 +246,8 @@
 					<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400 max-w-[60%] truncate" data-inventory-unit-label><?php echo htmlspecialchars($baseUnitName); ?></span>
 				</div>
 			</div>
-			<div class="relative">
-				<label for="min-stock-qty" class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Ngưỡng tồn thấp</label>
+			<div class="flex flex-col gap-1">
+				<label for="min-stock-qty" class="block text-sm text-slate-700">Ngưỡng tồn thấp</label>
 				<div class="relative">
                     <?php
                     ui_input_text('min_stock_qty', $minStockInputValue, [
