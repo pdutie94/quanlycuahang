@@ -5,7 +5,8 @@ class UnitController extends Controller
     public function index()
     {
         $this->requireLogin();
-        $units = Unit::all();
+        $listData = UnitService::getUnitListData();
+        $units = $listData['units'];
         $this->render('units/index', [
             'title' => 'Đơn vị tính',
             'units' => $units,
@@ -22,15 +23,11 @@ class UnitController extends Controller
 
         $this->verifyCsrfToken();
 
-        $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-        if ($name !== '') {
-            Unit::create([
-                'name' => $name,
-            ]);
-            $this->setFlash('success', 'Đã thêm đơn vị tính.');
+        $result = UnitService::createUnit($_POST);
+        if (!empty($result['message'])) {
+            $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
         }
-
-        $this->redirect('unit');
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'unit');
     }
 
     public function update()
@@ -44,16 +41,12 @@ class UnitController extends Controller
         $this->verifyCsrfToken();
 
         $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
-        $name = isset($_POST['name']) ? trim($_POST['name']) : '';
 
-        if ($id && $name !== '') {
-            Unit::update($id, [
-                'name' => $name,
-            ]);
-            $this->setFlash('success', 'Đã cập nhật đơn vị tính.');
+        $result = UnitService::updateUnit($id, $_POST);
+        if (!empty($result['message'])) {
+            $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
         }
-
-        $this->redirect('unit');
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'unit');
     }
 
     public function delete()
@@ -61,12 +54,11 @@ class UnitController extends Controller
         $this->requireLogin();
 
         $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-        if ($id) {
-            Unit::delete($id);
-            $this->setFlash('success', 'Đã xóa đơn vị tính.');
+        $result = UnitService::deleteUnit($id);
+        if (!empty($result['message'])) {
+            $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
         }
-
-        $this->redirect('unit');
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'unit');
     }
 }
 

@@ -6,101 +6,17 @@ class OrderListController extends Controller
     {
         $this->requireLogin();
 
-        $pdo = Database::getInstance();
-        $keyword = isset($_GET['q']) ? trim($_GET['q']) : '';
-        $status = isset($_GET['status']) ? $_GET['status'] : '';
-        $orderStatus = isset($_GET['order_status']) ? $_GET['order_status'] : '';
-        $fromDate = isset($_GET['from_date']) ? trim($_GET['from_date']) : '';
-        $toDate = isset($_GET['to_date']) ? trim($_GET['to_date']) : '';
-        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        if ($page < 1) {
-            $page = 1;
-        }
-
-        if ($fromDate !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fromDate)) {
-            $fromDate = '';
-        }
-        if ($toDate !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $toDate)) {
-            $toDate = '';
-        }
-
-        $perPage = 20;
-
-        $where = [];
-        $params = [];
-
-        if ($keyword !== '') {
-            $where[] = '(o.order_code LIKE ? OR c.name LIKE ? OR c.phone LIKE ?)';
-            $kw = '%' . $keyword . '%';
-            $params[] = $kw;
-            $params[] = $kw;
-            $params[] = $kw;
-        }
-
-        if ($status === 'paid') {
-            $where[] = 'o.status = "paid"';
-        } elseif ($status === 'debt') {
-            $where[] = 'o.status = "debt"';
-        }
-
-        if ($orderStatus === 'completed') {
-            $where[] = 'o.order_status = "completed"';
-        } elseif ($orderStatus === 'cancelled') {
-            $where[] = 'o.order_status = "cancelled"';
-        } elseif ($orderStatus === 'pending') {
-            $where[] = '(o.order_status IS NULL OR o.order_status NOT IN ("completed", "cancelled"))';
-        }
-
-        if ($fromDate !== '') {
-            $where[] = 'o.order_date >= ?';
-            $params[] = $fromDate . ' 00:00:00';
-        }
-        if ($toDate !== '') {
-            $where[] = 'o.order_date <= ?';
-            $params[] = $toDate . ' 23:59:59';
-        }
-
-        $whereSql = 'WHERE o.deleted_at IS NULL';
-        if (!empty($where)) {
-            $whereSql .= ' AND ' . implode(' AND ', $where);
-        }
-
-        $countSql = 'SELECT COUNT(*) FROM orders o LEFT JOIN customers c ON o.customer_id = c.id ' . $whereSql;
-        $countStmt = $pdo->prepare($countSql);
-        $countStmt->execute($params);
-        $totalCount = (int) $countStmt->fetchColumn();
-        $totalPages = (int) ceil($totalCount / $perPage);
-        if ($totalPages < 1) {
-            $totalPages = 1;
-        }
-        if ($page > $totalPages) {
-            $page = $totalPages;
-        }
-
-        $offset = ($page - 1) * $perPage;
-
-        $sql = 'SELECT o.*, c.name AS customer_name, c.phone AS customer_phone, COALESCE(ic.items_count, 0) AS items_count
-                FROM orders o
-                LEFT JOIN customers c ON o.customer_id = c.id
-                LEFT JOIN (
-                    SELECT order_id, SUM(count_items) AS items_count
-                    FROM (
-                        SELECT order_id, COUNT(*) AS count_items
-                        FROM order_items
-                        GROUP BY order_id
-                        UNION ALL
-                        SELECT order_id, COUNT(*) AS count_items
-                        FROM order_manual_items
-                        GROUP BY order_id
-                    ) t
-                    GROUP BY order_id
-                ) ic ON ic.order_id = o.id
-                ' . $whereSql . '
-                ORDER BY o.order_date DESC, o.id DESC
-                LIMIT ' . (int) $perPage . ' OFFSET ' . (int) $offset;
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        $orders = $stmt->fetchAll();
+        $listData = OrderService::getOrderListData($_GET, 20);
+        $orders = $listData['orders'];
+        $keyword = $listData['keyword'];
+        $status = $listData['status'];
+        $orderStatus = $listData['orderStatus'];
+        $fromDate = $listData['fromDate'];
+        $toDate = $listData['toDate'];
+        $page = $listData['page'];
+        $totalPages = $listData['totalPages'];
+        $totalCount = $listData['totalCount'];
+        $perPage = $listData['perPage'];
 
         $this->render('orders/index', [
             'title' => 'Đơn hàng',
@@ -271,80 +187,38 @@ class OrderListController extends Controller
     {
         $this->requireLogin();
 
-        $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
-        if (!$id) {
-            $this->setFlash('error', 'ID đơn hàng không hợp lệ.');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirect('order');
         }
 
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT * FROM orders WHERE id = ? AND deleted_at IS NULL');
-        $stmt->execute([$id]);
-        $order = $stmt->fetch();
-        if (!$order) {
-            $this->setFlash('error', 'Đơn hàng không tồn tại.');
-            $this->redirect('order');
-        }
+        $this->verifyCsrfToken();
 
-        $updateStmt = $pdo->prepare('UPDATE orders SET deleted_at = NOW() WHERE id = ?');
-        $updateStmt->execute([$id]);
-
-        if (class_exists('OrderLog')) {
-            OrderLog::create([
-                'order_id' => $id,
-                'action' => 'deleted',
-                'detail' => 'Đơn hàng đã được xóa.',
-            ]);
-        }
-
-        $this->setFlash('success', 'Đơn hàng đã được xóa thành công.');
-        $this->redirect('order');
+        $result = OrderService::deleteOrderById(isset($_POST['id']) ? $_POST['id'] : 0);
+        $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'order');
     }
 
     public function restore()
     {
         $this->requireLogin();
 
-        $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-        if (!$id) {
-            $this->setFlash('error', 'ID đơn hàng không hợp lệ.');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirect('order');
         }
 
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT * FROM orders WHERE id = ? AND deleted_at IS NOT NULL');
-        $stmt->execute([$id]);
-        $order = $stmt->fetch();
-        if (!$order) {
-            $this->setFlash('error', 'Đơn hàng không tồn tại hoặc chưa bị xóa.');
-            $this->redirect('order');
-        }
+        $this->verifyCsrfToken();
 
-        $updateStmt = $pdo->prepare('UPDATE orders SET deleted_at = NULL WHERE id = ?');
-        $updateStmt->execute([$id]);
-
-        if (class_exists('OrderLog')) {
-            OrderLog::create([
-                'order_id' => $id,
-                'action' => 'restored',
-                'detail' => 'Đơn hàng đã được khôi phục.',
-            ]);
-        }
-
-        $this->setFlash('success', 'Đơn hàng đã được khôi phục thành công.');
-        $this->redirect('order');
+        $result = OrderService::restoreOrderById(isset($_POST['id']) ? $_POST['id'] : 0);
+        $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'order');
     }
 
     public function purgeDeleted()
     {
         $this->requireLogin();
 
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('DELETE FROM orders WHERE deleted_at IS NOT NULL');
-        $stmt->execute();
-        $deletedCount = $stmt->rowCount();
-
-        $this->setFlash('success', "Đã xóa vĩnh viễn {$deletedCount} đơn hàng đã xóa.");
-        $this->redirect('order');
+        $result = OrderService::purgeDeletedOrders(isset($_GET['days']) ? $_GET['days'] : 30);
+        $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'order');
     }
 }

@@ -6,28 +6,10 @@ class CategoryController extends Controller
     {
         $this->requireLogin();
 
-        $categories = [];
-        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        if ($page < 1) {
-            $page = 1;
-        }
-
-        $perPage = 20;
-        $totalPages = 1;
-
-        if (class_exists('ProductCategory')) {
-            $totalCount = ProductCategory::countAll();
-            $totalPages = (int) ceil($totalCount / $perPage);
-            if ($totalPages < 1) {
-                $totalPages = 1;
-            }
-            if ($page > $totalPages) {
-                $page = $totalPages;
-            }
-
-            $offset = ($page - 1) * $perPage;
-            $categories = ProductCategory::paginate($perPage, $offset);
-        }
+        $listData = CategoryService::getCategoryListData($_GET, 20);
+        $categories = $listData['categories'];
+        $page = $listData['page'];
+        $totalPages = $listData['totalPages'];
 
         $this->render('categories/index', [
             'title' => 'Danh mục sản phẩm',
@@ -41,16 +23,7 @@ class CategoryController extends Controller
     {
         $this->requireLogin();
 
-        $categories = [];
-        if (class_exists('ProductCategory')) {
-            $categories = ProductCategory::all();
-        }
-
-        $this->render('categories/form', [
-            'title' => 'Thêm danh mục',
-            'category' => null,
-            'categories' => $categories,
-        ]);
+        $this->render('categories/form', CategoryService::getCategoryFormData());
     }
 
     public function store()
@@ -63,44 +36,23 @@ class CategoryController extends Controller
 
         $this->verifyCsrfToken();
 
-        $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-
-        if ($name === '') {
-            $this->setFlash('error', 'Tên danh mục là bắt buộc.');
-            $this->redirect('category');
+        $result = CategoryService::createCategory($_POST);
+        if (!empty($result['message'])) {
+            $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
         }
-
-        if (class_exists('ProductCategory')) {
-            ProductCategory::create([
-                'name' => $name,
-            ]);
-        }
-
-        $this->setFlash('success', 'Đã thêm danh mục sản phẩm.');
-        $this->redirect('category');
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'category');
     }
 
     public function edit()
     {
         $this->requireLogin();
 
-        $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-        if ($id <= 0 || !class_exists('ProductCategory')) {
-            $this->redirect('category');
+        $result = CategoryService::getCategoryFormData(isset($_GET['id']) ? $_GET['id'] : 0);
+        if (empty($result['success'])) {
+            $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'category');
         }
 
-        $category = ProductCategory::find($id);
-        if (!$category) {
-            $this->redirect('category');
-        }
-
-        $categories = ProductCategory::all();
-
-        $this->render('categories/form', [
-            'title' => 'Sửa danh mục',
-            'category' => $category,
-            'categories' => $categories,
-        ]);
+        $this->render('categories/form', $result);
     }
 
     public function update()
@@ -114,28 +66,15 @@ class CategoryController extends Controller
         $this->verifyCsrfToken();
 
         $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
-        if ($id <= 0 || !class_exists('ProductCategory')) {
+        if ($id <= 0) {
             $this->redirect('category');
         }
 
-        $category = ProductCategory::find($id);
-        if (!$category) {
-            $this->redirect('category');
+        $result = CategoryService::updateCategory($id, $_POST);
+        if (!empty($result['message'])) {
+            $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
         }
-
-        $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-
-        if ($name === '') {
-            $this->setFlash('error', 'Tên danh mục là bắt buộc.');
-            $this->redirect('category/edit?id=' . $id);
-        }
-
-        ProductCategory::update($id, [
-            'name' => $name,
-        ]);
-
-        $this->setFlash('success', 'Đã cập nhật danh mục sản phẩm.');
-        $this->redirect('category');
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'category');
     }
 
     public function delete()
@@ -143,27 +82,11 @@ class CategoryController extends Controller
         $this->requireLogin();
 
         $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-        if ($id <= 0 || !class_exists('ProductCategory')) {
-            $this->redirect('category');
+
+        $result = CategoryService::deleteCategory($id);
+        if (!empty($result['message'])) {
+            $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
         }
-
-        if ($id === 1) {
-            $this->setFlash('error', 'Không thể xóa danh mục mặc định.');
-            $this->redirect('category');
-        }
-
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT COUNT(*) FROM products WHERE category_id = ? AND deleted_at IS NULL');
-        $stmt->execute([$id]);
-        $usageCount = (int) $stmt->fetchColumn();
-
-        if ($usageCount > 0) {
-            $this->setFlash('error', 'Không thể xóa danh mục vì đang có sản phẩm sử dụng.');
-            $this->redirect('category');
-        }
-
-        ProductCategory::delete($id);
-        $this->setFlash('success', 'Đã xóa danh mục sản phẩm.');
-        $this->redirect('category');
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'category');
     }
 }

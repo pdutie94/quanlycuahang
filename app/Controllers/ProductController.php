@@ -5,86 +5,16 @@ class ProductController extends Controller
     public function index()
     {
         $this->requireLogin();
-		$keyword = isset($_GET['q']) ? trim($_GET['q']) : '';
-		$stockFilter = isset($_GET['stock']) ? $_GET['stock'] : 'all';
-		if (!in_array($stockFilter, ['all', 'in_stock', 'low_stock', 'out_of_stock'], true)) {
-			$stockFilter = 'all';
-		}
-		$categoryId = isset($_GET['category_id']) ? (int) $_GET['category_id'] : 0;
-		if ($categoryId <= 0) {
-			$categoryId = null;
-		}
 
-        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        if ($page < 1) {
-            $page = 1;
-        }
-
-		$perPage = 20;
-		if ($keyword !== '') {
-			$totalCount = Product::countByKeyword($keyword, $stockFilter, $categoryId);
-		} else {
-			$totalCount = Product::countAll($stockFilter, $categoryId);
-		}
-        $totalPages = (int) ceil($totalCount / $perPage);
-        if ($totalPages < 1) {
-            $totalPages = 1;
-        }
-        if ($page > $totalPages) {
-            $page = $totalPages;
-        }
-
-		$offset = ($page - 1) * $perPage;
-		if ($keyword !== '') {
-			$products = Product::searchPaginate($keyword, $perPage, $offset, $stockFilter, $categoryId);
-		} else {
-			$products = Product::paginate($perPage, $offset, $stockFilter, $categoryId);
-		}
-
-
-        $productUnitsByProduct = [];
-        if (!empty($products)) {
-            $productIds = [];
-            foreach ($products as $product) {
-                $productId = isset($product['id']) ? (int) $product['id'] : 0;
-                if ($productId > 0) {
-                    $productIds[] = $productId;
-                }
-            }
-            $productIds = array_values(array_unique($productIds));
-
-            if (!empty($productIds)) {
-                $pdo = Database::getInstance();
-                $placeholders = implode(',', array_fill(0, count($productIds), '?'));
-                $sql = 'SELECT pu.*, u.name AS unit_name
-                    FROM product_units pu
-                    JOIN units u ON pu.unit_id = u.id
-                    WHERE pu.product_id IN (' . $placeholders . ')
-                    ORDER BY pu.product_id, pu.id';
-                $stmt = $pdo->prepare($sql);
-                foreach ($productIds as $index => $productId) {
-                    $stmt->bindValue($index + 1, $productId, PDO::PARAM_INT);
-                }
-                $stmt->execute();
-                $unitRows = $stmt->fetchAll();
-
-                foreach ($unitRows as $row) {
-                    $pid = isset($row['product_id']) ? (int) $row['product_id'] : 0;
-                    if ($pid <= 0) {
-                        continue;
-                    }
-                    if (!isset($productUnitsByProduct[$pid])) {
-                        $productUnitsByProduct[$pid] = [];
-                    }
-                    $productUnitsByProduct[$pid][] = $row;
-                }
-            }
-        }
-
-		$categories = [];
-		if (class_exists('ProductCategory')) {
-			$categories = ProductCategory::all();
-		}
+        $listData = ProductService::getProductListData($_GET, 20);
+        $products = $listData['products'];
+        $keyword = $listData['keyword'];
+        $stockFilter = $listData['stockFilter'];
+        $categoryId = $listData['categoryId'];
+        $page = $listData['page'];
+        $totalPages = $listData['totalPages'];
+        $productUnitsByProduct = $listData['productUnitsByProduct'];
+        $categories = $listData['categories'];
 
         $this->render('products/index', [
             'title' => 'Sản phẩm',
@@ -201,396 +131,79 @@ class ProductController extends Controller
     public function create()
     {
         $this->requireLogin();
-        $units = Unit::all();
-        $categories = [];
-        if (class_exists('ProductCategory')) {
-            $categories = ProductCategory::all();
-        }
-        $this->render('products/form', [
-            'title' => 'Thêm sản phẩm',
-            'units' => $units,
-            'product' => null,
-            'productUnits' => [],
-            'categories' => $categories,
-            'inventoryQtyBase' => null,
-            'productLogs' => [],
-            'detailHeader' => [
-                'title' => 'Thêm sản phẩm',
-                'back_url' => 'product',
-                'back_label' => 'Quay lại',
-                'actions_view' => 'products/_detail_header_actions',
-            ],
-        ]);
+        $this->render('products/form', ProductService::getCreateFormData());
     }
 
     public function store()
     {
         $this->requireLogin();
-
-        $data = [
-            'name' => isset($_POST['name']) ? trim($_POST['name']) : '',
-            'code' => isset($_POST['code']) ? trim($_POST['code']) : '',
-            'category_id' => isset($_POST['category_id']) && $_POST['category_id'] !== '' ? (int) $_POST['category_id'] : null,
-            'base_unit_id' => isset($_POST['base_unit_id']) ? $_POST['base_unit_id'] : null,
-        ];
-
-        if (isset($_POST['min_stock_qty'])) {
-            $minStockRaw = $_POST['min_stock_qty'];
-            $minStockRaw = str_replace(' ', '', $minStockRaw);
-            $minStockRaw = str_replace(',', '.', $minStockRaw);
-            $minStock = (float) $minStockRaw;
-            if ($minStock < 0) {
-                $minStock = 0;
-            }
-            if ($minStock > 0) {
-                $data['min_stock_qty'] = $minStock;
-            } else {
-                $data['min_stock_qty'] = null;
-            }
-        }
-
-        $productId = Product::create($data);
-
-        $redirectAction = isset($_POST['redirect']) ? $_POST['redirect'] : 'exit';
-
         $imagePath = $this->handleImageUpload(null);
-        if ($imagePath) {
-            Product::updateImagePath($productId, $imagePath);
+
+        $result = ProductService::createProduct($_POST, $imagePath);
+        if (!empty($result['message'])) {
+            $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
         }
 
-		$unitRows = [];
-		$priceSellSingle = isset($_POST['price_sell_single']) ? $_POST['price_sell_single'] : '';
-		$priceCostSingle = isset($_POST['price_cost_single']) ? $_POST['price_cost_single'] : '';
-		$priceSellSingle = $this->normalizePrice($priceSellSingle);
-		$priceCostSingle = $this->normalizePrice($priceCostSingle);
-		$baseUnitId = isset($data['base_unit_id']) ? (int) $data['base_unit_id'] : 0;
-
-        $allowFraction = isset($_POST['allow_fraction']) && $_POST['allow_fraction'] === '1' ? 1 : 0;
-        $minStepRaw = isset($_POST['min_step']) ? $_POST['min_step'] : '1';
-        $minStepRaw = str_replace(' ', '', $minStepRaw);
-        $minStepRaw = str_replace(',', '.', $minStepRaw);
-        $minStep = (float) $minStepRaw;
-        if ($minStep <= 0) {
-            $minStep = 1;
-        }
-
-		if ($baseUnitId > 0) {
-			$unitRows[] = [
-				'unit_id' => $baseUnitId,
-				'factor' => 1,
-				'price_sell' => $priceSellSingle,
-				'price_cost' => $priceCostSingle,
-                'allow_fraction' => $allowFraction,
-                'min_step' => $minStep,
-			];
-		}
-
-		ProductUnit::saveForProduct($productId, $unitRows);
-
-        $qty = null;
-        if (class_exists('Inventory') && isset($_POST['inventory_qty_base'])) {
-			$qtyRaw = $_POST['inventory_qty_base'];
-            $qtyRaw = str_replace(' ', '', $qtyRaw);
-            $qtyRaw = str_replace(',', '.', $qtyRaw);
-			$qty = (float) $qtyRaw;
-			if ($qty < 0) {
-				$qty = 0;
-			}
-			Inventory::setQtyBase($productId, $qty);
-		}
-
-        if (class_exists('ProductLog')) {
-            if (!empty($unitRows)) {
-                $priceSell = isset($unitRows[0]['price_sell']) ? (float) $unitRows[0]['price_sell'] : 0;
-                $priceCost = isset($unitRows[0]['price_cost']) ? (float) $unitRows[0]['price_cost'] : 0;
-                $allowFractionFlag = !empty($unitRows[0]['allow_fraction']) ? 1 : 0;
-                $minStepValue = isset($unitRows[0]['min_step']) ? (float) $unitRows[0]['min_step'] : 1;
-
-                $parts = [];
-                if ($priceSell > 0) {
-                    $parts[] = 'Giá bán: ' . Money::format($priceSell);
-                }
-                if ($priceCost > 0) {
-                    $parts[] = 'Giá nhập: ' . Money::format($priceCost);
-                }
-                $parts[] = 'Bán lẻ: ' . ($allowFractionFlag ? 'Có' : 'Không');
-                $minStepText = rtrim(rtrim(number_format($minStepValue, 4, ',', ''), '0'), ',');
-                if ($minStepText === '') {
-                    $minStepText = '1';
-                }
-                $parts[] = 'Bước lẻ: ' . $minStepText;
-
-                $detail = implode('; ', $parts);
-                ProductLog::create([
-                    'product_id' => $productId,
-                    'action' => 'init_price',
-                    'detail' => $detail,
-                ]);
-            }
-
-            if ($qty !== null) {
-                $qtyValue = (float) $qty;
-                if ($qtyValue < 0) {
-                    $qtyValue = 0;
-                }
-                $qtyText = rtrim(rtrim(number_format($qtyValue, 4, ',', ''), '0'), ',');
-                if ($qtyText === '') {
-                    $qtyText = '0';
-                }
-                ProductLog::create([
-                    'product_id' => $productId,
-                    'action' => 'init_inventory',
-                    'detail' => 'Tồn kho: ' . $qtyText,
-                ]);
-            }
-		}
-
-        $this->setFlash('success', 'Đã thêm sản phẩm.');
-        if ($redirectAction === 'stay') {
-            $this->redirect('product/edit?id=' . $productId);
-        } else {
-            $this->redirect('product');
-        }
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'product');
     }
 
     public function edit()
     {
         $this->requireLogin();
         $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-        $product = Product::find($id);
-        if (!$product) {
-            $this->redirect('product');
-        }
-        $units = Unit::all();
-        $productUnits = ProductUnit::findByProduct($id);
-        $categories = [];
-        if (class_exists('ProductCategory')) {
-            $categories = ProductCategory::all();
+        $formData = ProductService::getEditFormData($id);
+        if (empty($formData['success'])) {
+            $this->redirect(isset($formData['redirect']) ? $formData['redirect'] : 'product');
         }
 
-		$inventoryQtyBase = null;
-		if (class_exists('Inventory')) {
-			$inventoryQtyBase = Inventory::getQtyBase($id);
-		}
-
-        $productLogs = [];
-        if (class_exists('ProductLog')) {
-            $productLogs = ProductLog::findByProduct($id);
-        }
-
-        $this->render('products/form', [
-            'title' => 'Sửa sản phẩm',
-            'units' => $units,
-            'product' => $product,
-            'productUnits' => $productUnits,
-            'categories' => $categories,
-			'inventoryQtyBase' => $inventoryQtyBase,
-            'productLogs' => $productLogs,
-            'detailHeader' => [
-                'title' => 'Sửa sản phẩm',
-                'back_url' => 'product',
-                'back_label' => 'Quay lại',
-                'actions_view' => 'products/_detail_header_actions',
-            ],
-        ]);
+        $this->render('products/form', $formData);
     }
 
     public function update()
     {
         $this->requireLogin();
         $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
-        $product = Product::find($id);
+        if ($id <= 0) {
+            $this->redirect('product');
+        }
+
+		$product = Product::find($id);
         if (!$product) {
 			$this->redirect('product');
         }
 
 		$inventoryOnly = isset($_POST['inventory_only']) && $_POST['inventory_only'] === '1';
-
-        $oldPriceSell = null;
-        $oldPriceCost = null;
-        $oldAllowFraction = null;
-        $oldMinStep = null;
-
-        if (!$inventoryOnly && class_exists('ProductUnit')) {
-            $oldUnits = ProductUnit::findByProduct($id);
-            if (!empty($oldUnits) && is_array($oldUnits)) {
-                $oldBaseUnitId = isset($product['base_unit_id']) ? (int) $product['base_unit_id'] : 0;
-                $oldUnitRow = null;
-                foreach ($oldUnits as $row) {
-                    if ($oldBaseUnitId > 0 && isset($row['unit_id']) && (int) $row['unit_id'] === $oldBaseUnitId) {
-                        $oldUnitRow = $row;
-                        break;
-                    }
-                    if ($oldUnitRow === null && isset($row['factor']) && (float) $row['factor'] === 1.0) {
-                        $oldUnitRow = $row;
-                    }
-                }
-                if ($oldUnitRow !== null) {
-                    if (isset($oldUnitRow['price_sell'])) {
-                        $oldPriceSell = (float) $oldUnitRow['price_sell'];
-                    }
-                    if (isset($oldUnitRow['price_cost'])) {
-                        $oldPriceCost = (float) $oldUnitRow['price_cost'];
-                    }
-                    if (isset($oldUnitRow['allow_fraction'])) {
-                        $oldAllowFraction = (int) $oldUnitRow['allow_fraction'] ? 1 : 0;
-                    }
-                    if (isset($oldUnitRow['min_step']) && $oldUnitRow['min_step'] !== null) {
-                        $oldMinStep = (float) $oldUnitRow['min_step'];
-                    }
-                }
-            }
-        }
+        $imagePath = null;
+        $updateImage = false;
 
 		if (!$inventoryOnly) {
-			$data = [
-				'name' => isset($_POST['name']) ? trim($_POST['name']) : '',
-				'code' => isset($_POST['code']) ? trim($_POST['code']) : '',
-				'category_id' => isset($_POST['category_id']) && $_POST['category_id'] !== '' ? (int) $_POST['category_id'] : null,
-				'base_unit_id' => isset($_POST['base_unit_id']) ? $_POST['base_unit_id'] : null,
-			];
-
-            if (isset($_POST['min_stock_qty'])) {
-                $minStockRaw = $_POST['min_stock_qty'];
-                $minStockRaw = str_replace(' ', '', $minStockRaw);
-                $minStockRaw = str_replace(',', '.', $minStockRaw);
-                $minStock = (float) $minStockRaw;
-                if ($minStock < 0) {
-                    $minStock = 0;
-                }
-                if ($minStock > 0) {
-                    $data['min_stock_qty'] = $minStock;
-                } else {
-                    $data['min_stock_qty'] = null;
-                }
-            }
-
-			Product::update($id, $data);
-
 			$currentImagePath = isset($product['image_path']) ? $product['image_path'] : null;
 			$removeImage = isset($_POST['image_remove']) && $_POST['image_remove'] === '1';
-
 			$imagePath = $this->handleImageUpload($currentImagePath);
+
 			if ($imagePath && $imagePath !== $currentImagePath) {
-				Product::updateImagePath($id, $imagePath);
+				$updateImage = true;
 			} elseif ($removeImage && $currentImagePath) {
 				$publicDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public';
 				$oldPath = $publicDir . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $currentImagePath);
 				if (is_file($oldPath)) {
 					@unlink($oldPath);
 				}
-				Product::updateImagePath($id, null);
+				$imagePath = null;
+				$updateImage = true;
 			}
-
-			$unitRows = [];
-			$priceSellSingle = isset($_POST['price_sell_single']) ? $_POST['price_sell_single'] : '';
-			$priceCostSingle = isset($_POST['price_cost_single']) ? $_POST['price_cost_single'] : '';
-			$priceSellSingle = Money::parsePrice($priceSellSingle);
-			$priceCostSingle = Money::parsePrice($priceCostSingle);
-			$baseUnitId = isset($data['base_unit_id']) ? (int) $data['base_unit_id'] : 0;
-
-            $allowFraction = isset($_POST['allow_fraction']) && $_POST['allow_fraction'] === '1' ? 1 : 0;
-            $minStepRaw = isset($_POST['min_step']) ? $_POST['min_step'] : '1';
-            $minStepRaw = str_replace(' ', '', $minStepRaw);
-            $minStepRaw = str_replace(',', '.', $minStepRaw);
-            $minStep = (float) $minStepRaw;
-            if ($minStep <= 0) {
-                $minStep = 1;
-            }
-
-			if ($baseUnitId > 0) {
-				$unitRows[] = [
-					'unit_id' => $baseUnitId,
-					'factor' => 1,
-					'price_sell' => $priceSellSingle,
-					'price_cost' => $priceCostSingle,
-                    'allow_fraction' => $allowFraction,
-                    'min_step' => $minStep,
-				];
-			}
-
-			ProductUnit::saveForProduct($id, $unitRows);
-
-            if (class_exists('ProductLog') && !empty($unitRows)) {
-                $changes = [];
-
-                $newPriceSellValue = isset($unitRows[0]['price_sell']) ? (float) $unitRows[0]['price_sell'] : null;
-                $newPriceCostValue = isset($unitRows[0]['price_cost']) ? (float) $unitRows[0]['price_cost'] : null;
-                $newAllowFraction = isset($unitRows[0]['allow_fraction']) && $unitRows[0]['allow_fraction'] ? 1 : 0;
-                $newMinStepValue = isset($unitRows[0]['min_step']) ? (float) $unitRows[0]['min_step'] : null;
-
-                if ($oldPriceSell !== null && $newPriceSellValue !== null) {
-                    if (abs($newPriceSellValue - $oldPriceSell) > 0.0001) {
-                        $fromText = Money::format($oldPriceSell);
-                        $toText = Money::format($newPriceSellValue);
-                        $changes[] = 'Giá bán: ' . $fromText . ' -> ' . $toText;
-                    }
-                }
-
-                if ($oldPriceCost !== null && $newPriceCostValue !== null) {
-                    if (abs($newPriceCostValue - $oldPriceCost) > 0.0001) {
-                        $fromText = Money::format($oldPriceCost);
-                        $toText = Money::format($newPriceCostValue);
-                        $changes[] = 'Giá nhập: ' . $fromText . ' -> ' . $toText;
-                    }
-                }
-
-                if ($oldAllowFraction !== null) {
-                    if ($newAllowFraction !== (int) $oldAllowFraction) {
-                        $fromText = $oldAllowFraction ? 'Có' : 'Không';
-                        $toText = $newAllowFraction ? 'Có' : 'Không';
-                        $changes[] = 'Bán lẻ: ' . $fromText . ' -> ' . $toText;
-                    }
-                }
-
-                if ($oldMinStep !== null && $newMinStepValue !== null) {
-                    if (abs($newMinStepValue - $oldMinStep) > 0.000001) {
-                        $fromText = rtrim(rtrim(number_format($oldMinStep, 4, ',', ''), '0'), ',');
-                        if ($fromText === '') {
-                            $fromText = '1';
-                        }
-                        $toText = rtrim(rtrim(number_format($newMinStepValue, 4, ',', ''), '0'), ',');
-                        if ($toText === '') {
-                            $toText = '1';
-                        }
-                        $changes[] = 'Bước lẻ: ' . $fromText . ' -> ' . $toText;
-                    }
-                }
-
-                if (!empty($changes)) {
-                    $detail = implode('; ', $changes);
-                    ProductLog::create([
-                        'product_id' => $id,
-                        'action' => 'update_price',
-                        'detail' => $detail,
-                    ]);
-                }
-            }
 		}
 
-		if (class_exists('Inventory') && isset($_POST['inventory_qty_base'])) {
-			$qtyRaw = $_POST['inventory_qty_base'];
-            $qtyRaw = str_replace(' ', '', $qtyRaw);
-            $qtyRaw = str_replace(',', '.', $qtyRaw);
-			$qty = (float) $qtyRaw;
-			if ($qty < 0) {
-				$qty = 0;
-			}
-			Inventory::setQtyBase($id, $qty);
+		$result = ProductService::updateProduct($id, $_POST, [
+			'imagePath' => $imagePath,
+			'updateImage' => $updateImage,
+		]);
+
+		if (!empty($result['message'])) {
+			$this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
 		}
 
-		if ($inventoryOnly) {
-			$this->setFlash('success', 'Đã cập nhật tồn kho sản phẩm.');
-			$this->redirect('product/edit?id=' . $id);
-		}
-
-		$this->setFlash('success', 'Đã cập nhật sản phẩm.');
-		$redirectAction = isset($_POST['redirect']) ? $_POST['redirect'] : 'exit';
-		if ($redirectAction === 'stay') {
-			$this->redirect('product/edit?id=' . $id);
-		} else {
-			$this->redirect('product');
-		}
+		$this->redirect(isset($result['redirect']) ? $result['redirect'] : 'product');
     }
 
     public function delete()

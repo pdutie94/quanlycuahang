@@ -6,75 +6,12 @@ class CustomerController extends Controller
     {
         $this->requireLogin();
 
-        $pdo = Database::getInstance();
-        $keyword = isset($_GET['q']) ? trim($_GET['q']) : '';
-        $debtStatus = isset($_GET['debt_status']) ? $_GET['debt_status'] : '';
-        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        if ($page < 1) {
-            $page = 1;
-        }
-
-        $perPage = 20;
-
-        $where = ['c.deleted_at IS NULL'];
-        $params = [];
-
-        if ($keyword !== '') {
-            $where[] = 'c.name LIKE ?';
-            $kw = '%' . $keyword . '%';
-            $params[] = $kw;
-        }
-
-        $having = '';
-        if ($debtStatus === 'debt') {
-            $having = 'HAVING debt_amount > 0';
-        } elseif ($debtStatus === 'nodebt') {
-            $having = 'HAVING debt_amount <= 0';
-        }
-
-        $whereSql = '';
-        if (!empty($where)) {
-            $whereSql = 'WHERE ' . implode(' AND ', $where);
-        }
-
-        $countSql = 'SELECT COUNT(*) FROM (
-                SELECT c.id, COALESCE(SUM(o.total_amount - o.paid_amount), 0) AS debt_amount
-                FROM customers c
-                LEFT JOIN orders o ON o.customer_id = c.id
-                ' . $whereSql . '
-                GROUP BY c.id
-                ' . $having . '
-            ) t';
-        $countStmt = $pdo->prepare($countSql);
-        $countStmt->execute($params);
-        $totalCount = (int) $countStmt->fetchColumn();
-        $totalPages = (int) ceil($totalCount / $perPage);
-        if ($totalPages < 1) {
-            $totalPages = 1;
-        }
-        if ($page > $totalPages) {
-            $page = $totalPages;
-        }
-
-        $offset = ($page - 1) * $perPage;
-
-        $sql = 'SELECT c.*, COALESCE(SUM(o.total_amount - o.paid_amount), 0) AS debt_amount
-                FROM customers c
-                LEFT JOIN orders o ON o.customer_id = c.id
-                ' . $whereSql . '
-                GROUP BY c.id
-                ' . $having . '
-                ORDER BY c.name
-                LIMIT ? OFFSET ?';
-        $stmt = $pdo->prepare($sql);
-        foreach ($params as $index => $value) {
-            $stmt->bindValue($index + 1, $value);
-        }
-        $paramIndex = count($params) + 1;
-        $stmt->bindValue($paramIndex, $perPage, PDO::PARAM_INT);
-        $stmt->bindValue($paramIndex + 1, $offset, PDO::PARAM_INT);
-        $stmt->execute();
-        $customers = $stmt->fetchAll();
+        $listData = CustomerService::getCustomerListData($_GET, 20);
+        $customers = $listData['customers'];
+        $keyword = $listData['keyword'];
+        $debtStatus = $listData['debtStatus'];
+        $page = $listData['page'];
+        $totalPages = $listData['totalPages'];
 
         $this->render('customers/index', [
             'title' => 'Khách hàng',
@@ -148,57 +85,18 @@ class CustomerController extends Controller
     {
         $this->requireLogin();
 
-        $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-        if (!$id) {
-            $this->redirect('customer');
-        }
-
-        $customer = Customer::find($id);
-        if (!$customer) {
-            $this->redirect('customer');
-        }
-
-		$pdo = Database::getInstance();
-		$stmt = $pdo->prepare('SELECT o.*, (o.total_amount - o.paid_amount) AS debt_amount,
-			(
-			    SELECT COALESCE(SUM(count_items), 0) FROM (
-			        SELECT COUNT(*) AS count_items FROM order_items oi WHERE oi.order_id = o.id
-			        UNION ALL
-			        SELECT COUNT(*) AS count_items FROM order_manual_items omi WHERE omi.order_id = o.id
-			    ) t
-			) AS items_count
-			FROM orders o
-			WHERE o.customer_id = ?
-			  AND o.deleted_at IS NULL
-			  AND (o.order_status IS NULL OR o.order_status <> \'cancelled\')
-			ORDER BY o.order_date DESC, o.id DESC');
-		$stmt->execute([$id]);
-		$orders = $stmt->fetchAll();
-
-        $totalAmountSum = 0.0;
-        $totalPaidSum = 0.0;
-        $totalDebt = 0.0;
-
-        foreach ($orders as $order) {
-            $total = isset($order['total_amount']) ? (float) $order['total_amount'] : 0.0;
-            $paid = isset($order['paid_amount']) ? (float) $order['paid_amount'] : 0.0;
-            $debt = $total - $paid;
-            if ($debt < 0) {
-                $debt = 0.0;
-            }
-
-            $totalAmountSum += $total;
-            $totalPaidSum += $paid;
-            $totalDebt += $debt;
+        $result = CustomerService::getCustomerViewData(isset($_GET['id']) ? $_GET['id'] : 0);
+        if (empty($result['success'])) {
+            $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'customer');
         }
 
         $this->render('customers/view', [
             'title' => 'Khách hàng',
-            'customer' => $customer,
-            'orders' => $orders,
-            'totalAmountSum' => $totalAmountSum,
-            'totalPaidSum' => $totalPaidSum,
-            'totalDebt' => $totalDebt,
+            'customer' => $result['customer'],
+            'orders' => $result['orders'],
+            'totalAmountSum' => $result['totalAmountSum'],
+            'totalPaidSum' => $result['totalPaidSum'],
+            'totalDebt' => $result['totalDebt'],
             'detailHeader' => [
                 'title' => 'Khách hàng',
                 'back_url' => 'customer',
@@ -212,43 +110,22 @@ class CustomerController extends Controller
     {
         $this->requireLogin();
 
-        $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-        if ($id <= 0) {
-            $this->redirect('customer');
+        $result = CustomerService::getCustomerFormData(isset($_GET['id']) ? $_GET['id'] : 0);
+        if (empty($result['success'])) {
+            if (!empty($result['message'])) {
+                $this->setFlash('error', $result['message']);
+            }
+            $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'customer');
         }
 
-        $customer = Customer::find($id);
-        if (!$customer) {
-            $this->setFlash('error', 'Không tìm thấy khách hàng.');
-            $this->redirect('customer');
-        }
-
-        $this->render('customers/form', [
-            'title' => 'Sửa khách hàng',
-            'customer' => $customer,
-            'detailHeader' => [
-                'title' => 'Sửa khách hàng',
-                'back_url' => 'customer/view?id=' . $id,
-                'back_label' => 'Quay lại',
-                'actions_view' => '',
-            ],
-        ]);
+        $this->render('customers/form', $result);
     }
 
     public function create()
     {
         $this->requireLogin();
 
-        $this->render('customers/form', [
-            'title' => 'Thêm khách hàng',
-            'customer' => null,
-            'detailHeader' => [
-                'title' => 'Thêm khách hàng',
-                'back_url' => 'customer',
-                'back_label' => 'Quay lại',
-                'actions_view' => '',
-            ],
-        ]);
+        $this->render('customers/form', CustomerService::getCustomerFormData());
     }
 
     public function update()
@@ -266,34 +143,11 @@ class CustomerController extends Controller
             $this->redirect('customer');
         }
 
-        $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-        $phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';
-        $address = isset($_POST['address']) ? trim($_POST['address']) : '';
-
-        if ($name === '') {
-            $this->setFlash('error', 'Vui lòng nhập tên khách hàng.');
-            $this->redirect('customer/edit?id=' . $id);
+        $result = CustomerService::updateCustomer($id, $_POST);
+        if (!empty($result['message'])) {
+            $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
         }
-
-        try {
-            $pdo = Database::getInstance();
-            $stmt = $pdo->prepare('UPDATE customers SET name = ?, phone = ?, address = ? WHERE id = ? AND deleted_at IS NULL');
-            if ($phone === '') {
-                $phone = null;
-            }
-            $stmt->execute([
-                $name,
-                $phone,
-                $address,
-                $id,
-            ]);
-        } catch (Exception $e) {
-            $this->setFlash('error', 'Không thể cập nhật khách hàng: ' . $e->getMessage());
-            $this->redirect('customer/edit?id=' . $id);
-        }
-
-        $this->setFlash('success', 'Đã cập nhật thông tin khách hàng.');
-        $this->redirect('customer/view?id=' . $id);
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'customer');
     }
 
     public function store()
@@ -306,28 +160,11 @@ class CustomerController extends Controller
 
         $this->verifyCsrfToken();
 
-        $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-        $phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';
-        $address = isset($_POST['address']) ? trim($_POST['address']) : '';
-
-        if ($name === '') {
-            $this->setFlash('error', 'Vui lòng nhập tên khách hàng.');
-            $this->redirect('customer/create');
+        $result = CustomerService::createCustomer($_POST);
+        if (!empty($result['message'])) {
+            $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
         }
-
-        try {
-            $id = Customer::create([
-                'name' => $name,
-                'phone' => $phone,
-                'address' => $address,
-            ]);
-        } catch (Exception $e) {
-            $this->setFlash('error', 'Không thể tạo khách hàng: ' . $e->getMessage());
-            $this->redirect('customer');
-        }
-
-        $this->setFlash('success', 'Đã thêm khách hàng mới.');
-        $this->redirect('customer/view?id=' . (int) $id);
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'customer');
     }
 
     public function delete()
@@ -345,40 +182,26 @@ class CustomerController extends Controller
             $this->redirect('customer');
         }
 
-        $success = Customer::delete($id);
-        if ($success) {
-            $this->setFlash('success', 'Đã xóa khách hàng. Các đơn hàng liên quan chuyển thành khách lẻ.');
-        } else {
-            $this->setFlash('error', 'Không thể xóa khách hàng.');
+        $result = CustomerService::deleteCustomer($id);
+        if (!empty($result['message'])) {
+            $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
         }
-
-        $this->redirect('customer');
+        $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'customer');
     }
 
     public function payment()
     {
         $this->requireLogin();
 
-        $orderId = isset($_GET['order_id']) ? (int) $_GET['order_id'] : 0;
-        if (!$orderId) {
-            $this->redirect('customer');
-        }
-
-        $order = OrderRepository::findWithCustomer($orderId);
-
-        if (!$order || !$order['customer_id']) {
-            $this->redirect('customer');
-        }
-
-        $remaining = $order['total_amount'] - $order['paid_amount'];
-        if ($remaining <= 0) {
-            $this->redirect('customer/view?id=' . $order['customer_id']);
+        $result = CustomerService::getCustomerPaymentData(isset($_GET['order_id']) ? $_GET['order_id'] : 0);
+        if (empty($result['success'])) {
+            $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'customer');
         }
 
         $this->render('customers/payment', [
             'title' => 'Thu tiền khách hàng',
-            'order' => $order,
-            'remaining' => $remaining,
+            'order' => $result['order'],
+            'remaining' => $result['remaining'],
         ]);
     }
 
@@ -396,30 +219,10 @@ class CustomerController extends Controller
 		$amount = isset($_POST['amount']) ? Money::parseAmount($_POST['amount']) : 0;
         $note = isset($_POST['note']) ? trim($_POST['note']) : '';
 
-        if ($orderId <= 0 || $amount <= 0) {
-            $this->setFlash('error', 'Dữ liệu thanh toán không hợp lệ.');
-			$this->redirect('customer');
+		$result = CustomerService::recordCustomerPayment($orderId, $amount, $note);
+		if (!empty($result['message'])) {
+			$this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
 		}
-
-		$pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT id, customer_id FROM orders WHERE id = ?');
-        $stmt->execute([$orderId]);
-        $order = $stmt->fetch();
-
-        if (!$order || !$order['customer_id']) {
-            $this->setFlash('error', 'Không tìm thấy đơn hàng.');
-            $this->redirect('customer');
-        }
-
-        $customerId = (int) $order['customer_id'];
-
-        try {
-            PaymentService::recordOrderPayment($orderId, $amount, $note, 'cash');
-            $this->setFlash('success', 'Đã ghi nhận thanh toán.');
-            $this->redirect('customer/view?id=' . $customerId);
-        } catch (Exception $e) {
-			$this->setFlash('error', 'Không thể ghi nhận thanh toán: ' . $e->getMessage());
-			$this->redirect('customer/view?id=' . $customerId);
-		}
+		$this->redirect(isset($result['redirect']) ? $result['redirect'] : 'customer');
 	}
 }

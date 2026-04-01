@@ -194,7 +194,112 @@ class PaymentService
             throw $e;
         }
     }
+
+    public static function resetOrderPayment($orderId)
+    {
+        $orderId = (int) $orderId;
+        if ($orderId <= 0) {
+            throw new Exception('ID đơn hàng không hợp lệ.');
+        }
+
+        $pdo = Database::getInstance();
+        $pdo->beginTransaction();
+
+        try {
+            $stmt = $pdo->prepare('SELECT * FROM orders WHERE id = ? AND deleted_at IS NULL FOR UPDATE');
+            $stmt->execute([$orderId]);
+            $order = $stmt->fetch();
+
+            if (!$order) {
+                throw new Exception('Không tìm thấy đơn hàng.');
+            }
+
+            $totalAmount = isset($order['total_amount']) ? (float) $order['total_amount'] : 0.0;
+            $paidOld = isset($order['paid_amount']) ? (float) $order['paid_amount'] : 0.0;
+            $statusOld = isset($order['status']) ? (string) $order['status'] : 'debt';
+
+            if ($totalAmount <= 0 || $paidOld <= 0) {
+                throw new Exception('Đơn hàng chưa có khoản thanh toán để đặt lại.');
+            }
+
+            $paymentsStmt = $pdo->prepare('SELECT id, amount FROM payments WHERE type = \'customer\' AND order_id = ?');
+            $paymentsStmt->execute([$orderId]);
+            $payments = $paymentsStmt->fetchAll();
+
+            if (empty($payments)) {
+                throw new Exception('Đơn hàng không có lịch sử thanh toán để đặt lại.');
+            }
+
+            $sumPayments = 0.0;
+            $hasNegative = false;
+            foreach ($payments as $row) {
+                $amountRow = isset($row['amount']) ? (float) $row['amount'] : 0.0;
+                $sumPayments += $amountRow;
+                if ($amountRow < 0) {
+                    $hasNegative = true;
+                }
+            }
+
+            if ($hasNegative) {
+                throw new Exception('Đơn hàng có lịch sử hoàn trả/điều chỉnh, không thể đặt lại thanh toán tự động.');
+            }
+
+            if (abs($sumPayments - $paidOld) > 0.0001) {
+                throw new Exception('Dữ liệu thanh toán không khớp, không thể đặt lại tự động.');
+            }
+
+            $noteRaw = isset($order['note']) ? (string) $order['note'] : '';
+            $noteTrim = self::removePaymentMethodTagFromNote($noteRaw);
+
+            $newPaid = 0.0;
+            $newStatus = $totalAmount > 0 ? 'debt' : $statusOld;
+
+            $updateStmt = $pdo->prepare('UPDATE orders SET paid_amount = ?, status = ?, note = ? WHERE id = ?');
+            $updateStmt->execute([
+                $newPaid,
+                $newStatus,
+                $noteTrim,
+                $orderId,
+            ]);
+
+            $deleteStmt = $pdo->prepare('DELETE FROM payments WHERE type = \'customer\' AND order_id = ?');
+            $deleteStmt->execute([$orderId]);
+
+            if (class_exists('OrderLog')) {
+                OrderLog::create([
+                    'order_id' => $orderId,
+                    'action' => 'payment_reset',
+                    'detail' => [
+                        'type' => 'payment_reset',
+                        'paid_before' => $paidOld,
+                        'paid_after' => $newPaid,
+                        'payments_count' => count($payments),
+                    ],
+                ]);
+            }
+
+            $pdo->commit();
+            ReportService::clearReportCache();
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
     protected static function appendPaymentMethodTagToNote($note, $paymentMethod)
+    {
+        $noteTrim = self::removePaymentMethodTagFromNote($note);
+        $methodTag = $paymentMethod === 'bank' ? '[TT:bank]' : '[TT:cash]';
+        $noteWithMethod = $noteTrim;
+        if ($noteWithMethod === '') {
+            $noteWithMethod = $methodTag;
+        } else {
+            $noteWithMethod .= ' ' . $methodTag;
+        }
+        return $noteWithMethod;
+    }
+
+    protected static function removePaymentMethodTagFromNote($note)
     {
         $rawNote = (string) $note;
         $noteTrim = rtrim($rawNote);
@@ -205,13 +310,7 @@ class PaymentService
                 $noteTrim = rtrim(substr($noteCheck, 0, -9));
             }
         }
-        $methodTag = $paymentMethod === 'bank' ? '[TT:bank]' : '[TT:cash]';
-        $noteWithMethod = $noteTrim;
-        if ($noteWithMethod === '') {
-            $noteWithMethod = $methodTag;
-        } else {
-            $noteWithMethod .= ' ' . $methodTag;
-        }
-        return $noteWithMethod;
+
+        return $noteTrim;
     }
 }

@@ -11,6 +11,56 @@ class ProductUnit
         return $stmt->fetchAll();
     }
 
+    public static function findByProductIds($productIds)
+    {
+        if (!is_array($productIds) || empty($productIds)) {
+            return [];
+        }
+
+        $normalizedIds = [];
+        foreach ($productIds as $productId) {
+            $productId = (int) $productId;
+            if ($productId > 0) {
+                $normalizedIds[] = $productId;
+            }
+        }
+
+        $normalizedIds = array_values(array_unique($normalizedIds));
+        if (empty($normalizedIds)) {
+            return [];
+        }
+
+        $pdo = Database::getInstance();
+        $placeholders = implode(',', array_fill(0, count($normalizedIds), '?'));
+        $sql = 'SELECT pu.*, u.name AS unit_name
+            FROM product_units pu
+            JOIN units u ON pu.unit_id = u.id
+            WHERE pu.product_id IN (' . $placeholders . ')
+            ORDER BY pu.product_id, pu.id';
+
+        $stmt = $pdo->prepare($sql);
+        foreach ($normalizedIds as $index => $productId) {
+            $stmt->bindValue($index + 1, $productId, PDO::PARAM_INT);
+        }
+        $stmt->execute();
+
+        $grouped = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $productId = isset($row['product_id']) ? (int) $row['product_id'] : 0;
+            if ($productId <= 0) {
+                continue;
+            }
+
+            if (!isset($grouped[$productId])) {
+                $grouped[$productId] = [];
+            }
+
+            $grouped[$productId][] = $row;
+        }
+
+        return $grouped;
+    }
+
     public static function saveForProduct($productId, $rows)
     {
         $pdo = Database::getInstance();
