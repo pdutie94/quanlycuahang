@@ -75,7 +75,7 @@ $remaining = isset($order['total_amount']) && isset($order['paid_amount']) ? $or
 					<th class="border-b border-slate-200 px-3 py-2 text-right">Thành tiền</th>
 				</tr>
 			</thead>
-			<tbody class="align-top text-sm old-text-base">
+			<tbody class="align-top text-sm md:text-base">
 				<?php
 				$index = 1;
 				foreach ($items as $row) {

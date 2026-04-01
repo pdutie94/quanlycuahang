@@ -86,8 +86,8 @@
 (function () {
 	var modal = document.querySelector('[data-order-preview-modal]');
 	var modalContent = modal ? modal.querySelector('[data-order-preview-content]') : null;
-	var minimumLoadingMs = 1000;
 	var activePreviewRequestId = 0;
+	var minimumLoadingMs = 150;
 
 	function loadingHtml() {
 		return [
@@ -154,27 +154,54 @@
 		].join('');
 	}
 
-	function openPreview(html) {
-		if (!modal) return;
+	function setPreviewContent(html) {
+		if (!modalContent) return;
 		modalContent.innerHTML = html;
-		modal.classList.remove('hidden');
-		modal.classList.add('flex');
 	}
 
-	function updatePreviewWhenReady(requestId, startedAt, render) {
+	function isPreviewVisible() {
+		if (!modal) return false;
+		return !modal.classList.contains('hidden') && modal.classList.contains('flex') && !modal.classList.contains('app-modal-closing');
+	}
+
+	function ensurePreviewOpen() {
+		if (!modal || isPreviewVisible()) return;
+		if (typeof window.APP_openModal === 'function') {
+			window.APP_openModal(modal);
+			return;
+		}
+		modal.classList.remove('hidden');
+		modal.classList.add('flex');
+		document.body.classList.add('overflow-hidden');
+	}
+
+	function updatePreviewWhenReady(requestId, render) {
+		if (!modalContent || requestId !== activePreviewRequestId) return;
+		render();
+	}
+
+	function updatePreviewWithMinimumLoading(requestId, startedAt, render) {
 		var elapsed = Date.now() - startedAt;
-		var remaining = Math.max(0, minimumLoadingMs - elapsed);
+		var delay = minimumLoadingMs - elapsed;
+		if (delay <= 0) {
+			updatePreviewWhenReady(requestId, render);
+			return;
+		}
 		window.setTimeout(function () {
-			if (!modalContent || requestId !== activePreviewRequestId) return;
-			render();
-		}, remaining);
+			updatePreviewWhenReady(requestId, render);
+		}, delay);
 	}
 
 	function closePreview() {
 		if (!modal) return;
 		activePreviewRequestId += 1;
+		if (typeof window.APP_closeModal === 'function') {
+			window.APP_closeModal(modal);
+			return;
+		}
 		modal.classList.add('hidden');
 		modal.classList.remove('flex');
+		document.body.classList.remove('overflow-hidden');
 	}
 
 	if (modal) {
@@ -184,20 +211,7 @@
 				closePreview();
 			});
 		});
-		modal.addEventListener('click', function (e) {
-			if (e.target === modal) {
-				closePreview();
-			}
-		});
 	}
-
-	document.addEventListener('keydown', function (e) {
-		if (!modal || modal.classList.contains('hidden')) return;
-		if (e.key === 'Escape') {
-			e.preventDefault();
-			closePreview();
-		}
-	});
 
 	// Use event delegation to handle both existing and dynamically loaded buttons.
 	document.addEventListener('click', function (e) {
@@ -208,7 +222,6 @@
 		var orderId = btn.getAttribute('data-order-id');
 		if (!orderId || !modalContent) return;
 		var requestId = activePreviewRequestId + 1;
-		var loadingStartedAt = Date.now();
 		var orderCode = btn.getAttribute('data-order-code') || 'Đơn hàng';
 		var orderCustomer = (btn.getAttribute('data-order-customer') || '').trim();
 		var normalizedCustomer = orderCustomer.toLowerCase();
@@ -227,8 +240,10 @@
 		if (detailBtn) {
 			detailBtn.setAttribute('href', '<?php echo $basePath; ?>/order/view?id=' + encodeURIComponent(orderId));
 		}
+		var previewStartedAt = Date.now();
 		activePreviewRequestId = requestId;
-		openPreview(loadingHtml());
+		setPreviewContent(loadingHtml());
+		ensurePreviewOpen();
 		fetch('<?php echo $basePath; ?>/order/preview?id=' + encodeURIComponent(orderId) + '&ajax=1', {
 			method: 'GET',
 			credentials: 'same-origin',
@@ -241,12 +256,13 @@
 				return response.text();
 			})
 			.then(function (html) {
-				updatePreviewWhenReady(requestId, loadingStartedAt, function () {
-					openPreview(html);
+				updatePreviewWithMinimumLoading(requestId, previewStartedAt, function () {
+					setPreviewContent(html);
+					ensurePreviewOpen();
 				});
 			})
 			.catch(function (error) {
-				updatePreviewWhenReady(requestId, loadingStartedAt, function () {
+				updatePreviewWithMinimumLoading(requestId, previewStartedAt, function () {
 					if (modalContent) {
 						modalContent.innerHTML = '<div class="py-6 text-center text-rose-600">' + (error.message || 'Không thể hiển thị dữ liệu') + '</div>';
 					}

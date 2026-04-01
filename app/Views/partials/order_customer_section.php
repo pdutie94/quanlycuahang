@@ -1,5 +1,5 @@
-		<div class="rounded-lg border border-slate-200 bg-white px-4 py-4 lg:px-5 lg:py-5">
-            <div class="mb-3 text-sm font-medium text-slate-800">
+		<div class="">
+            <div class="mb-3 text-base font-medium text-slate-800">
                 Thông tin khách hàng
             </div>
 
@@ -86,7 +86,7 @@
 								'id' => 'payment_amount',
 								'inputmode' => 'numeric',
 								'data-money-input' => '1',
-								'class' => 'pr-9 py-2 text-right text-base font-semibold tracking-tight',
+								'class' => 'pr-9 py-2 text-right text-sm font-semibold tracking-tight md:text-base',
 								]);
 							?>
 							<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
@@ -104,7 +104,7 @@
                 <input type="hidden" name="surcharge_amount" value="0" data-pos-surcharge-hidden>
 				<input type="hidden" name="round_total" value="0" data-order-round-total-flag>
 				<div class="mt-4 flex flex-wrap gap-2" data-floating-actions>
-					<button type="button" data-pos-submit-order class="inline-flex h-[34px] min-h-[34px] flex-1 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700 active:bg-brand-800" data-loading-button="1" data-floating-primary="1">
+					<button type="button" data-pos-submit-order class="app-btn-primary flex-1" data-loading-button="1" data-floating-primary="1">
                         Nhập đơn
                     </button>
                 </div>
@@ -207,24 +207,24 @@
 						</button>
 					</div>
 					<div class="relative hidden" data-order-new-customer>
-						<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Tên khách hàng</label>
-						<?php ui_input_text('customer_name', '', ['class' => 'pt-3 pb-2.5']); ?>
+						<label class="app-label">Tên khách hàng</label>
+							<?php ui_input_text('customer_name', '', ['class' => '']); ?>
 					</div>
 					<div class="relative hidden" data-order-new-customer>
-						<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số điện thoại</label>
-						<?php ui_input_text('customer_phone', '', ['class' => 'pt-3 pb-2.5']); ?>
+						<label class="app-label">Số điện thoại</label>
+							<?php ui_input_text('customer_phone', '', ['class' => '']); ?>
 					</div>
 					<div class="relative md:col-span-2 hidden" data-order-new-customer>
-						<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Địa chỉ</label>
-						<?php ui_input_text('customer_address', '', ['class' => 'pt-3 pb-2.5']); ?>
+						<label class="app-label">Địa chỉ</label>
+							<?php ui_input_text('customer_address', '', ['class' => '']); ?>
 					</div>
 					<div class="relative md:col-span-2">
-						<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Ngày giờ đơn hàng</label>
-						<input type="datetime-local" name="order_date" value="<?php echo htmlspecialchars($orderDateValue); ?>" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500">
+						<label class="app-label">Ngày giờ đơn hàng</label>
+						<input type="datetime-local" name="order_date" value="<?php echo htmlspecialchars($orderDateValue); ?>" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm outline-none transition focus:border-brand-500">
 					</div>
 					<div class="relative md:col-span-2">
-						<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Ghi chú</label>
-						<textarea name="note" rows="3" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500"><?php echo htmlspecialchars($noteValue); ?></textarea>
+						<label class="app-label">Ghi chú</label>
+						<textarea name="note" rows="3" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm outline-none transition focus:border-brand-500"><?php echo htmlspecialchars($noteValue); ?></textarea>
 					</div>
 					<input type="hidden" name="discount_type" value="<?php echo $discountTypeValue; ?>" data-order-discount-type>
 					<input type="hidden" name="discount_value" value="<?php echo $discountValueRaw; ?>" data-order-discount-value>
@@ -233,11 +233,11 @@
 					<input type="hidden" name="round_total" value="<?php echo $roundTotalFlagValue; ?>" data-order-round-total-flag>
 				</div>
 
-				<div class="mt-4 sticky bottom-[4.2rem] z-10 -mx-1 flex items-center justify-end gap-3 border-t border-slate-200 bg-white/95 px-1 pb-1 pt-2 backdrop-blur" data-floating-actions>
-                    <a href="<?php echo $basePath; ?>/order/view?id=<?php echo $order['id']; ?>" class="inline-flex h-[34px] min-h-[34px] items-center justify-center rounded-lg border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-100">
+				<div class="mt-4 flex items-center justify-end gap-3" data-floating-actions>
+					<a href="<?php echo $basePath; ?>/order/view?id=<?php echo $order['id']; ?>" class="app-btn-secondary">
                         Hủy
                     </a>
-					<button type="submit" class="inline-flex h-[34px] min-h-[34px] items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700 active:bg-brand-800" data-loading-button="1" data-floating-primary="1">
+					<button type="submit" class="app-btn-primary" data-loading-button="1" data-floating-primary="1">
                         Lưu thay đổi
                     </button>
                 </div>

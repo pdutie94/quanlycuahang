@@ -4,14 +4,14 @@ unset($queryParams['page'], $queryParams['ajax']);
 $queryString = http_build_query($queryParams);
 ?>
 <?php if (empty($customers)) { ?>
-	<div class="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-4 text-center text-sm text-slate-500">
+	<div class="app-empty-state">
 		Chưa có khách hàng nào.
 	</div>
 <?php } else { ?>
 	<div class="space-y-3" data-infinite-list data-infinite-url="<?php echo $basePath; ?>/customer" data-infinite-query="<?php echo htmlspecialchars($queryString); ?>" data-current-page="<?php echo isset($page) ? (int) $page : 1; ?>" data-has-more="<?php echo isset($totalPages) && isset($page) && $page < $totalPages ? '1' : '0'; ?>">
 		<?php foreach ($customers as $index => $customer) { ?>
 			<?php $debt = isset($customer['debt_amount']) ? (float) $customer['debt_amount'] : 0; ?>
-			<a href="<?php echo $basePath; ?>/customer/view?id=<?php echo $customer['id']; ?>" class="block cursor-pointer rounded-card bg-white p-3  border border-slate-200 transition hover:bg-slate-50" data-infinite-item>
+			<a href="<?php echo $basePath; ?>/customer/view?id=<?php echo $customer['id']; ?>" class="app-list-card block cursor-pointer" data-infinite-item>
 				<div class="flex items-center justify-between gap-3">
 					<div class="min-w-0">
 						<div class="truncate text-sm font-medium text-slate-900">
@@ -28,7 +28,7 @@ $queryString = http_build_query($queryParams);
 					</div>
 					<div class="flex flex-col items-end gap-1 text-right text-sm">
 						<div class="text-sm text-slate-500">Nợ hiện tại</div>
-						<div class="text-sm font-medium <?php echo $debt > 0 ? 'text-red-600' : 'text-slate-700'; ?>">
+						<div class="text-sm font-medium <?php echo $debt > 0 ? 'text-rose-600' : 'text-slate-700'; ?>">
 							<?php echo Money::format($debt); ?>
 						</div>
 					</div>

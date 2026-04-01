@@ -23,7 +23,7 @@ $isPosManual = $manualContext === 'pos';
             Chưa có sản phẩm khác nào.
         </div>
         <div class="hidden" data-pos-manual-row-template>
-            <div class="pos-manual-item-row relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 " data-pos-manual-card>
+            <div class="pos-manual-item-row bg-white relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 " data-pos-manual-card>
                 <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-lg bg-rose-100 text-rose-600  ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-pos-manual-remove-row>
                     <?php echo ui_icon("x-mark", "h-3 w-3"); ?>
                 </button>
@@ -52,7 +52,7 @@ $isPosManual = $manualContext === 'pos';
     <?php $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []; ?>
     <div class="mt-3 space-y-3" data-order-edit-manual-root>
         <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 text-sm font-medium text-amber-800">
+            <div class="flex items-center gap-2 text-base font-medium text-amber-800">
                 <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
                     <?php echo ui_icon("archive-box", "h-4 w-4"); ?>
                 </span>
@@ -76,7 +76,7 @@ $isPosManual = $manualContext === 'pos';
                     $displayPriceSell = $priceSell > 0 ? Money::format($priceSell) . ' đ' : '0 đ';
                     $displayAmountSell = $amountSell > 0 ? Money::format($amountSell) . ' đ' : '0 đ';
                     ?>
-                    <div class="order-edit-manual-item-row relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 ">
+                    <div class="order-edit-manual-item-row bg-white relative cursor-pointer rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-800 ">
                         <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-lg bg-rose-100 text-rose-600  ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-order-edit-manual-remove-row>
                             <?php echo ui_icon("x-mark", "h-3 w-3"); ?>
                         </button>
@@ -102,11 +102,11 @@ $isPosManual = $manualContext === 'pos';
                 <?php } ?>
             <?php } ?>
         </div>
-        <div class="mt-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-center text-sm text-slate-500<?php echo !empty($manualItems) ? ' hidden' : ''; ?>" data-order-edit-manual-empty>
+        <div class="mt-2 rounded-lg border border-dashed border-slate-300 bg-white px-3 py-3 text-center text-sm text-slate-500<?php echo !empty($manualItems) ? ' hidden' : ''; ?>" data-order-edit-manual-empty>
             Chưa có sản phẩm khác nào.
         </div>
         <div class="hidden" data-order-edit-manual-row-template>
-            <div class="order-edit-manual-item-row relative cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 ">
+            <div class="order-edit-manual-item-row bg-white relative cursor-pointer rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-800 ">
                 <button type="button" class="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-lg bg-rose-100 text-rose-600  ring-1 ring-rose-200 hover:bg-rose-200 hover:text-rose-700" data-order-edit-manual-remove-row>
                     <?php echo ui_icon("x-mark", "h-3 w-3"); ?>
                 </button>

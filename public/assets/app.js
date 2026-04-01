@@ -57,17 +57,36 @@
     function hasVisibleAppModal() {
         return $('.app-modal-overlay').filter(function () {
             var $modal = $(this);
-            return !$modal.hasClass('hidden') && $modal.hasClass('flex');
+            return !$modal.hasClass('hidden') && $modal.hasClass('flex') && !$modal.hasClass('app-modal-closing');
         }).length > 0;
+    }
+
+    function clearModalTimer($modal) {
+        if (!$modal || !$modal.length) return;
+        var timerId = $modal.data('closeTimer');
+        if (timerId) {
+            clearTimeout(timerId);
+            $modal.removeData('closeTimer');
+        }
     }
 
     function closeAppModal($modal) {
         if (!$modal || !$modal.length) return;
-        $modal.addClass('hidden').removeClass('flex');
-        $modal.removeData('root');
-        if (!hasVisibleAppModal()) {
-            $('body').removeClass('overflow-hidden');
-        }
+        if ($modal.hasClass('hidden') || !$modal.hasClass('flex') || $modal.hasClass('app-modal-closing')) return;
+
+        clearModalTimer($modal);
+        $modal.removeClass('app-modal-open').addClass('app-modal-closing');
+
+        var timerId = setTimeout(function () {
+            $modal.addClass('hidden').removeClass('flex app-modal-open app-modal-closing');
+            $modal.removeData('root');
+            $modal.removeData('closeTimer');
+            if (!hasVisibleAppModal()) {
+                $('body').removeClass('overflow-hidden');
+            }
+        }, 220);
+
+        $modal.data('closeTimer', timerId);
     }
 
     function closeAllAppModals($except) {
@@ -78,17 +97,36 @@
             }
             closeAppModal($modal);
         });
-        if (!($except && $except.length && !$except.hasClass('hidden') && $except.hasClass('flex'))) {
-            $('body').removeClass('overflow-hidden');
-        }
     }
 
     function openAppModal($modal) {
         if (!$modal || !$modal.length) return;
         closeAllAppModals($modal);
-        $modal.removeAttr('hidden').removeClass('hidden').addClass('flex');
+        clearModalTimer($modal);
+        $modal.removeAttr('hidden').removeClass('hidden app-modal-closing app-modal-open').addClass('flex');
+        if ($modal.length && $modal[0]) {
+            void $modal[0].offsetWidth;
+        }
+        requestAnimationFrame(function () {
+            $modal.addClass('app-modal-open');
+        });
         $('body').addClass('overflow-hidden');
     }
+
+    window.APP_openModal = function (modalOrSelector) {
+        var $modal = $(modalOrSelector);
+        openAppModal($modal);
+    };
+
+    window.APP_closeModal = function (modalOrSelector) {
+        var $modal = $(modalOrSelector);
+        closeAppModal($modal);
+    };
+
+    window.APP_closeAllModals = function (exceptModalOrSelector) {
+        var $except = exceptModalOrSelector ? $(exceptModalOrSelector) : null;
+        closeAllAppModals($except);
+    };
 
     function initGlobalModalControls() {
         $(document).on('click.appModalOverlay', '.app-modal-overlay', function (e) {
@@ -1427,6 +1465,7 @@
         var currentTrigger = null;
         var filterTimeout = null;
         var filterJobId = 0;
+        var clearAfterCloseTimer = null;
 
         function applyProductSelectorFilter() {
             var keyword = $.trim($search.val().toString().toLowerCase());
@@ -1560,6 +1599,10 @@
             if (!config || typeof config.buildItems !== 'function') {
                 return;
             }
+            if (clearAfterCloseTimer) {
+                clearTimeout(clearAfterCloseTimer);
+                clearAfterCloseTimer = null;
+            }
             currentMode = mode;
             currentTrigger = trigger || null;
             selectedMap = {};
@@ -1572,14 +1615,35 @@
         }
 
         function closeModal() {
+            if (clearAfterCloseTimer) {
+                clearTimeout(clearAfterCloseTimer);
+                clearAfterCloseTimer = null;
+            }
+
+            var resetState = function () {
+                currentMode = null;
+                currentTrigger = null;
+                currentItems = [];
+                selectedMap = {};
+                $search.val('');
+                applyProductSelectorFilter();
+                $list.empty();
+                $selected.empty();
+            };
+
+            if ($root.hasClass('hidden')) {
+                resetState();
+                return;
+            }
+
+            // Delay state cleanup until close animation finishes to avoid sheet height jump.
+            clearAfterCloseTimer = setTimeout(function () {
+                resetState();
+                clearAfterCloseTimer = null;
+            }, 230);
+
             currentMode = null;
             currentTrigger = null;
-            currentItems = [];
-            selectedMap = {};
-            $search.val('');
-            applyProductSelectorFilter();
-            $list.empty();
-            $selected.empty();
             closeAppModal($root);
         }
 
@@ -2127,7 +2191,7 @@
 				'data-unit-id': unit.unit_id,
 				'data-pos-price': basePrice,
 				'data-pos-base-price': basePrice,
-				"class": 'flex items-center justify-between gap-3 py-2 border-b border-slate-200 last:border-b-0'
+				"class": 'bg-white border px-3 py-2 rounded-xl border-slate-200 flex items-start justify-between gap-3'
 			});
 		
 			var $left = $('<div>', { "class": 'flex items-center gap-3' });
@@ -3785,7 +3849,7 @@
                     'data-product-unit-id': unit.id,
                     'data-price': price,
                     'data-base-price': price,
-                    "class": 'flex items-center justify-between gap-3 py-2 border-b border-slate-200 last:border-b-0'
+                    "class": 'bg-white border px-3 py-2 rounded-xl border-slate-200 flex items-start justify-between gap-3'
                 });
 
                 var $left = $('<div>', { "class": 'flex items-center gap-3' });

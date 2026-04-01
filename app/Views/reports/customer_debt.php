@@ -23,29 +23,29 @@ $showAll = !empty($showAll);
 		<input type="hidden" name="r" value="report/customerDebt">
 		<div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
 			<div class="relative">
-				<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Từ ngày</label>
+				<label class="app-label">Từ ngày</label>
 				<?php
 				ui_input_text('start_date', $startDate, [
 					'type' => 'date',
-					'class' => 'pt-3 pb-2.5',
+					'class' => '',
 				]);
 				?>
 			</div>
 			<div class="relative">
-				<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Đến ngày</label>
+				<label class="app-label">Đến ngày</label>
 				<?php
 				ui_input_text('end_date', $endDate, [
 					'type' => 'date',
-					'class' => 'pt-3 pb-2.5',
+					'class' => '',
 				]);
 				?>
 			</div>
 			<div class="relative">
-				<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Từ khóa</label>
+				<label class="app-label">Từ khóa</label>
 				<?php
 				ui_input_text('q', $keyword, [
 					'placeholder' => 'Tên, SĐT, địa chỉ',
-					'class' => 'pt-3 pb-2.5',
+					'class' => '',
 				]);
 				?>
 			</div>
@@ -58,7 +58,7 @@ $showAll = !empty($showAll);
 			</div>
 		</div>
 		<div class="flex items-center justify-end gap-2">
-			<a href="<?php echo $basePath; ?>/report/customer-debt" class="inline-flex h-[34px] min-h-[34px] items-center justify-center rounded-lg px-4 text-sm font-medium text-slate-500 hover:bg-slate-100">Đặt lại</a>
+			<a href="<?php echo $basePath; ?>/report/customer-debt" class="app-btn-secondary text-slate-500">Đặt lại</a>
 			<?php ui_button_primary('Lọc dữ liệu', ['type' => 'submit', 'data-loading-button' => '1']); ?>
 		</div>
 	</form>

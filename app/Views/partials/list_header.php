@@ -11,7 +11,7 @@ $extraButtons = isset($cfg['extra_buttons']) && is_array($cfg['extra_buttons']) 
 $chipsCfg = isset($cfg['chips']) && is_array($cfg['chips']) ? $cfg['chips'] : [];
 ?>
 <?php if ($headerTitle !== '' || !empty($searchCfg)) { ?>
-	<div class="mx-auto w-full max-w-6xl px-4 py-3 md:px-6">
+	<div class="app-content-wrap py-4">
 		<div class="flex items-center justify-between gap-3">
 			<div>
 				<h1 class="font-display text-xl font-bold text-slate-900 md:text-2xl">
@@ -25,7 +25,7 @@ $chipsCfg = isset($cfg['chips']) && is_array($cfg['chips']) ? $cfg['chips'] : []
 			</div>
 			<?php if (!empty($primary) && isset($primary['url'])) { ?>
 				<div class="flex items-center gap-2">
-					<a href="<?php echo $basePath . '/' . ltrim((string) $primary['url'], '/'); ?>" class="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-brand-600 p-2 text-white transition hover:bg-brand-700" title="<?php echo htmlspecialchars(isset($primary['tooltip']) ? (string) $primary['tooltip'] : '', ENT_QUOTES, 'UTF-8'); ?>">
+					<a href="<?php echo $basePath . '/' . ltrim((string) $primary['url'], '/'); ?>" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-brand-600 px-3 py-2 text-white transition hover:bg-brand-700" title="<?php echo htmlspecialchars(isset($primary['tooltip']) ? (string) $primary['tooltip'] : '', ENT_QUOTES, 'UTF-8'); ?>">
 						<?php echo ui_icon('plus', 'h-5 w-5'); ?>
 						<span class="hidden sm:inline">Tạo mới</span>
 					</a>
@@ -41,7 +41,7 @@ $chipsCfg = isset($cfg['chips']) && is_array($cfg['chips']) ? $cfg['chips'] : []
 		if ($sticky) {
 			$formAttrs['data-list-sticky'] = '1';
 		}
-		$formClass = $sticky ? 'sticky top-0 z-20 border-b border-transparent bg-slate-50 transition-colors' : '';
+		$formClass = $sticky ? 'sticky top-0 z-20 border-b border-slate-200 bg-slate-50' : '';
 		$searchParam = isset($searchCfg['param']) ? (string) $searchCfg['param'] : 'q';
 		$searchPlaceholder = isset($searchCfg['placeholder']) ? (string) $searchCfg['placeholder'] : '';
 		$searchValue = isset($searchCfg['value']) ? (string) $searchCfg['value'] : '';
@@ -49,14 +49,14 @@ $chipsCfg = isset($cfg['chips']) && is_array($cfg['chips']) ? $cfg['chips'] : []
 		$searchShowClear = !empty($searchCfg['show_clear']);
 		?>
 		<form method="<?php echo htmlspecialchars($formMethod, ENT_QUOTES, 'UTF-8'); ?>" action="<?php echo $formAction !== '' ? htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8') : ''; ?>" class="<?php echo $formClass; ?>"<?php foreach ($formAttrs as $attrKey => $attrValue) { echo ' ' . htmlspecialchars((string) $attrKey, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars((string) $attrValue, ENT_QUOTES, 'UTF-8') . '"'; } ?>>
-			<div class="mx-auto w-full max-w-6xl px-4 py-2 md:px-6">
+			<div class="app-content-wrap py-3">
 				
 					<div class="flex items-center gap-2">
 						<div class="relative flex-1">
 							<span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
 								<?php echo ui_icon('magnifying-glass', 'size-4'); ?>
 							</span>
-							<input type="text" name="<?php echo htmlspecialchars($searchParam, ENT_QUOTES, 'UTF-8'); ?>" value="<?php echo htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8'); ?>" class="h-10 w-full rounded-lg border border-slate-300 bg-white pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none" placeholder="<?php echo htmlspecialchars($searchPlaceholder, ENT_QUOTES, 'UTF-8'); ?>" />
+							<input type="text" name="<?php echo htmlspecialchars($searchParam, ENT_QUOTES, 'UTF-8'); ?>" value="<?php echo htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8'); ?>" class="h-10 w-full rounded-xl border border-slate-300 bg-white pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none" placeholder="<?php echo htmlspecialchars($searchPlaceholder, ENT_QUOTES, 'UTF-8'); ?>" />
 							<?php if ($searchClearUrl !== '') { ?>
 								<a href="<?php echo $basePath . '/' . ltrim($searchClearUrl, '/'); ?>" class="absolute inset-y-0 right-2 flex items-center rounded-lg px-2 text-sm text-slate-400 hover:text-slate-600<?php echo $searchShowClear ? '' : ' hidden'; ?>" data-list-search-clear="1">Xóa</a>
 							<?php } ?>
@@ -67,7 +67,7 @@ $chipsCfg = isset($cfg['chips']) && is_array($cfg['chips']) ? $cfg['chips'] : []
 								$btnAttrs = isset($btn['attrs']) && is_array($btn['attrs']) ? $btn['attrs'] : [];
 								$iconType = isset($btn['icon']) ? (string) $btn['icon'] : 'filter';
 								?>
-								<button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"<?php foreach ($btnAttrs as $attrKey => $attrValue) { echo ' ' . htmlspecialchars((string) $attrKey, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars((string) $attrValue, ENT_QUOTES, 'UTF-8') . '"'; } ?>>
+								<button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"<?php foreach ($btnAttrs as $attrKey => $attrValue) { echo ' ' . htmlspecialchars((string) $attrKey, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars((string) $attrValue, ENT_QUOTES, 'UTF-8') . '"'; } ?>>
 									<?php if ($iconType === 'grid') { ?>
 										<?php echo ui_icon('categories', 'h-5 w-5'); ?>
 									<?php } else { ?>

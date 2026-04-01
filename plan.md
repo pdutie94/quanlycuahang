@@ -55,15 +55,18 @@ Mục tiêu:
 
 ---
 
-### Phase 2 — Chuẩn hóa UI theo `ui-guidelines.md`
+### Phase 2 — Chuẩn hóa UI theo `ui-guidelines.md` với TailwindCSS
 
 Mục tiêu:
+- Giữ nguyên stack render hiện tại: PHP view + TailwindCSS
+- Chưa chuyển sang Vue trong Phase 2
 - Đồng nhất style flat UI
 - Không dùng shadow nặng
 - Dùng border, spacing rõ ràng
 - Chuẩn hóa button, input, card, list, sheet, bottom navigation
 
 Việc cần làm:
+- Ưu tiên refactor bằng Tailwind utilities, partials và class patterns dùng chung
 - Rà soát `app/Views/layout/main.php`
 - Chuẩn hóa các partial dùng chung
 - Giảm nested borders và hiệu ứng không cần thiết
@@ -89,6 +92,7 @@ Mục tiêu:
 ### Phase 4 — Chuyển dần frontend sang Vue 3
 
 Mục tiêu:
+- Chỉ bắt đầu sau khi Phase 2 đã ổn định UI bằng Tailwind trên view PHP hiện tại
 - Migrate theo từng module nhỏ
 - Dùng Composition API
 - Ưu tiên composables, tránh duplication
@@ -124,5 +128,5 @@ Checklist:
 
 Bắt đầu với:
 1. Refactor `OrderListController.php`
-2. Chuẩn hóa UI cho màn hình danh sách sản phẩm/đơn hàng
+2. Bắt đầu Phase 2 bằng chuẩn hóa UI trên nền PHP view + TailwindCSS, trước hết ở `app/Views/layout/main.php`
 3. Tạo lớp API đầu tiên cho `products` hoặc `orders`

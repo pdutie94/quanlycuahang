@@ -11,7 +11,7 @@ if ($categoryId < 0) {
 ?>
 <div data-product-results>
 	<?php if (empty($products)) { ?>
-		<div class="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-4 text-center text-sm text-slate-500">
+		<div class="app-empty-state">
 			Chưa có sản phẩm nào.
 		</div>
 	<?php } else { ?>
@@ -83,16 +83,16 @@ if ($categoryId < 0) {
                     }
                 }
 
-                if ($qty <= 0) {
-                    $statusLabel = 'Hết hàng';
-                    $statusClass = 'text-rose-600';
-                } elseif ($minStock !== null && $minStock > 0 && $qty <= $minStock) {
-                    $statusLabel = 'Tồn thấp';
-                    $statusClass = 'text-amber-600';
-                } else {
-                    $statusLabel = 'Còn hàng';
-                    $statusClass = 'text-brand-600';
-                }
+				if ($qty <= 0) {
+					$statusLabel = 'Hết hàng';
+					$statusClass = 'app-status-danger';
+				} elseif ($minStock !== null && $minStock > 0 && $qty <= $minStock) {
+					$statusLabel = 'Tồn thấp';
+					$statusClass = 'app-status-warning';
+				} else {
+					$statusLabel = 'Còn hàng';
+					$statusClass = 'app-status-success';
+				}
 			}
 
 			if (isset($product['sold_qty'])) {
@@ -106,17 +106,17 @@ if ($categoryId < 0) {
 				}
 			}
 			?>
-			<div class="relative cursor-pointer rounded-card border border-slate-200 bg-white px-3 py-2.5 transition-colors hover:border-brand-200" data-product-edit-row data-url="<?php echo $basePath; ?>/product/edit?id=<?php echo $product['id']; ?>" data-infinite-item>
+			<div class="app-list-card relative cursor-pointer" data-product-edit-row data-url="<?php echo $basePath; ?>/product/edit?id=<?php echo $product['id']; ?>" data-infinite-item>
 				<div class="flex items-center gap-2.5">
 					<!-- Đã bỏ phần hiển thị ảnh sản phẩm ở danh sách -->
 					<div class="flex-1 min-w-0">
 						<div class="flex items-center justify-between gap-x-2">
 							<div class="truncate text-sm font-medium text-slate-900"><?php echo htmlspecialchars($product['name']); ?></div>
 							<?php if ($statusLabel !== null && $statusClass !== '') { ?>
-								<span class="flex-none text-xs font-medium <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span>
+								<span class="app-status-chip flex-none <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span>
 							<?php } ?>
 						</div>
-						<div class="mt-0.5 flex items-center gap-1 text-xs text-slate-400 truncate">
+						<div class="mt-0.5 flex items-center gap-1 text-sm text-slate-500 truncate">
 							<?php if (!empty($product['code'])) { ?>
 								<span><?php echo htmlspecialchars($product['code']); ?></span>
 							<?php } ?>
@@ -131,12 +131,12 @@ if ($categoryId < 0) {
 						</div>
 						<div class="mt-0.5 flex items-center gap-x-2 text-sm">
 							<?php if ($primaryPrice !== null) { ?>
-								<span class="font-medium text-brand-600"><?php echo Money::format($primaryPrice); ?><?php if ($primaryUnit !== '') { ?>/<?php echo htmlspecialchars($primaryUnit); ?><?php } ?></span>
+								<span class="font-semibold text-brand-600"><?php echo Money::format($primaryPrice); ?><?php if ($primaryUnit !== '') { ?>/<?php echo htmlspecialchars($primaryUnit); ?><?php } ?></span>
 								<?php if ($primaryCost !== null && $primaryCost > 0) { ?>
-									<span class="text-xs text-slate-400"><?php echo Money::format($primaryCost); ?><?php if ($primaryUnit !== '') { ?>/<?php echo htmlspecialchars($primaryUnit); ?><?php } ?></span>
+									<span class="text-slate-500"><?php echo Money::format($primaryCost); ?><?php if ($primaryUnit !== '') { ?>/<?php echo htmlspecialchars($primaryUnit); ?><?php } ?></span>
 								<?php } ?>
 							<?php } else { ?>
-								<span class="text-xs text-slate-400">Chưa có giá</span>
+								<span class="text-slate-500">Chưa có giá</span>
 							<?php } ?>
 						</div>
 					</div>
@@ -149,7 +149,7 @@ if ($categoryId < 0) {
 
 <a
 	href="<?php echo $basePath; ?>/product/create"
-	class="fixed bottom-[5rem] right-3 z-20 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-600 text-white md:hidden"
+			class="fixed bottom-[5rem] right-3 z-20 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600 text-white md:hidden"
 	title="Thêm sản phẩm"
 	aria-label="Thêm sản phẩm"
 >
@@ -157,7 +157,7 @@ if ($categoryId < 0) {
 </a>
 
 <?php if (!empty($categoryList)) { ?>
-<div class="app-modal-overlay" data-product-category-filter-root>
+<div class="app-modal-overlay hidden" data-product-category-filter-root>
 	<div class="app-modal-sheet-sm">
 		<div class="app-modal-header">
 			<div class="app-modal-title">Lọc theo danh mục</div>
@@ -169,7 +169,7 @@ if ($categoryId < 0) {
 			<?php
 			$isAllSelected = $categoryId <= 0;
 			?>
-			<button type="button" class="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm <?php echo $isAllSelected ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'; ?>" data-product-category-option data-category-id="">
+			<button type="button" class="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm <?php echo $isAllSelected ? 'border-brand-500 text-brand-700' : 'border-slate-200 text-slate-700 hover:bg-slate-50'; ?>" data-product-category-option data-category-id="">
 				<span>Tất cả danh mục</span>
 				<?php echo ui_icon("check", "h-4 w-4" . ($isAllSelected ? '' : ' hidden'), ['data-product-category-check' => '1']); ?>
 			</button>
@@ -185,7 +185,7 @@ if ($categoryId < 0) {
 				$name = isset($cat['name']) ? $cat['name'] : '';
 				$selected = $categoryId > 0 && $categoryId === $id;
 				?>
-				<button type="button" class="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm <?php echo $selected ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'; ?>" data-product-category-option data-category-id="<?php echo $id; ?>">
+				<button type="button" class="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm <?php echo $selected ? 'border-brand-500 text-brand-700' : 'border-slate-200 text-slate-700 hover:bg-slate-50'; ?>" data-product-category-option data-category-id="<?php echo $id; ?>">
 					<span class="truncate"><?php echo htmlspecialchars($name); ?></span>
 					<?php echo ui_icon("check", "h-4 w-4" . ($selected ? '' : ' hidden'), ['data-product-category-check' => '1']); ?>
 				</button>
@@ -227,10 +227,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		document.querySelectorAll('[data-product-category-option]').forEach(function (btn) {
 			var isActive = (btn.getAttribute('data-category-id') || '') === selectedValue;
 			btn.classList.toggle('border-brand-500', isActive);
-			btn.classList.toggle('bg-brand-50', isActive);
 			btn.classList.toggle('text-brand-700', isActive);
 			btn.classList.toggle('border-slate-200', !isActive);
-			btn.classList.toggle('bg-white', !isActive);
 			btn.classList.toggle('text-slate-700', !isActive);
 			btn.classList.toggle('hover:bg-slate-50', !isActive);
 
@@ -449,16 +447,31 @@ document.addEventListener('DOMContentLoaded', function () {
 		return;
 	}
 	var btnOpen = document.querySelector('[data-product-category-filter-open]');
+	function openPopup() {
+		if (typeof window.APP_openModal === 'function') {
+			window.APP_openModal(root);
+			return;
+		}
+		root.classList.remove('hidden');
+		root.classList.add('flex');
+		document.body.classList.add('overflow-hidden');
+	}
+
+	function closePopup() {
+		if (typeof window.APP_closeModal === 'function') {
+			window.APP_closeModal(root);
+			return;
+		}
+		root.classList.add('hidden');
+		root.classList.remove('flex');
+		document.body.classList.remove('overflow-hidden');
+	}
+
 	if (btnOpen) {
 		btnOpen.addEventListener('click', function (e) {
 			e.preventDefault();
-			root.classList.remove('hidden');
-			root.classList.add('flex');
+			openPopup();
 		});
-	}
-	function closePopup() {
-		root.classList.add('hidden');
-		root.classList.remove('flex');
 	}
 	root.addEventListener('click', function (e) {
 		if (e.target !== root) return;

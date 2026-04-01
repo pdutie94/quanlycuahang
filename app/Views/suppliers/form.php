@@ -12,16 +12,14 @@
 
 <?php $action = $supplier ? $basePath . '/supplier/update' : $basePath . '/supplier/store'; ?>
 
-<div class="space-y-4">
-	<div class="rounded-lg border border-slate-200 bg-white ">
-		<form method="post" action="<?php echo $action; ?>" class="px-4 py-4">
+<form method="post" action="<?php echo $action; ?>" class="space-y-0">
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>" />
 		<?php if ($supplier) { ?>
 			<input type="hidden" name="id" value="<?php echo (int) $supplier['id']; ?>" />
 		<?php } ?>
-			<div class="flex flex-col gap-4">
+		<section class="app-form-group flex flex-col gap-4">
 				<div class="flex flex-col gap-1 md:col-span-2">
-					<label for="supplier-name" class="block text-sm text-slate-700">Tên nhà cung cấp</label>
+					<label for="supplier-name" class="app-label">Tên nhà cung cấp</label>
 					<?php
 					$supplierNameValue = $supplier ? $supplier['name'] : '';
 					   ui_input_text('name', $supplierNameValue, [
@@ -32,7 +30,7 @@
 					?>
 				</div>
 				<div class="flex flex-col gap-1">
-					<label for="supplier-phone" class="block text-sm text-slate-700">Số điện thoại</label>
+					<label for="supplier-phone" class="app-label">Số điện thoại</label>
 					<?php
 					$supplierPhoneValue = $supplier ? $supplier['phone'] : '';
 					   ui_input_text('phone', $supplierPhoneValue, [
@@ -42,7 +40,7 @@
 					?>
 				</div>
 				<div class="flex flex-col gap-1">
-					<label for="supplier-address" class="block text-sm text-slate-700">Địa chỉ</label>
+					<label for="supplier-address" class="app-label">Địa chỉ</label>
 					<?php
 					$supplierAddressValue = $supplier ? $supplier['address'] : '';
 					   ui_input_text('address', $supplierAddressValue, [
@@ -51,13 +49,11 @@
 					   ]);
 					?>
 				</div>
-				<div data-floating-actions>
-					<?php
-					$submitLabel = $supplier ? 'Cập nhật' : 'Lưu';
-					ui_button_primary($submitLabel, ['type' => 'submit', 'class' => 'h-[34px] min-h-[34px]', 'data-loading-button' => '1', 'data-floating-primary' => '1']);
-					?>
-				</div>
-			</div>
-		</form>
-	</div>
-</div>
+		</section>
+		<div class="mt-4 border-t border-slate-200 pt-4" data-floating-actions>
+			<?php
+			$submitLabel = $supplier ? 'Cập nhật' : 'Lưu';
+			ui_button_primary($submitLabel, ['type' => 'submit', 'data-loading-button' => '1', 'data-floating-primary' => '1']);
+			?>
+		</div>
+</form>

@@ -40,7 +40,7 @@ if ($debt < 0) {
                 </div>
                 <div>
                     <span class="text-slate-500">Còn nợ: </span>
-                    <span class="font-medium <?php echo $debt > 0 ? 'text-red-600' : 'text-slate-700'; ?>"><?php echo Money::format($debt); ?></span>
+                    <span class="font-medium <?php echo $debt > 0 ? 'text-rose-600' : 'text-slate-700'; ?>"><?php echo Money::format($debt); ?></span>
                 </div>
             </div>
         </div>
@@ -56,7 +56,7 @@ if ($debt < 0) {
                 <div class="flex items-center justify-between border-b border-slate-100 px-4 py-2 text-sm">
                 <div class="font-medium text-slate-800">Chọn sản phẩm và số lượng trả</div>
                 <label class="inline-flex items-center gap-1.5 text-sm text-slate-700">
-                    <input type="checkbox" name="return_all" value="1" class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                        <input type="checkbox" name="return_all" value="1" class="h-4 w-4 rounded border-slate-300 text-brand-600">
                     <span>Trả toàn bộ số lượng</span>
                 </label>
             </div>
@@ -108,7 +108,7 @@ if ($debt < 0) {
                                     max="<?php echo $qty; ?>"
                                     step="0.01"
                                     placeholder="0"
-                                    class="form-field h-[34px] min-h-[34px] w-24 rounded-xl border border-slate-300 bg-white px-2.5 text-right text-sm outline-none transition focus:border-brand-500"
+                                    class="form-field h-10 min-h-10 w-24 rounded-xl border border-slate-300 bg-white px-2.5 text-right text-sm outline-none transition focus:border-brand-500"
                                 >
                             </div>
                         </div>
@@ -118,11 +118,11 @@ if ($debt < 0) {
         </div>
 
         <div class="flex flex-wrap items-center justify-end gap-2">
-            <a href="<?php echo $basePath; ?>/order/view?id=<?php echo (int) $order['id']; ?>" class="inline-flex h-[34px] min-h-[34px] items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 hover:bg-slate-50">
+			<a href="<?php echo $basePath; ?>/order/view?id=<?php echo (int) $order['id']; ?>" class="app-btn-secondary gap-1.5">
 				<?php echo ui_icon("arrow-left-on-rectangle", "h-4 w-4"); ?>
                 <span>Hủy</span>
             </a>
-            <button type="submit" class="inline-flex h-[34px] min-h-[34px] items-center gap-1.5 rounded-lg bg-rose-600 px-4 text-sm font-medium text-white hover:bg-rose-700 active:bg-rose-800">
+			<button type="submit" class="app-btn-danger gap-1.5">
 				<?php echo ui_icon("arrow-path", "h-4 w-4"); ?>
                 <span>Ghi nhận trả hàng</span>
             </button>

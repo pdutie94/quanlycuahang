@@ -64,7 +64,7 @@
 
 ### Button
 
-* Height: 44px
+* Height: 40px
 * Rounded: 12px
 * No shadow
 
@@ -78,7 +78,7 @@ Variants:
 
 ### Input
 
-* Height: 44px
+* Height: 40px
 * Border
 * Rounded: 12px
 * Padding: 12px
@@ -114,7 +114,7 @@ Label:
 
 ## Interaction
 
-* Tap area ≥ 44px
+* Tap area ≥ 40px
 * No hover dependency
 * Fast response
 

@@ -56,10 +56,10 @@ $totalItems = count($items);
 							$inventoryAdjustValue = rtrim(rtrim(number_format($qtyBase, 2, ',', ''), '0'), ',');
 							?>
 							<div class="relative w-28">
-								<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số lượng</label>
+								<label class="app-label">Số lượng</label>
 								<?php
 								ui_input_text('qty_base', $inventoryAdjustValue, [
-									'class' => 'pt-3 pb-2.5 text-right text-sm text-slate-800',
+									'class' => 'text-right text-sm text-slate-800',
 								]);
 								?>
 							</div>

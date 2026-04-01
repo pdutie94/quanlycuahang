@@ -7,7 +7,7 @@
 			<span>Danh sách</span>
 		</a>
 		<div class="relative" data-header-actions-menu>
-			<button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100" data-header-actions-toggle>
+			<button type="button" class="inline-flex h-10 w-10 items-center justify-center text-slate-600 hover:text-slate-800" data-header-actions-toggle>
 				<?php echo ui_icon("ellipsis-vertical", "h-4 w-4"); ?>
 			</button>
 			<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm  overflow-hidden hidden" data-header-actions-dropdown>
@@ -51,15 +51,15 @@
 	<div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 text-sm">
 		<div class="rounded-md bg-slate-50 px-3 py-2">
 			<div class="text-sm font-medium uppercase  text-slate-500">Tổng tiền</div>
-			<div class="mt-1 text-sm old-text-base font-medium text-slate-900"><?php echo Money::format($totalAmountSum); ?></div>
+			<div class="mt-1 text-sm font-medium text-slate-900 md:text-base"><?php echo Money::format($totalAmountSum); ?></div>
 		</div>
 		<div class="rounded-md bg-brand-50 px-3 py-2">
 			<div class="text-sm font-medium uppercase  text-brand-600">Đã thu</div>
-			<div class="mt-1 text-sm old-text-base font-medium text-brand-700"><?php echo Money::format($totalPaidSum); ?></div>
+			<div class="mt-1 text-sm font-medium text-brand-700 md:text-base"><?php echo Money::format($totalPaidSum); ?></div>
 		</div>
 		<div class="rounded-md bg-slate-50 px-3 py-2">
 			<div class="text-sm font-medium uppercase  text-slate-500">Còn nợ</div>
-			<div class="mt-1 text-sm old-text-base font-medium <?php echo $totalDebt > 0 ? 'text-red-600' : 'text-slate-700'; ?>"><?php echo Money::format($totalDebt); ?></div>
+			<div class="mt-1 text-sm font-medium <?php echo $totalDebt > 0 ? 'text-red-600' : 'text-slate-700'; ?> md:text-base"><?php echo Money::format($totalDebt); ?></div>
 		</div>
 	</div>
 </div>

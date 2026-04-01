@@ -40,6 +40,12 @@ if ($orderStatus === 'cancelled') {
 }
 $debtClass = $remaining > 0 ? 'text-rose-700' : 'text-slate-700';
 $orderNote = isset($order['note']) ? trim((string) $order['note']) : (isset($order['notes']) ? trim((string) $order['notes']) : '');
+if ($orderNote !== '') {
+    $noteTrim = rtrim($orderNote);
+    if (substr($noteTrim, -9) === '[TT:cash]' || substr($noteTrim, -9) === '[TT:bank]') {
+        $orderNote = trim(substr($noteTrim, 0, -9));
+    }
+}
 $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : [];
 $items = isset($items) && is_array($items) ? $items : [];
 ?>
@@ -48,8 +54,8 @@ $items = isset($items) && is_array($items) ? $items : [];
     <div class="space-y-3">
         <div>
             <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-semibold <?php echo $paymentStatusClass; ?>"><?php echo htmlspecialchars($paymentStatusLabel); ?></span>
-                <span class="inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-semibold <?php echo $orderStatusClass; ?>"><?php echo htmlspecialchars($orderStatusLabel); ?></span>
+                <span class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold <?php echo $paymentStatusClass; ?>"><?php echo htmlspecialchars($paymentStatusLabel); ?></span>
+                <span class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold <?php echo $orderStatusClass; ?>"><?php echo htmlspecialchars($orderStatusLabel); ?></span>
             </div>
         </div>
 
@@ -71,17 +77,17 @@ $items = isset($items) && is_array($items) ? $items : [];
             <div class="my-2 border-t border-dashed border-slate-200"></div>
             <div class="flex items-center justify-between gap-3">
                 <span class="font-medium text-slate-700">Tổng cộng</span>
-                <span class="text-base font-semibold text-slate-900"><?php echo Money::format($totalAmount); ?></span>
+                <span class="text-sm font-semibold text-slate-900 md:text-base"><?php echo Money::format($totalAmount); ?></span>
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
             <div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
-                <div class="text-xs text-slate-500">Đã thanh toán</div>
+                <div class="text-sm text-slate-500">Đã thanh toán</div>
                 <div class="mt-0.5 font-semibold text-brand-700"><?php echo Money::format(isset($order['paid_amount']) ? (float)$order['paid_amount'] : 0); ?></div>
             </div>
             <div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
-                <div class="text-xs text-slate-500">Còn nợ</div>
+                <div class="text-sm text-slate-500">Còn nợ</div>
                 <div class="mt-0.5 font-semibold <?php echo $debtClass; ?>"><?php echo Money::format($remaining); ?></div>
             </div>
         </div>
@@ -90,7 +96,7 @@ $items = isset($items) && is_array($items) ? $items : [];
     <?php if ($orderNote !== '') { ?>
         <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
             <div class="text-slate-500">Ghi chú</div>
-            <div class="mt-1 text-slate-800"><?php echo nl2br(htmlspecialchars($orderNote)); ?></div>
+            <div class="mt-0.5 text-slate-800"><?php echo nl2br(htmlspecialchars($orderNote)); ?></div>
         </div>
     <?php } ?>
 

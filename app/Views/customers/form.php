@@ -19,36 +19,32 @@ $backUrl = $isEdit ? $basePath . '/customer/view?id=' . $customerId : $basePath 
 </div>
 <?php } ?>
 
-<div class="space-y-4">
-	<div class="rounded-lg border border-slate-200 bg-white ">
-		<form method="post" action="<?php echo $action; ?>" class="px-4 py-4">
+<form method="post" action="<?php echo $action; ?>" class="space-y-0">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>" />
 			<?php if ($isEdit) { ?>
 				<input type="hidden" name="id" value="<?php echo $customerId; ?>" />
 			<?php } ?>
 
-			<div class="flex flex-col gap-4">
+			<section class="app-form-group flex flex-col gap-4">
 				<div class="flex flex-col gap-1">
-					<label for="customer-name" class="block text-sm text-slate-700">Tên khách hàng</label>
+					<label for="customer-name" class="app-label">Tên khách hàng</label>
 					<input id="customer-name" type="text" name="name" value="<?php echo htmlspecialchars($name); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white" required />
 				</div>
 
 				<div class="flex flex-col gap-1">
-					<label for="customer-phone" class="block text-sm text-slate-700">Số điện thoại</label>
+					<label for="customer-phone" class="app-label">Số điện thoại</label>
 					<input id="customer-phone" type="text" name="phone" value="<?php echo htmlspecialchars($phone); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white" />
 				</div>
 
 				<div class="flex flex-col gap-1">
-					<label for="customer-address" class="block text-sm text-slate-700">Địa chỉ</label>
+					<label for="customer-address" class="app-label">Địa chỉ</label>
 					<input id="customer-address" type="text" name="address" value="<?php echo htmlspecialchars($address); ?>" class="form-field block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:bg-white" />
 				</div>
+			</section>
 
-				<div class="pt-2" data-floating-actions>
-					<button type="submit" class="inline-flex h-[34px] min-h-[34px] items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700" data-loading-button="1" data-floating-primary="1">
-						<?php echo $isEdit ? 'Lưu thay đổi' : 'Lưu'; ?>
-					</button>
-				</div>
+			<div class="mt-4 border-t border-slate-200 pt-4" data-floating-actions>
+				<button type="submit" class="app-btn-primary" data-loading-button="1" data-floating-primary="1">
+					<?php echo $isEdit ? 'Lưu thay đổi' : 'Lưu'; ?>
+				</button>
 			</div>
-		</form>
-	</div>
-</div>
+</form>

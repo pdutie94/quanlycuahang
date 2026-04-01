@@ -10,9 +10,9 @@ $isPos = $layoutMode === 'pos';
             <input type="hidden" hidden name="id" value="<?php echo $order['id']; ?>">
         <?php } ?>
 
-        <div class="flex flex-col rounded-lg border border-slate-200 bg-white px-4 py-4 lg:px-5 lg:py-5">
+        <div class="app-form-group flex flex-col">
             <div class="mb-1 flex items-center justify-between">
-                <div class="flex items-center gap-2 text-sm font-medium text-slate-800">
+                <div class="flex items-center gap-2 text-base font-medium text-slate-800">
                     <span>Sản phẩm</span>
                 </div>
                 <button type="button" class="inline-flex items-center rounded-md border border-brand-600 px-3 py-1 text-sm font-medium text-brand-700 hover:bg-brand-50" data-product-selector-open data-product-selector-mode="<?php echo $isPos ? 'pos' : 'order-edit-add'; ?>">
@@ -22,8 +22,8 @@ $isPos = $layoutMode === 'pos';
 
 			<div class="flex-1">
 				<?php if ($isPos) { ?>
-					<div data-pos-cart-list class="flex flex-col"></div>
-                    <div class="mt-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-center text-sm text-slate-500" data-pos-empty>
+					<div data-pos-cart-list class="flex flex-col space-y-2 mt-2"></div>
+                    <div class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-center text-sm text-slate-500" data-pos-empty>
                         Đơn hàng chưa có mặt hàng nào.
                     </div>
                     <?php
@@ -32,7 +32,7 @@ $isPos = $layoutMode === 'pos';
                     include __DIR__ . '/manual_free_items.php';
                     ?>
 				<?php } else { ?>
-					<div class="flex flex-col" data-order-edit-items-list>
+					<div class="flex flex-col space-y-2 mt-2" data-order-edit-items-list>
                         <?php if (!empty($items)) { ?>
                             <?php
                             $editUnitsByProduct = [];
@@ -47,7 +47,7 @@ $isPos = $layoutMode === 'pos';
                             }
                             ?>
 						<?php foreach ($items as $item) { ?>
-							<div class="flex items-center justify-between gap-3 py-2 border-b border-slate-200 last:border-b-0" data-order-existing-item="1" data-order-item-id="<?php echo (int) $item['id']; ?>" data-product-id="<?php echo (int) $item['product_id']; ?>" data-product-unit-id="<?php echo (int) $item['product_unit_id']; ?>" data-base-qty="<?php echo isset($item['qty']) ? (float) $item['qty'] : 0; ?>" data-price="<?php echo isset($item['price_sell']) ? (float) $item['price_sell'] : 0; ?>" data-base-price="<?php echo isset($item['price_sell']) ? (float) $item['price_sell'] : 0; ?>">
+							<div class="bg-white border px-3 py-2 rounded-xl border-slate-200 flex items-start justify-between gap-3" data-order-existing-item="1" data-order-item-id="<?php echo (int) $item['id']; ?>" data-product-id="<?php echo (int) $item['product_id']; ?>" data-product-unit-id="<?php echo (int) $item['product_unit_id']; ?>" data-base-qty="<?php echo isset($item['qty']) ? (float) $item['qty'] : 0; ?>" data-price="<?php echo isset($item['price_sell']) ? (float) $item['price_sell'] : 0; ?>" data-base-price="<?php echo isset($item['price_sell']) ? (float) $item['price_sell'] : 0; ?>">
 								<div class="flex items-center gap-3">
 									<div>
 									<div class="text-sm font-medium text-slate-900"><?php echo htmlspecialchars($item['product_name']); ?></div>
@@ -118,7 +118,7 @@ $isPos = $layoutMode === 'pos';
 							</div>
 						<?php } ?>
                         <?php } ?>
-                        <div class="mt-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-center text-sm text-slate-500<?php echo !empty($items) ? ' hidden' : ''; ?>" data-order-edit-empty>
+                        <div class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-center text-sm text-slate-500<?php echo !empty($items) ? ' hidden' : ''; ?>" data-order-edit-empty>
                             Đơn hàng chưa có mặt hàng nào.
                         </div>
                     </div>
@@ -197,40 +197,40 @@ $isPos = $layoutMode === 'pos';
                 </div>
                 <div class="app-modal-body space-y-4">
                     <div class="relative">
-						<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Tên hàng</label>
-						<input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500" autocomplete="off" data-pos-manual-edit-name>
+						<label class="app-label">Tên hàng</label>
+						<input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm outline-none transition focus:border-brand-500" autocomplete="off" data-pos-manual-edit-name>
                     </div>
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div class="relative">
-							<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Đơn vị</label>
-							<input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500" autocomplete="off" data-pos-manual-edit-unit>
+							<label class="app-label">Đơn vị</label>
+							<input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm outline-none transition focus:border-brand-500" autocomplete="off" data-pos-manual-edit-unit>
                         </div>
                         <div class="relative">
-							<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số lượng</label>
-							<input type="number" min="0" step="0.01" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm text-right outline-none transition focus:border-brand-500" data-pos-manual-edit-qty>
+							<label class="app-label">Số lượng</label>
+							<input type="number" min="0" step="0.01" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm text-right outline-none transition focus:border-brand-500" data-pos-manual-edit-qty>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div class="space-y-4">
                             <div class="relative">
-								<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Giá nhập</label>
+								<label class="app-label">Giá nhập</label>
                                 <div class="relative">
-									<input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 pr-7 text-sm text-right outline-none transition focus:border-brand-500" inputmode="numeric" autocomplete="off" data-money-input data-pos-manual-edit-price-buy>
+									<input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pr-7 text-sm text-right outline-none transition focus:border-brand-500" inputmode="numeric" autocomplete="off" data-money-input data-pos-manual-edit-price-buy>
                                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-500">đ</span>
                                 </div>
                             </div>
                             <div class="relative">
-								<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Tổng tiền nhập</label>
+								<label class="app-label">Tổng tiền nhập</label>
                                 <div class="relative">
-									<input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 pr-7 text-sm text-right outline-none transition focus:border-brand-500" inputmode="numeric" autocomplete="off" data-money-input data-pos-manual-edit-amount-buy>
+									<input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pr-7 text-sm text-right outline-none transition focus:border-brand-500" inputmode="numeric" autocomplete="off" data-money-input data-pos-manual-edit-amount-buy>
                                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-500">đ</span>
                                 </div>
                             </div>
                         </div>
                         <div class="relative">
-							<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Giá bán</label>
+							<label class="app-label">Giá bán</label>
                             <div class="relative">
-								<input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 pr-7 text-sm text-right outline-none transition focus:border-brand-500" inputmode="numeric" autocomplete="off" data-money-input data-pos-manual-edit-price-sell>
+								<input type="text" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pr-7 text-sm text-right outline-none transition focus:border-brand-500" inputmode="numeric" autocomplete="off" data-money-input data-pos-manual-edit-price-sell>
                                 <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-500">đ</span>
                             </div>
                         </div>
@@ -277,9 +277,9 @@ $isPos = $layoutMode === 'pos';
                     </div>
                 </div>
                 <div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Đơn giá mới</label>
+					<label class="app-label">Đơn giá mới</label>
                     <div class="relative">
-                        <input type="text" data-money-input="1" data-pos-price-modal-input class="form-field w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 pr-8 text-right text-sm font-medium text-slate-900 outline-none transition focus:border-brand-500" value="0">
+                        <input type="text" data-money-input="1" data-pos-price-modal-input class="form-field w-full rounded-xl border border-slate-300 bg-white px-3.5 pr-8 text-right text-sm font-medium text-slate-900 outline-none transition focus:border-brand-500" value="0">
                         <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                     </div>
                 </div>

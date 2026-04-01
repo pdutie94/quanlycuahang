@@ -4,7 +4,7 @@ unset($queryParams['page'], $queryParams['ajax']);
 $queryString = http_build_query($queryParams);
 ?>
 <?php if (empty($purchases)) { ?>
-	<div class="rounded-card border border-dashed border-slate-300 bg-white px-4 py-5 text-center text-sm text-slate-500">
+	<div class="app-empty-state py-5">
 		Chưa có phiếu nhập hàng nào.
 	</div>
 <?php } else { ?>
@@ -15,7 +15,7 @@ $queryString = http_build_query($queryParams);
 			$paid = (float) $purchase['paid_amount'];
 			$debt = $total - $paid;
 			?>
-			<a href="<?php echo $basePath; ?>/purchase/view?id=<?php echo $purchase['id']; ?>" class="relative block rounded-card border border-slate-200 bg-white p-4 transition hover:border-slate-300" data-infinite-item>
+			<a href="<?php echo $basePath; ?>/purchase/view?id=<?php echo $purchase['id']; ?>" class="app-list-card relative block p-4" data-infinite-item>
 				<div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
 					<div class="min-w-0">
 						<div class="flex items-center gap-2">
@@ -23,9 +23,9 @@ $queryString = http_build_query($queryParams);
 								#<?php echo htmlspecialchars($purchase['purchase_code']); ?>
 							</div>
 							<?php if ($purchase['status'] === 'paid') { ?>
-								<span class="inline-flex items-center rounded-chip border border-brand-200 bg-brand-50 px-3 py-0.5 text-sm font-medium text-brand-700">Đã thanh toán</span>
+								<span class="app-status-chip app-status-success">Đã thanh toán</span>
 							<?php } else { ?>
-								<span class="inline-flex items-center rounded-chip border border-amber-200 bg-amber-50 px-3 py-0.5 text-sm font-medium text-amber-700">Còn nợ</span>
+								<span class="app-status-chip app-status-warning">Còn nợ</span>
 							<?php } ?>
 						</div>
 						<div class="mt-1 text-sm text-slate-500">
@@ -46,7 +46,7 @@ $queryString = http_build_query($queryParams);
 								Đã trả: <span class="font-medium text-brand-600"><?php echo Money::format($paid); ?></span>
 							</span>
 							<span>
-								Còn nợ: <span class="font-medium <?php echo $debt > 0 ? 'text-red-600' : 'text-slate-700'; ?>"><?php echo Money::format($debt); ?></span>
+								Còn nợ: <span class="font-medium <?php echo $debt > 0 ? 'text-rose-600' : 'text-slate-700'; ?>"><?php echo Money::format($debt); ?></span>
 							</span>
 						</div>
 					</div>
@@ -69,7 +69,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 }
 ?>
 
-<div class="app-modal-overlay" data-purchase-advanced-filter-root>
+<div class="app-modal-overlay hidden" data-purchase-advanced-filter-root>
 	<div class="app-modal-sheet-sm">
 		<div class="app-modal-header">
 			<h2 class="app-modal-title">Lọc phiếu nhập</h2>
@@ -81,7 +81,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 			<input type="hidden" name="q" value="<?php echo isset($keyword) ? htmlspecialchars($keyword) : ''; ?>">
 			<div class="space-y-4">
 				<div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Nhà cung cấp</label>
+					<label class="app-label">Nhà cung cấp</label>
 					<?php
 					$currentSupplierId = isset($supplierId) ? (int) $supplierId : 0;
 					$supplierOptions = ['' => 'Tất cả nhà cung cấp'];
@@ -91,17 +91,17 @@ if (!empty($fromDate) || !empty($toDate)) {
 							$supplierOptions[$id] = $supplier['name'];
 						}
 					}
-					ui_select('supplier_id', $supplierOptions, $currentSupplierId, ['class' => 'pt-3']);
+					ui_select('supplier_id', $supplierOptions, $currentSupplierId, ['class' => '']);
 					?>
 				</div>
 				<div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Thời gian</label>
+					<label class="app-label">Thời gian</label>
 					<?php
 					ui_input_text('date_range', $dateRangeValue, [
 						'autocomplete' => 'off',
 						'placeholder' => 'VD: 2026-02-01 - 2026-02-29',
 						'data-order-date-range' => '1',
-						'class' => 'pt-3 pb-2.5',
+						'class' => '',
 					]);
 					?>
 					<input type="hidden" name="from_date" value="<?php echo isset($fromDate) ? htmlspecialchars($fromDate) : ''; ?>" data-order-date-from />
@@ -130,16 +130,31 @@ document.addEventListener('DOMContentLoaded', function () {
 	var root = document.querySelector('[data-purchase-advanced-filter-root]');
 	if (!root) return;
 	var btnOpen = document.querySelector('[data-purchase-advanced-filter-open]');
+	function openFilter() {
+		if (typeof window.APP_openModal === 'function') {
+			window.APP_openModal(root);
+			return;
+		}
+		root.classList.remove('hidden');
+		root.classList.add('flex');
+		document.body.classList.add('overflow-hidden');
+	}
+
+	function closeFilter() {
+		if (typeof window.APP_closeModal === 'function') {
+			window.APP_closeModal(root);
+			return;
+		}
+		root.classList.add('hidden');
+		root.classList.remove('flex');
+		document.body.classList.remove('overflow-hidden');
+	}
+
 	if (btnOpen) {
 		btnOpen.addEventListener('click', function (e) {
 			e.preventDefault();
-			root.classList.remove('hidden');
-			root.classList.add('flex');
+			openFilter();
 		});
-	}
-	function closeFilter() {
-		root.classList.add('hidden');
-		root.classList.remove('flex');
 	}
 	root.addEventListener('click', function (e) {
 		if (e.target !== root) return;

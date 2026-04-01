@@ -67,13 +67,13 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 			<div class="mt-3 space-y-2 text-sm">
 				<div class="flex items-center justify-between">
 						<div class="text-sm font-medium uppercase  text-slate-500">Tổng vốn</div>
-					<div class="text-sm old-text-base font-medium text-slate-900"><?php echo Money::format($totalCost); ?></div>
+					<div class="text-sm font-medium text-slate-900 md:text-base"><?php echo Money::format($totalCost); ?></div>
 				</div>
 
 				<div class="space-y-0.5">
 					<div class="flex items-center justify-between">
 						<div class="text-sm font-medium uppercase  text-slate-500">Tổng bán (gốc)</div>
-						<div class="text-sm old-text-base font-medium text-slate-900"><?php echo Money::format($grossAmount); ?></div>
+						<div class="text-sm font-medium text-slate-900 md:text-base"><?php echo Money::format($grossAmount); ?></div>
 					</div>
 					<?php if ($discountAmount > 0) { ?>
 						<div class="flex items-center justify-between pl-2">
@@ -91,17 +91,17 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 
 				<div class="mt-1 flex items-center justify-between">
 					<div class="text-sm font-medium uppercase  text-slate-500">Tổng bán thực tế</div>
-					<div class="text-sm old-text-base font-medium text-slate-900"><?php echo Money::format($totalAmount); ?></div>
+					<div class="text-sm font-medium text-slate-900 md:text-base"><?php echo Money::format($totalAmount); ?></div>
 				</div>
 
 				<div class="mt-3 flex items-center justify-between rounded-md px-3 py-2 <?php echo $profitOrder >= 0 ? 'bg-brand-50' : 'bg-rose-50'; ?>">
 					<div class="flex items-center gap-2">
-						<span class="inline-flex h-6 w-6 items-center justify-center rounded-lg <?php echo $profitOrder >= 0 ? 'bg-brand-600 text-white' : 'bg-rose-600 text-white'; ?>">
+						<span class="app-status-chip <?php echo $profitOrder >= 0 ? 'app-status-success' : 'app-status-danger'; ?>">
 							<?php echo ui_icon("check", "h-3.5 w-3.5"); ?>
 						</span>
 						<span class="text-sm font-medium uppercase  <?php echo $profitOrder >= 0 ? 'text-brand-700' : 'text-rose-700'; ?>">Lợi nhuận</span>
 					</div>
-					<div class="text-sm old-text-base font-medium <?php echo $profitOrder >= 0 ? 'text-brand-700' : 'text-rose-700'; ?>">
+					<div class="text-sm font-medium <?php echo $profitOrder >= 0 ? 'text-brand-700' : 'text-rose-700'; ?> md:text-base">
 						<?php echo ($profitOrder >= 0 ? '+' : '') . Money::format($profitOrder); ?>
 					</div>
 				</div>
@@ -109,11 +109,11 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 				<div class="mt-2 grid grid-cols-2 gap-2 text-sm">
 					<div class="rounded-md bg-slate-50 px-3 py-2">
 						<div class="text-sm font-medium uppercase  text-slate-500">Đã thu</div>
-						<div class="mt-1 text-sm old-text-base font-medium text-slate-900"><?php echo Money::format($order['paid_amount']); ?></div>
+						<div class="mt-1 text-sm font-medium text-slate-900 md:text-base"><?php echo Money::format($order['paid_amount']); ?></div>
 					</div>
 					<div class="rounded-md bg-amber-50 px-3 py-2">
 						<div class="text-sm font-medium uppercase  text-amber-700">Còn nợ</div>
-						<div class="mt-1 text-sm old-text-base font-medium text-amber-700"><?php echo Money::format($remaining); ?></div>
+						<div class="mt-1 text-sm font-medium text-amber-700 md:text-base"><?php echo Money::format($remaining); ?></div>
 					</div>
 				</div>
 			</div>
@@ -132,7 +132,7 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 							<?php echo ui_icon("chevron-down", "h-4 w-4"); ?>
 						</span>
 					</div>
-					<button type="submit" class="inline-flex h-[34px] min-h-[34px] items-center gap-1.5 rounded-lg border border-brand-600 bg-brand-600 px-4 text-sm font-medium text-white hover:border-brand-700 hover:bg-brand-700">
+					<button type="submit" class="app-btn-primary gap-1.5">
 						<?php echo ui_icon("arrow-path", "h-4 w-4"); ?>
 						<span>Cập nhật</span>
 					</button>
@@ -577,22 +577,22 @@ $manualItems = isset($manualItems) && is_array($manualItems) ? $manualItems : []
 					?>
 				</div>
 				<div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số tiền thu</label>
+					<label class="app-label">Số tiền thu</label>
 					<div class="relative">
 						<?php
 						$amountValue = htmlspecialchars(number_format($remaining, 0, '', '.'));
 						ui_input_text('amount', $amountValue, [
 							'inputmode' => 'numeric',
 							'data-money-input' => '1',
-							'class' => 'pr-9 pt-3 pb-2.5 text-right'
+							'class' => 'pr-9 text-right'
 						]);
 						?>
 						<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
 					</div>
 				</div>
 				<div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Ghi chú</label>
-					<textarea name="note" rows="2" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500"></textarea>
+					<label class="app-label">Ghi chú</label>
+					<textarea name="note" rows="2" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm outline-none transition focus:border-brand-500"></textarea>
 				</div>
 				<div class="app-modal-footer mt-2 pt-2 border-t border-slate-100 px-0 py-0">
 					<button type="button" class="app-btn-secondary" data-order-payment-close>Hủy</button>

@@ -29,7 +29,7 @@ $badgeLabel = $isPaymentDone ? 'Đã xong' : 'Còn nợ';
 $badgeClass = $isPaymentDone ? 'bg-brand-100 text-brand-800' : 'bg-rose-100 text-rose-800';
 ?>
 
-<a href="<?php echo htmlspecialchars($orderCardUrl); ?>" class="relative block rounded-card border border-slate-200 bg-white p-3 transition-colors hover:border-brand-200" <?php echo $orderCardExtraAttrs; ?>>
+<a href="<?php echo htmlspecialchars($orderCardUrl); ?>" class="app-card relative block p-3 transition-colors hover:border-brand-200" <?php echo $orderCardExtraAttrs; ?>>
     <button type="button" class="absolute right-1 top-1 inline-flex h-[30px] w-[30px] items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-brand-50 hover:text-brand-600" data-order-preview-btn data-order-id="<?php echo (int) (isset($orderCardData['id']) ? $orderCardData['id'] : 0); ?>" data-order-code="<?php echo htmlspecialchars((string) $orderCode); ?>" data-order-date="<?php echo htmlspecialchars($timeText); ?>" data-order-customer="<?php echo htmlspecialchars($displayCustomerName); ?>">
         <?php echo ui_icon("eye", "h-5 w-5"); ?>
     </button>
@@ -40,7 +40,7 @@ $badgeClass = $isPaymentDone ? 'bg-brand-100 text-brand-800' : 'bg-rose-100 text
             <span class="inline-flex shrink-0 items-center rounded-md px-2 py-0.5 text-xs font-semibold <?php echo $badgeClass; ?>"><?php echo htmlspecialchars($badgeLabel); ?></span>
         </div>
 
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-slate-500">
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
             <span class="inline-flex items-center gap-1">
 				<?php echo ui_icon("clipboard-document", "h-3.5 w-3.5 text-slate-400"); ?>
                 <span><?php echo htmlspecialchars((string) $orderCode); ?></span>

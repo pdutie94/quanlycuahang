@@ -40,7 +40,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 }
 ?>
 
-<div class="app-modal-overlay" data-order-advanced-filter-root>
+<div class="app-modal-overlay hidden" data-order-advanced-filter-root>
 	<div class="app-modal-sheet-sm">
 		<div class="app-modal-header">
 			<h2 class="app-modal-title">Lọc nâng cao</h2>
@@ -56,7 +56,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 			<input type="hidden" hidden name="q" value="<?php echo isset($keyword) ? htmlspecialchars($keyword) : ''; ?>">
 			<input type="hidden" hidden name="order_status" value="<?php echo htmlspecialchars($orderStatusValue); ?>">
 				<div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Trạng thái thanh toán</label>
+					<label class="app-label">Trạng thái thanh toán</label>
 				<div class="relative">
 					<?php
 					$statusOptions = [
@@ -66,7 +66,7 @@ if (!empty($fromDate) || !empty($toDate)) {
 					];
 					ui_select('status', $statusOptions, $statusValue, [
 						'data-no-select2' => '1',
-						'class' => 'appearance-none pr-8 pt-3',
+						'class' => 'appearance-none pr-8',
 					]);
 					?>
 					<span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-slate-400">
@@ -77,20 +77,20 @@ if (!empty($fromDate) || !empty($toDate)) {
 				<div>
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 						<div class="relative">
-							<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Từ ngày</label>
+							<label class="app-label">Từ ngày</label>
 							<?php
 							ui_input_text('from_date', isset($fromDate) ? $fromDate : '', [
 								'type' => 'date',
-								'class' => 'pt-3 pb-2.5',
+								'class' => '',
 							]);
 							?>
 						</div>
 						<div class="relative">
-							<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Đến ngày</label>
+							<label class="app-label">Đến ngày</label>
 							<?php
 							ui_input_text('to_date', isset($toDate) ? $toDate : '', [
 								'type' => 'date',
-								'class' => 'pt-3 pb-2.5',
+								'class' => '',
 							]);
 							?>
 						</div>
@@ -120,16 +120,31 @@ if (!empty($fromDate) || !empty($toDate)) {
 			return;
 		}
 		var btnOpen = document.querySelector('[data-order-advanced-filter-open]');
+		function openFilter() {
+			if (typeof window.APP_openModal === 'function') {
+				window.APP_openModal(root);
+				return;
+			}
+			root.classList.remove('hidden');
+			root.classList.add('flex');
+			document.body.classList.add('overflow-hidden');
+		}
+
+		function closeFilter() {
+			if (typeof window.APP_closeModal === 'function') {
+				window.APP_closeModal(root);
+				return;
+			}
+			root.classList.add('hidden');
+			root.classList.remove('flex');
+			document.body.classList.remove('overflow-hidden');
+		}
+
 		if (btnOpen) {
 			btnOpen.addEventListener('click', function (e) {
 				e.preventDefault();
-				root.classList.remove('hidden');
-				root.classList.add('flex');
+				openFilter();
 			});
-		}
-		function closeFilter() {
-			root.classList.add('hidden');
-			root.classList.remove('flex');
 		}
 		root.addEventListener('click', function (e) {
 			if (e.target !== root) return;

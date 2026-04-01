@@ -25,7 +25,7 @@ if ($noteRaw !== '') {
 			<span>Danh sách</span>
 		</a>
 		<div class="relative" data-header-actions-menu>
-			<button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100" data-header-actions-toggle>
+			<button type="button" class="inline-flex h-10 w-10 items-center justify-center text-slate-600 hover:text-slate-800" data-header-actions-toggle>
 				<?php echo ui_icon("ellipsis-vertical", "h-4 w-4"); ?>
 			</button>
 			<div class="absolute right-0 z-30 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 text-sm  overflow-hidden hidden" data-header-actions-dropdown>
@@ -53,7 +53,7 @@ if ($noteRaw !== '') {
 		<div class="flex items-center justify-between gap-3">
 			<div>
 				<div class="text-sm text-slate-500">Mã phiếu</div>
-				<div class="text-sm old-text-base font-mono font-medium text-slate-900"><?php echo htmlspecialchars($purchase['purchase_code']); ?></div>
+				<div class="text-sm font-mono font-medium text-slate-900 md:text-base"><?php echo htmlspecialchars($purchase['purchase_code']); ?></div>
 				<div class="mt-1 text-sm text-slate-600"><?php echo htmlspecialchars(format_datetime($purchase['purchase_date'])); ?></div>
 			</div>
 			<div class="flex flex-col items-end gap-1 text-sm">
@@ -291,7 +291,7 @@ if ($noteRaw !== '') {
 					?>
 				</div>
 				<div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Số tiền thanh toán</label>
+					<label class="app-label">Số tiền thanh toán</label>
 					<div class="relative">
 						<?php
 						$maxAmount = (float) $debt;
@@ -299,7 +299,7 @@ if ($noteRaw !== '') {
 						ui_input_text('amount', $amountValue, [
 							'inputmode' => 'numeric',
 							'data-money-input' => '1',
-							'class' => 'pr-8 pt-3 pb-2.5 text-right'
+							'class' => 'pr-8 text-right'
 						]);
 						?>
 						<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
@@ -307,8 +307,8 @@ if ($noteRaw !== '') {
 					<p class="text-sm text-slate-500">Tối đa: <?php echo Money::format($debt); ?>.</p>
 				</div>
 				<div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Ghi chú</label>
-					<textarea name="note" rows="2" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500"></textarea>
+					<label class="app-label">Ghi chú</label>
+					<textarea name="note" rows="2" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm outline-none transition focus:border-brand-500"></textarea>
 				</div>
 				<div class="app-modal-footer mt-2 pt-2 border-t border-slate-100 px-0 py-0">
 					<button type="button" class="app-btn-secondary" data-purchase-payment-close>Hủy</button>

@@ -7,8 +7,9 @@
 }
 
 textarea.form-field {
-	min-height: 112px;
+	min-height: 100px;
 	resize: vertical;
+	padding-block: 0.5rem;
 }
 
 input[type="number"]::-webkit-outer-spin-button,

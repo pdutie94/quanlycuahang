@@ -78,7 +78,7 @@ if (!function_exists('ui_icon')) {
 if (!function_exists('ui_button_primary')) {
 	function ui_button_primary($label, $attrs = [])
 	{
-		$baseClass = 'inline-flex min-h-9 items-center justify-center rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-brand-700 active:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50';
+		$baseClass = 'app-btn-primary';
 		$attrParts = [];
 		foreach ($attrs as $key => $value) {
 			if ($key === 'class') {
@@ -96,7 +96,26 @@ if (!function_exists('ui_button_primary')) {
 if (!function_exists('ui_button_secondary')) {
 	function ui_button_secondary($label, $attrs = [])
 	{
-		$baseClass = 'inline-flex min-h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50';
+		$baseClass = 'app-btn-secondary';
+		$attrParts = [];
+		foreach ($attrs as $key => $value) {
+			if ($key === 'class') {
+				$value = $baseClass . ' ' . trim((string) $value);
+			}
+			$attrParts[] = htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8') . '"';
+		}
+		if (!isset($attrs['class'])) {
+			$attrParts[] = 'class="' . htmlspecialchars($baseClass, ENT_QUOTES, 'UTF-8') . '"';
+		}
+		echo '<button ' . implode(' ', $attrParts) . '>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</button>';
+	}
+}
+
+
+if (!function_exists('ui_button_danger')) {
+	function ui_button_danger($label, $attrs = [])
+	{
+		$baseClass = 'app-btn-danger';
 		$attrParts = [];
 		foreach ($attrs as $key => $value) {
 			if ($key === 'class') {
@@ -114,7 +133,7 @@ if (!function_exists('ui_button_secondary')) {
 if (!function_exists('ui_input_text')) {
 	function ui_input_text($name, $value = '', $attrs = [])
 	{
-		$baseClass = 'form-field block min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition';
+		$baseClass = 'app-input';
 		$attrParts = [];
 		$attrs['name'] = $name;
 		$attrs['value'] = $value;
@@ -134,7 +153,7 @@ if (!function_exists('ui_input_text')) {
 if (!function_exists('ui_select')) {
 	function ui_select($name, $options, $selected = null, $attrs = [])
 	{
-		$baseClass = 'form-field block min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition';
+		$baseClass = 'app-input';
 		$attrParts = [];
 		$attrs['name'] = $name;
 		foreach ($attrs as $key => $val) {

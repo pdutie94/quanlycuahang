@@ -53,36 +53,36 @@ if (preg_match('/^\d{4}-(\d{2})-\d{2}$/', $dayValue, $m)) {
 		<?php } ?>
 	</div>
 	<div class="mt-2 flex flex-wrap items-center gap-2">
-		<button type="button" class="inline-flex h-[34px] min-h-[34px] items-center rounded-xl border px-4 text-sm font-medium data-[active="1"]:border-brand-600 data-[active="1"]:bg-brand-50 data-[active="1"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="day">
+		<button type="button" class="inline-flex h-10 min-h-10 items-center rounded-xl border px-4 text-sm font-medium data-[active="1"]:border-brand-600 data-[active="1"]:bg-brand-50 data-[active="1"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="day">
 			Ngày
 		</button>
-		<button type="button" class="inline-flex h-[34px] min-h-[34px] items-center rounded-xl border px-4 text-sm font-medium data-[active="1"]:border-brand-600 data-[active="1"]:bg-brand-50 data-[active="1"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="month">
+		<button type="button" class="inline-flex h-10 min-h-10 items-center rounded-xl border px-4 text-sm font-medium data-[active="1"]:border-brand-600 data-[active="1"]:bg-brand-50 data-[active="1"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="month">
 			Tháng
 		</button>
-		<button type="button" class="inline-flex h-[34px] min-h-[34px] items-center rounded-xl border px-4 text-sm font-medium data-[active="1"]:border-brand-600 data-[active="1"]:bg-brand-50 data-[active="1"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="quarter">
+		<button type="button" class="inline-flex h-10 min-h-10 items-center rounded-xl border px-4 text-sm font-medium data-[active="1"]:border-brand-600 data-[active="1"]:bg-brand-50 data-[active="1"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="quarter">
 			Quý
 		</button>
-		<button type="button" class="inline-flex h-[34px] min-h-[34px] items-center rounded-xl border px-4 text-sm font-medium data-[active="1"]:border-brand-600 data-[active="1"]:bg-brand-50 data-[active="1"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="year">
+		<button type="button" class="inline-flex h-10 min-h-10 items-center rounded-xl border px-4 text-sm font-medium data-[active="1"]:border-brand-600 data-[active="1"]:bg-brand-50 data-[active="1"]:text-brand-700 border-slate-300 text-slate-700 hover:bg-slate-100" data-sales-mode="year">
 			Năm
 		</button>
 	</div>
 	<div class="mt-3 space-y-2">
 		<div class="relative" data-sales-input="day">
-			<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Chọn ngày</label>
+			<label class="app-label">Chọn ngày</label>
 			<?php
 			ui_input_text('day', $dayValue, [
 				'type' => 'date',
-				'class' => 'pt-3 pb-2.5',
+				'class' => '',
 				'data-sales-day-input' => '1',
 			]);
 			?>
 		</div>
 		<div class="relative hidden" data-sales-input="month">
-			<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Chọn tháng</label>
+			<label class="app-label">Chọn tháng</label>
 			<?php
 			ui_input_text('month', $monthValue, [
 				'type' => 'month',
-				'class' => 'pt-3 pb-2.5',
+				'class' => '',
 				'data-sales-month-input' => '1',
 			]);
 			?>
@@ -91,8 +91,8 @@ if (preg_match('/^\d{4}-(\d{2})-\d{2}$/', $dayValue, $m)) {
 			<label class="block text-sm font-medium text-slate-700">Chọn quý</label>
 			<div class="grid grid-cols-2 gap-2">
 				<div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Quý</label>
-					<select name="quarter" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 pt-3 pb-2.5 text-sm outline-none transition focus:border-brand-500" data-sales-quarter-input>
+					<label class="app-label">Quý</label>
+					<select name="quarter" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm outline-none transition focus:border-brand-500" data-sales-quarter-input>
 						<option value="">Chọn quý</option>
 						<option value="1" <?php echo $quarterValue === '1' ? 'selected' : ''; ?>>Quý 1</option>
 						<option value="2" <?php echo $quarterValue === '2' ? 'selected' : ''; ?>>Quý 2</option>
@@ -101,13 +101,13 @@ if (preg_match('/^\d{4}-(\d{2})-\d{2}$/', $dayValue, $m)) {
 					</select>
 				</div>
 				<div class="relative">
-					<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Năm</label>
+					<label class="app-label">Năm</label>
 					<?php
 					ui_input_text('quarter_year', $quarterYear, [
 						'type' => 'number',
 						'min' => '2000',
 						'max' => '2100',
-						'class' => 'pt-3 pb-2.5',
+						'class' => '',
 						'data-sales-quarter-year-input' => '1',
 					]);
 					?>
@@ -115,13 +115,13 @@ if (preg_match('/^\d{4}-(\d{2})-\d{2}$/', $dayValue, $m)) {
 			</div>
 		</div>
 		<div class="relative hidden" data-sales-input="year">
-			<label class="absolute left-3 top-0 z-10 -translate-y-1/2 bg-white px-1 leading-none text-sm text-slate-700">Chọn năm</label>
+			<label class="app-label">Chọn năm</label>
 			<?php
 			ui_input_text('year', $yearValue, [
 				'type' => 'number',
 				'min' => '2000',
 				'max' => '2100',
-				'class' => 'pt-3 pb-2.5',
+				'class' => '',
 				'data-sales-year-input' => '1',
 			]);
 			?>
