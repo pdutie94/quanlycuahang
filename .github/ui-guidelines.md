@@ -44,7 +44,7 @@
 
 ## Layout
 
-* Max width: 480px
+* Max width: 2xl
 * Centered layout
 * Padding: 16px
 * Gap: 12–16px
