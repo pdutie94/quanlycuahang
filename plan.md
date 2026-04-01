@@ -28,6 +28,13 @@ Refactor dự án quản lý cửa hàng theo định hướng trong `/.github/c
 - **Refactor nhỏ, an toàn, theo từng module**
 - **Ưu tiên tách trách nhiệm: Controller -> Service -> Repository**
 
+### Tài liệu tham chiếu
+
+- `/.github/copilot-instructions.md`
+- `/.github/ui-guidelines.md`
+- `/db-structure.sql`
+- `/database-notes.md`
+
 ---
 
 ## Kế hoạch thực hiện

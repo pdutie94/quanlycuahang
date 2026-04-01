@@ -110,5 +110,6 @@
 
 - Mỗi thay đổi cần bám theo `/.github/copilot-instructions.md`
 - UI cần tuân thủ `/.github/ui-guidelines.md`
+- Đối chiếu dữ liệu qua `/db-structure.sql` và `/database-notes.md`
 - Không refactor quá nhiều module trong cùng một lần
 - Ưu tiên thay đổi nhỏ, dễ kiểm chứng
