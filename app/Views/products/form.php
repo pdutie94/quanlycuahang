@@ -37,22 +37,22 @@
 				<label for="product-code" class="block text-sm text-slate-700">Mã sản phẩm (tùy chọn)</label>
 				<?php
 				$productCodeValue = $product ? $product['code'] : '';
-				ui_input_text('code', $productCodeValue, [
-					'id' => 'product-code',
-					'placeholder' => 'Bỏ trống để tự sinh theo tên (vd: san pham 1 -> sp1)',
-					'class' => 'pb-2.5',
-				]);
+				   ui_input_text('code', $productCodeValue, [
+					   'id' => 'product-code',
+					   'placeholder' => 'Bỏ trống để tự sinh theo tên (vd: san pham 1 -> sp1)',
+					   'class' => 'px-3 py-2',
+				   ]);
 				?>
 			</div>
 			<div class="flex flex-col gap-1">
 				<label for="product-name" class="block text-sm text-slate-700">Tên sản phẩm</label>
 				<?php
 				$productNameValue = $product ? $product['name'] : '';
-				ui_input_text('name', $productNameValue, [
-					'id' => 'product-name',
-					'required' => 'required',
-					'class' => 'pb-2.5',
-				]);
+				   ui_input_text('name', $productNameValue, [
+					   'id' => 'product-name',
+					   'required' => 'required',
+					   'class' => 'px-3 py-2',
+				   ]);
 				?>
 			</div>
 			<div class="flex flex-col gap-1">
@@ -64,11 +64,11 @@
 						$baseUnitOptions[$unit['id']] = $unit['name'];
 					}
 					$baseUnitSelected = $product && isset($product['base_unit_id']) ? $product['base_unit_id'] : '';
-					ui_select('base_unit_id', $baseUnitOptions, $baseUnitSelected, [
-						'id' => 'base-unit-id',
-						'required' => 'required',
-						'class' => 'col-start-1 row-start-1 appearance-none pt-3 pr-9',
-					]);
+					   ui_select('base_unit_id', $baseUnitOptions, $baseUnitSelected, [
+						   'id' => 'base-unit-id',
+						   'required' => 'required',
+						   'class' => 'col-start-1 row-start-1 appearance-none px-3 py-2',
+					   ]);
 					?>
 					<span class="pointer-events-none col-start-1 row-start-1 mr-3 flex items-center justify-end text-slate-400"><?php echo ui_icon('chevron-down', 'h-4 w-4'); ?></span>
 				</div>
@@ -84,10 +84,10 @@
 						}
 					}
 					$categorySelected = $product && isset($product['category_id']) ? (int) $product['category_id'] : '';
-					ui_select('category_id', $categoryOptions, $categorySelected, [
-						'id' => 'category-id',
-						'class' => 'col-start-1 row-start-1 appearance-none pt-3 pr-9',
-					]);
+					   ui_select('category_id', $categoryOptions, $categorySelected, [
+						   'id' => 'category-id',
+						   'class' => 'col-start-1 row-start-1 appearance-none px-3 py-2',
+					   ]);
 					?>
 					<span class="pointer-events-none col-start-1 row-start-1 mr-3 flex items-center justify-end text-slate-400"><?php echo ui_icon('chevron-down', 'h-4 w-4'); ?></span>
 				</div>
@@ -151,12 +151,12 @@
 			<label for="price-sell-single" class="block text-sm text-slate-700">Giá bán</label>
 			<div class="relative">
 				<?php
-				ui_input_text('price_sell_single', $displayPriceSell, [
-					'id' => 'price-sell-single',
-					'inputmode' => 'numeric',
-					'data-money-input' => '1',
-					'class' => 'pr-10 pt-3 pb-2.5',
-				]);
+				   ui_input_text('price_sell_single', $displayPriceSell, [
+					   'id' => 'price-sell-single',
+					   'inputmode' => 'numeric',
+					   'data-money-input' => '1',
+					   'class' => 'px-3 py-2 pr-10',
+				   ]);
 				?>
 				<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
 			</div>
@@ -165,12 +165,12 @@
 			<label for="price-cost-single" class="block text-sm text-slate-700">Giá nhập</label>
 			<div class="relative">
 				<?php
-				ui_input_text('price_cost_single', $displayPriceCost, [
-					'id' => 'price-cost-single',
-					'inputmode' => 'numeric',
-					'data-money-input' => '1',
-					'class' => 'pr-10 pt-3 pb-2.5',
-				]);
+				   ui_input_text('price_cost_single', $displayPriceCost, [
+					   'id' => 'price-cost-single',
+					   'inputmode' => 'numeric',
+					   'data-money-input' => '1',
+					   'class' => 'px-3 py-2 pr-10',
+				   ]);
 				?>
 				<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
 			</div>
@@ -185,11 +185,11 @@
 		<div class="flex flex-col gap-1 max-w-xs">
 			<label for="min-step" class="block text-sm text-slate-700">Bước lẻ nhỏ nhất</label>
 			<?php
-			ui_input_text('min_step', $displayMinStep, [
-				'id' => 'min-step',
-				'placeholder' => 'Ví dụ: 0,1 hoặc 0,25',
-				'class' => 'pb-2.5',
-			]);
+			   ui_input_text('min_step', $displayMinStep, [
+				   'id' => 'min-step',
+				   'placeholder' => 'Ví dụ: 0,1 hoặc 0,25',
+				   'class' => 'px-3 py-2',
+			   ]);
 			?>
 		</div>
 	</div>
@@ -238,10 +238,10 @@
 				<label for="inventory-qty-base" class="block text-sm text-slate-700">Số lượng</label>
 				<div class="relative">
 					<?php
-					ui_input_text('inventory_qty_base', $inventoryInputValue, [
-						'id' => 'inventory-qty-base',
-						'class' => 'pr-20 pt-3 pb-2.5',
-					]);
+					   ui_input_text('inventory_qty_base', $inventoryInputValue, [
+						   'id' => 'inventory-qty-base',
+						   'class' => 'px-3 py-2 pr-20',
+					   ]);
 					?>
 					<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400 max-w-[60%] truncate" data-inventory-unit-label><?php echo htmlspecialchars($baseUnitName); ?></span>
 				</div>
@@ -250,10 +250,10 @@
 				<label for="min-stock-qty" class="block text-sm text-slate-700">Ngưỡng tồn thấp</label>
 				<div class="relative">
                     <?php
-                    ui_input_text('min_stock_qty', $minStockInputValue, [
-						'id' => 'min-stock-qty',
-						'class' => 'pr-20 pt-3 pb-2.5',
-                    ]);
+					   ui_input_text('min_stock_qty', $minStockInputValue, [
+						   'id' => 'min-stock-qty',
+						   'class' => 'px-3 py-2 pr-20',
+					   ]);
                     ?>
 					<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400 max-w-[60%] truncate" data-inventory-unit-label><?php echo htmlspecialchars($baseUnitName); ?></span>
                 </div>

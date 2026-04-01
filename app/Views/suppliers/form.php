@@ -24,31 +24,31 @@
 					<label for="supplier-name" class="block text-sm text-slate-700">Tên nhà cung cấp</label>
 					<?php
 					$supplierNameValue = $supplier ? $supplier['name'] : '';
-					ui_input_text('name', $supplierNameValue, [
-						'id' => 'supplier-name',
-						'required' => 'required',
-						'class' => 'pb-2.5',
-					]);
+					   ui_input_text('name', $supplierNameValue, [
+						   'id' => 'supplier-name',
+						   'required' => 'required',
+						   'class' => 'px-3 py-2',
+					   ]);
 					?>
 				</div>
 				<div class="flex flex-col gap-1">
 					<label for="supplier-phone" class="block text-sm text-slate-700">Số điện thoại</label>
 					<?php
 					$supplierPhoneValue = $supplier ? $supplier['phone'] : '';
-					ui_input_text('phone', $supplierPhoneValue, [
-						'id' => 'supplier-phone',
-						'class' => 'pb-2.5',
-					]);
+					   ui_input_text('phone', $supplierPhoneValue, [
+						   'id' => 'supplier-phone',
+						   'class' => 'px-3 py-2',
+					   ]);
 					?>
 				</div>
 				<div class="flex flex-col gap-1">
 					<label for="supplier-address" class="block text-sm text-slate-700">Địa chỉ</label>
 					<?php
 					$supplierAddressValue = $supplier ? $supplier['address'] : '';
-					ui_input_text('address', $supplierAddressValue, [
-						'id' => 'supplier-address',
-						'class' => 'pb-2.5',
-					]);
+					   ui_input_text('address', $supplierAddressValue, [
+						   'id' => 'supplier-address',
+						   'class' => 'px-3 py-2',
+					   ]);
 					?>
 				</div>
 				<div data-floating-actions>
