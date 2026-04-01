@@ -1,74 +1,100 @@
-# Copilot Instructions - Sales Management (API + Vue 3)
+# Copilot Instructions - Sales Management (API + Vue3)
 
 ## Project Overview
 
 This project is a **store management system rewritten from an existing PHP MVC system**.
 
-- **Backend:** PHP (`Slim 4`) REST API
-- **Frontend:** Vue 3 with the Composition API
-- **UI:** TailwindCSS with a flat, minimal style
-- **Architecture:** API-first SPA on the same domain
+* Backend: PHP (Slim 4 - REST API)
+* Frontend: Vue 3 (Composition API)
+* UI: TailwindCSS (flat, minimal)
+* Architecture: API-first (SPA)
+* Deployment: Same domain
+
+---
 
 ## Core Principles
 
-- PHP is **API only** and should not render HTML in the new architecture.
-- Vue is responsible for rendering the UI.
-- Keep a strict separation between backend and frontend.
-- Favor clean architecture and clear service boundaries.
+* PHP = API only (no HTML)
+* Vue = render UI
+* Strict separation backend/frontend
+* Clean architecture
 
-## Legacy System Alignment (Critical)
+---
 
-This is **not** a greenfield product.
+## ⚠️ Legacy System Alignment (CRITICAL)
 
-- Preserve all existing business logic.
-- Keep the same features, workflows, and calculations.
-- Do **not** invent new features unless explicitly requested.
-- Treat the old MVC implementation as the **source of truth**.
-- Refactor and modernize the system, but do **not** redesign business behavior.
+This is NOT a new system.
 
-### Migration workflow
+### Rules
 
-When implementing or migrating functionality:
+* MUST preserve all existing business logic
+* MUST keep same features and workflows
+* MUST NOT invent new features
+* MUST NOT change calculations
 
-1. Analyze the old PHP MVC logic first.
-2. Move business rules into the Service layer.
-3. Expose that behavior through REST API endpoints.
-4. Render the resulting workflow in Vue.
+---
 
-## Data and Compatibility Rules
+### Migration Principles
 
-- Keep the existing database structure when possible.
-- Do not rename fields unnecessarily.
-- Maintain data compatibility with the legacy system.
-- UI may be modernized, but the workflow must remain the same.
+* Old MVC = source of truth
+* New system = refactor, NOT redesign
 
-## Backend Rules (PHP / Slim 4)
+---
 
-### Architecture
+### Implementation Flow
 
-Use this flow:
+1. Analyze old PHP MVC logic
+2. Move logic into Service layer
+3. Expose via API
+4. Render with Vue
 
-`Route -> Controller -> Service -> Repository`
+---
 
-### Controller responsibilities
+### Data Rules
 
-- Validate the request.
-- Call the appropriate service.
-- Return JSON only.
+* Keep DB structure if possible
+* Do not rename fields unnecessarily
+* Maintain data compatibility
 
-### Service responsibilities
+---
 
-- Keep business logic here.
-- Do not handle HTTP concerns in services.
+### UI Rules
 
-### Repository responsibilities
+* UI can be modernized
+* BUT workflows must stay the same
 
-- Keep database queries here.
-- Do not move business logic into repositories.
+---
 
-### API response format
+## Backend Rules (PHP - Slim 4)
 
-Use a consistent JSON shape:
+### Structure
+
+Route → Controller → Service → Repository
+
+---
+
+### Controller
+
+* Validate request
+* Call service
+* Return JSON
+
+---
+
+### Service
+
+* Business logic only
+* No HTTP handling
+
+---
+
+### Repository
+
+* Database queries only
+
+---
+
+## API Response Format
 
 ```json
 {
@@ -78,38 +104,168 @@ Use a consistent JSON shape:
 }
 ```
 
-### API conventions
-
-- Prefix API routes with `/api`.
-- Follow RESTful design.
-- Use the proper HTTP methods for each action.
+---
 
 ## Frontend Rules (Vue 3)
 
-- Use the Composition API only.
-- Prefer `setup()` patterns and composables.
-- Do not use the Options API for new code.
-- Avoid global state unless it is clearly necessary.
+* Use Composition API only
+* Use `setup()`
+* No Options API
 
-## Naming Conventions
+---
 
-- `camelCase` for JavaScript variables and functions
-- `PascalCase` for Vue components
-- `snake_case` for database fields
+## Folder Structure
 
-## Performance and UX
+/project-root
+│
+├── /backend
+│   ├── /app
+│   │   ├── /Modules
+│   │   │   ├── /Order
+│   │   │   │   ├── OrderController.php
+│   │   │   │   ├── OrderService.php
+│   │   │   │   ├── OrderRepository.php
+│   │   │   │   ├── OrderValidator.php
+│   │   │   │   ├── OrderResource.php
+│   │   │   │
+│   │   │   ├── /Product
+│   │   │   ├── /Customer
+│   │   │   ├── /Payment
+│   │   │
+│   │   ├── /Shared
+│   │   │   ├── /Database
+│   │   │   │   └── Connection.php
+│   │   │   │
+│   │   │   ├── /Http
+│   │   │   │   ├── Request.php
+│   │   │   │   └── Response.php
+│   │   │   │
+│   │   │   ├── /Middleware
+│   │   │   │   ├── AuthMiddleware.php
+│   │   │   │   └── JsonMiddleware.php
+│   │   │   │
+│   │   │   ├── /Exceptions
+│   │   │   │   ├── AppException.php
+│   │   │   │   └── Handler.php
+│   │   │   │
+│   │   │   ├── /Helpers
+│   │   │   │   └── helpers.php
+│   │   │   │
+│   │   │   ├── /Base
+│   │   │   │   ├── BaseController.php
+│   │   │   │   ├── BaseService.php
+│   │   │   │   └── BaseRepository.php
+│   │   │   │
+│   │   │   └── /Response
+│   │   │       └── ApiResponse.php
+│   │
+│   ├── /routes
+│   │   └── api.php
+│   │
+│   ├── /config
+│   │   ├── app.php
+│   │   └── database.php
+│   │
+│   ├── /bootstrap
+│   │   └── app.php
+│   │
+│   └── /storage
+│       └── logs/
+│
+├── /frontend
+│   ├── /src
+│   │   ├── /modules
+│   │   │   ├── /order
+│   │   │   │   ├── /pages
+│   │   │   │   │   ├── OrderList.vue
+│   │   │   │   │   └── OrderDetail.vue
+│   │   │   │   │
+│   │   │   │   ├── /components
+│   │   │   │   │   ├── OrderCard.vue
+│   │   │   │   │   └── OrderForm.vue
+│   │   │   │   │
+│   │   │   │   ├── /services
+│   │   │   │   │   └── order.api.js
+│   │   │   │   │
+│   │   │   │   └── /composables
+│   │   │   │       └── useOrder.js
+│   │   │   │
+│   │   │   ├── /product
+│   │   │   ├── /customer
+│   │   │
+│   │   ├── /shared
+│   │   │   ├── /components
+│   │   │   │   ├── BaseButton.vue
+│   │   │   │   ├── BaseInput.vue
+│   │   │   │   └── BaseCard.vue
+│   │   │   │
+│   │   │   ├── /composables
+│   │   │   │   ├── useFetch.js
+│   │   │   │   ├── useForm.js
+│   │   │   │   └── useToast.js
+│   │   │   │
+│   │   │   ├── /services
+│   │   │   │   └── api.js
+│   │   │   │
+│   │   │   └── /utils
+│   │   │       └── format.js
+│   │   │
+│   │   ├── /layouts
+│   │   │   └── MainLayout.vue
+│   │   │
+│   │   ├── /router
+│   │   │   └── index.js
+│   │   │
+│   │   ├── App.vue
+│   │   └── main.js
+│   │
+│   └── index.html
+│
+├── /public
+│   ├── index.php        ← entry backend (Slim)
+│   ├── index.html       ← build Vue
+│   └── /assets          ← js/css build từ Vue
+│
+├── db-structure.sql
+├── composer.json
+├── package.json
+├── .env
 
-- Lazy-load pages when appropriate.
-- Prefer `computed` values over unnecessary methods or watchers.
-- Avoid unnecessary watchers.
-- Keep interactions fast and non-blocking.
-- Use optimistic UI only when it preserves existing business behavior.
+---
 
-## Copilot Working Expectations
+## API Rules
 
-When suggesting changes:
+* Prefix: `/api`
+* RESTful
+* Use proper HTTP methods
 
-- Inspect the legacy PHP MVC implementation before changing behavior.
-- Preserve feature parity with the existing system.
-- Prefer extraction and refactoring over rewriting logic from scratch.
-- Keep backend/frontend separation strict in all new architecture proposals.
+---
+
+## State Management
+
+* Use composables
+* Avoid global state unless necessary
+
+---
+
+## Naming
+
+* camelCase: JS
+* snake_case: DB
+* PascalCase: Components
+
+---
+
+## Performance
+
+* Lazy load pages
+* Prefer computed over methods
+* Avoid unnecessary watchers
+
+---
+
+## UX Rules
+
+* Fast interaction
+* No blocking UI
+* Optimistic UI when possible
