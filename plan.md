@@ -77,8 +77,22 @@ Việc cần làm:
 
 Mục tiêu:
 - Tạo nền tảng API mà không phá vỡ hệ thống hiện tại
+- Dùng **Slim 4** làm framework API (không dựng API bằng PHP thuần)
 - Chuẩn hóa response JSON
 - Dùng lại business logic từ Service
+
+Nguyên tắc triển khai:
+- API-first theo hướng `Route -> Controller -> Service -> Repository`
+- Legacy MVC vẫn là source of truth cho nghiệp vụ
+- Chỉ thay đổi cấu trúc kỹ thuật, không đổi logic tính toán/workflow cũ
+- Ưu tiên triển khai Slim 4 song song để migrate cuốn chiếu
+
+Checklist triển khai Slim 4 (đề xuất):
+1. Bootstrap Slim 4 (composer + bootstrap + container cơ bản)
+2. Tạo skeleton API: `/api`, middleware JSON, error handler, auth middleware
+3. Chuẩn hóa `ApiResponse` và format lỗi dùng chung
+4. Migrate endpoint theo module ưu tiên (Products -> Customers -> Orders -> Purchases -> Reports)
+5. Kiểm tra parity từng endpoint với luồng MVC cũ trước khi mở rộng Vue
 
 Ưu tiên API:
 1. Products
@@ -129,4 +143,4 @@ Checklist:
 Bắt đầu với:
 1. Refactor `OrderListController.php`
 2. Bắt đầu Phase 2 bằng chuẩn hóa UI trên nền PHP view + TailwindCSS, trước hết ở `app/Views/layout/main.php`
-3. Tạo lớp API đầu tiên cho `products` hoặc `orders`
+3. Bootstrap Slim 4 cho lớp API đầu tiên (`products` hoặc `orders`), giữ nguyên nghiệp vụ cũ qua Service/Repository hiện có

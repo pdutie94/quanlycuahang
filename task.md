@@ -69,18 +69,46 @@ Ghi chú phạm vi:
 
 ### Phase 3 — API foundation
 
+Ghi chú phạm vi:
+- Phase 3 dùng **Slim 4** để triển khai API, không dựng API bằng PHP thuần.
+- Giữ nguyên business logic hiện tại, tái sử dụng Service/Repository đã tách ở Phase 1.
+
 #### 3.1 Chuẩn bị nền tảng API
-- [ ] Thiết kế response JSON chuẩn
-- [ ] Tạo helper/response formatter dùng chung
-- [ ] Xác định naming route `/api/...`
-- [ ] Xác định các endpoint ưu tiên theo module
+- [ ] Cài Slim 4 và cấu hình bootstrap API song song với app hiện tại
+- [ ] Tạo entrypoint API riêng (prefix `/api`) và route loader
+- [ ] Thiết lập middleware JSON request/response
+- [ ] Thiết lập middleware auth cho API
+- [ ] Thiết lập exception/error handler chuẩn JSON
+- [ ] Thiết kế response JSON chuẩn (`success`, `data`, `message`)
+- [ ] Tạo helper/response formatter dùng chung (`ApiResponse`)
+- [ ] Thiết lập cấu trúc API chuẩn: `Route -> Controller -> Service -> Repository`
+- [ ] Chuẩn hóa quy ước route và method RESTful
+- [ ] Chốt danh sách endpoint ưu tiên theo module
+
+##### 3.1.0 Definition of Done (DoD)
+- [ ] Endpoint healthcheck API hoạt động (`/api/health`) và trả JSON đúng chuẩn
+- [ ] Middleware JSON áp dụng đồng nhất cho toàn bộ route `/api/*`
+- [ ] Error/exception bất kỳ từ API đều trả về JSON có cấu trúc thống nhất
+- [ ] Auth middleware đã gắn cho các route cần bảo vệ và có test manual pass/fail
+- [ ] Có ít nhất 1 module API đầu tiên chạy end-to-end qua Service/Repository cũ (không đổi business logic)
+- [ ] Có checklist đối chiếu parity với MVC cũ cho module API đầu tiên
+
+##### 3.1.1 Template Checklist Parity (API vs Legacy MVC)
+- [ ] Cùng input filter/sort/pagination giữa MVC và API cho module đang làm
+- [ ] Cùng output business fields và giá trị tính toán quan trọng (tổng tiền, công nợ, tồn kho...)
+- [ ] Cùng quy tắc validation (required/min/max/format) và thông điệp lỗi chính
+- [ ] Cùng xử lý edge cases (rỗng dữ liệu, thiếu quan hệ, bản ghi soft-delete)
+- [ ] Cùng quyền truy cập theo vai trò/tài khoản (nếu có)
+- [ ] Cùng hành vi ghi log/audit sau các action tạo/sửa/xóa
+- [ ] So sánh tối thiểu 5 ca thực tế trước khi đánh dấu parity pass
 
 #### 3.2 API rollout theo module
-- [ ] Tạo API cho products
-- [ ] Tạo API cho customers
-- [ ] Tạo API cho orders
-- [ ] Tạo API cho purchases
-- [ ] Tạo API cho reports
+- [ ] Tạo API cho products (list/detail/create/update)
+- [ ] Tạo API cho customers (list/detail/create/update/payment)
+- [ ] Tạo API cho orders (list/detail/preview/create/update)
+- [ ] Tạo API cho purchases (list/detail/create/update)
+- [ ] Tạo API cho reports (sales/debt/inventory)
+- [ ] Đối chiếu parity nghiệp vụ từng endpoint với luồng MVC cũ
 
 ### Phase 4 — Vue 3 migration
 
