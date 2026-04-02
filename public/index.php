@@ -66,7 +66,7 @@ if (preg_match('#(^|/)api(/|$)#', $normalizedPath) === 1) {
 
 $route = isset($_GET['r']) ? trim($_GET['r']) : '';
 if ($route === '') {
-    $route = empty($_SESSION['user']) ? 'auth/login' : 'dashboard/index';
+    $route = 'spa/index';
 }
 
 $parts = explode('/', $route);

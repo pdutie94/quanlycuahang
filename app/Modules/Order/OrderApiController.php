@@ -71,6 +71,66 @@ class OrderApiController
         ]);
     }
 
+    public function invoice(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($id <= 0) {
+            return ApiResponse::error($response, 'Invalid order id', 422);
+        }
+
+        $result = \OrderService::getOrderInvoiceData($id);
+        if (empty($result['success'])) {
+            return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Order invoice not available', 404);
+        }
+
+        return ApiResponse::success($response, [
+            'order' => isset($result['order']) ? $result['order'] : null,
+            'items' => isset($result['items']) ? $result['items'] : [],
+        ]);
+    }
+
+    public function returnInfo(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($id <= 0) {
+            return ApiResponse::error($response, 'Invalid order id', 422);
+        }
+
+        $result = \OrderService::getOrderReturnFormData($id);
+        if (empty($result['success'])) {
+            return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Order return not available', 422);
+        }
+
+        return ApiResponse::success($response, [
+            'order' => isset($result['order']) ? $result['order'] : null,
+            'items' => isset($result['items']) ? $result['items'] : [],
+        ]);
+    }
+
+    public function returnStore(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($id <= 0) {
+            return ApiResponse::error($response, 'Invalid order id', 422);
+        }
+
+        $payload = $this->normalizePayload($request);
+        $result = \OrderService::processOrderReturn($id, $payload);
+
+        if (empty($result['success'])) {
+            return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Cannot process order return', 422);
+        }
+
+        $view = \OrderService::getOrderViewData($id);
+
+        return ApiResponse::success($response, [
+            'id' => $id,
+            'order' => isset($view['order']) ? $view['order'] : null,
+            'items' => isset($view['items']) ? $view['items'] : [],
+            'payments' => isset($view['payments']) ? $view['payments'] : [],
+        ], isset($result['message']) ? (string) $result['message'] : 'Đã ghi nhận trả hàng.');
+    }
+
     public function create(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $payload = $this->normalizePayload($request);
@@ -338,6 +398,57 @@ class OrderApiController
             'items' => isset($view['items']) ? $view['items'] : [],
             'manual_items' => isset($view['manualItems']) ? $view['manualItems'] : [],
         ], isset($result['message']) ? (string) $result['message'] : 'Đã cập nhật đơn hàng.');
+    }
+
+    public function paymentStore(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $orderId = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($orderId <= 0) {
+            return ApiResponse::error($response, 'Invalid order id', 422);
+        }
+
+        $payload = $this->normalizePayload($request);
+        $amount = \Money::parseAmount(isset($payload['amount']) ? $payload['amount'] : 0);
+        $note = isset($payload['note']) ? trim((string) $payload['note']) : '';
+        $paymentMethod = isset($payload['payment_method']) && (string) $payload['payment_method'] === 'bank' ? 'bank' : 'cash';
+
+        if ($amount <= 0) {
+            return ApiResponse::error($response, 'Dữ liệu thanh toán không hợp lệ.', 422);
+        }
+
+        try {
+            \PaymentService::recordOrderPayment($orderId, $amount, $note, $paymentMethod);
+            $view = \OrderService::getOrderViewData($orderId);
+
+            return ApiResponse::success($response, [
+                'id' => $orderId,
+                'order' => isset($view['order']) ? $view['order'] : null,
+                'payments' => isset($view['payments']) ? $view['payments'] : [],
+            ], 'Đã ghi nhận thanh toán.');
+        } catch (\Exception $e) {
+            return ApiResponse::error($response, 'Không thể ghi nhận thanh toán: ' . $e->getMessage(), 422);
+        }
+    }
+
+    public function paymentReset(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $orderId = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($orderId <= 0) {
+            return ApiResponse::error($response, 'Invalid order id', 422);
+        }
+
+        try {
+            \PaymentService::resetOrderPayment($orderId);
+            $view = \OrderService::getOrderViewData($orderId);
+
+            return ApiResponse::success($response, [
+                'id' => $orderId,
+                'order' => isset($view['order']) ? $view['order'] : null,
+                'payments' => isset($view['payments']) ? $view['payments'] : [],
+            ], 'Đã đặt lại thanh toán về trạng thái còn nợ.');
+        } catch (\Exception $e) {
+            return ApiResponse::error($response, 'Không thể đặt lại thanh toán: ' . $e->getMessage(), 422);
+        }
     }
 
     private function normalizePayload(ServerRequestInterface $request): array

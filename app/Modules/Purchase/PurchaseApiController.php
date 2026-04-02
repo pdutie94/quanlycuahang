@@ -15,6 +15,7 @@ class PurchaseApiController
 
         return ApiResponse::success($response, [
             'items' => isset($data['purchases']) ? $data['purchases'] : [],
+            'suppliers' => isset($data['suppliers']) ? $data['suppliers'] : [],
             'meta' => [
                 'page' => isset($data['page']) ? (int) $data['page'] : 1,
                 'per_page' => isset($data['perPage']) ? (int) $data['perPage'] : 20,
@@ -100,6 +101,36 @@ class PurchaseApiController
             'payments' => isset($view['payments']) ? $view['payments'] : [],
             'logs' => isset($view['logs']) ? $view['logs'] : [],
         ], isset($result['message']) ? (string) $result['message'] : 'Đã cập nhật phiếu nhập hàng.');
+    }
+
+    public function paymentStore(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $purchaseId = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($purchaseId <= 0) {
+            return ApiResponse::error($response, 'Invalid purchase id', 422);
+        }
+
+        $payload = $this->normalizePayload($request);
+        $amount = \Money::parseAmount(isset($payload['amount']) ? $payload['amount'] : 0);
+        $note = isset($payload['note']) ? trim((string) $payload['note']) : '';
+        $paymentMethod = isset($payload['payment_method']) && (string) $payload['payment_method'] === 'bank' ? 'bank' : 'cash';
+
+        if ($amount <= 0) {
+            return ApiResponse::error($response, 'Dữ liệu thanh toán không hợp lệ.', 422);
+        }
+
+        try {
+            \PaymentService::recordPurchasePayment($purchaseId, $amount, $note, $paymentMethod);
+            $view = \PurchaseService::getPurchaseViewData($purchaseId);
+
+            return ApiResponse::success($response, [
+                'id' => $purchaseId,
+                'purchase' => isset($view['purchase']) ? $view['purchase'] : null,
+                'payments' => isset($view['payments']) ? $view['payments'] : [],
+            ], 'Đã ghi nhận thanh toán phiếu nhập.');
+        } catch (\Exception $e) {
+            return ApiResponse::error($response, 'Không thể ghi nhận thanh toán: ' . $e->getMessage(), 422);
+        }
     }
 
     private function normalizePayload(ServerRequestInterface $request): array

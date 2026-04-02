@@ -77,7 +77,7 @@ if ($currentRoute === '') {
 }
 $currentRoute = strtolower($currentRoute);
 
-$isDashboardRoute = ($currentRoute === '' || $currentRoute === 'dashboard' || strpos($currentRoute, 'dashboard/') === 0);
+$isDashboardRoute = ($currentRoute === '' || $currentRoute === 'dashboard' || strpos($currentRoute, 'dashboard/') === 0 || $currentRoute === 'spa' || strpos($currentRoute, 'spa/') === 0);
 $isPosRoute = (strpos($currentRoute, 'pos') === 0);
 $isProductRoute = (strpos($currentRoute, 'product') === 0);
 $isReportRoute = (strpos($currentRoute, 'report') === 0);
@@ -124,11 +124,11 @@ $isReportRoute = (strpos($currentRoute, 'report') === 0);
 					<?php echo ui_icon('pos', 'size-6'); ?>
 					<span>Tạo đơn</span>
 				</a>
-				<a href="<?php echo $basePath; ?>/product" class="app-bottom-nav-link <?php echo $isProductRoute ? 'app-bottom-nav-link-active' : ''; ?>">
+				<a href="<?php echo $basePath; ?>/products" class="app-bottom-nav-link <?php echo $isProductRoute ? 'app-bottom-nav-link-active' : ''; ?>">
 					<?php echo ui_icon('cube', 'size-6'); ?>
 					<span>Sản phẩm</span>
 				</a>
-				<a href="<?php echo $basePath; ?>/report" class="app-bottom-nav-link <?php echo $isReportRoute ? 'app-bottom-nav-link-active' : ''; ?>">
+				<a href="<?php echo $basePath; ?>/reports" class="app-bottom-nav-link <?php echo $isReportRoute ? 'app-bottom-nav-link-active' : ''; ?>">
 					<?php echo ui_icon('chart-pie', 'size-6'); ?>
 					<span>Báo cáo</span>
 				</a>
@@ -156,39 +156,39 @@ $isReportRoute = (strpos($currentRoute, 'report') === 0);
 							<span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><?php echo ui_icon('cart', 'h-5 w-5'); ?></span>
 							<span>Bán hàng</span>
 						</a>
-						<a href="<?php echo $basePath; ?>/order" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
+						<a href="<?php echo $basePath; ?>/orders" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
 							<span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><?php echo ui_icon('clipboard-document', 'h-5 w-5'); ?></span>
 							<span>Đơn hàng</span>
 						</a>
-						<a href="<?php echo $basePath; ?>/product" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
+						<a href="<?php echo $basePath; ?>/products" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
 							<span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><?php echo ui_icon('cube', 'h-5 w-5'); ?></span>
 							<span>Sản phẩm</span>
 						</a>
-						<a href="<?php echo $basePath; ?>/purchase" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
+						<a href="<?php echo $basePath; ?>/purchases" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
 							<span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><?php echo ui_icon('purchase', 'h-5 w-5'); ?></span>
 							<span>Phiếu nhập</span>
 						</a>
-						<a href="<?php echo $basePath; ?>/customer" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
+						<a href="<?php echo $basePath; ?>/customers" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
 							<span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><?php echo ui_icon('user', 'h-5 w-5'); ?></span>
 							<span>Khách hàng</span>
 						</a>
-						<a href="<?php echo $basePath; ?>/supplier" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
+						<a href="<?php echo $basePath; ?>/suppliers" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
 							<span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><?php echo ui_icon('supplier', 'h-5 w-5'); ?></span>
 							<span>Nhà cung cấp</span>
 						</a>
-						<a href="<?php echo $basePath; ?>/report/sales" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
+						<a href="<?php echo $basePath; ?>/reports" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
 							<span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><?php echo ui_icon('chart-pie', 'h-5 w-5'); ?></span>
-							<span>Báo cáo doanh thu</span>
+							<span>Báo cáo tổng quan</span>
 						</a>
 						<a href="<?php echo $basePath; ?>/report/inventory" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
 							<span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><?php echo ui_icon('chart-pie', 'h-5 w-5'); ?></span>
 							<span>Báo cáo tồn kho</span>
 						</a>
-						<a href="<?php echo $basePath; ?>/category" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
+						<a href="<?php echo $basePath; ?>/categories" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
 							<span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><?php echo ui_icon('categories', 'h-5 w-5'); ?></span>
 							<span>Danh mục sản phẩm</span>
 						</a>
-						<a href="<?php echo $basePath; ?>/unit" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
+						<a href="<?php echo $basePath; ?>/units" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50">
 							<span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><?php echo ui_icon('unit', 'h-5 w-5'); ?></span>
 							<span>Đơn vị tính</span>
 						</a>

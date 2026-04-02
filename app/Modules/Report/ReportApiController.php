@@ -8,6 +8,31 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class ReportApiController
 {
+    public function overview(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $overview = \ReportService::getOverviewData();
+
+        $pdo = \Database::getInstance();
+        $recentOrders = $this->getRecentOrders($pdo, 5);
+
+        $lowStockItems = [];
+        if (class_exists('Product')) {
+            $lowStockItems = \Product::findLowStock(10);
+        }
+
+        return ApiResponse::success($response, [
+            'orders_today' => isset($overview['ordersToday']) ? $overview['ordersToday'] : [],
+            'orders_month' => isset($overview['ordersMonth']) ? $overview['ordersMonth'] : [],
+            'purchases_month' => isset($overview['purchasesMonth']) ? $overview['purchasesMonth'] : [],
+            'customer_debt' => isset($overview['customerDebt']) ? $overview['customerDebt'] : 0,
+            'supplier_debt' => isset($overview['supplierDebt']) ? $overview['supplierDebt'] : 0,
+            'delta' => isset($overview['delta']) ? $overview['delta'] : [],
+            'updated_at_text' => isset($overview['updatedAtText']) ? $overview['updatedAtText'] : '',
+            'recent_orders' => $recentOrders,
+            'low_stock_items' => $lowStockItems,
+        ]);
+    }
+
     public function sales(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $query = $request->getQueryParams();
@@ -93,6 +118,44 @@ class ReportApiController
         ], isset($result['message']) ? (string) $result['message'] : 'Đã cập nhật tồn kho.');
     }
 
+    public function missingCost(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $query = $request->getQueryParams();
+        $data = \ReportService::getMissingCostData($query);
+
+        return ApiResponse::success($response, [
+            'items' => isset($data['items']) ? $data['items'] : [],
+            'summary' => isset($data['summary']) ? $data['summary'] : [],
+            'filters' => [
+                'q' => isset($data['keyword']) ? $data['keyword'] : '',
+                'start_date' => isset($data['startDate']) ? $data['startDate'] : '',
+                'end_date' => isset($data['endDate']) ? $data['endDate'] : '',
+            ],
+        ]);
+    }
+
+    public function missingCostUpdate(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $payload = $this->normalizePayload($request);
+        $result = \ReportService::processMissingCostUpdate($payload);
+
+        if (empty($result['success'])) {
+            return ApiResponse::error(
+                $response,
+                isset($result['message']) ? (string) $result['message'] : 'Không thể cập nhật giá vốn.',
+                422,
+                [
+                    'flash_type' => isset($result['flashType']) ? (string) $result['flashType'] : 'error',
+                ]
+            );
+        }
+
+        return ApiResponse::success($response, [
+            'flash_type' => isset($result['flashType']) ? (string) $result['flashType'] : 'success',
+            'redirect' => isset($result['redirect']) ? (string) $result['redirect'] : 'report/missing-cost',
+        ], isset($result['message']) ? (string) $result['message'] : 'Đã cập nhật giá vốn thiếu.');
+    }
+
     private function normalizePayload(ServerRequestInterface $request): array
     {
         $body = $request->getParsedBody();
@@ -101,5 +164,39 @@ class ReportApiController
         }
 
         return $body;
+    }
+
+    private function getRecentOrders(\PDO $pdo, int $limit = 10): array
+    {
+        if ($limit < 1) {
+            $limit = 10;
+        }
+
+        $sql = 'SELECT
+            o.*,
+            c.name AS customer_name,
+            COALESCE(ic.items_count, 0) AS items_count
+            FROM orders o
+            LEFT JOIN customers c ON o.customer_id = c.id
+            LEFT JOIN (
+                SELECT order_id, SUM(count_items) AS items_count
+                FROM (
+                    SELECT order_id, COUNT(*) AS count_items
+                    FROM order_items
+                    GROUP BY order_id
+                    UNION ALL
+                    SELECT order_id, COUNT(*) AS count_items
+                    FROM order_manual_items
+                    GROUP BY order_id
+                ) t
+                GROUP BY order_id
+            ) ic ON ic.order_id = o.id
+            WHERE o.deleted_at IS NULL
+              AND (o.order_status IS NULL OR o.order_status <> \'cancelled\')
+            ORDER BY o.order_date DESC, o.id DESC
+            LIMIT ' . (int) $limit;
+
+        $stmt = $pdo->query($sql);
+        return $stmt->fetchAll();
     }
 }

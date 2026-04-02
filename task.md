@@ -14,6 +14,7 @@
 ### Phase 1 — Refactor cấu trúc backend
 
 #### 1.1 Orders module
+
 - [x] Rà soát `OrderController.old.php` để đối chiếu logic gốc
 - [x] Tách logic filter/search/pagination khỏi `OrderListController.php`
 - [x] Tách query danh sách đơn hàng sang `OrderRepository.php`
@@ -22,23 +23,27 @@
 - [x] Giảm độ phức tạp của `OrderDetailController.php` theo từng nhóm chức năng *(đã tách nhóm đọc dữ liệu và luồng ghi dữ liệu chính: view / preview / invoice / addForm / update / addStore)*
 
 #### 1.2 Products module
+
 - [x] Tách logic filter sản phẩm khỏi `ProductController.php`
 - [x] Tách query danh sách / tồn kho / units sang model hoặc repository phù hợp
 - [x] Chuẩn hóa xử lý create/update sản phẩm theo service layer
 - [x] Rà soát form sản phẩm để giữ nguyên behavior cũ
 
 #### 1.3 Purchases module
+
 - [x] Tách xử lý nhập hàng khỏi `PurchaseController.php`
 - [x] Gom logic tính tiền / đơn vị / tồn kho vào service riêng
 - [x] Chuẩn hóa truy vấn chi tiết phiếu nhập
 
 #### 1.4 Reports module
+
 - [x] Rà soát `ReportController.php` theo từng loại báo cáo
 - [x] Tách phần tổng hợp số liệu sang `ReportService.php`
 - [x] Giảm logic SQL lặp lại trong controller
 - [x] Kiểm tra lại các chỉ số nhạy cảm trước và sau refactor
 
 #### 1.5 Master data module
+
 - [x] Chuẩn hóa controller cho `CustomerController.php`
 - [x] Chuẩn hóa controller cho `SupplierController.php`
 - [x] Chuẩn hóa controller cho `CategoryController.php`
@@ -47,22 +52,26 @@
 ### Phase 2 — Chuẩn hóa UI bằng TailwindCSS trên view hiện tại
 
 Ghi chú phạm vi:
+
 - Giữ `app/Views` + TailwindCSS, chưa chuyển sang Vue trong phase này
 - Ưu tiên chuẩn hóa bằng utility class, partial và pattern dùng chung thay vì đổi stack frontend
 - Icon hành động hiển thị dạng icon thuần, không dùng style button có border/padding
 
 #### 2.1 Layout & shell
+
 - [x] Rà soát `app/Views/layout/main.php`
 - [x] Chuẩn hóa spacing, container, max width theo `ui-guidelines.md` bằng Tailwind utilities
 - [x] Kiểm tra top bar / bottom navigation / menu sheet
 
 #### 2.2 Shared UI components
+
 - [x] Chuẩn hóa button variants
 - [x] Chuẩn hóa input + label + inline error
 - [x] Chuẩn hóa card/list item dùng chung
 - [x] Chuẩn hóa modal/sheet theo kiểu trượt từ dưới lên
 
 #### 2.3 Screen cleanup
+
 - [x] Giảm shadow / nested borders / hiệu ứng thừa
 - [x] Đồng bộ trạng thái màu success / warning / danger
 - [x] Tối ưu các màn hình danh sách theo card list thay vì bố cục nặng
@@ -70,10 +79,12 @@ Ghi chú phạm vi:
 ### Phase 3 — API foundation
 
 Ghi chú phạm vi:
+
 - Phase 3 dùng **Slim 4** để triển khai API, không dựng API bằng PHP thuần.
 - Giữ nguyên business logic hiện tại, tái sử dụng Service/Repository đã tách ở Phase 1.
 
 #### 3.1 Chuẩn bị nền tảng API
+
 - [x] Cài Slim 4 và cấu hình bootstrap API song song với app hiện tại
 - [x] Tạo entrypoint API riêng (prefix `/api`) và route loader
 - [x] Thiết lập middleware JSON request/response
@@ -86,23 +97,26 @@ Ghi chú phạm vi:
 - [x] Chốt danh sách endpoint ưu tiên theo module
 
 ##### 3.1.0 Definition of Done (DoD)
+
 - [x] Endpoint healthcheck API hoạt động (`/api/health`) và trả JSON đúng chuẩn
 - [x] Middleware JSON áp dụng đồng nhất cho toàn bộ route `/api/*`
 - [x] Error/exception bất kỳ từ API đều trả về JSON có cấu trúc thống nhất
 - [x] Auth middleware đã gắn cho các route cần bảo vệ và có test manual pass/fail
 - [x] Có ít nhất 1 module API đầu tiên chạy end-to-end qua Service/Repository cũ (không đổi business logic)
-- [ ] Có checklist đối chiếu parity với MVC cũ cho module API đầu tiên
+- [x] Có checklist đối chiếu parity với MVC cũ cho module API đầu tiên
 
 ##### 3.1.1 Template Checklist Parity (API vs Legacy MVC)
-- [ ] Cùng input filter/sort/pagination giữa MVC và API cho module đang làm
-- [ ] Cùng output business fields và giá trị tính toán quan trọng (tổng tiền, công nợ, tồn kho...)
-- [ ] Cùng quy tắc validation (required/min/max/format) và thông điệp lỗi chính
-- [ ] Cùng xử lý edge cases (rỗng dữ liệu, thiếu quan hệ, bản ghi soft-delete)
-- [ ] Cùng quyền truy cập theo vai trò/tài khoản (nếu có)
-- [ ] Cùng hành vi ghi log/audit sau các action tạo/sửa/xóa
-- [ ] So sánh tối thiểu 5 ca thực tế trước khi đánh dấu parity pass
+
+- [x] Cùng input filter/sort/pagination giữa MVC và API cho module đang làm
+- [x] Cùng output business fields và giá trị tính toán quan trọng (tổng tiền, công nợ, tồn kho...)
+- [x] Cùng quy tắc validation (required/min/max/format) và thông điệp lỗi chính
+- [x] Cùng xử lý edge cases (rỗng dữ liệu, thiếu quan hệ, bản ghi soft-delete)
+- [x] Cùng quyền truy cập theo vai trò/tài khoản (nếu có)
+- [x] Cùng hành vi ghi log/audit sau các action tạo/sửa/xóa
+- [x] So sánh tối thiểu 5 ca thực tế trước khi đánh dấu parity pass
 
 #### 3.2 API rollout theo module
+
 - [x] Tạo API cho products (list/detail/create/update)
 - [x] Tạo API cho customers (list/detail/create/update/payment)
 - [x] Tạo API cho orders (list/detail/preview/create/update)
@@ -113,26 +127,73 @@ Ghi chú phạm vi:
 ### Phase 4 — Vue 3 migration
 
 #### 4.1 Chuẩn bị frontend structure
-- [ ] Tạo cấu trúc `components`, `pages`, `composables`, `services`
-- [ ] Chuẩn hóa `useFetch`, `useForm`, `usePagination`, `useToast`
-- [ ] Xác định module nào migrate trước mà ít rủi ro
 
-#### 4.2 Migrate theo màn hình
-- [ ] Migrate product list
-- [ ] Migrate customer list
-- [ ] Migrate order list
-- [ ] Migrate order detail
-- [ ] Migrate POS
+- [x] Tạo cấu trúc `components`, `pages`, `composables`, `services`
+- [x] Chuẩn hóa `useFetch`, `useForm`, `usePagination`, `useToast`
+- [x] Xác định module nào migrate trước mà ít rủi ro
+
+#### 4.2 Migrate các màn ưu tiên cao
+
+- [x] Migrate product list
+- [x] Migrate customer list
+- [x] Migrate order list
+- [x] Migrate order detail
+- [x] Migrate POS
+
+Ghi chú phạm vi:
+
+- Phase 4.2 hiện mới migrate các màn đã liệt kê ở trên.
+- Các màn legacy còn đang render bằng PHP view, chưa có route/module Vue riêng: `purchases`, `suppliers`, `units`, `categories`, cùng các form/detail ngoài phạm vi của `products/customers/orders`.
+
+#### 4.3 Migrate các màn sales còn lại
+
+- [x] Migrate purchase list
+- [x] Migrate purchase detail
+- [x] Migrate purchase form
+- [x] Migrate customer detail
+- [x] Migrate customer payment
+- [x] Migrate customer form
+- [x] Migrate order form/edit
+- [x] Migrate order return
+- [x] Migrate product form
+- [x] Migrate order invoice
+
+#### 4.4 Migrate master data screens
+
+- [x] Migrate supplier list
+- [x] Migrate supplier form
+- [x] Migrate supplier detail
+- [x] Migrate category list
+- [x] Migrate unit list
+
+#### 4.5 Migrate dashboard và reports
+
+- [x] Migrate customer debt report
+- [x] Migrate supplier debt report
+- [x] Migrate inventory report
+- [x] Migrate sales report
+- [x] Migrate missing cost report
+- [x] Migrate report index
+- [x] Migrate sales orders list report
+- [x] Migrate dashboard index
+
+#### 4.6 Migrate system screens
+
+- [x] Migrate change password screen
+- [x] Migrate login screen
+- [x] Migrate migration utility screen
 
 ### Phase 5 — Kiểm tra tương thích legacy
 
 #### 5.1 Legacy parity checklist
+
 - [x] So sánh behavior trước và sau refactor
 - [x] Kiểm tra validation và edge cases
 - [x] Kiểm tra số liệu báo cáo
 - [x] Xác nhận không thay đổi business logic
 
 #### 5.2 Verification
+
 - [x] Kiểm tra syntax PHP cho các file đã sửa
 - [x] Chạy lại các luồng chính: orders / products / purchases / reports
 - [x] Ghi lại các thay đổi đã xác minh xong trong task tracker
@@ -163,6 +224,28 @@ Ghi chú phạm vi:
 - Đã mở rộng script `scripts/phase32_parity_check.php` để bao phủ thêm products và chạy lại verification tổng cho 4 luồng chính (orders/products/purchases/reports): `all_pass = true` với 8 case pass.
 - Đã bổ sung kiểm chứng validation/edge-case trong `scripts/phase32_parity_check.php` (case `purchase_create_validation_message`, `order_detail_invalid_id_validation`) và chạy lại: `all_pass = true` với 10 case pass.
 - Đã hoàn tất kiểm tra syntax cho toàn bộ file API foundation và module API (gateway/index, bootstrap, routes, middleware/response, product/customer/order/purchase/report controllers) bằng `php -l`, tất cả đều pass.
+- Đã bổ sung bridge API trước Phase 4: `POST /api/orders/{id}/payment`, `POST /api/orders/{id}/payment/reset`, `POST /api/purchases/{id}/payment`, `GET /api/reports/missing-cost`, `POST /api/reports/missing-cost/update` (đều đã verify qua auth middleware).
+- **Hoàn tất Phase 4.4 - Supplier screens**: Tạo API endpoints supplier (list/detail/create/update/delete) theo mô hình OrderApiController, thêm 4 routes supplier vào routes/api.php, tạo Vue pages (SupplierListPage, SupplierDetailPage, SupplierFormPage) + composables (useSupplierList, useSupplierDetail, useSupplierForm), đăng ký 4 routes Vue vào router/index.js. Verify: `php -l app/Modules/Supplier/SupplierApiController.php && php -l routes/api.php` pass + `npm run build` thành công (121 modules transformed, main.js 270.59 kB, gzip 76.98 kB).
+- Đã tiếp tục Phase 4.2 trên Vue 3: hoàn tất `customer list` bằng API `/api/customers` với filter `q` + `debt_status`, giữ link sang detail legacy để không đổi workflow chi tiết ở bước đầu migrate.
+- Đã hoàn tất `order list` + `order detail` trên Vue 3: danh sách đơn dùng API `/api/orders`, detail dùng API `/api/orders/{id}`, hỗ trợ ghi nhận thanh toán và đặt lại thanh toán qua bridge API hiện có; các action chưa có endpoint riêng (`in hóa đơn`, `sửa đơn`, `trả hàng`) tạm giữ link sang luồng legacy để đảm bảo parity hành vi.
+- Đã hoàn tất `POS` trên Vue 3 bằng bridge API mới `GET /api/pos/bootstrap` (nạp sản phẩm, đơn vị bán và khách hàng) và tái sử dụng `POST /api/orders` để lưu đơn; payload giữ nguyên theo luồng POS legacy gồm cart items, manual items, discount, surcharge, payment và thông tin khách hàng.
+- Đã verify Phase 4.2 bằng `php -l` cho các file bridge API mới và `npm.cmd run build`; cả backend syntax lẫn bundle SPA đều pass.
+- Đã sắp xếp lại ưu tiên `Phase 4.3 -> 4.6` theo mức độ ảnh hưởng nghiệp vụ: `purchases` đứng đầu nhóm sales còn lại; tiếp theo là các màn nợ/chi tiết khách hàng, rồi mới tới form sản phẩm, reports và system screens.
+- Đã bắt đầu `Phase 4.3` bằng `purchase list/detail/form`: thêm route Vue cho `/purchases`, `/purchases/create`, `/purchases/:id`, `/purchases/:id/edit`; thêm module frontend purchases và bridge API `GET /api/purchases/bootstrap/form-data` để nạp `suppliers` + `product_units` cho form.
+- Purchase detail Vue đang dùng `GET /api/purchases/{id}` và `POST /api/purchases/{id}/payment`; purchase form Vue giữ nguyên payload legacy cho `product_unit_id[]`, `qty[]`, `price_cost[]`, `amount[]`, `update_cost[]` khi gọi `POST/PATCH /api/purchases`.
+- Đã nâng parity UX cho `purchase form`: thay dropdown sản phẩm bằng `product selector modal` (tìm kiếm + chọn nhanh + đổi sản phẩm theo từng dòng) theo hướng hành vi gần với màn legacy.
+- Đã triển khai tiếp cụm `customer detail/payment/form` trên Vue: thêm route `/customers/:id`, `/customers/:id/edit`, `/customers/orders/:orderId/payment`, dùng API customers hiện có (`detail`, `create`, `update`, `payment info`, `payment store`) và cập nhật `customer list` sang điều hướng nội bộ Vue detail.
+- Đã triển khai `order form/edit` trên Vue: thêm route `/orders/create`, `/orders/:id/edit`, dùng bootstrap `/api/pos/bootstrap`, submit tạo đơn qua `POST /api/orders` và cập nhật đơn qua `PUT /api/orders/{id}` theo payload tương thích luồng legacy (`product_unit_id[]`, `qty[]`, `price[]`, `remove_existing[]`, `mode[]`, manual items, discount/surcharge, customer info).
+- Đã hoàn tất các màn còn lại của `Phase 4.3`: `order return`, `order invoice`, `product form` trên Vue; đồng thời bổ sung API parity cho các luồng này: `GET /api/orders/{id}/return`, `POST /api/orders/{id}/return`, `GET /api/orders/{id}/invoice`, `GET /api/products/bootstrap/form-data`, `GET /api/products/{id}/form-data`.
+- Đã verify purchases migration bằng `php -l app/Modules/Purchase/PurchaseBootstrapApiController.php && php -l app/Modules/Purchase/PurchaseApiController.php && php -l routes/api.php` và `npm.cmd run build`; tất cả đều pass.
+- Hoàn tất phần còn lại của `Phase 4.4`: migrate `category list` + `unit list` lên Vue và bổ sung API `/api/categories` + `/api/units` (CRUD tương ứng theo legacy service).
+- Bắt đầu `Phase 4.5`: bổ sung API `GET /api/reports/overview` (tổng quan dashboard + đơn gần đây + hàng sắp hết) và migrate Vue cho `dashboard index`, `report index`, `customer debt report`, `supplier debt report`.
+- Verify sau khi migrate 4.4/4.5 bằng `php -l app/Modules/Category/CategoryApiController.php && php -l app/Modules/Unit/UnitApiController.php && php -l app/Modules/Report/ReportApiController.php && php -l routes/api.php` và `npm.cmd run build`; tất cả đều pass (SPA: 137 modules, `main.js` 299.22 kB, gzip 81.35 kB).
+- Hoàn tất phần còn lại của `Phase 4.5`: migrate `sales report`, `sales orders list report`, `inventory report`, `missing cost report` lên Vue 3; tái sử dụng API reports hiện có (`/api/reports/sales`, `/api/reports/inventory`, `/api/reports/inventory/adjust`, `/api/reports/missing-cost`, `/api/reports/missing-cost/update`).
+- Verify lần cuối cho report migration: `npm.cmd run build` pass (SPA: 144 modules, `main.js` 326.41 kB, gzip 87.80 kB) và `php -l app/Modules/Report/ReportApiController.php && php -l routes/api.php` đều không có syntax error.
+- Đã hoàn thiện đợt parity UI gần nhất theo legacy: đồng bộ card đơn hàng dùng chung trên các màn hình, chuẩn hóa icon toàn app sang `@lucide/vue` (import trực tiếp tại từng file), cập nhật icon menu sản phẩm về `Package`, tăng kích thước icon bottom nav (`h-5 w-5`) và chuyển nút đóng modal sang icon `X`.
+- Đã khôi phục hành vi preview nhanh đơn hàng như bản cũ: thêm API helper `fetchOrderPreview(id)` trong `frontend/src/modules/order/services/order.api.js`, và tích hợp modal preview vào `frontend/src/shared/components/OrderItemCard.vue` (trạng thái loading/error/content, hiển thị tổng tiền/đã thu/còn nợ, danh sách sản phẩm và sản phẩm khác, nút điều hướng chi tiết).
+- Đã verify sau khi bổ sung preview modal bằng `npm run build` (exit code 0) và kiểm tra diagnostics cho các file chỉnh sửa không phát sinh lỗi mới.
 
 - Mỗi thay đổi cần bám theo `/.github/copilot-instructions.md`
 - UI cần tuân thủ `/.github/ui-guidelines.md`

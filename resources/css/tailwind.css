@@ -101,6 +101,18 @@
 		@apply border-brand-600 bg-brand-50 text-brand-700;
 	}
 
+	.app-segment {
+		@apply inline-flex w-full rounded-xl bg-slate-100 p-0.5 text-sm text-slate-700;
+	}
+
+	.app-segment-item {
+		@apply inline-flex flex-1 items-center justify-center rounded-xl px-3 py-2 font-medium text-slate-700;
+	}
+
+	.app-segment-item-active {
+		@apply bg-brand-600 text-white;
+	}
+
 	.app-status-chip {
 		@apply inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-medium;
 	}
@@ -148,7 +160,7 @@
 	}
 
 	.app-modal-overlay {
-		@apply fixed inset-0 z-40 hidden items-end justify-center bg-slate-900/35 pt-6;
+		@apply fixed inset-0 z-40 flex items-end justify-center bg-slate-900/35 pt-6;
 		opacity: 0;
 		pointer-events: none;
 		transition: opacity 180ms ease;

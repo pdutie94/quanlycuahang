@@ -8,6 +8,38 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class ProductApiController
 {
+    public function formData(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $data = \ProductService::getCreateFormData();
+
+        return ApiResponse::success($response, [
+            'units' => isset($data['units']) ? $data['units'] : [],
+            'categories' => isset($data['categories']) ? $data['categories'] : [],
+        ]);
+    }
+
+    public function formEditData(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($id <= 0) {
+            return ApiResponse::error($response, 'Invalid product id', 422);
+        }
+
+        $data = \ProductService::getEditFormData($id);
+        if (empty($data['success'])) {
+            return ApiResponse::error($response, 'Product not found', 404);
+        }
+
+        return ApiResponse::success($response, [
+            'product' => isset($data['product']) ? $data['product'] : null,
+            'units' => isset($data['units']) ? $data['units'] : [],
+            'categories' => isset($data['categories']) ? $data['categories'] : [],
+            'product_units' => isset($data['productUnits']) ? $data['productUnits'] : [],
+            'inventory_qty_base' => isset($data['inventoryQtyBase']) ? $data['inventoryQtyBase'] : null,
+            'product_logs' => isset($data['productLogs']) ? $data['productLogs'] : [],
+        ]);
+    }
+
     public function list(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $query = $request->getQueryParams();
