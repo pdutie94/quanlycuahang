@@ -1,4 +1,5 @@
 node_modules/
+vendor/
 logs/*.log
 config/*.local.php
 public/uploads/

@@ -18,6 +18,8 @@ RewriteRule ^assets/(.*)$ public/assets/$1 [L]
 RewriteRule ^uploads/(.*)$ public/uploads/$1 [L]
 
 # Route thân thiện
+RewriteRule ^api/.*$ public/index.php [L,QSA]
+
 RewriteRule ^login$ public/index.php?r=auth/login [L,QSA]
 RewriteRule ^logout$ public/index.php?r=auth/logout [L,QSA]
 RewriteRule ^dashboard$ public/index.php?r=dashboard/index [L,QSA]
