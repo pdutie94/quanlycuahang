@@ -186,7 +186,7 @@ const getCategoryName = (item) => item.category_name || 'Chưa phân loại';
                   <span class="flex-none text-xs font-medium" :class="getStatus(item).className">{{ getStatus(item).label }}</span>
                 </div>
 
-                <div class="mt-0.5 flex items-center gap-1 truncate text-sm text-slate-500">
+                <div class="mt-1 flex items-center gap-1 truncate text-sm text-slate-500 leading-none">
                   <span>{{ item.code || '-' }}</span>
                   <span class="text-slate-300">·</span>
                   <span class="truncate">{{ getCategoryName(item) }}</span>

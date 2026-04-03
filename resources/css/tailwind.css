@@ -110,7 +110,7 @@
 	}
 
 	.app-list-card {
-		@apply block w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-sm text-slate-800 transition hover:border-slate-300 hover:bg-slate-50;
+		@apply block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-800 transition hover:border-slate-300 hover:bg-slate-50;
 	}
 
 	.app-empty-state {

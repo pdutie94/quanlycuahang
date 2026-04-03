@@ -106,18 +106,17 @@ const clearFilters = async () => {
             :to="{ name: 'customers.detail', params: { id: item.id } }"
             class="app-list-card"
           >
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <div class="">
                 <div class="min-w-0 truncate text-sm font-medium text-slate-900">{{ item.name }}</div>
-                <div class="shrink-0 text-sm font-medium" :class="Number(item.debt_amount || 0) > 0 ? 'text-rose-600' : 'text-slate-700'">{{ formatMoney(item.debt_amount) }}</div>
               </div>
-              <div class="flex items-center gap-1 truncate text-sm text-slate-600">
-                <span class="truncate">{{ item.phone || 'Chưa có SĐT' }}</span>
-                <span class="text-slate-300">·</span>
-                <span class="truncate">{{ item.address || 'Chưa có địa chỉ' }}</span>
+              <div class="mt-1 flex items-center gap-1 truncate text-sm text-slate-600 leading-none">
+                <span v-if="item.phone" class="truncate">{{ item.phone || 'Chưa có SĐT' }}</span>
+                <span v-if="item.phone && item.address" class="text-slate-300">·</span>
+                <span v-if="item.address" class="truncate">{{ item.address || 'Chưa có địa chỉ' }}</span>
               </div>
-              <div class="text-sm text-slate-500">
-                Nợ hiện tại
+              <div class="text-sm text-slate-500 mt-0.5">
+                Nợ: <span class="font-medium" :class="Number(item.debt_amount || 0) > 0 ? 'text-rose-600' : 'text-slate-700'">{{ formatMoney(item.debt_amount) }}</span>
               </div>
             </div>
           </RouterLink>

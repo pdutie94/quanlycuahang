@@ -59,8 +59,9 @@ const applySearch = async () => {
             class="app-list-card"
           >
             <div class="text-sm font-medium text-slate-900">{{ supplier.name }}</div>
-            <div v-if="supplier.phone || supplier.address" class="mt-1 space-y-1 text-sm text-slate-600">
+            <div v-if="supplier.phone || supplier.address" class="mt-1 flex items-center gap-1 truncate text-sm text-slate-500 leading-none">
               <div v-if="supplier.phone">SĐT: {{ supplier.phone }}</div>
+              <span v-if="supplier.phone && supplier.address" class="text-slate-300">·</span>
               <div v-if="supplier.address" class="line-clamp-1">Địa chỉ: {{ supplier.address }}</div>
             </div>
           </RouterLink>

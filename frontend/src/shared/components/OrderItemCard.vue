@@ -257,24 +257,24 @@ const closePreview = () => {
       </button>
     </div>
 
-    <div class="space-y-1.5">
+    <div class="min-w-0 flex-1">
       <div class="flex items-center gap-2">
         <div class="min-w-0 truncate text-sm font-semibold text-slate-900">{{ customerName }}</div>
         <span class="inline-flex shrink-0 items-center rounded-md px-2 py-0.5 text-xs font-semibold" :class="badgeClass">{{ badgeLabel }}</span>
       </div>
 
-      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+      <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm leading-none text-slate-500">
         <span class="inline-flex items-center gap-1">
-          <ClipboardList class="h-3.5 w-3.5 text-slate-400" />
+          <ClipboardList class="h-4 w-4 text-slate-400" />
           <span>{{ orderCode }}</span>
         </span>
         <span v-if="orderDateText" class="inline-flex items-center gap-1">
-          <Clock class="h-3.5 w-3.5 text-slate-400" />
+          <Clock class="h-4 w-4 text-slate-400" />
           <span>{{ orderDateText }}</span>
         </span>
       </div>
 
-      <div class="flex flex-wrap items-center gap-x-3 text-sm">
+      <div class="mt-0.5 flex flex-wrap items-center gap-x-3 text-sm">
         <span class="text-slate-600">Tổng: <span class="font-semibold text-slate-900">{{ formatMoney(totalAmount) }}</span></span>
         <span v-if="isPaid" class="text-slate-600">
           Lãi:
