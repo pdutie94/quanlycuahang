@@ -287,8 +287,10 @@ const closePreview = () => {
     </div>
   </component>
 
-  <div v-if="previewVisible" class="app-modal-overlay app-modal-open z-[99999]" @click.self="closePreview">
-    <div class="app-modal-sheet">
+  <Teleport to="body">
+    <transition name="app-modal-fade-up" appear>
+      <div v-if="previewVisible" class="app-modal-overlay app-modal-open z-[99999]" @click.self="closePreview">
+        <div class="app-modal-sheet">
       <div class="app-modal-header">
         <div>
           <div class="text-sm font-semibold text-slate-800">{{ orderCode }}<span v-if="customerName !== customerFallback"> - {{ customerName }}</span></div>
@@ -299,20 +301,70 @@ const closePreview = () => {
         </button>
       </div>
 
-      <div class="app-modal-body text-sm">
-        <div v-if="previewLoading" class="space-y-3 animate-pulse" aria-hidden="true">
-          <div class="flex flex-wrap items-center gap-2">
-            <div class="h-6 w-24 rounded-lg bg-brand-100"></div>
-            <div class="h-6 w-20 rounded-lg bg-amber-100"></div>
-          </div>
-          <div class="rounded-lg bg-white">
-            <div class="space-y-2">
-              <div class="h-3 w-28 rounded bg-slate-200"></div>
-              <div class="h-3 w-24 rounded bg-slate-200"></div>
-              <div class="h-3 w-20 rounded bg-slate-200"></div>
+        <div class="app-modal-body text-sm">
+          <div v-if="previewLoading" class="h-full min-h-full animate-pulse" aria-hidden="true">
+            <div class="space-y-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <div class="h-6 w-24 rounded-lg bg-brand-100"></div>
+                <div class="h-6 w-20 rounded-lg bg-amber-100"></div>
+              </div>
+
+              <div class="rounded-lg bg-white">
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="h-3 w-16 rounded bg-slate-200"></div>
+                    <div class="h-4 w-20 rounded bg-slate-300"></div>
+                  </div>
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="h-3 w-14 rounded bg-slate-200"></div>
+                    <div class="h-4 w-16 rounded bg-brand-100"></div>
+                  </div>
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="h-3 w-12 rounded bg-slate-200"></div>
+                    <div class="h-4 w-16 rounded bg-amber-100"></div>
+                  </div>
+                </div>
+                <div class="my-2 border-t border-dashed border-slate-200"></div>
+                <div class="flex items-center justify-between gap-3">
+                  <div class="h-4 w-20 rounded bg-slate-300"></div>
+                  <div class="h-5 w-24 rounded bg-slate-300"></div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
+                  <div class="h-3 w-16 rounded bg-slate-200"></div>
+                  <div class="mt-2 h-5 w-20 rounded bg-brand-100"></div>
+                </div>
+                <div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
+                  <div class="h-3 w-12 rounded bg-slate-200"></div>
+                  <div class="mt-2 h-5 w-16 rounded bg-slate-300"></div>
+                </div>
+              </div>
+
+              <div class="rounded-lg border border-slate-200 bg-white">
+                <div class="border-b border-slate-100 px-3 py-2">
+                  <div class="h-4 w-20 rounded bg-slate-300"></div>
+                </div>
+                <div class="divide-y divide-slate-100">
+                  <div class="flex items-center justify-between px-3 py-2">
+                    <div class="space-y-2">
+                      <div class="h-4 w-36 rounded bg-slate-300"></div>
+                      <div class="h-3 w-44 rounded bg-slate-200"></div>
+                    </div>
+                    <div class="h-4 w-16 rounded bg-slate-300"></div>
+                  </div>
+                  <div class="flex items-center justify-between px-3 py-2">
+                    <div class="space-y-2">
+                      <div class="h-4 w-32 rounded bg-slate-300"></div>
+                      <div class="h-3 w-40 rounded bg-slate-200"></div>
+                    </div>
+                    <div class="h-4 w-14 rounded bg-slate-300"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
         <div v-else-if="previewError" class="py-6 text-center text-rose-600">{{ previewError }}</div>
 
@@ -390,10 +442,12 @@ const closePreview = () => {
         </div>
       </div>
 
-      <div class="app-modal-footer bg-slate-50">
-        <RouterLink class="app-btn-primary" :to="rootTo" @click="closePreview">Xem chi tiết</RouterLink>
-        <button type="button" class="app-btn-secondary" @click="closePreview">Đóng</button>
+        <div class="app-modal-footer bg-slate-50">
+          <RouterLink class="app-btn-primary" :to="rootTo" @click="closePreview">Xem chi tiết</RouterLink>
+          <button type="button" class="app-btn-secondary" @click="closePreview">Đóng</button>
+        </div>
       </div>
-    </div>
-  </div>
+      </div>
+    </transition>
+  </Teleport>
 </template>

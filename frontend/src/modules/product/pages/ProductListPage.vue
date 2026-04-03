@@ -1,29 +1,43 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { RouterLink } from 'vue-router';
-import { Box, CirclePlus, LayoutGrid, Search } from '@lucide/vue';
+import { Check, X } from '@lucide/vue';
 import { useProducts } from '../composables/useProducts';
-import { usePagination } from '../../../shared/composables/usePagination';
 import { useToast } from '../../../shared/composables/useToast';
+import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
+import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 
 const keyword = ref('');
 const stockFilter = ref('all');
-const { items, meta, loading, error, load } = useProducts();
-const { page, totalPages, canPrev, canNext, setMeta, next, prev } = usePagination(1);
+const categoryId = ref('');
+const showCategoryModal = ref(false);
+const { items, meta, filters, categories, loading, error, load } = useProducts();
 const toast = useToast();
 
-const loadPage = async () => {
-  try {
-    await load({ q: keyword.value, stock: stockFilter.value, page: page.value });
-    setMeta(meta.value);
-  } catch (_err) {
+const {
+  hasMore,
+  loadingMore,
+  isInitialLoading,
+  infiniteSentinel,
+  refresh
+} = useInfiniteList({
+  itemsRef: items,
+  metaRef: meta,
+  loadingRef: loading,
+  fetchPage: (page) =>
+    load({
+      q: keyword.value,
+      stock: stockFilter.value,
+      category_id: categoryId.value || '',
+      page
+    }),
+  onError: () => {
     toast.error(error.value || 'Không thể tải danh sách sản phẩm.');
   }
-};
+});
 
 const applySearch = async () => {
-  page.value = 1;
-  await loadPage();
+  await refresh();
 };
 
 const applyStock = async (value) => {
@@ -31,21 +45,48 @@ const applyStock = async (value) => {
     return;
   }
   stockFilter.value = value;
-  page.value = 1;
-  await loadPage();
+  await refresh();
 };
 
-watch(page, async () => {
-  await loadPage();
-});
+const hasAnyFilter = computed(() => stockFilter.value !== 'all' || categoryId.value !== '');
 
-onMounted(async () => {
-  await loadPage();
+const applyCategory = async (value) => {
+  const nextValue = String(value || '');
+  if (categoryId.value === nextValue) {
+    showCategoryModal.value = false;
+    return;
+  }
+
+  categoryId.value = nextValue;
+  showCategoryModal.value = false;
+  await refresh();
+};
+
+const clearFilters = async () => {
+  stockFilter.value = 'all';
+  categoryId.value = '';
+  await refresh();
+};
+
+const selectedCategoryIdNumber = computed(() => Number(categoryId.value || 0));
+
+const syncFiltersFromApi = () => {
+  keyword.value = String(filters.value?.q || keyword.value || '');
+  stockFilter.value = String(filters.value?.stock || stockFilter.value || 'all');
+  const nextCategory = filters.value?.category_id;
+  categoryId.value = nextCategory ? String(nextCategory) : '';
+};
+
+syncFiltersFromApi();
+watch(filters, () => {
+  syncFiltersFromApi();
 });
 
 const formatMoney = (value) => Number(value || 0).toLocaleString('vi-VN');
 
 const formatQty = (value) => Number(value || 0).toLocaleString('vi-VN');
+
+const hasSellPrice = (item) => Number(item.display_price_sell || 0) > 0;
 
 const getStatus = (item) => {
   const qty = Number(item.inventory_qty_base || item.qty_base || 0);
@@ -69,100 +110,115 @@ const getCategoryName = (item) => item.category_name || 'Chưa phân loại';
 
 <template>
   <section class="space-y-4">
-    <header>
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <h1 class="font-display text-xl font-bold text-slate-900 md:text-2xl">Sản phẩm</h1>
-          <p class="mt-1 text-sm leading-6 text-slate-500">Quản lý danh sách sản phẩm đang bán.</p>
-        </div>
-        <RouterLink to="/products/create" class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-white transition hover:bg-brand-700">
-          <CirclePlus class="h-5 w-5" />
-          <span>Tạo mới</span>
-        </RouterLink>
-      </div>
-
-      <form class="mt-3" @submit.prevent="applySearch">
-        <div class="flex items-center gap-2">
-          <div class="relative flex-1">
-            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
-              <Search class="h-4 w-4" />
-            </span>
-            <input
-              v-model="keyword"
-              type="search"
-              placeholder="Tìm kiếm theo tên, SKU..."
-              class="h-10 w-full rounded-xl border border-slate-300 bg-white pl-10 pr-3 text-sm text-slate-900 outline-none focus:border-brand-500"
-            />
-          </div>
-          <button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50" aria-label="Lưới">
-            <LayoutGrid class="h-5 w-5" />
-          </button>
-        </div>
-
-        <div class="mt-2 flex items-center gap-2 overflow-x-auto pb-0.5 text-sm">
-          <button type="button" class="border inline-flex min-h-8 shrink-0 items-center rounded-chip px-3 py-1.5 text-sm font-medium" :class="stockFilter === 'all' ? 'border-brand-600 bg-brand-600 text-white' : 'bg-white text-slate-700 border-slate-300'" @click="applyStock('all')">Tất cả</button>
-          <button type="button" class="border inline-flex min-h-8 shrink-0 items-center rounded-chip px-3 py-1.5 text-sm font-medium" :class="stockFilter === 'in_stock' ? 'border-brand-600 bg-brand-600 text-white' : 'bg-white text-slate-700 border-slate-300'" @click="applyStock('in_stock')">Còn hàng</button>
-          <button type="button" class="border inline-flex min-h-8 shrink-0 items-center rounded-chip px-3 py-1.5 text-sm font-medium" :class="stockFilter === 'low_stock' ? 'border-brand-600 bg-brand-600 text-white' : 'bg-white text-slate-700 border-slate-300'" @click="applyStock('low_stock')">Tồn thấp</button>
-          <button type="button" class="border inline-flex min-h-8 shrink-0 items-center rounded-chip px-3 py-1.5 text-sm font-medium" :class="stockFilter === 'out_of_stock' ? 'border-brand-600 bg-brand-600 text-white' : 'bg-white text-slate-700 border-slate-300'" @click="applyStock('out_of_stock')">Hết hàng</button>
-        </div>
-      </form>
-    </header>
-
-    <div class="space-y-3">
-      <div v-if="loading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>
-      <div v-else-if="!items.length" class="app-empty-state">Chưa có sản phẩm nào.</div>
-      <RouterLink
-        v-for="item in items"
-        v-else
-        :key="item.id"
-        :to="{ name: 'products.edit', params: { id: item.id } }"
-        class="app-list-card relative cursor-pointer"
+    <div class="app-card">
+      <ListHeaderBar
+        v-model="keyword"
+        title="Sản phẩm"
+        subtitle="Quản lý danh sách sản phẩm đang bán."
+        :create-to="{ name: 'products.create' }"
+        create-label="Tạo mới"
+        search-placeholder="Tìm kiếm theo tên, SKU..."
+        filter-type="grid"
+        @search="applySearch"
+        @filter-click="showCategoryModal = true"
       >
-        <div class="flex items-center gap-2.5">
-          <div class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-300">
-            <Box class="h-4 w-4" />
-          </div>
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between gap-x-2">
-              <div class="truncate text-sm font-medium text-slate-900">{{ item.name }}</div>
-              <span class="flex-none text-sm font-medium" :class="getStatus(item).className">{{ getStatus(item).label }}</span>
-            </div>
-
-            <div class="mt-0.5 flex items-center gap-1 truncate text-sm text-slate-500">
-              <span>{{ item.code || '-' }}</span>
-              <span class="text-slate-300">·</span>
-              <span class="truncate">{{ getCategoryName(item) }}</span>
-              <span class="text-slate-300">·</span>
-              <span>Kho: {{ formatQty(item.inventory_qty_base || item.qty_base) }} {{ item.base_unit_name || '' }}</span>
-            </div>
-
-            <div class="mt-0.5 flex items-center gap-x-2 text-sm">
-              <span class="font-semibold text-brand-600">{{ formatMoney(item.price_sell) }} đ<span v-if="getPrimaryUnit(item)">/{{ getPrimaryUnit(item) }}</span></span>
-              <span v-if="Number(item.price_cost || 0) > 0" class="text-slate-500">{{ formatMoney(item.price_cost) }} đ<span v-if="getPrimaryUnit(item)">/{{ getPrimaryUnit(item) }}</span></span>
-            </div>
-          </div>
-        </div>
-      </RouterLink>
+        <template #chips>
+          <button
+            v-if="hasAnyFilter"
+            type="button"
+            class="border inline-flex h-[30px] w-[30px] items-center justify-center rounded-lg border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
+            aria-label="Xóa bộ lọc"
+            @click="clearFilters"
+          >
+            <X class="h-4 w-4" />
+          </button>
+          <button type="button" class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium" :class="stockFilter === 'all' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700'" @click="applyStock('all')">Tất cả</button>
+          <button type="button" class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium" :class="stockFilter === 'in_stock' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700'" @click="applyStock('in_stock')">Còn hàng</button>
+          <button type="button" class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium" :class="stockFilter === 'low_stock' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700'" @click="applyStock('low_stock')">Tồn thấp</button>
+          <button type="button" class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium" :class="stockFilter === 'out_of_stock' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700'" @click="applyStock('out_of_stock')">Hết hàng</button>
+        </template>
+      </ListHeaderBar>
     </div>
 
-    <footer class="app-card flex items-center justify-between px-4 py-3">
-      <span class="text-sm text-slate-600">Trang {{ page }} / {{ totalPages }}</span>
-      <div class="flex gap-2">
-        <button
-          class="h-9 rounded-lg border border-slate-300 px-3 text-sm disabled:opacity-50"
-          :disabled="!canPrev || loading"
-          @click="prev"
-        >
-          Trước
-        </button>
-        <button
-          class="h-9 rounded-lg border border-slate-300 px-3 text-sm disabled:opacity-50"
-          :disabled="!canNext || loading"
-          @click="next"
-        >
-          Sau
-        </button>
-      </div>
-    </footer>
+    <Teleport to="body">
+      <transition name="app-modal-fade-up">
+        <div v-if="showCategoryModal" class="app-modal-overlay app-modal-open" @click.self="showCategoryModal = false">
+          <div class="app-modal-sheet-sm">
+            <div class="app-modal-header">
+              <h2 class="app-modal-title">Lọc theo danh mục</h2>
+              <button type="button" class="app-modal-close" @click="showCategoryModal = false">
+                <X class="h-4 w-4" />
+              </button>
+            </div>
+            <div class="app-modal-body space-y-2">
+              <button
+                type="button"
+                class="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm"
+                :class="categoryId === '' ? 'border-brand-500 text-brand-700' : 'border-slate-200 text-slate-700 hover:bg-slate-50'"
+                @click="applyCategory('')"
+              >
+                <span>Tất cả danh mục</span>
+                <Check v-if="categoryId === ''" class="h-4 w-4" />
+              </button>
+              <button
+                v-for="category in categories"
+                :key="category.id"
+                type="button"
+                class="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm"
+                :class="selectedCategoryIdNumber === Number(category.id) ? 'border-brand-500 text-brand-700' : 'border-slate-200 text-slate-700 hover:bg-slate-50'"
+                @click="applyCategory(category.id)"
+              >
+                <span class="truncate">{{ category.name }}</span>
+                <Check v-if="selectedCategoryIdNumber === Number(category.id)" class="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </Teleport>
+
+    <div class="space-y-3">
+      <div v-if="isInitialLoading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>
+      <div v-else-if="!items.length" class="app-empty-state">Chưa có sản phẩm nào.</div>
+      <template v-else>
+        <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
+          <RouterLink
+            v-for="item in items"
+            :key="item.id"
+            :to="{ name: 'products.edit', params: { id: item.id } }"
+            class="app-list-card relative cursor-pointer"
+          >
+            <div class="flex items-center">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-x-2">
+                  <div class="truncate text-sm font-medium text-slate-900">{{ item.name }}</div>
+                  <span class="flex-none text-xs font-medium" :class="getStatus(item).className">{{ getStatus(item).label }}</span>
+                </div>
+
+                <div class="mt-0.5 flex items-center gap-1 truncate text-sm text-slate-500">
+                  <span>{{ item.code || '-' }}</span>
+                  <span class="text-slate-300">·</span>
+                  <span class="truncate">{{ getCategoryName(item) }}</span>
+                  <span class="text-slate-300">·</span>
+                  <span>Kho: {{ formatQty(item.inventory_qty_base || item.qty_base) }} {{ item.base_unit_name || '' }}</span>
+                </div>
+
+                <div class="mt-0.5 flex items-center gap-x-2 text-sm">
+                  <span v-if="hasSellPrice(item)" class="font-medium text-brand-600">{{ formatMoney(item.display_price_sell) }} đ<span v-if="item.display_price_unit_name || getPrimaryUnit(item)">/{{ item.display_price_unit_name || getPrimaryUnit(item) }}</span></span>
+                  <span v-else class="font-medium text-slate-500">Chưa có giá</span>
+                </div>
+              </div>
+            </div>
+          </RouterLink>
+        </transition-group>
+      </template>
+    </div>
+
+    <div v-if="items.length" class="px-2 py-1 text-center text-sm text-slate-500">
+      <span v-if="loadingMore">Đang tải thêm...</span>
+      <span v-else-if="!hasMore">Đã hiển thị hết danh sách.</span>
+      <span v-else>Cuộn xuống để tải thêm</span>
+    </div>
+    <div v-if="items.length && hasMore" ref="infiniteSentinel" class="h-1 w-full"></div>
   </section>
 </template>

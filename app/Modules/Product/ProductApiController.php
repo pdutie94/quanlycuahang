@@ -47,6 +47,8 @@ class ProductApiController
 
         return ApiResponse::success($response, [
             'items' => isset($data['products']) ? $data['products'] : [],
+            'product_units_by_product' => isset($data['productUnitsByProduct']) ? $data['productUnitsByProduct'] : [],
+            'categories' => isset($data['categories']) ? $data['categories'] : [],
             'meta' => [
                 'page' => isset($data['page']) ? (int) $data['page'] : 1,
                 'per_page' => isset($data['perPage']) ? (int) $data['perPage'] : 20,

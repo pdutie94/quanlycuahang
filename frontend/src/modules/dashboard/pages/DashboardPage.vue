@@ -18,7 +18,19 @@ const formatDateTime = (value) => {
   return new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
 };
 
-const todayText = computed(() => new Intl.DateTimeFormat('vi-VN').format(new Date()));
+const weekdayNames = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+
+const todayText = computed(() => {
+  const today = new Date();
+  const weekday = weekdayNames[today.getDay()] || '';
+  const dateText = new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }).format(today);
+
+  return `${weekday}, ${dateText}`;
+});
 
 const recentOrders = computed(() => overview.value?.recent_orders || []);
 

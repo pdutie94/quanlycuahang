@@ -85,8 +85,10 @@ watch(
       </div>
     </nav>
 
-    <div v-if="showShell && showMenu" class="app-modal-overlay app-modal-open" @click.self="showMenu = false">
-      <div class="app-modal-sheet">
+    <Teleport to="body">
+      <transition name="app-modal-fade-up" appear>
+        <div v-if="showShell && showMenu" class="app-modal-overlay app-modal-open" @click.self="showMenu = false">
+          <div class="app-modal-sheet">
         <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
           <div class="font-display text-base font-semibold text-slate-900">Menu quản lý</div>
           <button type="button" class="app-modal-close" aria-label="Đóng" @click="showMenu = false">
@@ -111,8 +113,10 @@ watch(
             <button type="button" class="flex min-h-10 items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-3 text-left text-rose-700 hover:bg-rose-100" @click="onLogout"><LogOut class="h-4 w-4" />Đăng xuất</button>
           </div>
         </div>
-      </div>
-    </div>
+          </div>
+        </div>
+      </transition>
+    </Teleport>
   </div>
 </template>
 

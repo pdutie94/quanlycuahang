@@ -197,6 +197,72 @@
 		opacity: 0;
 	}
 
+	@keyframes app-fade-in-up {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes app-fade-out-down {
+		from {
+			opacity: 1;
+			transform: translateY(0);
+		}
+		to {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+	}
+
+	.app-modal-fade-up-enter-active,
+	.app-modal-fade-up-leave-active {
+		transition: opacity 220ms ease;
+	}
+
+	/* Ensure Vue transition states override .app-modal-overlay.app-modal-open */
+	.app-modal-fade-up-enter-from.app-modal-overlay,
+	.app-modal-fade-up-leave-to.app-modal-overlay {
+		opacity: 0;
+	}
+
+	.app-modal-fade-up-enter-to.app-modal-overlay,
+	.app-list-fade-enter-active {
+		transition: opacity 220ms ease, transform 220ms ease;
+	}
+
+	.app-list-fade-enter-from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+
+	.app-list-fade-enter-to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	.app-list-fade-move {
+		transition: transform 220ms ease;
+	}
+	.app-modal-fade-up-leave-from.app-modal-overlay {
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	.app-modal-fade-up-enter-active .app-modal-sheet,
+	.app-modal-fade-up-enter-active .app-modal-sheet-sm {
+		animation: app-fade-in-up 200ms ease forwards;
+	}
+
+	.app-modal-fade-up-leave-active .app-modal-sheet,
+	.app-modal-fade-up-leave-active .app-modal-sheet-sm {
+		animation: app-fade-out-down 180ms ease forwards;
+	}
+
 	.app-modal-header {
 		@apply flex items-center justify-between border-b border-slate-200 px-4 py-3;
 	}
