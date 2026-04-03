@@ -13,7 +13,7 @@ const loadPage = async () => {
   try {
     await load({ filter_mode: form.filter_mode, day: form.day, page: form.page });
   } catch (_err) {
-    toast.error(error.value || 'Khong the tai danh sach don hang.');
+    toast.error(error.value || 'Không thể tải danh sách đơn hàng.');
   }
 };
 
@@ -26,18 +26,18 @@ onMounted(async () => {
 <template>
   <section class="space-y-4">
     <header class="app-card">
-      <h1 class="text-lg font-semibold text-slate-900">Danh sach don hang theo bao cao</h1>
+      <h1 class="text-lg font-semibold text-slate-900">Danh sách đơn hàng theo báo cáo</h1>
       <div class="mt-2 flex gap-2">
-        <RouterLink to="/reports/sales" class="rounded-lg border border-slate-300 px-3 py-1 text-sm">Bao cao doanh thu</RouterLink>
+        <RouterLink to="/reports/sales" class="rounded-lg border border-slate-300 px-3 py-1 text-sm">Báo cáo doanh thu</RouterLink>
       </div>
       <form class="mt-3 flex gap-2" @submit.prevent="loadPage">
         <input v-model="form.day" type="date" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
-        <button type="submit" class="h-10 rounded-xl bg-brand-600 px-4 text-sm font-medium text-white" :disabled="loading">Loc</button>
+        <button type="submit" class="h-10 rounded-xl bg-brand-600 px-4 text-sm font-medium text-white" :disabled="loading">Lọc</button>
       </form>
     </header>
 
-    <div v-if="loading" class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">Dang tai...</div>
-    <div v-else-if="!rows.length" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-500">Khong co don hang.</div>
+    <div v-if="loading" class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">Đang tải...</div>
+    <div v-else-if="!rows.length" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-500">Không có đơn hàng.</div>
 
     <section v-else class="space-y-2">
       <OrderItemCard

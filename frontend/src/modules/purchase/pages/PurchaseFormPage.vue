@@ -82,6 +82,13 @@ const applyPriceCostX1000 = (row) => {
   }
 };
 
+const applyPaidAmountX1000 = () => {
+  const num = Number(form.value.paid_amount || 0);
+  if (num > 0 && num < 1000) {
+    form.value.paid_amount = num * 1000;
+  }
+};
+
 const openProductSelector = (rowIndex = null) => {
   activeRowIndex.value = rowIndex;
   productKeyword.value = '';
@@ -251,7 +258,7 @@ onMounted(async () => {
               </div>
               <div>
                 <label class="mb-1 block text-sm font-medium text-slate-700">Số tiền thanh toán</label>
-                <input v-model="form.paid_amount" type="number" min="0" step="1000" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+                <input v-model="form.paid_amount" type="number" min="0" step="1000" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" @blur="applyPaidAmountX1000" />
               </div>
             </template>
             <div>
