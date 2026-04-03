@@ -49,16 +49,15 @@ const applyDebtStatus = async (value) => {
 
 <template>
   <section class="space-y-3">
-    <div class="app-card">
-      <ListHeaderBar
-        v-model="keyword"
-        title="Khách hàng"
-        subtitle="Quản lý danh sách khách hàng và công nợ."
-        search-placeholder="Tìm kiếm theo tên, SĐT, địa chỉ..."
-        chips-class="mt-2 flex items-center gap-2 overflow-x-auto text-sm"
-        @search="applySearch"
-      >
-        <template #chips>
+    <ListHeaderBar
+      v-model="keyword"
+      title="Khách hàng"
+      subtitle="Quản lý danh sách khách hàng và công nợ."
+      search-placeholder="Tìm kiếm theo tên, SĐT, địa chỉ..."
+      chips-class="mt-2 flex items-center gap-2 overflow-x-auto text-sm"
+      @search="applySearch"
+    >
+      <template #chips>
         <button
           type="button"
           class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium"
@@ -86,9 +85,8 @@ const applyDebtStatus = async (value) => {
         >
           Không nợ
         </button>
-        </template>
-      </ListHeaderBar>
-    </div>
+      </template>
+    </ListHeaderBar>
 
     <div class="space-y-3">
       <div v-if="isInitialLoading" class="app-card text-center text-sm text-slate-500">

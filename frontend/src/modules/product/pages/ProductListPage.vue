@@ -110,19 +110,18 @@ const getCategoryName = (item) => item.category_name || 'Chưa phân loại';
 
 <template>
   <section class="space-y-4">
-    <div class="app-card">
-      <ListHeaderBar
-        v-model="keyword"
-        title="Sản phẩm"
-        subtitle="Quản lý danh sách sản phẩm đang bán."
-        :create-to="{ name: 'products.create' }"
-        create-label="Tạo mới"
-        search-placeholder="Tìm kiếm theo tên, SKU..."
-        filter-type="grid"
-        @search="applySearch"
-        @filter-click="showCategoryModal = true"
-      >
-        <template #chips>
+    <ListHeaderBar
+      v-model="keyword"
+      title="Sản phẩm"
+      subtitle="Quản lý danh sách sản phẩm đang bán."
+      :create-to="{ name: 'products.create' }"
+      create-label="Tạo mới"
+      search-placeholder="Tìm kiếm theo tên, SKU..."
+      filter-type="grid"
+      @search="applySearch"
+      @filter-click="showCategoryModal = true"
+    >
+      <template #chips>
           <button
             v-if="hasAnyFilter"
             type="button"
@@ -136,9 +135,8 @@ const getCategoryName = (item) => item.category_name || 'Chưa phân loại';
           <button type="button" class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium" :class="stockFilter === 'in_stock' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700'" @click="applyStock('in_stock')">Còn hàng</button>
           <button type="button" class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium" :class="stockFilter === 'low_stock' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700'" @click="applyStock('low_stock')">Tồn thấp</button>
           <button type="button" class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium" :class="stockFilter === 'out_of_stock' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700'" @click="applyStock('out_of_stock')">Hết hàng</button>
-        </template>
-      </ListHeaderBar>
-    </div>
+      </template>
+    </ListHeaderBar>
 
     <Teleport to="body">
       <transition name="app-modal-fade-up">

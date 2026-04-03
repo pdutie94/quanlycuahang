@@ -68,6 +68,38 @@
 		@apply mx-auto w-full max-w-2xl px-4;
 	}
 
+	.app-list-header-title-host,
+	.app-list-header-form-host {
+		width: 100%;
+	}
+
+	.app-list-header-title-host:empty,
+	.app-list-header-form-host:empty {
+		display: none;
+	}
+
+	.app-list-header-form-host {
+		position: sticky;
+		top: 0;
+		z-index: 30;
+		border-bottom: 1px solid transparent;
+		background: transparent;
+		transition: background-color 0.2s, border-color 0.2s;
+	}
+
+	.app-list-header-form-host.is-stuck {
+		background: #ffffff;
+		border-bottom-color: #e2e8f0;
+	}
+
+	.app-list-header-title {
+		background: #f8fafc;
+	}
+
+	.app-list-header-form {
+		background: transparent;
+	}
+
 	.app-card {
 		@apply rounded-card border border-slate-200 bg-white p-4;
 		background: var(--app-surface);

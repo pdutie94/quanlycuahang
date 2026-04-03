@@ -36,17 +36,15 @@ const applySearch = async () => {
 
 <template>
   <section class="space-y-3">
-    <div class="app-card">
-      <ListHeaderBar
-        v-model="keyword"
-        title="Nhà cung cấp"
-        subtitle="Quản lý danh sách nhà cung cấp và công nợ nhập hàng."
-        :create-to="{ name: 'suppliers.create' }"
-        create-label="Thêm nhà cung cấp"
-        search-placeholder="Tìm kiếm theo tên, SĐT, địa chỉ..."
-        @search="applySearch"
-      />
-    </div>
+    <ListHeaderBar
+      v-model="keyword"
+      title="Nhà cung cấp"
+      subtitle="Quản lý danh sách nhà cung cấp và công nợ nhập hàng."
+      :create-to="{ name: 'suppliers.create' }"
+      create-label="Thêm nhà cung cấp"
+      search-placeholder="Tìm kiếm theo tên, SĐT, địa chỉ..."
+      @search="applySearch"
+    />
 
     <div class="space-y-3">
       <div v-if="isInitialLoading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>

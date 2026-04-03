@@ -49,19 +49,17 @@ const applyFilters = async () => {
 
 <template>
   <section class="space-y-3">
-    <div class="app-card">
-      <ListHeaderBar
-        v-model="keyword"
-        title="Phiếu nhập hàng"
-        subtitle="Quản lý danh sách phiếu nhập hàng và công nợ nhập."
-        :create-to="{ name: 'purchases.create' }"
-        create-label="Tạo phiếu"
-        search-placeholder="Tìm theo mã phiếu, nhà cung cấp, SĐT..."
-        filter-type="filter"
-        @search="applyFilters"
-        @filter-click="showFilters = true"
-      />
-    </div>
+    <ListHeaderBar
+      v-model="keyword"
+      title="Phiếu nhập hàng"
+      subtitle="Quản lý danh sách phiếu nhập hàng và công nợ nhập."
+      :create-to="{ name: 'purchases.create' }"
+      create-label="Tạo phiếu"
+      search-placeholder="Tìm theo mã phiếu, nhà cung cấp, SĐT..."
+      filter-type="filter"
+      @search="applyFilters"
+      @filter-click="showFilters = true"
+    />
 
     <Teleport to="body">
       <transition name="app-modal-fade-up">

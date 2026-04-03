@@ -2,7 +2,9 @@ module.exports = {
   content: [
     "./app/Views/**/*.php",
     "./app/Controllers/**/*.php",
-    "./public/assets/app.js"
+    "./public/assets/app.js",
+    "./frontend/index.html",
+    "./frontend/src/**/*.{vue,js,ts}"
   ],
   theme: {
     extend: {

@@ -68,20 +68,19 @@ const hasAdvancedFilter = computed(() => paymentStatus.value !== '' || fromDate.
 
 <template>
   <section class="space-y-3">
-    <div class="app-card">
-      <ListHeaderBar
-        v-model="keyword"
-        title="Đơn hàng"
-        subtitle="Quản lý danh sách đơn hàng bán ra."
-        :create-to="{ name: 'orders.create' }"
-        create-label="Tạo đơn"
-        search-placeholder="Tìm theo mã đơn, tên khách, SĐT..."
-        filter-type="filter"
-        chips-class="mt-2 flex items-center gap-1.5 overflow-x-auto overflow-y-hidden whitespace-nowrap text-sm"
-        @search="applySearch"
-        @filter-click="showAdvancedFilter = true"
-      >
-        <template #chips>
+    <ListHeaderBar
+      v-model="keyword"
+      title="Đơn hàng"
+      subtitle="Quản lý danh sách đơn hàng bán ra."
+      :create-to="{ name: 'orders.create' }"
+      create-label="Tạo đơn"
+      search-placeholder="Tìm theo mã đơn, tên khách, SĐT..."
+      filter-type="filter"
+      chips-class="mt-2 flex items-center gap-1.5 overflow-x-auto overflow-y-hidden whitespace-nowrap text-sm"
+      @search="applySearch"
+      @filter-click="showAdvancedFilter = true"
+    >
+      <template #chips>
         <button
           type="button"
           class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium"
@@ -118,9 +117,8 @@ const hasAdvancedFilter = computed(() => paymentStatus.value !== '' || fromDate.
         >
           Đã hủy
         </button>
-        </template>
-      </ListHeaderBar>
-    </div>
+      </template>
+    </ListHeaderBar>
 
     <Teleport to="body">
       <transition name="app-modal-fade-up">
