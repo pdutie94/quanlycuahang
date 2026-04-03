@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router';
 import { useSupplierList } from '../composables/useSupplierList';
 import { useToast } from '../../../shared/composables/useToast';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
+import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 
 const keyword = ref('');
@@ -67,11 +68,7 @@ const applySearch = async () => {
       </template>
     </div>
 
-    <div v-if="suppliers.length" class="px-2 py-1 text-center text-sm text-slate-500">
-      <span v-if="loadingMore">Đang tải thêm...</span>
-      <span v-else-if="!hasMore">Đã hiển thị hết danh sách.</span>
-      <span v-else>Cuộn xuống để tải thêm</span>
-    </div>
+    <InfiniteListStatus :visible="suppliers.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
     <div v-if="suppliers.length && hasMore" ref="infiniteSentinel" class="h-1 w-full"></div>
   </section>
 </template>

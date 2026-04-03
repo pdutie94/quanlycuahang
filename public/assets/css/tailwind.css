@@ -1364,6 +1364,10 @@ a,
   visibility: visible;
 }
 
+.invisible {
+  visibility: hidden;
+}
+
 .fixed {
   position: fixed;
 }
@@ -2586,6 +2590,10 @@ a,
   padding-bottom: 1.5rem;
 }
 
+.pb-\[3\.5rem\] {
+  padding-bottom: 3.5rem;
+}
+
 .pb-\[5\.25rem\] {
   padding-bottom: 5.25rem;
 }
@@ -2616,10 +2624,6 @@ a,
 
 .pr-2 {
   padding-right: 0.5rem;
-}
-
-.pr-3 {
-  padding-right: 0.75rem;
 }
 
 .pr-6 {

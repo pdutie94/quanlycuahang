@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, useSlots } from 'vue';
 import { RouterLink } from 'vue-router';
-import { CirclePlus, LayoutGrid, Search, SlidersHorizontal } from '@lucide/vue';
+import { CirclePlus, LayoutGrid, Search, SlidersHorizontal, X } from '@lucide/vue';
 
 const props = defineProps({
   title: {
@@ -43,9 +43,11 @@ const emit = defineEmits(['update:modelValue', 'search', 'filter-click']);
 const slots = useSlots();
 
 const formRef = ref(null);
+const inputRef = ref(null);
 const isStuck = ref(false);
 const hasChips = computed(() => Boolean(slots.chips));
 const FORM_HOST_ID = 'app-list-header-form-host';
+let debounceTimer = null;
 
 const checkStickState = () => {
   const formHost = document.getElementById(FORM_HOST_ID);
@@ -67,14 +69,35 @@ onUnmounted(() => {
   window.removeEventListener('resize', checkStickState);
   const formHost = document.getElementById(FORM_HOST_ID);
   formHost?.classList.remove('is-stuck');
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
 });
 
 const onSubmit = () => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
   emit('search');
 };
 
 const onInput = (event) => {
   emit('update:modelValue', event?.target?.value || '');
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+  debounceTimer = setTimeout(() => {
+    emit('search');
+  }, 200);
+};
+
+const onClearKeyword = () => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+  emit('update:modelValue', '');
+  emit('search');
+  inputRef.value?.focus();
 };
 </script>
 
@@ -102,19 +125,29 @@ const onInput = (event) => {
 
   <Teleport to="#app-list-header-form-host">
     <form ref="formRef" :class="['app-list-header-form', { 'is-stuck': isStuck }]" @submit.prevent="onSubmit">
-      <div class="app-content-wrap py-3">
+      <div class="app-content-wrap py-2">
         <div class="flex items-center gap-2">
           <div class="relative flex-1">
             <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
               <Search class="h-4 w-4" />
             </span>
             <input
+              ref="inputRef"
               :value="modelValue"
               type="search"
               :placeholder="searchPlaceholder"
-              class="h-10 w-full rounded-xl border border-slate-300 bg-white pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-brand-500"
+              class="app-search-input h-10 w-full rounded-xl border border-slate-300 bg-white pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-brand-500"
               @input="onInput"
             />
+            <button
+              v-if="modelValue"
+              type="button"
+              class="absolute inset-y-0 right-3 inline-flex items-center justify-center text-slate-400 hover:text-slate-600"
+              aria-label="Xóa từ khóa"
+              @click="onClearKeyword"
+            >
+              <X class="h-4 w-4" />
+            </button>
           </div>
           <button
             v-if="filterType"
@@ -134,3 +167,20 @@ const onInput = (event) => {
     </form>
   </Teleport>
 </template>
+
+<style scoped>
+.app-search-input::-webkit-search-cancel-button,
+.app-search-input::-webkit-search-decoration,
+.app-search-input::-webkit-search-results-button,
+.app-search-input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.app-search-input::-ms-clear,
+.app-search-input::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
+</style>

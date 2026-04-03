@@ -1,9 +1,11 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useCustomers } from '../composables/useCustomers';
 import { useToast } from '../../../shared/composables/useToast';
+import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
+import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 
 const keyword = ref('');
@@ -45,6 +47,13 @@ const applyDebtStatus = async (value) => {
   debtStatus.value = value;
   await refresh();
 };
+
+const hasAnyFilter = computed(() => debtStatus.value !== '');
+
+const clearFilters = async () => {
+  debtStatus.value = '';
+  await refresh();
+};
 </script>
 
 <template>
@@ -58,15 +67,6 @@ const applyDebtStatus = async (value) => {
       @search="applySearch"
     >
       <template #chips>
-        <button
-          type="button"
-          class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium"
-          :class="debtStatus === '' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-200 bg-white text-slate-700'"
-          :disabled="loading"
-          @click="applyDebtStatus('')"
-        >
-          Tất cả
-        </button>
         <button
           type="button"
           class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium"
@@ -85,6 +85,7 @@ const applyDebtStatus = async (value) => {
         >
           Không nợ
         </button>
+        <FilterClearChip :active="hasAnyFilter" @clear="clearFilters" />
       </template>
     </ListHeaderBar>
 
@@ -124,11 +125,7 @@ const applyDebtStatus = async (value) => {
       </template>
     </div>
 
-    <div v-if="items.length" class="px-2 py-1 text-center text-sm text-slate-500">
-      <span v-if="loadingMore">Đang tải thêm...</span>
-      <span v-else-if="!hasMore">Đã hiển thị hết danh sách.</span>
-      <span v-else>Cuộn xuống để tải thêm</span>
-    </div>
+    <InfiniteListStatus :visible="items.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
     <div v-if="items.length && hasMore" ref="infiniteSentinel" class="h-1 w-full"></div>
   </section>
 </template>

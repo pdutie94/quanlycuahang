@@ -5,6 +5,7 @@ import { X } from '@lucide/vue';
 import { usePurchases } from '../composables/usePurchases';
 import { useToast } from '../../../shared/composables/useToast';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
+import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 
 const keyword = ref('');
@@ -121,11 +122,7 @@ const applyFilters = async () => {
       </template>
     </div>
 
-    <div v-if="items.length" class="px-2 py-1 text-center text-sm text-slate-500">
-      <span v-if="loadingMore">Đang tải thêm...</span>
-      <span v-else-if="!hasMore">Đã hiển thị hết danh sách.</span>
-      <span v-else>Cuộn xuống để tải thêm</span>
-    </div>
+    <InfiniteListStatus :visible="items.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
     <div v-if="items.length && hasMore" ref="infiniteSentinel" class="h-1 w-full"></div>
   </section>
 </template>

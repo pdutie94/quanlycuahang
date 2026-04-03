@@ -50,7 +50,7 @@ watch(
 
 <template>
   <div class="app-shell flex min-h-screen flex-col">
-    <main class="flex-1" :class="showShell ? 'pb-[5.25rem]' : ''">
+    <main class="flex-1" :class="showShell ? 'pb-[3.5rem]' : ''">
       <div v-if="showShell" id="app-list-header-title-host" class="app-list-header-title-host"></div>
       <div v-if="showShell" id="app-list-header-form-host" class="app-list-header-form-host"></div>
       <div class="app-content-wrap py-4 pb-6">

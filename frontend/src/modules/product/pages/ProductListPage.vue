@@ -5,6 +5,8 @@ import { Check, X } from '@lucide/vue';
 import { useProducts } from '../composables/useProducts';
 import { useToast } from '../../../shared/composables/useToast';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
+import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
+import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 
 const keyword = ref('');
@@ -122,19 +124,10 @@ const getCategoryName = (item) => item.category_name || 'Chưa phân loại';
       @filter-click="showCategoryModal = true"
     >
       <template #chips>
-          <button
-            v-if="hasAnyFilter"
-            type="button"
-            class="border inline-flex h-[30px] w-[30px] items-center justify-center rounded-lg border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
-            aria-label="Xóa bộ lọc"
-            @click="clearFilters"
-          >
-            <X class="h-4 w-4" />
-          </button>
-          <button type="button" class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium" :class="stockFilter === 'all' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700'" @click="applyStock('all')">Tất cả</button>
           <button type="button" class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium" :class="stockFilter === 'in_stock' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700'" @click="applyStock('in_stock')">Còn hàng</button>
           <button type="button" class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium" :class="stockFilter === 'low_stock' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700'" @click="applyStock('low_stock')">Tồn thấp</button>
           <button type="button" class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium" :class="stockFilter === 'out_of_stock' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700'" @click="applyStock('out_of_stock')">Hết hàng</button>
+          <FilterClearChip :active="hasAnyFilter" @clear="clearFilters" />
       </template>
     </ListHeaderBar>
 
@@ -212,11 +205,7 @@ const getCategoryName = (item) => item.category_name || 'Chưa phân loại';
       </template>
     </div>
 
-    <div v-if="items.length" class="px-2 py-1 text-center text-sm text-slate-500">
-      <span v-if="loadingMore">Đang tải thêm...</span>
-      <span v-else-if="!hasMore">Đã hiển thị hết danh sách.</span>
-      <span v-else>Cuộn xuống để tải thêm</span>
-    </div>
+    <InfiniteListStatus :visible="items.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
     <div v-if="items.length && hasMore" ref="infiniteSentinel" class="h-1 w-full"></div>
   </section>
 </template>

@@ -3,6 +3,8 @@ import { computed, ref } from 'vue';
 import { X } from '@lucide/vue';
 import { useOrders } from '../composables/useOrders';
 import { useToast } from '../../../shared/composables/useToast';
+import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
+import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import OrderItemCard from '../../../shared/components/OrderItemCard.vue';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
@@ -64,6 +66,15 @@ const clearAdvancedFilter = async () => {
 };
 
 const hasAdvancedFilter = computed(() => paymentStatus.value !== '' || fromDate.value !== '' || toDate.value !== '');
+const hasAnyFilter = computed(() => orderStatus.value !== '' || hasAdvancedFilter.value);
+
+const clearFilters = async () => {
+  orderStatus.value = '';
+  paymentStatus.value = '';
+  fromDate.value = '';
+  toDate.value = '';
+  await refresh();
+};
 </script>
 
 <template>
@@ -81,15 +92,6 @@ const hasAdvancedFilter = computed(() => paymentStatus.value !== '' || fromDate.
       @filter-click="showAdvancedFilter = true"
     >
       <template #chips>
-        <button
-          type="button"
-          class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium"
-          :class="orderStatus === '' ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700'"
-          :disabled="loading"
-          @click="applyOrderStatus('')"
-        >
-          Tất cả
-        </button>
         <button
           type="button"
           class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium"
@@ -117,6 +119,7 @@ const hasAdvancedFilter = computed(() => paymentStatus.value !== '' || fromDate.
         >
           Đã hủy
         </button>
+        <FilterClearChip :active="hasAnyFilter" @clear="clearFilters" />
       </template>
     </ListHeaderBar>
 
@@ -215,11 +218,7 @@ const hasAdvancedFilter = computed(() => paymentStatus.value !== '' || fromDate.
       </template>
     </div>
 
-    <div v-if="items.length" class="px-2 py-1 text-center text-sm text-slate-500">
-      <span v-if="loadingMore">Đang tải thêm...</span>
-      <span v-else-if="!hasMore">Đã hiển thị hết danh sách.</span>
-      <span v-else>Cuộn xuống để tải thêm</span>
-    </div>
+    <InfiniteListStatus :visible="items.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
     <div v-if="items.length && hasMore" ref="infiniteSentinel" class="h-1 w-full"></div>
   </section>
 </template>
