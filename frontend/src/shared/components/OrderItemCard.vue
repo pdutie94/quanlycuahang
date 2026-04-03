@@ -246,7 +246,7 @@ const closePreview = () => {
 <template>
   <component
     :is="rootTag"
-    class="app-card relative block p-3 transition-colors hover:border-brand-200"
+    class="app-card relative block bg-white p-3 transition-colors hover:border-brand-200 hover:bg-brand-50"
     :class="dimCancelled && isCancelled ? 'opacity-60' : ''"
     v-bind="linkEnabled ? { to: rootTo } : {}"
   >

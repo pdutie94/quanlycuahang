@@ -97,28 +97,44 @@ onMounted(async () => {
         <div class="grid gap-4 md:grid-cols-2">
           <div>
             <label class="mb-1 block text-sm font-medium text-slate-700">Đơn vị tồn kho</label>
-            <select v-model="form.base_unit_id" class="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500">
-              <option value="">Chọn đơn vị</option>
-              <option v-for="unit in units" :key="unit.id" :value="String(unit.id)">{{ unit.name }}</option>
-            </select>
+            <div class="relative">
+              <select v-model="form.base_unit_id" class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500">
+                <option value="">Chọn đơn vị</option>
+                <option v-for="unit in units" :key="unit.id" :value="String(unit.id)">{{ unit.name }}</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+            </div>
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium text-slate-700">Danh mục</label>
-            <select v-model="form.category_id" class="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500">
-              <option value="">Chưa phân loại</option>
-              <option v-for="category in categories" :key="category.id" :value="String(category.id)">{{ category.name }}</option>
-            </select>
+            <div class="relative">
+              <select v-model="form.category_id" class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500">
+                <option value="">Chưa phân loại</option>
+                <option v-for="category in categories" :key="category.id" :value="String(category.id)">{{ category.name }}</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">
           <div>
             <label class="mb-1 block text-sm font-medium text-slate-700">Giá bán</label>
-            <input v-model="form.price_sell_single" type="text" inputmode="numeric" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+            <div class="relative">
+              <input v-model="form.price_sell_single" type="text" inputmode="numeric" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+              <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+            </div>
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium text-slate-700">Giá nhập</label>
-            <input v-model="form.price_cost_single" type="text" inputmode="numeric" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+            <div class="relative">
+              <input v-model="form.price_cost_single" type="text" inputmode="numeric" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+              <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+            </div>
           </div>
         </div>
 

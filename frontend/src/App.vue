@@ -21,6 +21,7 @@ import {
 } from '@lucide/vue';
 import { logout } from './modules/auth/services/auth.api';
 import { useToast } from './shared/composables/useToast';
+import AppToast from './shared/components/AppToast.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -49,6 +50,7 @@ watch(
 </script>
 
 <template>
+  <AppToast />
   <div class="app-shell flex min-h-screen flex-col">
     <main class="flex-1" :class="showShell ? 'pb-[3.5rem]' : ''">
       <div v-if="showShell" id="app-list-header-title-host" class="app-list-header-title-host"></div>

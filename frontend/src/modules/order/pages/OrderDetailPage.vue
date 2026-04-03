@@ -469,20 +469,28 @@ onMounted(async () => {
             <form v-if="showPaymentForm && remainingAmount > 0 && orderStatus !== 'cancelled'" class="mt-4 space-y-3" @submit.prevent="submitPaymentForm">
               <label class="block space-y-1 text-sm text-slate-700">
                 <span>Số tiền thu</span>
-                <input
-                  v-model="paymentAmount"
-                  type="text"
-                  inputmode="numeric"
-                  class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500"
-                  placeholder="Nhập số tiền"
-                />
+                <div class="relative">
+                  <input
+                    v-model="paymentAmount"
+                    type="text"
+                    inputmode="numeric"
+                    class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500"
+                    placeholder="Nhập số tiền"
+                  />
+                  <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+                </div>
               </label>
               <label class="block space-y-1 text-sm text-slate-700">
                 <span>Phương thức</span>
-                <select v-model="paymentMethod" class="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500">
-                  <option value="cash">Tiền mặt</option>
-                  <option value="bank">Chuyển khoản</option>
-                </select>
+                <div class="relative">
+                  <select v-model="paymentMethod" class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500">
+                    <option value="cash">Tiền mặt</option>
+                    <option value="bank">Chuyển khoản</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  </div>
+                </div>
               </label>
               <label class="block space-y-1 text-sm text-slate-700">
                 <span>Ghi chú</span>

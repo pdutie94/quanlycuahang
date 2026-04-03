@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { useUnitList } from '../composables/useUnitList';
 
@@ -8,6 +8,8 @@ const { items, load, loading, error, submitCreate, createLoading, createError, s
 
 const createName = ref('');
 const editMap = ref({});
+const pendingDeleteId = ref(null);
+let pendingDeleteTimer = null;
 
 const loadPage = async () => {
   try {
@@ -51,10 +53,29 @@ const handleUpdate = async (id) => {
   }
 };
 
+const resetPendingDelete = () => {
+  pendingDeleteId.value = null;
+  if (pendingDeleteTimer) {
+    window.clearTimeout(pendingDeleteTimer);
+    pendingDeleteTimer = null;
+  }
+};
+
 const handleDelete = async (id) => {
-  if (!window.confirm('Bạn có chắc muốn xóa đơn vị tính này?')) {
+  if (pendingDeleteId.value !== id) {
+    pendingDeleteId.value = id;
+    if (pendingDeleteTimer) {
+      window.clearTimeout(pendingDeleteTimer);
+    }
+    pendingDeleteTimer = window.setTimeout(() => {
+      pendingDeleteId.value = null;
+      pendingDeleteTimer = null;
+    }, 4000);
+    toast.info('Nhấn Xóa lần nữa để xác nhận.');
     return;
   }
+
+  resetPendingDelete();
 
   try {
     const result = await submitDelete(id);
@@ -71,6 +92,10 @@ const handleDelete = async (id) => {
 
 onMounted(async () => {
   await loadPage();
+});
+
+onBeforeUnmount(() => {
+  resetPendingDelete();
 });
 </script>
 

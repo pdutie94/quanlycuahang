@@ -137,14 +137,19 @@ const clearFilters = async () => {
               <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
           <label class="space-y-1 text-sm text-slate-700">
             <span>Trạng thái thanh toán</span>
-            <select
-              v-model="paymentStatus"
-              class="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500"
-            >
-              <option value="">Tất cả</option>
-              <option value="paid">Đã thanh toán</option>
-              <option value="debt">Còn nợ</option>
-            </select>
+            <div class="relative">
+              <select
+                v-model="paymentStatus"
+                class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500"
+              >
+                <option value="">Tất cả</option>
+                <option value="paid">Đã thanh toán</option>
+                <option value="debt">Còn nợ</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+            </div>
           </label>
           <label class="space-y-1 text-sm text-slate-700">
             <span>Từ ngày</span>

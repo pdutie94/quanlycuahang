@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useToast } from '../../../shared/composables/useToast';
 import { useCategoryForm } from '../composables/useCategoryForm';
@@ -8,6 +8,9 @@ const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const { form, loading, loadEdit, submitCreate, createLoading, createError, submitUpdate, updateLoading, updateError, submitDelete, deleteLoading, deleteError } = useCategoryForm();
+
+const pendingDelete = ref(false);
+let pendingDeleteTimer = null;
 
 const isEdit = computed(() => !!route.params.id);
 const isFormDisabled = computed(() => loading.value || createLoading.value || updateLoading.value || deleteLoading.value);
@@ -39,14 +42,33 @@ const handleSubmit = async () => {
   }
 };
 
+const resetPendingDelete = () => {
+  pendingDelete.value = false;
+  if (pendingDeleteTimer) {
+    window.clearTimeout(pendingDeleteTimer);
+    pendingDeleteTimer = null;
+  }
+};
+
 const handleDelete = async () => {
   if (!isEdit.value) {
     return;
   }
 
-  if (!window.confirm('Bạn có chắc muốn xóa danh mục này?')) {
+  if (!pendingDelete.value) {
+    pendingDelete.value = true;
+    if (pendingDeleteTimer) {
+      window.clearTimeout(pendingDeleteTimer);
+    }
+    pendingDeleteTimer = window.setTimeout(() => {
+      pendingDelete.value = false;
+      pendingDeleteTimer = null;
+    }, 4000);
+    toast.info('Nhấn Xóa lần nữa để xác nhận.');
     return;
   }
+
+  resetPendingDelete();
 
   try {
     const result = await submitDelete(Number(route.params.id || 0));
@@ -63,6 +85,10 @@ const handleDelete = async () => {
 
 onMounted(async () => {
   await loadPage();
+});
+
+onBeforeUnmount(() => {
+  resetPendingDelete();
 });
 </script>
 

@@ -73,24 +73,56 @@ onMounted(async () => {
         <RouterLink to="/reports/sales-orders" class="rounded-lg border border-slate-300 px-3 py-1 text-sm">Danh sach don</RouterLink>
       </div>
       <form class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-5" @submit.prevent="applyFilter">
-        <select v-model="form.filter_mode" class="h-10 rounded-xl border border-slate-300 px-3 text-sm">
-          <option value="day">Ngay</option>
-          <option value="month">Thang</option>
-          <option value="quarter">Quy</option>
-          <option value="year">Nam</option>
-        </select>
-        <input v-if="form.filter_mode === 'day'" v-model="form.day" type="date" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
-        <input v-if="form.filter_mode === 'month'" v-model="form.month" type="month" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
-        <select v-if="form.filter_mode === 'quarter'" v-model="form.quarter" class="h-10 rounded-xl border border-slate-300 px-3 text-sm">
-          <option value="">Quy</option>
-          <option value="1">Quy 1</option>
-          <option value="2">Quy 2</option>
-          <option value="3">Quy 3</option>
-          <option value="4">Quy 4</option>
-        </select>
-        <input v-if="form.filter_mode === 'quarter'" v-model="form.quarter_year" type="number" min="2000" max="2100" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
-        <input v-if="form.filter_mode === 'year'" v-model="form.year" type="number" min="2000" max="2100" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
-        <button type="submit" class="h-10 rounded-xl bg-brand-600 px-4 text-sm font-medium text-white" :disabled="loading">Loc</button>
+        <label class="space-y-1">
+          <span class="app-label">Kieu loc</span>
+          <div class="relative">
+            <select v-model="form.filter_mode" class="block h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm">
+              <option value="day">Ngay</option>
+              <option value="month">Thang</option>
+              <option value="quarter">Quy</option>
+              <option value="year">Nam</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+          </div>
+        </label>
+        <label v-if="form.filter_mode === 'day'" class="space-y-1">
+          <span class="app-label">Ngay</span>
+          <input v-model="form.day" type="date" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
+        </label>
+        <label v-if="form.filter_mode === 'month'" class="space-y-1">
+          <span class="app-label">Thang</span>
+          <input v-model="form.month" type="month" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
+        </label>
+        <label v-if="form.filter_mode === 'quarter'" class="space-y-1">
+          <span class="app-label">Quy</span>
+          <div class="relative">
+            <select v-model="form.quarter" class="block h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm">
+              <option value="">Quy</option>
+              <option value="1">Quy 1</option>
+              <option value="2">Quy 2</option>
+              <option value="3">Quy 3</option>
+              <option value="4">Quy 4</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+          </div>
+        </label>
+        <label v-if="form.filter_mode === 'quarter'" class="space-y-1">
+          <span class="app-label">Nam quy</span>
+          <input v-model="form.quarter_year" type="number" min="2000" max="2100" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
+        </label>
+        <label v-if="form.filter_mode === 'year'" class="space-y-1">
+          <span class="app-label">Nam</span>
+          <input v-model="form.year" type="number" min="2000" max="2100" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
+        </label>
+        <button type="submit" class="h-10 self-end rounded-xl bg-brand-600 px-4 text-sm font-medium text-white" :disabled="loading">Loc</button>
       </form>
     </header>
 

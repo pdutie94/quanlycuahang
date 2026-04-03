@@ -66,10 +66,19 @@ onMounted(async () => {
     <header class="app-card">
       <h1 class="text-lg font-semibold text-slate-900">Bao cao gia von thieu</h1>
       <form class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-4" @submit.prevent="loadPage">
-        <input v-model="form.q" type="text" placeholder="Tim theo ma don, san pham, khach hang" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
-        <input v-model="form.start_date" type="date" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
-        <input v-model="form.end_date" type="date" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
-        <button type="submit" class="h-10 rounded-xl bg-brand-600 px-4 text-sm font-medium text-white" :disabled="loading">Loc</button>
+        <label class="space-y-1">
+          <span class="app-label">Từ khóa</span>
+          <input v-model="form.q" type="text" placeholder="Tim theo ma don, san pham, khach hang" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
+        </label>
+        <label class="space-y-1">
+          <span class="app-label">Từ ngày</span>
+          <input v-model="form.start_date" type="date" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
+        </label>
+        <label class="space-y-1">
+          <span class="app-label">Đến ngày</span>
+          <input v-model="form.end_date" type="date" class="h-10 rounded-xl border border-slate-300 px-3 text-sm" />
+        </label>
+        <button type="submit" class="h-10 self-end rounded-xl bg-brand-600 px-4 text-sm font-medium text-white" :disabled="loading">Loc</button>
       </form>
       <div class="mt-3 flex flex-wrap gap-2">
         <button type="button" class="rounded-lg border border-slate-300 px-3 py-1 text-sm" :disabled="submitLoading || !selectedIds.length" @click="updateSelected">Cap nhat dong da chon</button>

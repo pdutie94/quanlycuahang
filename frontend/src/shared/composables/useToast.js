@@ -1,13 +1,17 @@
 export function useToast() {
   const notify = (type, message) => {
+    if (!message) {
+      return;
+    }
+
     if (typeof window.showToast === 'function') {
       window.showToast(type, message);
       return;
     }
-    if (message) {
-      // Fallback for environments where legacy toast is unavailable.
-      window.alert(message);
-    }
+
+    // Keep notification non-blocking when legacy toast bridge is unavailable.
+    window.dispatchEvent(new CustomEvent('spa:toast', { detail: { type, message } }));
+    console[type === 'error' ? 'error' : 'log'](`[${type}] ${message}`);
   };
 
   return {

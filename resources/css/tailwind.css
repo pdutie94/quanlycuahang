@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600;8..144,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -65,7 +67,7 @@
 	}
 
 	.app-content-wrap {
-		@apply mx-auto w-full max-w-2xl px-4;
+		@apply mx-auto w-full max-w-4xl px-4;
 	}
 
 	.app-list-header-title-host,
@@ -110,7 +112,12 @@
 	}
 
 	.app-list-card {
-		@apply block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-800 transition hover:border-slate-300 hover:bg-slate-50;
+		@apply block w-full rounded-xl border border-slate-200 px-3 py-2 text-left text-sm text-slate-800 transition hover:border-slate-300;
+		background: #ffffff;
+	}
+
+	.app-list-card:hover {
+		background: #f0fdfa;
 	}
 
 	.app-empty-state {
@@ -134,7 +141,7 @@
 	}
 
 	.app-segment {
-		@apply inline-flex w-full rounded-xl bg-slate-100 p-0.5 text-sm text-slate-700;
+		@apply flex w-full rounded-xl bg-slate-100 p-0.5 text-sm text-slate-700;
 	}
 
 	.app-segment-item {

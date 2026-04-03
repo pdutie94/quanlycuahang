@@ -47,9 +47,18 @@ onMounted(async () => {
       </div>
 
       <form class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-4" @submit.prevent="loadPage">
-        <input v-model="form.start_date" type="date" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
-        <input v-model="form.end_date" type="date" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
-        <input v-model="form.q" type="text" placeholder="Tên, SĐT, địa chỉ" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+        <label class="space-y-1">
+          <span class="app-label">Từ ngày</span>
+          <input v-model="form.start_date" type="date" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+        </label>
+        <label class="space-y-1">
+          <span class="app-label">Đến ngày</span>
+          <input v-model="form.end_date" type="date" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+        </label>
+        <label class="space-y-1">
+          <span class="app-label">Từ khóa</span>
+          <input v-model="form.q" type="text" placeholder="Tên, SĐT, địa chỉ" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+        </label>
         <label class="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-300 px-3 text-sm text-slate-700">
           <input v-model="form.show_all" type="checkbox" class="h-4 w-4" />
           Hiển thị tất cả

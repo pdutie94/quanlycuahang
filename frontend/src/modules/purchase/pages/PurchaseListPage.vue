@@ -74,12 +74,28 @@ const applyFilters = async () => {
             </div>
             <div class="app-modal-body space-y-4">
               <div class="grid gap-3">
-          <select v-model="supplierId" class="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500">
-            <option value="">Tất cả nhà cung cấp</option>
-            <option v-for="supplier in suppliers" :key="supplier.id" :value="String(supplier.id)">{{ supplier.name }}</option>
-          </select>
-          <input v-model="fromDate" type="date" class="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500" />
-          <input v-model="toDate" type="date" class="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500" />
+          <label class="space-y-1">
+            <span class="app-label">Nhà cung cấp</span>
+            <div class="relative">
+              <select v-model="supplierId" class="block h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500">
+                <option value="">Tất cả nhà cung cấp</option>
+                <option v-for="supplier in suppliers" :key="supplier.id" :value="String(supplier.id)">{{ supplier.name }}</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+            </div>
+          </label>
+          <label class="space-y-1">
+            <span class="app-label">Từ ngày</span>
+            <input v-model="fromDate" type="date" class="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500" />
+          </label>
+          <label class="space-y-1">
+            <span class="app-label">Đến ngày</span>
+            <input v-model="toDate" type="date" class="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500" />
+          </label>
         </div>
 
               <div class="flex items-center justify-between gap-2 pt-1">

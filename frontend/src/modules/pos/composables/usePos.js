@@ -12,6 +12,21 @@ function createEmptyManualItem() {
   };
 }
 
+function getUnitStep(unit) {
+  const allowFraction = Number(unit?.allow_fraction || 0) === 1;
+  const minStep = Number(unit?.min_step || 1);
+
+  if (!allowFraction) {
+    return 1;
+  }
+
+  if (!Number.isFinite(minStep) || minStep <= 0) {
+    return 1;
+  }
+
+  return minStep;
+}
+
 export function usePos() {
   const products = ref([]);
   const productUnitsByProduct = ref({});
@@ -36,19 +51,23 @@ export function usePos() {
       return false;
     }
 
-    const existing = cartItems.value.find((item) => item.product_id === product.id && item.unit_id === units[0].unit_id);
+    const defaultUnit = units[0];
+    const quantityStep = getUnitStep(defaultUnit);
+
+    const existing = cartItems.value.find((item) => item.product_id === product.id && item.unit_id === defaultUnit.unit_id);
     if (existing) {
-      existing.quantity = Number(existing.quantity) + 1;
+      existing.quantity = Number(existing.quantity || 0) + quantityStep;
       return true;
     }
 
     cartItems.value.push({
-      id: `${product.id}-${units[0].unit_id}-${Date.now()}`,
+      id: `${product.id}-${defaultUnit.unit_id}-${Date.now()}`,
       product_id: product.id,
       product_name: product.name,
-      unit_id: units[0].unit_id,
-      quantity: 1,
-      price: Number(units[0].price_sell || 0)
+      unit_id: defaultUnit.unit_id,
+      quantity: quantityStep,
+      price: Number(defaultUnit.price_sell || 0),
+      base_price: Number(defaultUnit.price_sell || 0)
     });
     return true;
   };
@@ -62,7 +81,8 @@ export function usePos() {
 
     item.unit_id = nextUnit.unit_id;
     item.price = Number(nextUnit.price_sell || 0);
-    item.quantity = nextUnit.allow_fraction ? Number(nextUnit.min_step || 1) : 1;
+    item.base_price = Number(nextUnit.price_sell || 0);
+    item.quantity = getUnitStep(nextUnit);
   };
 
   const removeCartItem = (id) => {

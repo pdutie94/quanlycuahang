@@ -116,6 +116,13 @@ const syncRowPrice = (row) => {
   }
 };
 
+const applyPriceX1000 = (obj, field) => {
+  const num = Number(obj[field] || 0);
+  if (num > 0 && num < 1000) {
+    obj[field] = num * 1000;
+  }
+};
+
 const openProductSelector = (rowIndex = null) => {
   activeRowIndex.value = rowIndex;
   productKeyword.value = '';
@@ -222,7 +229,7 @@ onMounted(async () => {
                         </div>
                         <div>
                           <label class="mb-1 block text-sm font-medium text-slate-700">Đơn giá</label>
-                          <input v-model="row.price" type="number" min="0" step="1000" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" @focus="syncRowPrice(row)" />
+                          <input v-model="row.price" type="number" min="0" step="1000" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" @focus="syncRowPrice(row)" @blur="applyPriceX1000(row, 'price')" />
                         </div>
                       </div>
                     </div>
@@ -246,8 +253,8 @@ onMounted(async () => {
                     <input v-model="item.item_name" type="text" placeholder="Tên hàng" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
                     <input v-model="item.unit_name" type="text" placeholder="Đơn vị" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
                     <input v-model="item.qty" type="number" min="0" step="0.01" placeholder="Số lượng" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
-                    <input v-model="item.price_buy" type="number" min="0" step="1000" placeholder="Giá vốn" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
-                    <input v-model="item.price_sell" type="number" min="0" step="1000" placeholder="Giá bán" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+                    <input v-model="item.price_buy" type="number" min="0" step="1000" placeholder="Giá vốn" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" @blur="applyPriceX1000(item, 'price_buy')" />
+                    <input v-model="item.price_sell" type="number" min="0" step="1000" placeholder="Giá bán" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" @blur="applyPriceX1000(item, 'price_sell')" />
                   </div>
                   <div class="mt-2 text-right">
                     <button type="button" class="text-sm font-medium text-rose-600 hover:text-rose-700" @click="removeManualItem(index)">Xóa</button>
@@ -261,13 +268,32 @@ onMounted(async () => {
             <section class="rounded-xl border border-slate-200 p-4">
               <h2 class="text-sm font-medium text-slate-800">Khách hàng</h2>
               <div class="mt-3 space-y-3">
-                <select v-model="form.customer_id" class="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500" @change="syncCustomerFields">
-                  <option value="">Khách lẻ / nhập mới</option>
-                  <option v-for="customer in customers" :key="customer.id" :value="String(customer.id)">{{ customer.name }}<span v-if="customer.phone"> - {{ customer.phone }}</span></option>
-                </select>
-                <input v-model="form.customer_name" type="text" placeholder="Tên khách hàng" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
-                <input v-model="form.customer_phone" type="text" placeholder="Số điện thoại" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
-                <textarea v-model="form.customer_address" rows="2" placeholder="Địa chỉ" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"></textarea>
+                <label class="space-y-1">
+                  <span class="app-label">Khách hàng</span>
+                  <div class="relative">
+                    <select v-model="form.customer_id" class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500" @change="syncCustomerFields">
+                      <option value="">Khách lẻ / nhập mới</option>
+                      <option v-for="customer in customers" :key="customer.id" :value="String(customer.id)">{{ customer.name }}<span v-if="customer.phone"> - {{ customer.phone }}</span></option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                      <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </div>
+                  </div>
+                </label>
+                <label class="space-y-1">
+                  <span class="app-label">Tên khách hàng</span>
+                  <input v-model="form.customer_name" type="text" placeholder="Tên khách hàng" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+                </label>
+                <label class="space-y-1">
+                  <span class="app-label">Số điện thoại</span>
+                  <input v-model="form.customer_phone" type="text" placeholder="Số điện thoại" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+                </label>
+                <label class="space-y-1">
+                  <span class="app-label">Địa chỉ</span>
+                  <textarea v-model="form.customer_address" rows="2" placeholder="Địa chỉ" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"></textarea>
+                </label>
               </div>
             </section>
 
@@ -277,33 +303,84 @@ onMounted(async () => {
                 <div class="flex items-center justify-between"><span class="text-slate-500">Tiền hàng</span><span class="font-medium text-slate-900">{{ formatMoney(summary.subtotal) }}</span></div>
                 <div class="flex items-center justify-between"><span class="text-slate-500">Sản phẩm tự do</span><span class="font-medium text-slate-900">{{ formatMoney(summary.manualSellTotal) }}</span></div>
                 <div class="grid gap-2 md:grid-cols-2">
-                  <select v-model="form.discount_type" class="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500">
-                    <option value="none">Không giảm giá</option>
-                    <option value="fixed">Giảm giá cố định</option>
-                    <option value="percent">Giảm giá %</option>
-                  </select>
-                  <input v-model="form.discount_value" type="text" inputmode="numeric" placeholder="Giá trị giảm giá" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+                  <label class="space-y-1">
+                    <span class="app-label">Loại giảm giá</span>
+                    <div class="relative">
+                      <select v-model="form.discount_type" class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500">
+                        <option value="none">Không giảm giá</option>
+                        <option value="fixed">Giảm giá cố định</option>
+                        <option value="percent">Giảm giá %</option>
+                      </select>
+                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                          <path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </div>
+                    </div>
+                  </label>
+                  <label class="space-y-1">
+                    <span class="app-label">Giá trị giảm giá</span>
+                    <div class="relative">
+                      <input v-model="form.discount_value" type="text" inputmode="numeric" placeholder="Giá trị giảm giá" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+                      <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+                    </div>
+                  </label>
                 </div>
                 <div class="flex items-center justify-between"><span class="text-slate-500">Giảm giá</span><span class="font-medium text-rose-600">-{{ formatMoney(discountAmount) }}</span></div>
-                <input v-model="form.surcharge_amount" type="text" inputmode="numeric" placeholder="Phụ thu" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+                <label class="space-y-1">
+                  <span class="app-label">Phụ thu</span>
+                  <div class="relative">
+                    <input v-model="form.surcharge_amount" type="text" inputmode="numeric" placeholder="Phụ thu" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+                    <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+                  </div>
+                </label>
                 <div class="flex items-center justify-between"><span class="text-slate-500">Phụ thu</span><span class="font-medium text-amber-600">+{{ formatMoney(surchargeValue) }}</span></div>
                 <div class="flex items-center justify-between border-t border-dashed border-slate-200 pt-3"><span class="font-medium text-slate-800">Tổng cộng</span><span class="text-lg font-semibold text-brand-700">{{ formatMoney(finalTotal) }}</span></div>
 
                 <template v-if="!isEdit">
                   <div class="grid gap-2 md:grid-cols-2">
-                    <select v-model="form.payment_status" class="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500">
-                      <option value="pay">Thu tiền ngay</option>
-                      <option value="debt">Ghi nợ</option>
-                    </select>
-                    <select v-model="form.payment_method" class="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500">
-                      <option value="cash">Tiền mặt</option>
-                      <option value="bank">Chuyển khoản</option>
-                    </select>
+                    <label class="space-y-1">
+                      <span class="app-label">Trạng thái thanh toán</span>
+                      <div class="relative">
+                        <select v-model="form.payment_status" class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500">
+                          <option value="pay">Thu tiền ngay</option>
+                          <option value="debt">Ghi nợ</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                            <path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                        </div>
+                      </div>
+                    </label>
+                    <label class="space-y-1">
+                      <span class="app-label">Hình thức thanh toán</span>
+                      <div class="relative">
+                        <select v-model="form.payment_method" class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500">
+                          <option value="cash">Tiền mặt</option>
+                          <option value="bank">Chuyển khoản</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                            <path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                        </div>
+                      </div>
+                    </label>
                   </div>
-                  <input v-model="form.payment_amount" type="text" inputmode="numeric" placeholder="Số tiền khách trả" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+                  <label class="space-y-1">
+                    <span class="app-label">Số tiền khách trả</span>
+                    <div class="relative">
+                      <input v-model="form.payment_amount" type="text" inputmode="numeric" placeholder="Số tiền khách trả" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+                      <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+                    </div>
+                  </label>
                 </template>
 
-                <textarea v-model="form.note" rows="3" placeholder="Ghi chú đơn hàng" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"></textarea>
+                <label class="space-y-1">
+                  <span class="app-label">Ghi chú đơn hàng</span>
+                  <textarea v-model="form.note" rows="3" placeholder="Ghi chú đơn hàng" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"></textarea>
+                </label>
 
                 <button type="button" class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-brand-600 bg-brand-600 px-4 text-sm font-medium text-white disabled:opacity-50" :disabled="saving" @click="submit">
                   {{ isEdit ? 'Cập nhật đơn hàng' : 'Lưu đơn hàng' }}

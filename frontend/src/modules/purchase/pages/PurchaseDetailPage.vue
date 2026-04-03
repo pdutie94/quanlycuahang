@@ -130,9 +130,26 @@ onMounted(async () => {
           <div class="rounded-md bg-slate-50 px-3 py-2"><div class="text-slate-500">Còn nợ</div><div class="mt-1 font-medium text-rose-600">{{ formatMoney(totals.debt) }}</div></div>
         </div>
         <div class="mt-4 grid gap-3 md:grid-cols-3">
-          <select v-model="paymentMethod" class="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-500"><option value="cash">Tiền mặt</option><option value="bank">Chuyển khoản</option></select>
-          <input v-model="paymentAmount" type="text" inputmode="numeric" :placeholder="String(totals.debt)" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
-          <input v-model="paymentNote" type="text" placeholder="Ghi chú" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+          <label class="space-y-1">
+            <span class="app-label">Hình thức thanh toán</span>
+            <div class="relative">
+              <select v-model="paymentMethod" class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500"><option value="cash">Tiền mặt</option><option value="bank">Chuyển khoản</option></select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+            </div>
+          </label>
+          <label class="space-y-1">
+            <span class="app-label">Số tiền thanh toán</span>
+            <div class="relative">
+              <input v-model="paymentAmount" type="text" inputmode="numeric" :placeholder="String(totals.debt)" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+              <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+            </div>
+          </label>
+          <label class="space-y-1">
+            <span class="app-label">Ghi chú</span>
+            <input v-model="paymentNote" type="text" placeholder="Ghi chú" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+          </label>
         </div>
         <div class="mt-4 flex gap-2">
           <button type="button" class="h-10 rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700" @click="showPayment = false">Hủy</button>
