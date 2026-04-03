@@ -27,7 +27,7 @@ class MigrationApiController
         $files = $info['files'];
 
         if (empty($pending)) {
-            return ApiResponse::error($response, 'Khong co migration nao can chay', 422);
+            return ApiResponse::error($response, 'Không có migration nào cần chạy.', 422);
         }
 
         $pdo = \Database::getInstance();
@@ -37,13 +37,13 @@ class MigrationApiController
 
             foreach ($pending as $version) {
                 if (!isset($files[$version])) {
-                    throw new \Exception('File migration khong ton tai: ' . $version);
+                    throw new \Exception('File migration không tồn tại: ' . $version);
                 }
 
                 $path = $files[$version];
                 $sql = file_get_contents($path);
                 if ($sql === false) {
-                    throw new \Exception('Khong doc duoc file: ' . $path);
+                    throw new \Exception('Không đọc được file: ' . $path);
                 }
 
                 if (trim($sql) !== '') {
@@ -54,9 +54,9 @@ class MigrationApiController
                 $stmt->execute([$version]);
             }
 
-            return ApiResponse::success($response, null, 'Da chay migration thanh cong');
+            return ApiResponse::success($response, null, 'Đã chạy migration thành công.');
         } catch (\Exception $e) {
-            return ApiResponse::error($response, 'Loi migration: ' . $e->getMessage(), 422);
+            return ApiResponse::error($response, 'Lỗi migration: ' . $e->getMessage(), 422);
         }
     }
 
@@ -65,13 +65,13 @@ class MigrationApiController
         $payload = $this->normalizePayload($request);
         $version = isset($payload['version']) ? trim((string) $payload['version']) : '';
         if ($version === '') {
-            return ApiResponse::error($response, 'Thieu version can chay', 422);
+            return ApiResponse::error($response, 'Thiếu version cần chạy.', 422);
         }
 
         $info = $this->getMigrationInfo();
         $files = $info['files'];
         if (!isset($files[$version])) {
-            return ApiResponse::error($response, 'Khong tim thay file cho version ' . $version, 422);
+            return ApiResponse::error($response, 'Không tìm thấy file cho version ' . $version . '.', 422);
         }
 
         $pdo = \Database::getInstance();
@@ -82,7 +82,7 @@ class MigrationApiController
             $path = $files[$version];
             $sql = file_get_contents($path);
             if ($sql === false) {
-                throw new \Exception('Khong doc duoc file: ' . $path);
+                throw new \Exception('Không đọc được file: ' . $path);
             }
 
             if (trim($sql) !== '') {
@@ -95,9 +95,9 @@ class MigrationApiController
                 $stmt->execute([$version]);
             }
 
-            return ApiResponse::success($response, null, 'Da chay lai version ' . $version . ' thanh cong');
+            return ApiResponse::success($response, null, 'Đã chạy lại version ' . $version . ' thành công.');
         } catch (\Exception $e) {
-            return ApiResponse::error($response, 'Loi khi chay version ' . $version . ': ' . $e->getMessage(), 422);
+            return ApiResponse::error($response, 'Lỗi khi chạy version ' . $version . ': ' . $e->getMessage(), 422);
         }
     }
 

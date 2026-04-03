@@ -21,13 +21,13 @@ class AuthApiController
         $password = isset($payload['password']) ? (string) $payload['password'] : '';
 
         if ($username === '' || $password === '') {
-            return ApiResponse::error($response, 'Vui long nhap day du tai khoan va mat khau.', 422);
+            return ApiResponse::error($response, 'Vui lòng nhập đầy đủ tài khoản và mật khẩu.', 422);
         }
 
         try {
             $user = \User::findByUsername($username);
             if (!$user || !password_verify($password, $user['password_hash'])) {
-                return ApiResponse::error($response, 'Sai tai khoan hoac mat khau', 422);
+                return ApiResponse::error($response, 'Sai tài khoản hoặc mật khẩu.', 422);
             }
 
             $_SESSION['user'] = [
@@ -39,9 +39,9 @@ class AuthApiController
 
             return ApiResponse::success($response, [
                 'user' => $_SESSION['user'],
-            ], 'Dang nhap thanh cong.');
+            ], 'Đăng nhập thành công.');
         } catch (\Exception $e) {
-            return ApiResponse::error($response, 'Khong the dang nhap. Vui long thu lai sau.', 500);
+            return ApiResponse::error($response, 'Không thể đăng nhập. Vui lòng thử lại sau.', 500);
         }
     }
 
@@ -61,7 +61,7 @@ class AuthApiController
         }
         session_destroy();
 
-        return ApiResponse::success($response, null, 'Da dang xuat.');
+        return ApiResponse::success($response, null, 'Đã đăng xuất.');
     }
 
     public function changePassword(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
@@ -77,15 +77,15 @@ class AuthApiController
         $confirmPassword = isset($payload['confirm_password']) ? (string) $payload['confirm_password'] : '';
 
         if ($newPassword === '' || $confirmPassword === '' || $currentPassword === '') {
-            return ApiResponse::error($response, 'Vui long nhap day du thong tin.', 422);
+            return ApiResponse::error($response, 'Vui lòng nhập đầy đủ thông tin.', 422);
         }
 
         if ($newPassword !== $confirmPassword) {
-            return ApiResponse::error($response, 'Mat khau moi va xac nhan khong khop.', 422);
+            return ApiResponse::error($response, 'Mật khẩu mới và xác nhận không khớp.', 422);
         }
 
         if (strlen($newPassword) < 8) {
-            return ApiResponse::error($response, 'Mat khau moi phai co it nhat 8 ky tu.', 422);
+            return ApiResponse::error($response, 'Mật khẩu mới phải có ít nhất 8 ký tự.', 422);
         }
 
         try {
@@ -95,16 +95,16 @@ class AuthApiController
             $userRow = $stmt->fetch();
 
             if (!$userRow || !password_verify($currentPassword, $userRow['password_hash'])) {
-                return ApiResponse::error($response, 'Mat khau hien tai khong dung.', 422);
+                return ApiResponse::error($response, 'Mật khẩu hiện tại không đúng.', 422);
             }
 
             $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
             $updateStmt = $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
             $updateStmt->execute([$newHash, (int) $currentUser['id']]);
 
-            return ApiResponse::success($response, null, 'Da doi mat khau thanh cong.');
+            return ApiResponse::success($response, null, 'Đã đổi mật khẩu thành công.');
         } catch (\Exception $e) {
-            return ApiResponse::error($response, 'Khong the doi mat khau. Vui long thu lai sau.', 500);
+            return ApiResponse::error($response, 'Không thể đổi mật khẩu. Vui lòng thử lại sau.', 500);
         }
     }
 
