@@ -1,8 +1,10 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import { BanknoteArrowDown, Pencil } from '@lucide/vue';
 import { RouterLink, useRoute } from 'vue-router';
 import { usePurchaseDetail } from '../composables/usePurchaseDetail';
 import { useToast } from '../../../shared/composables/useToast';
+import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 
 const route = useRoute();
 const toast = useToast();
@@ -83,18 +85,14 @@ onMounted(async () => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
-      <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <RouterLink to="/purchases" class="text-sm font-medium text-slate-500 hover:text-slate-700">Quay lại danh sách</RouterLink>
-          <h1 class="mt-1 text-lg font-semibold text-slate-900">Phiếu nhập #{{ purchase?.purchase_code || route.params.id }}</h1>
-        </div>
-        <div v-if="purchase" class="flex flex-wrap gap-2">
-          <RouterLink :to="{ name: 'purchases.edit', params: { id: purchase.id } }" class="inline-flex h-10 items-center rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700">Sửa phiếu</RouterLink>
-          <button v-if="totals.debt > 0" type="button" class="inline-flex h-10 items-center rounded-xl border border-brand-600 bg-brand-600 px-4 text-sm font-medium text-white" @click="showPayment = !showPayment">Thanh toán</button>
-        </div>
-      </div>
-    </header>
+    <DetailHeaderBar :title="purchase ? `Phiếu nhập #${purchase.purchase_code}` : `Phiếu nhập #${route.params.id}`" back-to="/purchases">
+      <template #actions="{ closeMenu }">
+        <template v-if="purchase">
+          <RouterLink :to="{ name: 'purchases.edit', params: { id: purchase.id } }" class="detail-header-menu-item" @click="closeMenu"><Pencil class="h-4 w-4 shrink-0" /><span>Sửa phiếu nhập</span></RouterLink>
+          <button v-if="totals.debt > 0" type="button" class="detail-header-menu-item" @click="closeMenu(); showPayment = !showPayment"><BanknoteArrowDown class="h-4 w-4 shrink-0" /><span>{{ showPayment ? 'Ẩn thanh toán' : 'Thanh toán' }}</span></button>
+        </template>
+      </template>
+    </DetailHeaderBar>
 
     <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải...</div>
     <div v-else-if="!purchase" class="app-empty-state">Không tìm thấy phiếu nhập.</div>

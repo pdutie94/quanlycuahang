@@ -3,6 +3,7 @@ import { computed, onMounted } from 'vue';
 import { useRouter, useRoute, RouterLink } from 'vue-router';
 import { useSupplierForm } from '../composables/useSupplierForm';
 import { useToast } from '../../../shared/composables/useToast';
+import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -44,14 +45,7 @@ onMounted(async () => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
-      <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <RouterLink to="/suppliers" class="text-sm font-medium text-slate-500 hover:text-slate-700">Quay lại danh sách</RouterLink>
-          <h1 class="mt-1 text-lg font-semibold text-slate-900">{{ isEdit ? 'Chỉnh sửa' : 'Thêm' }} nhà cung cấp</h1>
-        </div>
-      </div>
-    </header>
+    <DetailHeaderBar :title="`${isEdit ? 'Chỉnh sửa' : 'Thêm'} nhà cung cấp`" :back-to="isEdit ? { name: 'suppliers.detail', params: { id: route.params.id } } : '/suppliers'" />
 
     <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải...</div>
 

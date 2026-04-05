@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { usePurchaseForm } from '../composables/usePurchaseForm';
 import { useToast } from '../../../shared/composables/useToast';
+import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -155,14 +156,7 @@ onMounted(async () => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
-      <div>
-        <RouterLink :to="isEdit ? { name: 'purchases.detail', params: { id: route.params.id } } : '/purchases'" class="text-sm font-medium text-slate-500 hover:text-slate-700">
-          {{ isEdit ? 'Quay lại chi tiết' : 'Quay lại danh sách' }}
-        </RouterLink>
-        <h1 class="mt-1 text-lg font-semibold text-slate-900">{{ pageTitle }}</h1>
-      </div>
-    </header>
+    <DetailHeaderBar :title="pageTitle" :back-to="isEdit ? { name: 'purchases.detail', params: { id: route.params.id } } : '/purchases'" />
 
     <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải dữ liệu form...</div>
 

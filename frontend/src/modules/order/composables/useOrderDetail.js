@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { fetchOrderDetail, recordOrderPayment, resetOrderPayment } from '../services/order.api';
+import { deleteOrder, fetchOrderDetail, recordOrderPayment, resetOrderPayment } from '../services/order.api';
 import { useFetch } from '../../../shared/composables/useFetch';
 
 export function useOrderDetail() {
@@ -12,6 +12,7 @@ export function useOrderDetail() {
   const { loading, error, execute } = useFetch(fetchOrderDetail);
   const paymentRequest = useFetch(recordOrderPayment);
   const resetRequest = useFetch(resetOrderPayment);
+  const deleteRequest = useFetch(deleteOrder);
 
   const load = async (id) => {
     const payload = await execute(id);
@@ -27,6 +28,8 @@ export function useOrderDetail() {
 
   const resetPayment = async (id) => resetRequest.execute(id);
 
+  const remove = async (id) => deleteRequest.execute(id);
+
   return {
     order,
     items,
@@ -41,6 +44,9 @@ export function useOrderDetail() {
     paymentError: paymentRequest.error,
     resetPayment,
     resetLoading: resetRequest.loading,
-    resetError: resetRequest.error
+    resetError: resetRequest.error,
+    remove,
+    deleteLoading: deleteRequest.loading,
+    deleteError: deleteRequest.error
   };
 }

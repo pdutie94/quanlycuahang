@@ -1,6 +1,33 @@
 import { computed, ref } from 'vue';
-import { createProduct, fetchProductFormData, fetchProductFormEditData, updateProduct } from '../services/product.api';
+import { createProduct, deleteProduct, fetchProductFormData, fetchProductFormEditData, updateProduct } from '../services/product.api';
 import { useFetch } from '../../../shared/composables/useFetch';
+
+function formatMoneyField(value) {
+  if (value === null || value === undefined || value === '') {
+    return '';
+  }
+
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return '';
+  }
+
+  return new Intl.NumberFormat('vi-VN').format(Math.round(numericValue));
+}
+
+function formatStepValue(value) {
+  if (value === null || value === undefined || value === '') {
+    return '1';
+  }
+
+  const normalized = String(value).replace(',', '.');
+  const numericValue = Number(normalized);
+  if (!Number.isFinite(numericValue) || numericValue <= 0) {
+    return '1';
+  }
+
+  return numericValue.toFixed(4).replace(/\.?0+$/, '');
+}
 
 export function useProductForm() {
   const units = ref([]);
@@ -27,6 +54,7 @@ export function useProductForm() {
   const editRequest = useFetch(fetchProductFormEditData);
   const createRequest = useFetch(createProduct);
   const updateRequest = useFetch(updateProduct);
+  const deleteRequest = useFetch(deleteProduct);
 
   const loadBootstrap = async () => {
     const payload = await bootstrapRequest.execute();
@@ -48,10 +76,10 @@ export function useProductForm() {
       code: data.product?.code || '',
       base_unit_id: data.product?.base_unit_id ? String(data.product.base_unit_id) : '',
       category_id: data.product?.category_id ? String(data.product.category_id) : '',
-      price_sell_single: firstUnit?.price_sell ? String(firstUnit.price_sell) : '',
-      price_cost_single: firstUnit?.price_cost ? String(firstUnit.price_cost) : '',
+      price_sell_single: formatMoneyField(firstUnit?.price_sell),
+      price_cost_single: formatMoneyField(firstUnit?.price_cost),
       allow_fraction: Number(firstUnit?.allow_fraction || 0) === 1,
-      min_step: firstUnit?.min_step ? String(firstUnit.min_step) : '1',
+      min_step: formatStepValue(firstUnit?.min_step),
       inventory_qty_base: data.inventory_qty_base !== null && data.inventory_qty_base !== undefined ? String(data.inventory_qty_base) : '',
       min_stock_qty: data.product?.min_stock_qty !== null && data.product?.min_stock_qty !== undefined ? String(data.product.min_stock_qty) : '',
       redirect: 'stay'
@@ -81,6 +109,7 @@ export function useProductForm() {
 
   const submitCreate = async () => createRequest.execute(buildPayload());
   const submitUpdate = async (id) => updateRequest.execute(id, buildPayload());
+  const remove = async (id) => deleteRequest.execute(id);
 
   return {
     units,
@@ -100,6 +129,9 @@ export function useProductForm() {
     createLoading: createRequest.loading,
     createError: createRequest.error,
     updateLoading: updateRequest.loading,
-    updateError: updateRequest.error
+    updateError: updateRequest.error,
+    remove,
+    deleteLoading: deleteRequest.loading,
+    deleteError: deleteRequest.error
   };
 }

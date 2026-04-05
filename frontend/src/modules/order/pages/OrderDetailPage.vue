@@ -1,10 +1,14 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
-import { RouterLink, useRoute } from 'vue-router';
+import { BanknoteArrowDown, FileText, Pencil, RotateCcw, Trash2, Undo2 } from '@lucide/vue';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useOrderDetail } from '../composables/useOrderDetail';
 import { useToast } from '../../../shared/composables/useToast';
+import ActionConfirmSheet from '../../../shared/components/ActionConfirmSheet.vue';
+import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 
 const route = useRoute();
+const router = useRouter();
 const toast = useToast();
 
 const {
@@ -21,13 +25,18 @@ const {
   paymentError,
   resetPayment,
   resetLoading,
-  resetError
+  resetError,
+  remove,
+  deleteLoading,
+  deleteError
 } = useOrderDetail();
 
 const paymentAmount = ref('');
 const paymentNote = ref('');
 const paymentMethod = ref('cash');
 const showPaymentForm = ref(false);
+const showResetPaymentModal = ref(false);
+const showDeleteOrderModal = ref(false);
 
 const orderId = computed(() => Number(route.params.id || 0));
 
@@ -225,10 +234,27 @@ const resetPaymentState = async () => {
 
   try {
     const payload = await resetPayment(orderId.value);
+    showResetPaymentModal.value = false;
+    showPaymentForm.value = false;
     toast.success(payload?.message || 'Đã đặt lại thanh toán.');
     await loadOrder();
   } catch (_err) {
     toast.error(resetError.value || 'Không thể đặt lại thanh toán.');
+  }
+};
+
+const deleteCurrentOrder = async () => {
+  if (orderId.value <= 0) {
+    return;
+  }
+
+  try {
+    const payload = await remove(orderId.value);
+    showDeleteOrderModal.value = false;
+    toast.success(payload?.message || 'Đã xóa tạm đơn hàng.');
+    router.push('/orders');
+  } catch (_err) {
+    toast.error(deleteError.value || 'Không thể xóa đơn hàng.');
   }
 };
 
@@ -246,19 +272,39 @@ onMounted(async () => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
-      <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <RouterLink to="/orders" class="text-sm font-medium text-slate-500 hover:text-slate-700">Quay lại danh sách</RouterLink>
-          <h1 class="mt-1 text-lg font-semibold text-slate-900">Đơn hàng #{{ order?.order_code || orderId }}</h1>
-        </div>
-        <div v-if="order" class="flex flex-wrap gap-2">
-          <RouterLink :to="{ name: 'orders.invoice', params: { id: order.id } }" class="inline-flex h-10 items-center rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700">In hóa đơn</RouterLink>
-          <RouterLink v-if="orderStatus !== 'completed' && orderStatus !== 'cancelled'" :to="{ name: 'orders.edit', params: { id: order.id } }" class="inline-flex h-10 items-center rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700">Sửa đơn</RouterLink>
-          <RouterLink v-if="orderStatus !== 'cancelled'" :to="{ name: 'orders.return', params: { id: order.id } }" class="inline-flex h-10 items-center rounded-xl border border-rose-300 px-4 text-sm font-medium text-rose-600">Trả hàng</RouterLink>
-        </div>
-      </div>
-    </header>
+    <DetailHeaderBar :title="order ? `Đơn hàng #${order.order_code}` : `Đơn hàng #${orderId}`" back-to="/orders">
+      <template #actions="{ closeMenu }">
+        <template v-if="order">
+          <RouterLink :to="{ name: 'orders.invoice', params: { id: order.id } }" class="detail-header-menu-item" @click="closeMenu"><FileText class="h-4 w-4 shrink-0" /><span>In hóa đơn</span></RouterLink>
+          <button v-if="remainingAmount > 0 && orderStatus !== 'cancelled'" type="button" class="detail-header-menu-item" @click="closeMenu(); showPaymentForm = !showPaymentForm"><BanknoteArrowDown class="h-4 w-4 shrink-0" /><span>{{ showPaymentForm ? 'Ẩn thu tiền' : 'Thu tiền' }}</span></button>
+          <button v-if="order.status === 'paid' && orderStatus !== 'cancelled'" type="button" class="detail-header-menu-item detail-header-menu-item-amber" @click="closeMenu(); showResetPaymentModal = true"><RotateCcw class="h-4 w-4 shrink-0" /><span>Đặt lại thanh toán</span></button>
+          <RouterLink v-if="orderStatus !== 'completed' && orderStatus !== 'cancelled'" :to="{ name: 'orders.edit', params: { id: order.id } }" class="detail-header-menu-item" @click="closeMenu"><Pencil class="h-4 w-4 shrink-0" /><span>Sửa đơn</span></RouterLink>
+          <RouterLink v-if="orderStatus !== 'cancelled'" :to="{ name: 'orders.return', params: { id: order.id } }" class="detail-header-menu-item detail-header-menu-item-rose" @click="closeMenu"><Undo2 class="h-4 w-4 shrink-0" /><span>Trả hàng</span></RouterLink>
+          <button v-if="orderStatus !== 'completed'" type="button" class="detail-header-menu-item detail-header-menu-item-rose" @click="closeMenu(); showDeleteOrderModal = true"><Trash2 class="h-4 w-4 shrink-0" /><span>Xóa đơn hàng</span></button>
+        </template>
+      </template>
+    </DetailHeaderBar>
+
+    <ActionConfirmSheet
+      :open="showResetPaymentModal"
+      title="Đặt lại thanh toán"
+      description="Đặt lại về chưa thanh toán và xóa toàn bộ lịch sử thu tiền của đơn này?"
+      confirm-label="Đặt lại thanh toán"
+      tone="warning"
+      :loading="resetLoading"
+      @cancel="showResetPaymentModal = false"
+      @confirm="resetPaymentState"
+    />
+
+    <ActionConfirmSheet
+      :open="showDeleteOrderModal"
+      title="Xóa đơn hàng"
+      description="Bạn có chắc chắn muốn xóa tạm đơn hàng này? Đơn sẽ được lưu 30 ngày trước khi xóa hẳn."
+      confirm-label="Xóa đơn hàng"
+      :loading="deleteLoading"
+      @cancel="showDeleteOrderModal = false"
+      @confirm="deleteCurrentOrder"
+    />
 
     <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải...</div>
 
@@ -441,14 +487,6 @@ onMounted(async () => {
           <section class="app-card">
             <div class="flex items-center justify-between gap-2">
               <h2 class="text-sm font-medium text-slate-800">Thanh toán</h2>
-              <button
-                v-if="remainingAmount > 0 && orderStatus !== 'cancelled'"
-                type="button"
-                class="text-sm font-medium text-brand-700 hover:text-brand-800"
-                @click="showPaymentForm = !showPaymentForm"
-              >
-                {{ showPaymentForm ? 'Ẩn form' : 'Thu tiền' }}
-              </button>
             </div>
 
             <div class="mt-3 grid grid-cols-3 gap-3 text-sm">
@@ -501,15 +539,6 @@ onMounted(async () => {
               </button>
             </form>
 
-            <button
-              v-if="order.status === 'paid' && orderStatus !== 'cancelled'"
-              type="button"
-              class="mt-4 inline-flex h-10 items-center rounded-xl border border-amber-300 px-4 text-sm font-medium text-amber-700 disabled:opacity-50"
-              :disabled="resetLoading"
-              @click="resetPaymentState"
-            >
-              Đặt lại thanh toán
-            </button>
           </section>
         </aside>
       </div>

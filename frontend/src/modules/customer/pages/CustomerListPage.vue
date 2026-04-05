@@ -62,6 +62,8 @@ const clearFilters = async () => {
       v-model="keyword"
       title="Khách hàng"
       subtitle="Quản lý danh sách khách hàng và công nợ."
+      :create-to="{ name: 'customers.create' }"
+      create-label="Thêm khách hàng"
       search-placeholder="Tìm kiếm theo tên, SĐT, địa chỉ..."
       chips-class="mt-2 flex items-center gap-2 overflow-x-auto text-sm"
       @search="applySearch"

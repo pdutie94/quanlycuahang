@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useOrderForm } from '../composables/useOrderForm';
 import { useToast } from '../../../shared/composables/useToast';
+import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -61,12 +62,16 @@ const parseAmount = (value) => {
 };
 
 const roundDownThousand = (value) => {
-  const amount = parseAmount(value);
+  const amount = typeof value === 'number' ? value : parseAmount(value);
   if (amount <= 0) {
     return 0;
   }
-  return Math.floor(amount / 1000) * 1000;
+
+  const normalizedAmount = Math.round(amount);
+  return Math.floor(normalizedAmount / 1000) * 1000;
 };
+
+const discountInputSuffix = computed(() => (form.value.discount_type === 'percent' ? '%' : 'đ'));
 
 const discountAmount = computed(() => {
   const gross = Number(summary.value.gross || 0);
@@ -188,14 +193,7 @@ onMounted(async () => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
-      <div>
-        <RouterLink :to="isEdit ? { name: 'orders.detail', params: { id: route.params.id } } : '/orders'" class="text-sm font-medium text-slate-500 hover:text-slate-700">
-          {{ isEdit ? 'Quay lại chi tiết' : 'Quay lại danh sách' }}
-        </RouterLink>
-        <h1 class="mt-1 text-lg font-semibold text-slate-900">{{ pageTitle }}</h1>
-      </div>
-    </header>
+    <DetailHeaderBar :title="pageTitle" :back-to="isEdit ? { name: 'orders.detail', params: { id: route.params.id } } : '/orders'" />
 
     <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải dữ liệu form...</div>
 
@@ -321,8 +319,8 @@ onMounted(async () => {
                   <label class="space-y-1">
                     <span class="app-label">Giá trị giảm giá</span>
                     <div class="relative">
-                      <input v-model="form.discount_value" type="text" inputmode="numeric" placeholder="Giá trị giảm giá" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
-                      <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+                      <input v-model="form.discount_value" type="text" inputmode="numeric" :data-money-format="form.discount_type === 'percent' ? 'off' : null" placeholder="Giá trị giảm giá" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+                      <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">{{ discountInputSuffix }}</span>
                     </div>
                   </label>
                 </div>

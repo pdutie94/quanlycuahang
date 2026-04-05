@@ -451,6 +451,23 @@ class OrderApiController
         }
     }
 
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $orderId = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($orderId <= 0) {
+            return ApiResponse::error($response, 'Invalid order id', 422);
+        }
+
+        $result = \OrderService::deleteOrderById($orderId);
+        if (empty($result['success'])) {
+            return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Delete order failed', 422);
+        }
+
+        return ApiResponse::success($response, [
+            'id' => $orderId,
+        ], isset($result['message']) ? (string) $result['message'] : 'Đã xóa tạm đơn hàng.');
+    }
+
     private function normalizePayload(ServerRequestInterface $request): array
     {
         $body = $request->getParsedBody();

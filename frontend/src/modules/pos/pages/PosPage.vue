@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { CirclePlus, Minus, Pencil, Plus, RefreshCw, Tag, X } from '@lucide/vue';
 import { usePos } from '../composables/usePos';
@@ -62,6 +62,7 @@ const discountDraftType = ref('none');
 const discountDraftValue = ref('');
 const surchargeDraftValue = ref('');
 const customerMode = ref('guest');
+const customerNameInput = ref(null);
 
 const numberFormatter = new Intl.NumberFormat('vi-VN');
 
@@ -122,11 +123,20 @@ const discountDraftSuffix = computed(() => {
 });
 
 const roundDownThousand = (value) => {
-  const amount = parseAmount(value);
+  const amount = typeof value === 'number' ? value : parseAmount(value);
   if (amount <= 0) {
     return 0;
   }
-  return Math.floor(amount / 1000) * 1000;
+
+  const normalizedAmount = Math.round(amount);
+  const remainder = normalizedAmount % 1000;
+  const baseAmount = normalizedAmount - remainder;
+
+  if (remainder > 700) {
+    return baseAmount + 1000;
+  }
+
+  return baseAmount;
 };
 
 const filteredProducts = computed(() => {
@@ -209,6 +219,20 @@ const syncCustomerFields = () => {
   customerAddress.value = selectedCustomer.value.address || '';
 };
 
+const syncPaymentAmount = () => {
+  if (paymentStatus.value !== 'pay') {
+    paymentAmount.value = '';
+    return;
+  }
+
+  if (finalTotal.value > 0) {
+    paymentAmount.value = formatMoneyInput(finalTotal.value);
+    return;
+  }
+
+  paymentAmount.value = '';
+};
+
 watch(customerMode, (mode) => {
   if (mode === 'guest') {
     selectedCustomerId.value = '';
@@ -221,11 +245,19 @@ watch(customerMode, (mode) => {
     pendingCustomerId.value = selectedCustomerId.value ? String(selectedCustomerId.value) : '';
     syncCustomerFields();
   }
+
+  if (mode === 'new') {
+    selectedCustomerId.value = '';
+  }
 });
 
 watch(discountDraftType, () => {
   onDiscountDraftValueInput();
 });
+
+watch([paymentStatus, finalTotal], () => {
+  syncPaymentAmount();
+}, { immediate: true });
 
 const getUnits = (productId) => productUnitsByProduct.value[String(productId)] || productUnitsByProduct.value[productId] || [];
 const getCartItemUnit = (item) => getUnits(item.product_id).find((unit) => Number(unit.unit_id) === Number(item.unit_id)) || null;
@@ -275,6 +307,63 @@ const decreaseCartQty = (item) => {
   const minQty = getCartItemMinQty(item);
   const nextQty = Math.max(minQty, Number(item.quantity || 0) - step);
   item.quantity = formatQtyValue(nextQty);
+};
+
+const detectManualQtyPrecision = (value) => {
+  const rawValue = String(value ?? '').trim();
+
+  if (!rawValue || !rawValue.includes('.')) {
+    return 0;
+  }
+
+  const fractionalPart = rawValue.split('.')[1].replace(/[^0-9]/g, '');
+  return fractionalPart.length;
+};
+const getManualQtyPrecision = (item) => {
+  const storedPrecision = Number(item?.qty_precision);
+  if (Number.isInteger(storedPrecision) && storedPrecision >= 0) {
+    return storedPrecision;
+  }
+
+  return detectManualQtyPrecision(item?.qty);
+};
+const getManualQtyStep = (item) => 1 / (10 ** getManualQtyPrecision(item));
+const getManualQtyMin = (item) => getManualQtyStep(item);
+const roundManualQtyByPrecision = (value, precision) => {
+  const factor = 10 ** precision;
+  return Math.round(Number(value || 0) * factor) / factor;
+};
+const formatManualQtyValue = (value, precision = 4) => Number(value || 0).toFixed(precision).replace(/\.?0+$/, '');
+const normalizeManualQty = (item) => {
+  const typedPrecision = detectManualQtyPrecision(item.qty);
+  item.qty_precision = typedPrecision;
+
+  const currentQty = Number(item.qty || 0);
+  const precision = getManualQtyPrecision(item);
+  const step = getManualQtyStep(item);
+  const minQty = getManualQtyMin(item);
+
+  if (!Number.isFinite(currentQty) || currentQty <= 0) {
+    item.qty_precision = 0;
+    item.qty = formatManualQtyValue(1, 0);
+    return;
+  }
+
+  const normalizedQty = Math.max(minQty, roundManualQtyByPrecision(Math.round(currentQty / step) * step, precision));
+  item.qty = formatManualQtyValue(normalizedQty, Math.max(precision, 0));
+};
+const increaseManualQty = (item) => {
+  const precision = getManualQtyPrecision(item);
+  const step = getManualQtyStep(item);
+  const nextQty = roundManualQtyByPrecision(Number(item.qty || 0) + step, precision);
+  item.qty = formatManualQtyValue(nextQty, Math.max(precision, 0));
+};
+const decreaseManualQty = (item) => {
+  const precision = getManualQtyPrecision(item);
+  const step = getManualQtyStep(item);
+  const minQty = getManualQtyMin(item);
+  const nextQty = Math.max(minQty, roundManualQtyByPrecision(Number(item.qty || 0) - step, precision));
+  item.qty = formatManualQtyValue(nextQty, Math.max(precision, 0));
 };
 
 const isProductSelected = (productId) => selectedProductIds.value.includes(Number(productId));
@@ -464,8 +553,8 @@ const openManualItemModal = (index = null) => {
       item_name: source.item_name || '',
       unit_name: source.unit_name || '',
       qty: source.qty || 1,
-      price_buy: source.price_buy || '',
-      price_sell: source.price_sell || ''
+      price_buy: source.price_buy ? formatMoneyInput(source.price_buy) : '',
+      price_sell: source.price_sell ? formatMoneyInput(source.price_sell) : ''
     };
   }
   showManualItemModal.value = true;
@@ -479,25 +568,43 @@ const closeManualItemModal = () => {
 const saveManualItem = () => {
   const parsedBuy = parsePriceShorthand(manualItemDraft.value.price_buy);
   const parsedSell = parsePriceShorthand(manualItemDraft.value.price_sell);
-  manualItemDraft.value.price_buy = parsedBuy > 0 ? formatMoneyInput(parsedBuy) : '';
-  manualItemDraft.value.price_sell = parsedSell > 0 ? formatMoneyInput(parsedSell) : '';
+  const manualQtyPrecision = detectManualQtyPrecision(manualItemDraft.value.qty);
+  const normalizedManualItem = {
+    ...manualItemDraft.value,
+    qty: formatManualQtyValue(Number(manualItemDraft.value.qty || 0) || 1, manualQtyPrecision),
+    qty_precision: manualQtyPrecision,
+    price_buy: parsedBuy > 0 ? parsedBuy : 0,
+    price_sell: parsedSell > 0 ? parsedSell : 0
+  };
 
   if (editingManualIndex.value === null) {
     addManualItem();
     const newIndex = manualItems.value.length - 1;
     manualItems.value[newIndex] = {
       ...manualItems.value[newIndex],
-      ...manualItemDraft.value
+      ...normalizedManualItem
     };
   } else {
     manualItems.value[editingManualIndex.value] = {
       ...manualItems.value[editingManualIndex.value],
-      ...manualItemDraft.value
+      ...normalizedManualItem
     };
   }
 
   closeManualItemModal();
 };
+
+const hasValidCartItems = computed(() => cartItems.value.some((item) => (
+  Number(item.product_id || 0) > 0
+  && Number(item.unit_id || 0) > 0
+  && Number(item.quantity || 0) > 0
+  && Number(item.price || 0) > 0
+)));
+
+const hasValidManualItems = computed(() => manualItems.value.some((item) => (
+  Number(item.qty || 0) > 0
+  && Number(item.price_sell || 0) > 0
+)));
 
 const buildPayload = () => ({
   items: cartItems.value.map((item) => ({
@@ -526,6 +633,24 @@ const buildPayload = () => ({
 });
 
 const createPosOrder = async () => {
+  if (!hasValidCartItems.value && !hasValidManualItems.value) {
+    toast.error('Chưa có sản phẩm nào.');
+    return;
+  }
+
+  if (customerMode.value === 'existing' && !selectedCustomerId.value) {
+    toast.error('Vui lòng chọn khách hàng cũ trước khi lưu đơn.');
+    openCustomerModal();
+    return;
+  }
+
+  if (customerMode.value === 'new' && !customerName.value.trim()) {
+    toast.error('Vui lòng nhập tên khách hàng mới.');
+    await nextTick();
+    customerNameInput.value?.focus();
+    return;
+  }
+
   try {
     const payload = await submitOrder(buildPayload());
     toast.success(payload?.message || 'Đã lưu đơn hàng.');
@@ -608,26 +733,42 @@ onMounted(async () => {
           <div
             v-for="(item, index) in manualItems"
             :key="`manual-${index}`"
-            class="relative cursor-pointer rounded-xl border border-amber-200 bg-amber-50/40 p-3"
+            class="cursor-pointer rounded-xl border border-amber-200 bg-amber-50/40 px-3 py-2"
             @click="openManualItemModal(index)"
           >
-            <div class="min-w-0">
-              <div class="text-sm font-medium text-slate-900">
-                <span>{{ item.item_name || 'Chưa nhập tên hàng' }}</span>
-                <span v-if="item.unit_name" class="ml-1 text-sm text-slate-500">{{ item.unit_name }}</span>
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <div class="text-sm font-medium text-slate-900">
+                  {{ item.item_name || 'Chưa nhập tên hàng' }}<span v-if="item.unit_name" class="text-slate-500"> - {{ item.unit_name }}</span>
+                </div>
+                <div class="mt-1 flex flex-wrap items-center gap-1 text-sm text-slate-600">
+                  <button type="button" class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-300 text-slate-600" @click.stop="decreaseManualQty(item)">
+                    <Minus class="h-3.5 w-3.5" />
+                  </button>
+                  <input
+                    v-model="item.qty"
+                    :min="getManualQtyMin(item)"
+                    :step="getManualQtyStep(item)"
+                    type="number"
+                    class="h-6 w-14 rounded-md border border-slate-300 text-center text-sm outline-none"
+                    @click.stop
+                    @change="normalizeManualQty(item)"
+                  />
+                  <button type="button" class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-300 text-slate-600" @click.stop="increaseManualQty(item)">
+                    <Plus class="h-3.5 w-3.5" />
+                  </button>
+                  <div class="inline-flex items-center gap-1 rounded-lg px-1 text-slate-600">
+                    <span class="font-medium text-slate-900">{{ formatMoney(item.price_sell || 0) }}</span>
+                    <Pencil class="h-3 w-3 text-slate-500" />
+                  </div>
+                </div>
               </div>
-              <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600">
-                <span>SL: <span class="font-medium">{{ item.qty || 0 }}</span></span>
-                <span>Giá: <span class="font-medium">{{ formatMoney(item.price_sell || 0) }}</span></span>
-                <span>Tổng: <span class="font-medium">{{ formatMoney(Number(item.qty || 0) * Number(item.price_sell || 0)) }}</span></span>
+              <div class="flex flex-col items-end gap-2">
+                <button type="button" class="inline-flex h-5 w-5 items-center justify-center text-rose-500" @click.stop="removeManualItem(index)">
+                  <X class="h-4 w-4" />
+                </button>
+                <div class="text-sm font-medium text-brand-600">{{ formatMoney(Number(item.qty || 0) * Number(item.price_sell || 0)) }}</div>
               </div>
-            </div>
-            <div class="mt-2 flex items-center justify-between">
-              <button type="button" class="inline-flex items-center gap-1 text-sm font-medium text-slate-700" @click.stop="openManualItemModal(index)">
-                <Pencil class="h-3 w-3" />
-                <span>Sửa</span>
-              </button>
-              <button type="button" class="text-sm font-medium text-rose-600" @click.stop="removeManualItem(index)">Xóa</button>
             </div>
           </div>
         </div>
@@ -709,7 +850,7 @@ onMounted(async () => {
           <div v-if="showNewCustomerFields" class="grid gap-2 md:grid-cols-2">
             <label class="space-y-1">
               <span class="mb-1 block text-sm text-slate-700">Tên khách hàng</span>
-              <input v-model="customerName" type="text" class="app-input" />
+              <input ref="customerNameInput" v-model="customerName" type="text" class="app-input" />
             </label>
             <label class="space-y-1">
               <span class="mb-1 block text-sm text-slate-700">Số điện thoại</span>

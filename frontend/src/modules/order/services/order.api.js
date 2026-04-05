@@ -45,6 +45,11 @@ export async function updateOrder(id, payload) {
   return response.data;
 }
 
+export async function deleteOrder(id) {
+  const response = await api.delete(`/orders/${id}`);
+  return response.data;
+}
+
 export async function recordOrderPayment(id, payload) {
   const response = await api.post(`/orders/${id}/payment`, payload);
   return response.data;

@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useToast } from '../../../shared/composables/useToast';
 import { useCategoryForm } from '../composables/useCategoryForm';
+import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -94,10 +95,7 @@ onBeforeUnmount(() => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
-      <RouterLink to="/categories" class="text-sm font-medium text-slate-500 hover:text-slate-700">Quay lại danh sách</RouterLink>
-      <h1 class="mt-1 text-lg font-semibold text-slate-900">{{ isEdit ? 'Sửa danh mục' : 'Thêm danh mục' }}</h1>
-    </header>
+    <DetailHeaderBar :title="isEdit ? 'Sửa danh mục' : 'Thêm danh mục'" back-to="/categories" />
 
     <form class="space-y-3" @submit.prevent="handleSubmit">
       <div class="app-card">

@@ -106,7 +106,7 @@ class ProductService
             Inventory::setQtyBase($productId, $qty);
         }
 
-        self::logInitialProductSetup($productId, $unitRows, $qty);
+        self::logInitialProductSetup($productId, $unitRows);
 
         $redirectAction = isset($payload['redirect']) ? $payload['redirect'] : 'exit';
 
@@ -306,7 +306,7 @@ class ProductService
         return $snapshot;
     }
 
-    private static function logInitialProductSetup(int $productId, array $unitRows, $qty)
+    private static function logInitialProductSetup(int $productId, array $unitRows)
     {
         if (!class_exists('ProductLog')) {
             return;
@@ -337,23 +337,6 @@ class ProductService
                 'product_id' => $productId,
                 'action' => 'init_price',
                 'detail' => implode('; ', $parts),
-            ]);
-        }
-
-        if ($qty !== null) {
-            $qtyValue = (float) $qty;
-            if ($qtyValue < 0) {
-                $qtyValue = 0;
-            }
-            $qtyText = rtrim(rtrim(number_format($qtyValue, 4, ',', ''), '0'), ',');
-            if ($qtyText === '') {
-                $qtyText = '0';
-            }
-
-            ProductLog::create([
-                'product_id' => $productId,
-                'action' => 'init_inventory',
-                'detail' => 'Tồn kho: ' . $qtyText,
             ]);
         }
     }

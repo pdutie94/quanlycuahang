@@ -20,7 +20,7 @@ function formatMoneyInputValue(rawValue) {
 
 function configureMoneyInput(target) {
   target.setAttribute('inputmode', 'numeric');
-  target.setAttribute('pattern', '[0-9]*');
+  target.setAttribute('pattern', '[0-9.,]*');
   target.setAttribute('enterkeyhint', 'done');
   target.setAttribute('autocomplete', 'off');
 }

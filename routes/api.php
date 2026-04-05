@@ -48,6 +48,7 @@ return function (App $app) {
         $group->post('/products', [$productController, 'create']);
         $group->put('/products/{id}', [$productController, 'update']);
         $group->patch('/products/{id}', [$productController, 'update']);
+        $group->delete('/products/{id}', [$productController, 'delete']);
 
         $categoryController = new CategoryApiController();
         $group->get('/categories', [$categoryController, 'list']);
@@ -93,6 +94,7 @@ return function (App $app) {
         $group->post('/orders', [$orderController, 'create']);
         $group->put('/orders/{id}', [$orderController, 'update']);
         $group->patch('/orders/{id}', [$orderController, 'update']);
+        $group->delete('/orders/{id}', [$orderController, 'delete']);
         $group->post('/orders/{id}/return', [$orderController, 'returnStore']);
         $group->post('/orders/{id}/payment', [$orderController, 'paymentStore']);
         $group->post('/orders/{id}/payment/reset', [$orderController, 'paymentReset']);

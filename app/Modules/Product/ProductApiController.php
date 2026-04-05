@@ -143,6 +143,28 @@ class ProductApiController
         }
     }
 
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($id <= 0) {
+            return ApiResponse::error($response, 'Invalid product id', 422);
+        }
+
+        $product = \Product::find($id);
+        if (!$product) {
+            return ApiResponse::error($response, 'Product not found', 404);
+        }
+
+        $deleted = \Product::delete($id);
+        if (!$deleted) {
+            return ApiResponse::error($response, 'Không thể xóa sản phẩm vì đã có đơn hàng sử dụng.', 422);
+        }
+
+        return ApiResponse::success($response, [
+            'id' => $id,
+        ], 'Đã xóa sản phẩm.');
+    }
+
     private function normalizePayload(ServerRequestInterface $request): array
     {
         $body = $request->getParsedBody();

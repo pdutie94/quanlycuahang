@@ -1,13 +1,18 @@
 <script setup>
-import { onMounted } from 'vue';
-import { RouterLink, useRoute } from 'vue-router';
+import { onMounted, ref } from 'vue';
+import { Pencil, Trash2 } from '@lucide/vue';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useCustomerDetail } from '../composables/useCustomerDetail';
 import { useToast } from '../../../shared/composables/useToast';
+import ActionConfirmSheet from '../../../shared/components/ActionConfirmSheet.vue';
+import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 import OrderItemCard from '../../../shared/components/OrderItemCard.vue';
 
 const route = useRoute();
+const router = useRouter();
 const toast = useToast();
-const { customer, orders, summary, loading, error, load } = useCustomerDetail();
+const { customer, orders, summary, loading, error, load, remove, deleteLoading, deleteError } = useCustomerDetail();
+const showDeleteModal = ref(false);
 
 const formatter = new Intl.NumberFormat('vi-VN');
 const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
@@ -20,6 +25,21 @@ const loadPage = async () => {
   }
 };
 
+const deleteCurrentCustomer = async () => {
+  if (!customer.value?.id) {
+    return;
+  }
+
+  try {
+    const payload = await remove(customer.value.id);
+    showDeleteModal.value = false;
+    toast.success(payload?.message || 'Đã xóa khách hàng.');
+    router.push('/customers');
+  } catch (_err) {
+    toast.error(deleteError.value || 'Không thể xóa khách hàng.');
+  }
+};
+
 onMounted(async () => {
   await loadPage();
 });
@@ -27,17 +47,24 @@ onMounted(async () => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
-      <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <RouterLink to="/customers" class="text-sm font-medium text-slate-500 hover:text-slate-700">Quay lại danh sách</RouterLink>
-          <h1 class="mt-1 text-lg font-semibold text-slate-900">Khách hàng {{ customer?.name || '' }}</h1>
-        </div>
-        <div v-if="customer" class="flex gap-2">
-          <RouterLink :to="{ name: 'customers.edit', params: { id: customer.id } }" class="inline-flex h-10 items-center rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700">Chỉnh sửa</RouterLink>
-        </div>
-      </div>
-    </header>
+    <DetailHeaderBar :title="customer ? `Khách hàng ${customer.name}` : 'Chi tiết khách hàng'" back-to="/customers">
+      <template #actions="{ closeMenu }">
+        <template v-if="customer">
+          <RouterLink :to="{ name: 'customers.edit', params: { id: customer.id } }" class="detail-header-menu-item" @click="closeMenu"><Pencil class="h-4 w-4 shrink-0" /><span>Chỉnh sửa</span></RouterLink>
+          <button type="button" class="detail-header-menu-item detail-header-menu-item-rose" @click="closeMenu(); showDeleteModal = true"><Trash2 class="h-4 w-4 shrink-0" /><span>Xóa khách hàng</span></button>
+        </template>
+      </template>
+    </DetailHeaderBar>
+
+    <ActionConfirmSheet
+      :open="showDeleteModal"
+      title="Xóa khách hàng"
+      description="Xóa khách hàng sẽ chuyển các đơn hàng về khách lẻ. Bạn chắc chắn muốn xóa?"
+      confirm-label="Xóa khách hàng"
+      :loading="deleteLoading"
+      @cancel="showDeleteModal = false"
+      @confirm="deleteCurrentCustomer"
+    />
 
     <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải...</div>
     <div v-else-if="!customer" class="app-empty-state">Không tìm thấy khách hàng.</div>

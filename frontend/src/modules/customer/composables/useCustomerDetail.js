@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { fetchCustomerDetail } from '../services/customer.api';
+import { deleteCustomer, fetchCustomerDetail } from '../services/customer.api';
 import { useFetch } from '../../../shared/composables/useFetch';
 
 export function useCustomerDetail() {
@@ -8,6 +8,7 @@ export function useCustomerDetail() {
   const summary = ref({ total_amount: 0, total_paid: 0, total_debt: 0 });
 
   const { loading, error, execute } = useFetch(fetchCustomerDetail);
+  const deleteRequest = useFetch(deleteCustomer);
 
   const load = async (id) => {
     const payload = await execute(id);
@@ -17,12 +18,17 @@ export function useCustomerDetail() {
     return payload;
   };
 
+  const remove = async (id) => deleteRequest.execute(id);
+
   return {
     customer,
     orders,
     summary,
     loading,
     error,
-    load
+    load,
+    remove,
+    deleteLoading: deleteRequest.loading,
+    deleteError: deleteRequest.error
   };
 }

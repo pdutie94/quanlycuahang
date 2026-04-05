@@ -1,12 +1,17 @@
 <script setup>
-import { onMounted } from 'vue';
-import { RouterLink, useRoute } from 'vue-router';
+import { onMounted, ref } from 'vue';
+import { Pencil, Trash2 } from '@lucide/vue';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useSupplierDetail } from '../composables/useSupplierDetail';
 import { useToast } from '../../../shared/composables/useToast';
+import ActionConfirmSheet from '../../../shared/components/ActionConfirmSheet.vue';
+import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 
 const route = useRoute();
+const router = useRouter();
 const toast = useToast();
-const { supplier, purchases, totalDebt, loading, error, load } = useSupplierDetail();
+const { supplier, purchases, totalDebt, loading, error, load, remove, deleteLoading, deleteError } = useSupplierDetail();
+const showDeleteModal = ref(false);
 
 const formatter = new Intl.NumberFormat('vi-VN');
 const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
@@ -25,6 +30,21 @@ const loadPage = async () => {
   }
 };
 
+const deleteCurrentSupplier = async () => {
+  if (!supplier.value?.id) {
+    return;
+  }
+
+  try {
+    const payload = await remove(supplier.value.id);
+    showDeleteModal.value = false;
+    toast.success(payload?.message || 'Đã xóa nhà cung cấp.');
+    router.push('/suppliers');
+  } catch (_err) {
+    toast.error(deleteError.value || 'Không thể xóa nhà cung cấp.');
+  }
+};
+
 onMounted(async () => {
   await loadPage();
 });
@@ -32,17 +52,24 @@ onMounted(async () => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
-      <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <RouterLink to="/suppliers" class="text-sm font-medium text-slate-500 hover:text-slate-700">Quay lại danh sách</RouterLink>
-          <h1 class="mt-1 text-lg font-semibold text-slate-900">Nhà cung cấp {{ supplier?.name || '' }}</h1>
-        </div>
-        <div v-if="supplier" class="flex gap-2">
-          <RouterLink :to="{ name: 'suppliers.edit', params: { id: supplier.id } }" class="inline-flex h-10 items-center rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700">Chỉnh sửa</RouterLink>
-        </div>
-      </div>
-    </header>
+    <DetailHeaderBar :title="supplier ? `Nhà cung cấp ${supplier.name}` : 'Chi tiết nhà cung cấp'" back-to="/suppliers">
+      <template #actions="{ closeMenu }">
+        <template v-if="supplier">
+          <RouterLink :to="{ name: 'suppliers.edit', params: { id: supplier.id } }" class="detail-header-menu-item" @click="closeMenu"><Pencil class="h-4 w-4 shrink-0" /><span>Chỉnh sửa</span></RouterLink>
+          <button type="button" class="detail-header-menu-item detail-header-menu-item-rose" @click="closeMenu(); showDeleteModal = true"><Trash2 class="h-4 w-4 shrink-0" /><span>Xóa nhà cung cấp</span></button>
+        </template>
+      </template>
+    </DetailHeaderBar>
+
+    <ActionConfirmSheet
+      :open="showDeleteModal"
+      title="Xóa nhà cung cấp"
+      description="Bạn chắc chắn muốn xóa nhà cung cấp này?"
+      confirm-label="Xóa nhà cung cấp"
+      :loading="deleteLoading"
+      @cancel="showDeleteModal = false"
+      @confirm="deleteCurrentSupplier"
+    />
 
     <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải...</div>
     <div v-else-if="!supplier" class="app-empty-state">Không tìm thấy nhà cung cấp.</div>
