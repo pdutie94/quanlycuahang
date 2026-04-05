@@ -8,7 +8,7 @@ import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 
 const route = useRoute();
 const toast = useToast();
-const { purchase, items, payments, logs, loading, error, load, submitPayment, paymentLoading, paymentError } = usePurchaseDetail();
+const { purchase, items, payments, logs, loading, error, load, refresh, submitPayment, paymentLoading, paymentError } = usePurchaseDetail();
 
 const paymentAmount = ref('');
 const paymentMethod = ref('cash');
@@ -46,6 +46,14 @@ const loadPage = async () => {
   }
 };
 
+const refreshPage = async () => {
+  try {
+    await refresh(Number(route.params.id || 0));
+  } catch (_err) {
+    toast.error(error.value || 'Không thể tải chi tiết phiếu nhập.');
+  }
+};
+
 const pay = async () => {
   try {
     const payload = await submitPayment(Number(route.params.id || 0), { amount: paymentAmount.value, note: paymentNote.value, payment_method: paymentMethod.value });
@@ -54,7 +62,7 @@ const pay = async () => {
     paymentNote.value = '';
     paymentMethod.value = 'cash';
     showPayment.value = false;
-    await loadPage();
+    await refreshPage();
   } catch (_err) {
     toast.error(paymentError.value || 'Không thể ghi nhận thanh toán.');
   }

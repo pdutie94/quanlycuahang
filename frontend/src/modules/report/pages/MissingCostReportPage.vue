@@ -4,11 +4,14 @@ import { useToast } from '../../../shared/composables/useToast';
 import { useMissingCostReport } from '../composables/useMissingCostReport';
 
 const toast = useToast();
-const { items, summary, loading, error, load, submit, submitLoading, submitError } = useMissingCostReport();
+const { items, summary, loading, error, load, refresh, submit, submitLoading, submitError } = useMissingCostReport();
 const form = reactive({ q: '', start_date: '', end_date: '' });
 const selectedIds = ref([]);
+const hasLoadedOnce = ref(false);
 
 const formatMoney = (amount) => `${new Intl.NumberFormat('vi-VN').format(Number(amount || 0))} đ`;
+const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value);
+const isRefreshing = computed(() => loading.value && hasLoadedOnce.value);
 
 const allSelected = computed({
   get() {
@@ -23,6 +26,16 @@ const loadPage = async () => {
   try {
     await load({ q: form.q, start_date: form.start_date, end_date: form.end_date });
     selectedIds.value = [];
+    hasLoadedOnce.value = true;
+  } catch (_err) {
+    toast.error(error.value || 'Không thể tải báo cáo giá vốn thiếu.');
+  }
+};
+
+const refreshPage = async () => {
+  try {
+    await refresh({ q: form.q, start_date: form.start_date, end_date: form.end_date });
+    selectedIds.value = [];
   } catch (_err) {
     toast.error(error.value || 'Không thể tải báo cáo giá vốn thiếu.');
   }
@@ -33,7 +46,7 @@ const updateSelected = async () => {
     const result = await submit({ mode: 'selected', item_ids: selectedIds.value });
     if (result?.success) {
       toast.success(result?.message || 'Đã cập nhật giá vốn.');
-      await loadPage();
+      await refreshPage();
       return;
     }
     toast.error(result?.message || submitError.value || 'Không thể cập nhật giá vốn.');
@@ -47,7 +60,7 @@ const updateAll = async () => {
     const result = await submit({ mode: 'all' });
     if (result?.success) {
       toast.success(result?.message || 'Đã cập nhật giá vốn.');
-      await loadPage();
+      await refreshPage();
       return;
     }
     toast.error(result?.message || submitError.value || 'Không thể cập nhật giá vốn.');
@@ -92,10 +105,11 @@ onMounted(async () => {
       <div class="rounded-xl border border-slate-200 bg-white p-3 text-sm"><div class="text-slate-500">Tăng giá vốn dự kiến</div><div class="mt-1 font-semibold">{{ formatMoney(summary.total_delta_cost) }}</div></div>
     </section>
 
-    <div v-if="loading" class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">Đang tải...</div>
+    <div v-if="isRefreshing" class="px-1 text-xs font-medium text-slate-500">Đang cập nhật báo cáo giá vốn...</div>
+    <div v-if="isInitialLoading" class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">Đang tải...</div>
     <div v-else-if="!items.length" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-500">Không có dòng thiếu giá vốn.</div>
 
-    <section v-else class="space-y-2">
+    <section v-else class="space-y-2" :class="isRefreshing ? 'opacity-70 transition-opacity' : 'transition-opacity'">
       <label class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 text-sm">
         <input v-model="allSelected" type="checkbox" class="h-4 w-4" />
         <span>Chọn tất cả</span>

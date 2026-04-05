@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useToast } from '../../../shared/composables/useToast';
 import { useSalesReport } from '../composables/useSalesReport';
@@ -8,10 +8,14 @@ import OrderItemCard from '../../../shared/components/OrderItemCard.vue';
 const toast = useToast();
 const { rows, loading, error, load } = useSalesReport();
 const form = reactive({ filter_mode: 'day', day: '', page: 1 });
+const hasLoadedOnce = ref(false);
+const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value);
+const isRefreshing = computed(() => loading.value && hasLoadedOnce.value);
 
 const loadPage = async () => {
   try {
     await load({ filter_mode: form.filter_mode, day: form.day, page: form.page });
+    hasLoadedOnce.value = true;
   } catch (_err) {
     toast.error(error.value || 'Không thể tải danh sách đơn hàng.');
   }
@@ -36,10 +40,11 @@ onMounted(async () => {
       </form>
     </header>
 
-    <div v-if="loading" class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">Đang tải...</div>
+    <div v-if="isRefreshing" class="px-1 text-xs font-medium text-slate-500">Đang cập nhật danh sách đơn...</div>
+    <div v-if="isInitialLoading" class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">Đang tải...</div>
     <div v-else-if="!rows.length" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-500">Không có đơn hàng.</div>
 
-    <section v-else class="space-y-2">
+    <section v-else class="space-y-2" :class="isRefreshing ? 'opacity-70 transition-opacity' : 'transition-opacity'">
       <OrderItemCard
         v-for="row in rows"
         :key="row.id"

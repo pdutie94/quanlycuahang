@@ -11,12 +11,22 @@ export function usePurchaseDetail() {
   const detailRequest = useFetch(fetchPurchaseDetail);
   const paymentRequest = useFetch(recordPurchasePayment);
 
+  const applyDetailData = (data) => {
+    purchase.value = data?.purchase || null;
+    items.value = data?.items || [];
+    payments.value = data?.payments || [];
+    logs.value = data?.logs || [];
+  };
+
   const load = async (id) => {
     const payload = await detailRequest.execute(id);
-    purchase.value = payload?.data?.purchase || null;
-    items.value = payload?.data?.items || [];
-    payments.value = payload?.data?.payments || [];
-    logs.value = payload?.data?.logs || [];
+    applyDetailData(payload?.data || {});
+    return payload;
+  };
+
+  const refresh = async (id) => {
+    const payload = await fetchPurchaseDetail(id);
+    applyDetailData(payload?.data || {});
     return payload;
   };
 
@@ -30,6 +40,7 @@ export function usePurchaseDetail() {
     loading: detailRequest.loading,
     error: detailRequest.error,
     load,
+    refresh,
     submitPayment,
     paymentLoading: paymentRequest.loading,
     paymentError: paymentRequest.error

@@ -10,11 +10,21 @@ export function useMissingCostReport() {
   const listRequest = useFetch(fetchMissingCostReport);
   const updateRequest = useFetch(submitMissingCostUpdate);
 
+  const applyListData = (data) => {
+    items.value = data?.items || [];
+    summary.value = data?.summary || { item_count: 0, order_count: 0, total_delta_cost: 0 };
+    filters.value = data?.filters || { q: '', start_date: '', end_date: '' };
+  };
+
   const load = async (params = {}) => {
     const payload = await listRequest.execute(params);
-    items.value = payload?.data?.items || [];
-    summary.value = payload?.data?.summary || { item_count: 0, order_count: 0, total_delta_cost: 0 };
-    filters.value = payload?.data?.filters || { q: '', start_date: '', end_date: '' };
+    applyListData(payload?.data || {});
+    return payload;
+  };
+
+  const refresh = async (params = filters.value || {}) => {
+    const payload = await fetchMissingCostReport(params);
+    applyListData(payload?.data || {});
     return payload;
   };
 
@@ -27,6 +37,7 @@ export function useMissingCostReport() {
     loading: listRequest.loading,
     error: listRequest.error,
     load,
+    refresh,
     submit,
     submitLoading: updateRequest.loading,
     submitError: updateRequest.error

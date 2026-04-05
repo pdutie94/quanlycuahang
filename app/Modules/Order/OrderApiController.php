@@ -400,6 +400,33 @@ class OrderApiController
         ], isset($result['message']) ? (string) $result['message'] : 'Đã cập nhật đơn hàng.');
     }
 
+    public function updateStatus(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($id <= 0) {
+            return ApiResponse::error($response, 'Invalid order id', 422);
+        }
+
+        $payload = $this->normalizePayload($request);
+        $orderStatus = isset($payload['order_status']) ? (string) $payload['order_status'] : '';
+
+        $result = \OrderService::updateOrderStatus($id, $orderStatus);
+        if (empty($result['success'])) {
+            return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Update order status failed', 422);
+        }
+
+        $view = \OrderService::getOrderViewData($id);
+
+        return ApiResponse::success($response, [
+            'id' => $id,
+            'order' => isset($view['order']) ? $view['order'] : null,
+            'items' => isset($view['items']) ? $view['items'] : [],
+            'manual_items' => isset($view['manualItems']) ? $view['manualItems'] : [],
+            'payments' => isset($view['payments']) ? $view['payments'] : [],
+            'logs' => isset($view['logs']) ? $view['logs'] : [],
+        ], isset($result['message']) ? (string) $result['message'] : 'Đã cập nhật trạng thái đơn hàng.');
+    }
+
     public function paymentStore(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $orderId = isset($args['id']) ? (int) $args['id'] : 0;

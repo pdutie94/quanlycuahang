@@ -4,21 +4,34 @@ import { useToast } from '../../../shared/composables/useToast';
 import { useUnitList } from '../composables/useUnitList';
 
 const toast = useToast();
-const { items, load, loading, error, submitCreate, createLoading, createError, submitUpdate, updateLoading, updateError, submitDelete, deleteLoading, deleteError } = useUnitList();
+const { items, load, refresh, loading, error, submitCreate, createLoading, createError, submitUpdate, updateLoading, updateError, submitDelete, deleteLoading, deleteError } = useUnitList();
 
 const createName = ref('');
 const editMap = ref({});
 const pendingDeleteId = ref(null);
 let pendingDeleteTimer = null;
 
+const syncEditMap = () => {
+  const nextMap = {};
+  for (const unit of items.value) {
+    nextMap[unit.id] = unit.name || '';
+  }
+  editMap.value = nextMap;
+};
+
 const loadPage = async () => {
   try {
     await load();
-    const nextMap = {};
-    for (const unit of items.value) {
-      nextMap[unit.id] = unit.name || '';
-    }
-    editMap.value = nextMap;
+    syncEditMap();
+  } catch (_err) {
+    toast.error(error.value || 'Không thể tải danh sách đơn vị tính.');
+  }
+};
+
+const refreshPage = async () => {
+  try {
+    await refresh();
+    syncEditMap();
   } catch (_err) {
     toast.error(error.value || 'Không thể tải danh sách đơn vị tính.');
   }
@@ -30,7 +43,7 @@ const handleCreate = async () => {
     if (result?.success) {
       toast.success(result?.message || 'Đã thêm đơn vị tính.');
       createName.value = '';
-      await loadPage();
+      await refreshPage();
       return;
     }
     toast.error(result?.message || createError.value || 'Không thể thêm đơn vị tính.');
@@ -44,7 +57,7 @@ const handleUpdate = async (id) => {
     const result = await submitUpdate(id, { name: editMap.value[id] || '' });
     if (result?.success) {
       toast.success(result?.message || 'Đã cập nhật đơn vị tính.');
-      await loadPage();
+      await refreshPage();
       return;
     }
     toast.error(result?.message || updateError.value || 'Không thể cập nhật đơn vị tính.');
@@ -81,7 +94,7 @@ const handleDelete = async (id) => {
     const result = await submitDelete(id);
     if (result?.success) {
       toast.success(result?.message || 'Đã xóa đơn vị tính.');
-      await loadPage();
+      await refreshPage();
       return;
     }
     toast.error(result?.message || deleteError.value || 'Không thể xóa đơn vị tính.');

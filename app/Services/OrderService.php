@@ -1046,6 +1046,104 @@ class OrderService
         }
     }
 
+    public static function updateOrderStatus($id, $orderStatus): array
+    {
+        $id = (int) $id;
+        $orderStatus = is_string($orderStatus) ? trim($orderStatus) : '';
+
+        if ($id <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Mã đơn hàng không hợp lệ.',
+            ];
+        }
+
+        $allowed = ['pending', 'completed', 'cancelled'];
+        if (!in_array($orderStatus, $allowed, true)) {
+            return [
+                'success' => false,
+                'message' => 'Trạng thái đơn hàng không hợp lệ.',
+            ];
+        }
+
+        $pdo = Database::getInstance();
+        $pdo->beginTransaction();
+
+        try {
+            $stmt = $pdo->prepare('SELECT * FROM orders WHERE id = ? FOR UPDATE');
+            $stmt->execute([$id]);
+            $order = $stmt->fetch();
+
+            if (!$order) {
+                $pdo->rollBack();
+                return [
+                    'success' => false,
+                    'message' => 'Không tìm thấy đơn hàng.',
+                ];
+            }
+
+            $oldStatus = isset($order['order_status']) ? $order['order_status'] : 'pending';
+            $newStatus = $orderStatus;
+
+            $updateStmt = $pdo->prepare('UPDATE orders SET order_status = ? WHERE id = ?');
+            $updateStmt->execute([$newStatus, $id]);
+
+            if ($oldStatus !== $newStatus) {
+                $direction = 0;
+                if ($oldStatus !== 'completed' && $newStatus === 'completed') {
+                    $direction = -1;
+                } elseif ($oldStatus === 'completed' && $newStatus !== 'completed') {
+                    $direction = 1;
+                }
+
+                if ($direction !== 0) {
+                    $itemStmt = $pdo->prepare('SELECT product_id, SUM(qty_base) AS qty_base FROM order_items WHERE order_id = ? GROUP BY product_id');
+                    $itemStmt->execute([$id]);
+                    $items = $itemStmt->fetchAll();
+
+                    InventoryService::adjustForOrderStatusChange($items, $direction);
+                    ProductSalesSummaryService::adjustForOrderStatusChange($items, -$direction);
+                }
+            }
+
+            if (class_exists('OrderLog')) {
+                $statusText = 'Chưa hoàn thành';
+                if ($orderStatus === 'completed') {
+                    $statusText = 'Đã hoàn thành';
+                } elseif ($orderStatus === 'cancelled') {
+                    $statusText = 'Đã hủy';
+                }
+
+                OrderLog::create([
+                    'order_id' => $id,
+                    'action' => 'update_status',
+                    'detail' => 'Cập nhật trạng thái: ' . $statusText,
+                ]);
+            }
+
+            $pdo->commit();
+            ReportService::clearReportCache();
+
+            return [
+                'success' => true,
+                'message' => 'Đã cập nhật trạng thái đơn hàng.',
+            ];
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            if (class_exists('LogService')) {
+                LogService::logError('OrderService::updateOrderStatus exception', ['exception' => $e->getMessage(), 'id' => $id]);
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Không thể cập nhật trạng thái đơn hàng: ' . $e->getMessage(),
+            ];
+        }
+    }
+
     public static function addItemsToOrder($orderId, array $payload): array
     {
         $orderId = (int) $orderId;

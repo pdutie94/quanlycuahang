@@ -8,9 +8,19 @@ export function useInventoryReport() {
   const listRequest = useFetch(fetchInventoryReport);
   const adjustRequest = useFetch(submitInventoryAdjust);
 
+  const applyListData = (data) => {
+    items.value = data?.items || [];
+  };
+
   const load = async () => {
     const payload = await listRequest.execute();
-    items.value = payload?.data?.items || [];
+    applyListData(payload?.data || {});
+    return payload;
+  };
+
+  const refresh = async () => {
+    const payload = await fetchInventoryReport();
+    applyListData(payload?.data || {});
     return payload;
   };
 
@@ -21,6 +31,7 @@ export function useInventoryReport() {
     loading: listRequest.loading,
     error: listRequest.error,
     load,
+    refresh,
     adjust,
     adjustLoading: adjustRequest.loading,
     adjustError: adjustRequest.error

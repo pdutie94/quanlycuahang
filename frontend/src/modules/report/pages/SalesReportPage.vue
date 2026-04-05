@@ -1,11 +1,12 @@
 <script setup>
-import { computed, onMounted, reactive } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useToast } from '../../../shared/composables/useToast';
 import { useSalesReport } from '../composables/useSalesReport';
 
 const toast = useToast();
 const { rows, summary, meta, loading, error, load } = useSalesReport();
+const hasLoadedOnce = ref(false);
 
 const form = reactive({
   filter_mode: 'day',
@@ -19,6 +20,8 @@ const form = reactive({
 
 const formatMoney = (amount) => `${new Intl.NumberFormat('vi-VN').format(Number(amount || 0))} đ`;
 const totalPages = computed(() => Number(meta.value?.total_pages || 1));
+const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value);
+const isRefreshing = computed(() => loading.value && hasLoadedOnce.value);
 
 const buildParams = () => {
   const params = { filter_mode: form.filter_mode, page: form.page };
@@ -35,6 +38,7 @@ const buildParams = () => {
 const loadPage = async () => {
   try {
     await load(buildParams());
+    hasLoadedOnce.value = true;
   } catch (_err) {
     toast.error(error.value || 'Không thể tải báo cáo doanh thu.');
   }
@@ -134,10 +138,11 @@ onMounted(async () => {
       <div class="rounded-xl border border-slate-200 bg-white p-3 text-sm"><div class="text-slate-500">Còn nợ</div><div class="mt-1 font-semibold">{{ formatMoney(summary.debt_amount) }}</div></div>
     </section>
 
-    <div v-if="loading" class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">Đang tải...</div>
+    <div v-if="isRefreshing" class="px-1 text-xs font-medium text-slate-500">Đang cập nhật báo cáo...</div>
+    <div v-if="isInitialLoading" class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">Đang tải...</div>
     <div v-else-if="!rows.length" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-500">Không có dữ liệu.</div>
 
-    <section v-else class="space-y-2">
+    <section v-else class="space-y-2" :class="isRefreshing ? 'opacity-70 transition-opacity' : 'transition-opacity'">
       <article v-for="row in rows" :key="row.id" class="rounded-xl border border-slate-200 bg-white p-3 text-sm">
         <div class="flex items-center justify-between gap-2">
           <div class="font-medium text-slate-900">#{{ row.code }}</div>
@@ -152,7 +157,7 @@ onMounted(async () => {
       </article>
     </section>
 
-    <footer class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm">
+    <footer class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm" :class="isRefreshing ? 'opacity-70 transition-opacity' : 'transition-opacity'">
       <span>Trang {{ form.page }} / {{ totalPages }}</span>
       <div class="flex gap-2">
         <button class="rounded-lg border border-slate-300 px-3 py-1" :disabled="form.page <= 1 || loading" @click="prevPage">Trước</button>

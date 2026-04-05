@@ -4,15 +4,28 @@ import { useToast } from '../../../shared/composables/useToast';
 import { useInventoryReport } from '../composables/useInventoryReport';
 
 const toast = useToast();
-const { items, loading, error, load, adjust, adjustLoading, adjustError } = useInventoryReport();
+const { items, loading, error, load, refresh, adjust, adjustLoading, adjustError } = useInventoryReport();
 const qtyMap = reactive({});
+
+const syncQtyMap = () => {
+  for (const item of items.value) {
+    qtyMap[item.id] = String(item.qty_base ?? 0);
+  }
+};
 
 const loadPage = async () => {
   try {
     await load();
-    for (const item of items.value) {
-      qtyMap[item.id] = String(item.qty_base ?? 0);
-    }
+    syncQtyMap();
+  } catch (_err) {
+    toast.error(error.value || 'Không thể tải báo cáo tồn kho.');
+  }
+};
+
+const refreshPage = async () => {
+  try {
+    await refresh();
+    syncQtyMap();
   } catch (_err) {
     toast.error(error.value || 'Không thể tải báo cáo tồn kho.');
   }
@@ -24,7 +37,7 @@ const submitAdjust = async (item) => {
     const result = await adjust(payload);
     if (result?.success) {
       toast.success(result?.message || 'Đã cập nhật tồn kho.');
-      await loadPage();
+      await refreshPage();
       return;
     }
     toast.error(result?.message || adjustError.value || 'Không thể cập nhật tồn kho.');

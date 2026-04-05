@@ -8,16 +8,20 @@ const state = reactive({ loading: false, submitting: false });
 const info = reactive({ current_version: '1.0.0', latest_version: '1.0.0', pending_versions: [], all_versions: [] });
 const pendingCount = ref(0);
 
+const applyInfoData = (data) => {
+  info.current_version = data?.current_version || '1.0.0';
+  info.latest_version = data?.latest_version || '1.0.0';
+  info.pending_versions = data?.pending_versions || [];
+  info.all_versions = data?.all_versions || [];
+  pendingCount.value = info.pending_versions.length;
+};
+
 const loadPage = async () => {
   state.loading = true;
   try {
     const result = await fetchMigrationInfo();
     if (result?.success && result?.data) {
-      info.current_version = result.data.current_version || '1.0.0';
-      info.latest_version = result.data.latest_version || '1.0.0';
-      info.pending_versions = result.data.pending_versions || [];
-      info.all_versions = result.data.all_versions || [];
-      pendingCount.value = info.pending_versions.length;
+      applyInfoData(result.data);
       return;
     }
     toast.error(result?.message || 'Không thể tải thông tin migration.');
@@ -28,6 +32,19 @@ const loadPage = async () => {
   }
 };
 
+const refreshPage = async () => {
+  try {
+    const result = await fetchMigrationInfo();
+    if (result?.success && result?.data) {
+      applyInfoData(result.data);
+      return;
+    }
+    toast.error(result?.message || 'Không thể tải thông tin migration.');
+  } catch (err) {
+    toast.error(err?.response?.data?.message || 'Không thể tải thông tin migration.');
+  }
+};
+
 const runPending = async () => {
   if (state.submitting) return;
   state.submitting = true;
@@ -35,7 +52,7 @@ const runPending = async () => {
     const result = await applyMigrations();
     if (result?.success) {
       toast.success(result?.message || 'Đã chạy migration thành công.');
-      await loadPage();
+      await refreshPage();
       return;
     }
     toast.error(result?.message || 'Không thể chạy migration.');
@@ -53,7 +70,7 @@ const runVersion = async (version) => {
     const result = await runMigrationVersion({ version });
     if (result?.success) {
       toast.success(result?.message || `Đã chạy version ${version}.`);
-      await loadPage();
+      await refreshPage();
       return;
     }
     toast.error(result?.message || `Không thể chạy version ${version}.`);

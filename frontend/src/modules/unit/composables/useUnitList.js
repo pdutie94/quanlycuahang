@@ -10,9 +10,19 @@ export function useUnitList() {
   const updateRequest = useFetch(updateUnit);
   const deleteRequest = useFetch(deleteUnit);
 
+  const applyListData = (data) => {
+    items.value = data?.items || [];
+  };
+
   const load = async () => {
     const payload = await listRequest.execute();
-    items.value = payload?.data?.items || [];
+    applyListData(payload?.data || {});
+    return payload;
+  };
+
+  const refresh = async () => {
+    const payload = await fetchUnits();
+    applyListData(payload?.data || {});
     return payload;
   };
 
@@ -23,6 +33,7 @@ export function useUnitList() {
   return {
     items,
     load,
+    refresh,
     loading: listRequest.loading,
     error: listRequest.error,
     submitCreate,

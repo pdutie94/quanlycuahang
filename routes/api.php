@@ -94,6 +94,7 @@ return function (App $app) {
         $group->post('/orders', [$orderController, 'create']);
         $group->put('/orders/{id}', [$orderController, 'update']);
         $group->patch('/orders/{id}', [$orderController, 'update']);
+        $group->post('/orders/{id}/status', [$orderController, 'updateStatus']);
         $group->delete('/orders/{id}', [$orderController, 'delete']);
         $group->post('/orders/{id}/return', [$orderController, 'returnStore']);
         $group->post('/orders/{id}/payment', [$orderController, 'paymentStore']);

@@ -45,6 +45,11 @@ export async function updateOrder(id, payload) {
   return response.data;
 }
 
+export async function updateOrderStatus(id, payload) {
+  const response = await api.post(`/orders/${id}/status`, payload);
+  return response.data;
+}
+
 export async function deleteOrder(id) {
   const response = await api.delete(`/orders/${id}`);
   return response.data;

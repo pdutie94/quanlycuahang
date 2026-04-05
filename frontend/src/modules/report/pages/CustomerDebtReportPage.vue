@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useToast } from '../../../shared/composables/useToast';
 import { useCustomerDebtReport } from '../composables/useCustomerDebtReport';
@@ -7,6 +7,9 @@ import { useCustomerDebtReport } from '../composables/useCustomerDebtReport';
 const toast = useToast();
 const { rows, summary, loading, error, load } = useCustomerDebtReport();
 const form = reactive({ start_date: '', end_date: '', q: '', show_all: false });
+const hasLoadedOnce = ref(false);
+const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value);
+const isRefreshing = computed(() => loading.value && hasLoadedOnce.value);
 
 const formatter = new Intl.NumberFormat('vi-VN');
 const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
@@ -19,6 +22,7 @@ const loadPage = async () => {
       q: form.q,
       show_all: form.show_all ? '1' : '0'
     });
+    hasLoadedOnce.value = true;
   } catch (_err) {
     toast.error(error.value || 'Không thể tải báo cáo công nợ khách hàng.');
   }
@@ -76,10 +80,11 @@ onMounted(async () => {
       <article class="rounded-2xl border border-rose-100 bg-rose-50 p-3"><div class="text-sm text-rose-700">Còn nợ</div><div class="mt-1 text-lg font-semibold text-rose-800">{{ formatMoney(summary.debt_amount) }}</div></article>
     </section>
 
-    <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải...</div>
+    <div v-if="isRefreshing" class="px-1 text-xs font-medium text-slate-500">Đang cập nhật công nợ khách hàng...</div>
+    <div v-if="isInitialLoading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải...</div>
     <div v-else-if="!rows.length" class="app-empty-state">Không có dữ liệu công nợ phù hợp.</div>
 
-    <section v-else class="rounded-2xl border border-slate-200 bg-white p-2 sm:p-4">
+    <section v-else class="rounded-2xl border border-slate-200 bg-white p-2 sm:p-4" :class="isRefreshing ? 'opacity-70 transition-opacity' : 'transition-opacity'">
       <div v-for="row in rows" :key="row.id" class="rounded-xl border border-slate-200 p-3 mb-2">
         <div class="text-sm font-medium text-slate-900">{{ row.name || 'Khách lẻ' }}</div>
         <div class="mt-1 text-sm text-slate-600">{{ row.phone || 'Không có SĐT' }}</div>

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { RouterLink } from 'vue-router';
 import { usePagination } from '../../../shared/composables/usePagination';
 import { useToast } from '../../../shared/composables/useToast';
@@ -8,11 +8,16 @@ import { useCategoryList } from '../composables/useCategoryList';
 const { items, meta, loading, error, load } = useCategoryList();
 const { page, totalPages, canPrev, canNext, setMeta, next, prev } = usePagination(1);
 const toast = useToast();
+const hasLoadedOnce = ref(false);
+
+const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value);
+const isRefreshing = computed(() => loading.value && hasLoadedOnce.value);
 
 const loadPage = async () => {
   try {
     await load(page.value);
     setMeta(meta.value);
+    hasLoadedOnce.value = true;
   } catch (_err) {
     toast.error(error.value || 'Không thể tải danh sách danh mục.');
   }
@@ -39,17 +44,19 @@ onMounted(async () => {
     </header>
 
     <div class="space-y-3">
-      <div v-if="loading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>
+      <div v-if="isRefreshing" class="px-1 text-xs font-medium text-slate-500">Đang cập nhật danh mục...</div>
+      <div v-if="isInitialLoading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>
       <div v-else-if="!items.length" class="app-empty-state">Chưa có danh mục nào.</div>
-      <RouterLink
-        v-for="item in items"
-        v-else
-        :key="item.id"
-        :to="{ name: 'categories.edit', params: { id: item.id } }"
-        class="app-list-card"
-      >
-        <div class="text-sm font-medium text-slate-900">{{ item.name }}</div>
-      </RouterLink>
+      <div v-else class="space-y-3" :class="isRefreshing ? 'opacity-70 transition-opacity' : 'transition-opacity'">
+        <RouterLink
+          v-for="item in items"
+          :key="item.id"
+          :to="{ name: 'categories.edit', params: { id: item.id } }"
+          class="app-list-card"
+        >
+          <div class="text-sm font-medium text-slate-900">{{ item.name }}</div>
+        </RouterLink>
+      </div>
     </div>
 
     <footer class="app-card flex items-center justify-between px-4 py-3">
