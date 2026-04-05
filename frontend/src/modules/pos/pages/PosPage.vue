@@ -893,6 +893,9 @@ onMounted(async () => {
         </div>
       </section>
 
+    </form>
+
+    <Teleport to="body">
       <transition name="app-modal-fade-up">
         <div v-if="showPriceModal" class="app-modal-overlay app-modal-open" @click.self="closePriceModal">
           <div class="app-modal-sheet-sm">
@@ -932,14 +935,14 @@ onMounted(async () => {
 
       <transition name="app-modal-fade-up">
         <div v-if="showProductSelector" class="app-modal-overlay app-modal-open" @click.self="closeProductSelector">
-          <div class="app-modal-sheet">
+          <div class="app-modal-sheet app-modal-sheet-fill">
             <div class="app-modal-header">
               <h2 class="app-modal-title">Chọn sản phẩm</h2>
               <button type="button" class="app-modal-close" @click="closeProductSelector">
                 <X class="h-4 w-4" />
               </button>
             </div>
-            <div class="app-modal-body pt-2 pb-3">
+            <div class="app-modal-body app-modal-body-fill pt-2 pb-3">
               <div class="mb-2">
                 <input
                   v-model="productSelectorKeyword"
@@ -948,7 +951,7 @@ onMounted(async () => {
                   class="app-input"
                 />
               </div>
-              <div class="max-h-[60vh] overflow-y-auto rounded-lg border border-slate-200">
+              <div class="app-modal-body-scroll rounded-lg border border-slate-200">
                 <button
                   v-for="product in filteredProducts"
                   :key="product.id"
@@ -965,7 +968,7 @@ onMounted(async () => {
                     ✓
                   </span>
                 </button>
-                <div v-if="!filteredProducts.length" class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-5 text-center text-sm text-slate-500">
+                <div v-if="!filteredProducts.length" class="p-3 text-center text-sm text-slate-500">
                   Không tìm thấy sản phẩm phù hợp.
                 </div>
               </div>
@@ -982,7 +985,7 @@ onMounted(async () => {
 
       <transition name="app-modal-fade-up">
         <div v-if="showCustomerModal" class="app-modal-overlay app-modal-open" @click.self="closeCustomerModal">
-          <div class="app-modal-sheet">
+          <div class="app-modal-sheet app-modal-sheet-fill">
             <div class="app-modal-header">
               <div class="flex items-center gap-2">
                 <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
@@ -996,11 +999,11 @@ onMounted(async () => {
                 <X class="h-4 w-4" />
               </button>
             </div>
-            <div class="app-modal-body flex min-h-0 flex-col pt-2 pb-3">
+            <div class="app-modal-body app-modal-body-fill pt-2 pb-3">
               <div class="mb-2">
                 <input v-model="customerKeyword" type="search" placeholder="Tìm theo tên, SĐT, địa chỉ..." class="app-input" />
               </div>
-              <div class="flex-1 overflow-y-auto rounded-lg border border-slate-200">
+              <div class="app-modal-body-scroll rounded-lg border border-slate-200">
                 <button
                   v-for="customer in filteredCustomers"
                   :key="customer.id"
@@ -1139,6 +1142,6 @@ onMounted(async () => {
           </div>
         </div>
       </transition>
-    </form>
+    </Teleport>
   </section>
 </template>

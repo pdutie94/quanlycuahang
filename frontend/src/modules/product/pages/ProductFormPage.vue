@@ -20,6 +20,7 @@ const {
   baseUnitName,
   loadBootstrap,
   loadEdit,
+  refreshEdit,
   submitCreate,
   submitUpdate,
   bootstrapLoading,
@@ -110,6 +111,12 @@ const submit = async (redirectMode) => {
     const nextId = Number(payload?.data?.id || route.params.id || 0);
     if (!isEdit.value && nextId > 0) {
       await router.push({ name: 'products.edit', params: { id: nextId } });
+      await refreshEdit(nextId);
+      return;
+    }
+
+    if (isEdit.value && nextId > 0) {
+      await refreshEdit(nextId);
     }
   } catch (_err) {
     toast.error((isEdit.value ? updateError.value : createError.value) || 'Không thể lưu sản phẩm.');

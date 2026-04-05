@@ -56,16 +56,7 @@ export function useProductForm() {
   const updateRequest = useFetch(updateProduct);
   const deleteRequest = useFetch(deleteProduct);
 
-  const loadBootstrap = async () => {
-    const payload = await bootstrapRequest.execute();
-    units.value = payload?.data?.units || [];
-    categories.value = payload?.data?.categories || [];
-    return payload;
-  };
-
-  const loadEdit = async (id) => {
-    const payload = await editRequest.execute(id);
-    const data = payload?.data || {};
+  const applyEditData = (data) => {
     product.value = data.product || null;
     productLogs.value = data.product_logs || [];
 
@@ -82,8 +73,27 @@ export function useProductForm() {
       min_step: formatStepValue(firstUnit?.min_step),
       inventory_qty_base: data.inventory_qty_base !== null && data.inventory_qty_base !== undefined ? String(data.inventory_qty_base) : '',
       min_stock_qty: data.product?.min_stock_qty !== null && data.product?.min_stock_qty !== undefined ? String(data.product.min_stock_qty) : '',
-      redirect: 'stay'
+      redirect: form.value.redirect || 'stay'
     };
+  };
+
+  const loadBootstrap = async () => {
+    const payload = await bootstrapRequest.execute();
+    units.value = payload?.data?.units || [];
+    categories.value = payload?.data?.categories || [];
+    return payload;
+  };
+
+  const loadEdit = async (id) => {
+    const payload = await editRequest.execute(id);
+    applyEditData(payload?.data || {});
+
+    return payload;
+  };
+
+  const refreshEdit = async (id) => {
+    const payload = await fetchProductFormEditData(id);
+    applyEditData(payload?.data || {});
 
     return payload;
   };
@@ -120,6 +130,7 @@ export function useProductForm() {
     baseUnitName,
     loadBootstrap,
     loadEdit,
+    refreshEdit,
     submitCreate,
     submitUpdate,
     bootstrapLoading: bootstrapRequest.loading,
