@@ -14,8 +14,8 @@ const toast = useToast();
 const { customer, orders, summary, loading, error, load, remove, deleteLoading, deleteError } = useCustomerDetail();
 const showDeleteModal = ref(false);
 
-const formatter = new Intl.NumberFormat('vi-VN');
-const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney } = useFormat();
 
 const loadPage = async () => {
   try {

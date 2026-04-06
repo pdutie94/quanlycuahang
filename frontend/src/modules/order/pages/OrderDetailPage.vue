@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
+import { useFormat } from '../../../shared/composables/useFormat';
 import { Archive, BanknoteArrowDown, ClipboardList, FileText, History, Package, Pencil, RotateCcw, Trash2, Undo2, Users } from '@lucide/vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useOrderDetail } from '../composables/useOrderDetail';
@@ -46,21 +47,7 @@ const showDeleteOrderModal = ref(false);
 const orderId = computed(() => Number(route.params.id || 0));
 
 const numberFormatter = new Intl.NumberFormat('vi-VN');
-
-const formatMoney = (amount) => `${numberFormatter.format(Number(amount || 0))} đ`;
-
-const parseAmount = (value) => {
-  if (value === null || value === undefined) {
-    return 0;
-  }
-
-  const digits = String(value).replace(/[^0-9-]/g, '');
-  if (!digits || digits === '-') {
-    return 0;
-  }
-
-  return Number(digits);
-};
+const { formatMoney, formatDateTime, parseAmount } = useFormat();
 
 const formatMoneyInput = (value, allowEmpty = true) => {
   const amount = parseAmount(value);
@@ -159,24 +146,7 @@ const formatNumber = (value) => {
   });
 };
 
-const formatDateTime = (value) => {
-  if (!value) {
-    return '';
-  }
-
-  const date = new Date(String(value).replace(' ', 'T'));
-  if (Number.isNaN(date.getTime())) {
-    return '';
-  }
-
-  return new Intl.DateTimeFormat('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  }).format(date);
-};
+// formatDateTime đã thay bằng useFormat
 
 const totalAmount = computed(() => Number(order.value?.total_amount || 0));
 const totalCost = computed(() => Number(order.value?.total_cost || 0));

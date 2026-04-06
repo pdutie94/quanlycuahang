@@ -14,9 +14,8 @@ const debtStatus = ref('');
 const { items, meta, loading, error, load } = useCustomers();
 const toast = useToast();
 
-const currencyFormatter = new Intl.NumberFormat('vi-VN');
-
-const formatMoney = (amount) => currencyFormatter.format(Number(amount || 0));
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney } = useFormat();
 
 const {
   hasMore,

@@ -1,9 +1,12 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+
+import { onMounted, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCustomerDebtPayment } from '../composables/useCustomerDebtPayment';
 import { useToast } from '../../../shared/composables/useToast';
 import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
+import { useFormat } from '../../../shared/composables/useFormat';
+import { useDebtAllocation } from '../../../shared/composables/useDebtAllocation';
 
 const route = useRoute();
 const router = useRouter();
@@ -13,61 +16,24 @@ const { customer, orders, totalDebt, loading, error, load, submit, submitLoading
 const amount = ref('');
 const note = ref('');
 
-const currencyFormatter = new Intl.NumberFormat('vi-VN');
-const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit'
-});
 
-const formatMoney = (value) => `${currencyFormatter.format(Number(value || 0))} đ`;
-
-const parseAmount = (value) => {
-  const normalized = String(value || '').replace(/[^\d]/g, '');
-  return Number(normalized || 0);
-};
-
-const formatDateTime = (value) => {
-  if (!value) {
-    return '--';
-  }
-
-  const date = new Date(String(value).replace(' ', 'T'));
-  if (Number.isNaN(date.getTime())) {
-    return '--';
-  }
-
-  return dateFormatter.format(date);
-};
-
-const amountNumber = computed(() => parseAmount(amount.value));
-const preview = computed(() => {
-  let remainingAmount = amountNumber.value;
-
-  return (orders.value || []).map((order) => {
-    const debt = Math.max(Number(order.debt_amount || 0), 0);
-    const allocatedAmount = remainingAmount > 0 ? Math.min(remainingAmount, debt) : 0;
-    remainingAmount -= allocatedAmount;
-
-    return {
-      orderId: Number(order.id || 0),
-      orderCode: order.order_code || `#${order.id}`,
-      orderDate: order.order_date || '',
-      debtBefore: debt,
-      allocatedAmount,
-      debtAfter: Math.max(debt - allocatedAmount, 0)
-    };
-  }).filter((item) => item.allocatedAmount > 0);
-});
-
-const previewTotal = computed(() => preview.value.reduce((sum, item) => sum + item.allocatedAmount, 0));
-const unappliedAmount = computed(() => {
-  const remaining = amountNumber.value - previewTotal.value;
-  return remaining > 0 ? remaining : 0;
-});
+const { formatMoney, formatDateTime, parseAmount } = useFormat();
 const hasOutstandingDebt = computed(() => Number(totalDebt.value || 0) > 0);
+
+// Sử dụng composable phân bổ công nợ
+const {
+  amountNumber,
+  preview,
+  previewTotal,
+  unappliedAmount
+} = useDebtAllocation({
+  items: orders,
+  amount,
+  debtField: 'debt_amount',
+  idField: 'id',
+  codeField: 'order_code',
+  dateField: 'order_date'
+});
 
 
 const loadPage = async () => {
@@ -75,7 +41,7 @@ const loadPage = async () => {
     await load(Number(route.params.id || 0));
     // Format số tiền ngay từ đầu
     const raw = Math.round(Number(totalDebt.value || 0));
-    amount.value = raw > 0 ? currencyFormatter.format(raw) : '';
+    amount.value = raw > 0 ? formatMoney(raw).replace(' đ', '') : '';
   } catch (_err) {
     toast.error(error.value || 'Không thể tải thông tin thu tiền công nợ.');
   }

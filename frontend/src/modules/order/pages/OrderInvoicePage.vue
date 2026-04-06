@@ -11,15 +11,9 @@ const { order, items, loading, error, load } = useOrderInvoice();
 
 const orderId = computed(() => Number(route.params.id || 0));
 
-const formatter = new Intl.NumberFormat('vi-VN');
-const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
-const formatQty = (qty) => {
-  const value = Number(qty || 0);
-  if (Number.isInteger(value)) {
-    return formatter.format(value);
-  }
-  return value.toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-};
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney, formatDateTime, parseAmount } = useFormat();
+// formatQty giữ nguyên nếu không liên quan
 
 const remaining = computed(() => {
   const total = Number(order.value?.total_amount || 0);

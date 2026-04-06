@@ -15,8 +15,9 @@ const orderId = computed(() => Number(route.params.id || 0));
 const returnAll = ref(false);
 const quantities = ref({});
 
-const formatter = new Intl.NumberFormat('vi-VN');
-const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney, formatDateTime, parseAmount } = useFormat();
+// formatQty giữ nguyên nếu không liên quan
 const formatQty = (qty) => {
   const value = Number(qty || 0);
   if (Number.isInteger(value)) {
@@ -24,7 +25,6 @@ const formatQty = (qty) => {
   }
   return value.toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 };
-
 const total = computed(() => Number(order.value?.total_amount || 0));
 const paid = computed(() => Number(order.value?.paid_amount || 0));
 const debt = computed(() => Math.max(total.value - paid.value, 0));

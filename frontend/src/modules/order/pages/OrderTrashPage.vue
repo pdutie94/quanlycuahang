@@ -37,28 +37,8 @@ const {
   }
 });
 
-const formatter = new Intl.NumberFormat('vi-VN');
-
-const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
-
-const formatDateTime = (value) => {
-  if (!value) {
-    return '';
-  }
-
-  const date = new Date(String(value).replace(' ', 'T'));
-  if (Number.isNaN(date.getTime())) {
-    return String(value);
-  }
-
-  return new Intl.DateTimeFormat('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  }).format(date);
-};
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney, formatDateTime, parseAmount } = useFormat();
 
 const formatPurgeDeadline = (value) => {
   if (!value) {

@@ -106,53 +106,22 @@ const amount = ref('');
 const note = ref('');
 const submitting = ref(false);
 
-const currencyFormatter = new Intl.NumberFormat('vi-VN');
-const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit'
-});
-const formatMoney = (value) => `${currencyFormatter.format(Number(value || 0))} đ`;
-const formatDateTime = (value) => {
-  if (!value) return '--';
-  const date = new Date(String(value).replace(' ', 'T'));
-  if (Number.isNaN(date.getTime())) return '--';
-  return dateFormatter.format(date);
-};
-const parseAmount = (value) => {
-  const normalized = String(value || '').replace(/[^\d]/g, '');
-  return Number(normalized || 0);
-};
-const amountNumber = computed(() => parseAmount(amount.value));
+import { useFormat } from '../../../shared/composables/useFormat';
+import { useDebtAllocation } from '../../../shared/composables/useDebtAllocation';
+const { formatMoney, formatDateTime, parseAmount } = useFormat();
 const hasOutstandingDebt = computed(() => Number(totalDebt.value || 0) > 0);
-
-// Tính preview phân bổ vào các phiếu nhập còn nợ (theo thứ tự cũ đến mới)
-const preview = computed(() => {
-  let remainingAmount = amountNumber.value;
-  return (purchases.value || [])
-    .filter(p => Number(p.debt_amount || 0) > 0)
-    .sort((a, b) => new Date(a.purchase_date) - new Date(b.purchase_date))
-    .map((purchase) => {
-      const debt = Math.max(Number(purchase.debt_amount || 0), 0);
-      const allocatedAmount = remainingAmount > 0 ? Math.min(remainingAmount, debt) : 0;
-      remainingAmount -= allocatedAmount;
-      return {
-        purchaseId: Number(purchase.id || 0),
-        purchaseCode: purchase.purchase_code || `#${purchase.id}`,
-        purchaseDate: purchase.purchase_date || '',
-        debtBefore: debt,
-        allocatedAmount,
-        debtAfter: Math.max(debt - allocatedAmount, 0)
-      };
-    })
-    .filter(item => item.allocatedAmount > 0);
-});
-const previewTotal = computed(() => preview.value.reduce((sum, item) => sum + item.allocatedAmount, 0));
-const unappliedAmount = computed(() => {
-  const remaining = amountNumber.value - previewTotal.value;
-  return remaining > 0 ? remaining : 0;
+const {
+  amountNumber,
+  preview,
+  previewTotal,
+  unappliedAmount
+} = useDebtAllocation({
+  items: purchases,
+  amount,
+  debtField: 'debt_amount',
+  idField: 'id',
+  codeField: 'purchase_code',
+  dateField: 'purchase_date'
 });
 
 const submitPayment = async () => {
@@ -173,7 +142,6 @@ onMounted(async () => {
   await load(Number(route.params.id || 0));
   // Format số tiền ngay từ đầu
   const raw = Math.round(Number(totalDebt.value || 0));
-  const moneyFormatter = new Intl.NumberFormat('vi-VN');
-  amount.value = raw > 0 ? moneyFormatter.format(raw) : '';
+  amount.value = raw > 0 ? formatMoney(raw).replace(' đ', '') : '';
 });
 </script>

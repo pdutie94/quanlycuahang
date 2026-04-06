@@ -13,8 +13,8 @@ const { order, remaining, loading, error, load, submit, submitLoading, submitErr
 const amount = ref('');
 const note = ref('');
 
-const formatter = new Intl.NumberFormat('vi-VN');
-const formatMoney = (value) => `${formatter.format(Number(value || 0))} đ`;
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney } = useFormat();
 
 const loadPage = async () => {
   try {

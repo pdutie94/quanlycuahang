@@ -73,20 +73,8 @@ const backTarget = computed(() => (isEdit.value ? { name: 'orders.detail', param
 const loading = computed(() => bootstrapLoading.value || (isEdit.value && detailLoading.value));
 const saving = computed(() => createLoading.value || updateLoading.value);
 
-const formatMoney = (amount) => `${formatter.format(parseAmount(amount))} đ`;
-
-const parseAmount = (value) => {
-  if (value === null || value === undefined) {
-    return 0;
-  }
-
-  const digits = String(value).replace(/[^0-9-]/g, '');
-  if (!digits || digits === '-') {
-    return 0;
-  }
-
-  return Number(digits);
-};
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney, formatDateTime, parseAmount } = useFormat();
 
 const formatMoneyInput = (value, allowEmpty = true) => {
   const amount = parseAmount(value);

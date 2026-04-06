@@ -9,14 +9,8 @@ import OrderItemCard from '../../../shared/components/OrderItemCard.vue';
 const toast = useToast();
 const { overview, loading, error, load } = useReportOverview();
 
-const formatter = new Intl.NumberFormat('vi-VN');
-const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
-const formatDateTime = (value) => {
-  if (!value) return '';
-  const date = new Date(String(value).replace(' ', 'T'));
-  if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
-};
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney } = useFormat();
 
 const weekdayNames = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
 
