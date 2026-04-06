@@ -269,3 +269,5 @@ Route → Controller → Service → Repository
 * Fast interaction
 * No blocking UI
 * Optimistic UI when possible
+
+## Luôn chạy lại `npm run build` sau khi thay đổi code frontend để cập nhật build mới vào `public/index.html` nhé.

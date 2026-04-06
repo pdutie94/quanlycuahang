@@ -6,9 +6,12 @@ class Purchase
     {
         $pdo = Database::getInstance();
 
-        $stmt = $pdo->prepare('INSERT INTO purchases (purchase_code, supplier_id, purchase_date, total_amount, paid_amount, status, note) VALUES ("", ?, NOW(), ?, ?, ?, ?)');
+        $purchaseDate = isset($data['purchase_date']) && $data['purchase_date'] !== '' ? $data['purchase_date'] : date('Y-m-d H:i:s');
+
+        $stmt = $pdo->prepare('INSERT INTO purchases (purchase_code, supplier_id, purchase_date, total_amount, paid_amount, status, note) VALUES ("", ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
             $data['supplier_id'],
+            $purchaseDate,
             $data['total_amount'],
             $data['paid_amount'],
             $data['status'],

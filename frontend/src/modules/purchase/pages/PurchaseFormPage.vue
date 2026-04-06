@@ -1,6 +1,7 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
-import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { Package, PencilLine, Plus, Users, X } from '@lucide/vue';
+import { useRoute, useRouter } from 'vue-router';
 import { usePurchaseForm } from '../composables/usePurchaseForm';
 import { useToast } from '../../../shared/composables/useToast';
 import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
@@ -12,9 +13,10 @@ const toast = useToast();
 const {
   suppliers,
   productUnits,
+  baseUnits,
   form,
   rows,
-  purchase,
+  manualItems,
   rowDisplayMap,
   summary,
   bootstrapLoading,
@@ -23,6 +25,14 @@ const {
   loadEdit,
   addRow,
   removeRow,
+  addManualItem,
+  removeManualItem,
+  createInlineSupplier,
+  createInlineProduct,
+  createSupplierLoading,
+  createSupplierError,
+  createProductError,
+  resetState,
   submitCreate,
   createLoading,
   createError,
@@ -31,101 +41,685 @@ const {
   updateError
 } = usePurchaseForm();
 
-const isEdit = computed(() => Boolean(route.params.id));
+const isEdit = computed(() => Number(route.params.id || 0) > 0);
 const pageTitle = computed(() => (isEdit.value ? 'Chỉnh sửa phiếu nhập' : 'Tạo phiếu nhập hàng'));
 const loading = computed(() => bootstrapLoading.value);
 const saving = computed(() => createLoading.value || updateLoading.value);
+
+const showSupplierModal = ref(false);
 const showProductSelector = ref(false);
+const showManualItemModal = ref(false);
+const showQtyModal = ref(false);
+const showPriceModal = ref(false);
+const supplierMode = ref('existing');
+const supplierKeyword = ref('');
 const productKeyword = ref('');
+const pendingSupplierId = ref('');
+const selectedProductIds = ref([]);
 const activeRowIndex = ref(null);
-
-const formatter = new Intl.NumberFormat('vi-VN');
-const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
-
-const normalizeText = (value) => String(value || '').toLowerCase();
-
-const filteredUnits = computed(() => {
-  const keyword = normalizeText(productKeyword.value).trim();
-  if (!keyword) {
-    return productUnits.value.slice(0, 60);
-  }
-
-  return productUnits.value.filter((unit) => {
-    const text = `${normalizeText(unit.product_name)} ${normalizeText(unit.unit_name)}`;
-    return text.includes(keyword);
-  }).slice(0, 60);
+const editingManualIndex = ref(null);
+const editingQtyRowIndex = ref(null);
+const editingPriceRowIndex = ref(null);
+const supplierNameInput = ref(null);
+const qtyDraftValue = ref('1');
+const priceDraftValue = ref('');
+const supplierDraft = ref({
+  name: '',
+  phone: '',
+  address: ''
+});
+const manualItemDraft = ref({
+  item_name: '',
+  unit_name: '',
+  qty: '1',
+  price_cost: '',
+  amount: '',
+  save_as_product: false,
+  saved_product_id: '',
+  product_base_unit_id: '',
+  product_category_id: ''
 });
 
-const getUnitDisplay = (row) => rowDisplayMap.value.get(String(row.product_unit_id)) || null;
+const formatter = new Intl.NumberFormat('vi-VN');
 
-const fillRowFromUnit = (row) => {
-  const unit = rowDisplayMap.value.get(String(row.product_unit_id));
+const formatMoney = (amount) => `${formatter.format(parseAmount(amount))} đ`;
+
+function parseAmount(value) {
+  if (value === null || value === undefined) {
+    return 0;
+  }
+
+  const digits = String(value).replace(/[^0-9-]/g, '');
+  if (!digits || digits === '-') {
+    return 0;
+  }
+
+  return Number(digits);
+}
+
+function parsePriceShorthand(raw) {
+  const str = String(raw ?? '').trim();
+  if (!str) {
+    return 0;
+  }
+
+  const dotIdx = str.indexOf('.');
+  if (dotIdx !== -1 && (str.match(/\./g) || []).length === 1) {
+    const afterDot = str.slice(dotIdx + 1).replace(/[^0-9]/g, '');
+    if (afterDot.length < 3) {
+      const num = parseFloat(str.replace(/[^0-9.]/g, ''));
+      if (!Number.isNaN(num) && num > 0) {
+        return num < 1000 ? Math.round(num * 1000) : Math.round(num);
+      }
+
+      return 0;
+    }
+  }
+
+  const digits = str.replace(/[^0-9]/g, '');
+  if (!digits) {
+    return 0;
+  }
+
+  const num = Number(digits);
+  return num > 0 && num < 1000 ? num * 1000 : num;
+}
+
+function formatPriceInput(value, allowEmpty = true) {
+  const amount = parsePriceShorthand(value);
+  if (amount <= 0) {
+    return allowEmpty ? '' : '0';
+  }
+
+  return formatter.format(amount);
+}
+
+function formatMoneyField(target, key, allowEmpty = true) {
+  target[key] = formatPriceInput(target[key], allowEmpty);
+}
+
+function sanitizeMoneyInput(value) {
+  return String(value ?? '').replace(/[^0-9.]/g, '');
+}
+
+function formatExactMoneyInput(value, allowEmpty = true) {
+  const amount = parseAmount(value);
+  if (amount <= 0) {
+    return allowEmpty ? '' : '0';
+  }
+
+  return formatter.format(amount);
+}
+
+const filteredSuppliers = computed(() => {
+  const keyword = String(supplierKeyword.value || '').trim().toLowerCase();
+  if (!keyword) {
+    return suppliers.value;
+  }
+
+  return suppliers.value.filter((supplier) => {
+    const haystack = [supplier.name, supplier.phone, supplier.address]
+      .map((value) => String(value || '').toLowerCase())
+      .join(' ');
+
+    return haystack.includes(keyword);
+  });
+});
+
+const selectedSupplier = computed(() => suppliers.value.find((supplier) => Number(supplier.id) === Number(form.value.supplier_id || 0)) || null);
+
+const selectedSupplierSummary = computed(() => {
+  if (!selectedSupplier.value) {
+    return {
+      title: 'Chưa chọn nhà cung cấp',
+      meta: 'Nhấn để chọn nhà cung cấp cũ hoặc thêm mới'
+    };
+  }
+
+  return {
+    title: [selectedSupplier.value.name, selectedSupplier.value.phone].filter(Boolean).join(' - ') || selectedSupplier.value.name || 'Chưa chọn nhà cung cấp',
+    meta: selectedSupplier.value.address || ''
+  };
+});
+
+const productCatalog = computed(() => {
+  const map = new Map();
+
+  for (const unit of productUnits.value) {
+    const productId = Number(unit.product_id || 0);
+    if (productId <= 0 || map.has(productId)) {
+      continue;
+    }
+
+    map.set(productId, {
+      id: productId,
+      name: unit.product_name || '',
+      code: unit.product_code || '',
+      unitName: unit.unit_name || '',
+      priceCost: Number(unit.price_cost || 0),
+      defaultUnitId: Number(unit.id || 0)
+    });
+  }
+
+  return Array.from(map.values());
+});
+
+const filteredProducts = computed(() => {
+  const keyword = String(productKeyword.value || '').trim().toLowerCase();
+  if (!keyword) {
+    return productCatalog.value.slice(0, 80);
+  }
+
+  return productCatalog.value.filter((product) => {
+    const haystack = [product.name, product.code, product.unitName]
+      .map((value) => String(value || '').toLowerCase())
+      .join(' ');
+
+    return haystack.includes(keyword);
+  }).slice(0, 80);
+});
+
+const isProductSelected = (productId) => selectedProductIds.value.includes(Number(productId));
+const isPendingSupplier = (supplierId) => String(pendingSupplierId.value) === String(supplierId);
+const getDefaultUnit = (productId) => productUnits.value.find((unit) => Number(unit.product_id) === Number(productId)) || null;
+const getUnitDisplay = (row) => rowDisplayMap.value.get(String(row.product_unit_id)) || null;
+const editingQtyRow = computed(() => {
+  const index = Number(editingQtyRowIndex.value);
+  if (index < 0 || index >= rows.value.length) {
+    return null;
+  }
+
+  return rows.value[index] || null;
+});
+const editingPriceRow = computed(() => {
+  const index = Number(editingPriceRowIndex.value);
+  if (index < 0 || index >= rows.value.length) {
+    return null;
+  }
+
+  return rows.value[index] || null;
+});
+const manualModalHeading = computed(() => {
+  if (editingManualIndex.value === null) {
+    return 'Thêm sản phẩm khác';
+  }
+
+  const fallbackName = manualItems.value[editingManualIndex.value]?.item_name || '';
+  const displayName = String(manualItemDraft.value.item_name || fallbackName).trim() || 'Sản phẩm khác';
+
+  return displayName;
+});
+const hasManualSavedProduct = computed(() => Number(manualItemDraft.value.saved_product_id || 0) > 0);
+const syncingPaidAmount = ref(false);
+
+const getProductRowLabel = (row) => {
+  const unit = getUnitDisplay(row);
   if (!unit) {
-    return;
+    return 'Chọn sản phẩm';
   }
-  if (!row.price_cost) {
-    row.price_cost = String(Math.round(Number(unit.price_cost || 0)));
-  }
+
+  return [unit.product_name, unit.unit_name].filter(Boolean).join(' - ');
 };
+
+const getManualItemLabel = (item) => [item.item_name, item.unit_name].filter(Boolean).join(' - ') || 'Sản phẩm khác';
 
 const syncAmount = (row) => {
   const qty = Number(row.qty || 0);
-  const price = Number(row.price_cost || 0);
+  const price = parsePriceShorthand(row.price_cost || 0);
   const amount = qty * price;
-  row.amount = amount > 0 ? String(Math.round(amount)) : '';
+  row.amount = amount > 0 ? formatter.format(Math.round(amount)) : '';
 };
 
-const applyPriceCostX1000 = (row) => {
-  const num = Number(row.price_cost || 0);
-  if (num > 0 && num < 1000) {
-    row.price_cost = num * 1000;
-    syncAmount(row);
+const fillRowFromUnit = (row) => {
+  const unit = getUnitDisplay(row);
+  if (!unit) {
+    return;
+  }
+
+  if (!parseAmount(row.price_cost)) {
+    row.price_cost = formatPriceInput(unit.price_cost || 0, false);
+  }
+
+  syncAmount(row);
+};
+
+const syncManualAmount = () => {
+  const qty = Number(manualItemDraft.value.qty || 0);
+  const price = parseAmount(manualItemDraft.value.price_cost || 0);
+  const amount = qty * price;
+  manualItemDraft.value.amount = amount > 0 ? formatter.format(Math.round(amount)) : '';
+};
+
+const syncManualPriceFromAmount = () => {
+  const qty = Number(manualItemDraft.value.qty || 0);
+  const amount = parseAmount(manualItemDraft.value.amount || 0);
+
+  if (qty <= 0) {
+    return;
+  }
+
+  const price = amount > 0 ? Math.round(amount / qty) : 0;
+  manualItemDraft.value.price_cost = price > 0 ? formatter.format(price) : '';
+};
+
+const onManualPriceInput = () => {
+  manualItemDraft.value.price_cost = sanitizeMoneyInput(manualItemDraft.value.price_cost);
+  if (!manualItemDraft.value.price_cost) {
+    manualItemDraft.value.amount = '';
   }
 };
 
-const applyPaidAmountX1000 = () => {
-  const num = Number(form.value.paid_amount || 0);
-  if (num > 0 && num < 1000) {
-    form.value.paid_amount = num * 1000;
+const onManualPriceBlur = () => {
+  manualItemDraft.value.price_cost = formatPriceInput(manualItemDraft.value.price_cost, true);
+  if (manualItemDraft.value.price_cost) {
+    syncManualAmount();
+  }
+};
+
+const onManualAmountInput = () => {
+  manualItemDraft.value.amount = sanitizeMoneyInput(manualItemDraft.value.amount);
+  if (!manualItemDraft.value.amount) {
+    manualItemDraft.value.price_cost = '';
+  }
+};
+
+const onManualAmountBlur = () => {
+  manualItemDraft.value.amount = formatPriceInput(manualItemDraft.value.amount, true);
+  if (manualItemDraft.value.amount) {
+    syncManualPriceFromAmount();
+    manualItemDraft.value.price_cost = formatPriceInput(manualItemDraft.value.price_cost, true);
+  }
+};
+
+const normalizeManualDraft = () => ({
+  item_name: '',
+  unit_name: '',
+  qty: '1',
+  price_cost: '',
+  amount: '',
+  save_as_product: false,
+  saved_product_id: '',
+  product_base_unit_id: '',
+  product_category_id: ''
+});
+
+const normalizeUnitName = (value) => String(value || '').trim().toLowerCase();
+
+const resolveBaseUnitIdFromManualItem = (item) => {
+  const unitName = normalizeUnitName(item.unit_name);
+  if (!unitName) {
+    return 0;
+  }
+
+  const matchedUnit = baseUnits.value.find((unit) => normalizeUnitName(unit.name) === unitName);
+  return matchedUnit?.id ? Number(matchedUnit.id) : 0;
+};
+
+const persistManualProducts = async () => {
+  for (let index = 0; index < manualItems.value.length; index += 1) {
+    const item = manualItems.value[index];
+    if (!item?.save_as_product || Number(item.saved_product_id || 0) > 0) {
+      continue;
+    }
+
+    const baseUnitId = resolveBaseUnitIdFromManualItem(item);
+    if (baseUnitId <= 0) {
+      toast.error(`Đơn vị của ${item.item_name || 'sản phẩm khác'} chưa khớp đơn vị tính hiện có.`);
+      return false;
+    }
+
+    try {
+      const productResponse = await createInlineProduct({
+        name: item.item_name,
+        code: '',
+        base_unit_id: String(baseUnitId),
+        category_id: '',
+        price_sell_single: '',
+        price_cost_single: item.price_cost,
+        allow_fraction: '0',
+        min_step: '1',
+        inventory_qty_base: '',
+        min_stock_qty: '',
+        redirect: 'exit'
+      });
+      const savedProductId = Number(productResponse?.data?.id || productResponse?.data?.product?.id || 0);
+      if (savedProductId > 0) {
+        manualItems.value[index] = {
+          ...manualItems.value[index],
+          saved_product_id: String(savedProductId),
+          product_base_unit_id: String(baseUnitId)
+        };
+      }
+    } catch (_err) {
+      toast.error(createProductError.value || 'Không thể lưu sản phẩm mới từ sản phẩm khác.');
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const syncPaidAmountFromSummary = () => {
+  if (isEdit.value) {
+    return;
+  }
+
+  syncingPaidAmount.value = true;
+  form.value.paid_amount = summary.value.grandTotal > 0 ? formatter.format(summary.value.grandTotal) : '';
+  nextTick(() => {
+    syncingPaidAmount.value = false;
+  });
+};
+
+const resetSupplierDraft = () => {
+  supplierDraft.value = {
+    name: '',
+    phone: '',
+    address: ''
+  };
+};
+
+const resetManualDraft = () => {
+  manualItemDraft.value = normalizeManualDraft();
+};
+
+const openSupplierModal = () => {
+  supplierKeyword.value = '';
+  pendingSupplierId.value = form.value.supplier_id ? String(form.value.supplier_id) : '';
+  supplierMode.value = 'existing';
+  resetSupplierDraft();
+  showSupplierModal.value = true;
+};
+
+const closeSupplierModal = () => {
+  showSupplierModal.value = false;
+};
+
+const applySelectedSupplier = () => {
+  if (!pendingSupplierId.value) {
+    closeSupplierModal();
+    return;
+  }
+
+  form.value.supplier_id = String(pendingSupplierId.value);
+  closeSupplierModal();
+};
+
+const saveNewSupplier = async () => {
+  if (!String(supplierDraft.value.name || '').trim()) {
+    toast.error('Vui lòng nhập tên nhà cung cấp mới.');
+    supplierNameInput.value?.focus();
+    return;
+  }
+
+  try {
+    const payload = await createInlineSupplier({ ...supplierDraft.value });
+    toast.success(payload?.message || 'Đã thêm nhà cung cấp.');
+    closeSupplierModal();
+  } catch (_err) {
+    toast.error(createSupplierError.value || 'Không thể thêm nhà cung cấp.');
   }
 };
 
 const openProductSelector = (rowIndex = null) => {
-  activeRowIndex.value = rowIndex;
+  const normalizedRowIndex = typeof rowIndex === 'number' && Number.isFinite(rowIndex)
+    ? rowIndex
+    : null;
+
+  activeRowIndex.value = normalizedRowIndex;
   productKeyword.value = '';
+  if (normalizedRowIndex === null || normalizedRowIndex < 0 || normalizedRowIndex >= rows.value.length) {
+    selectedProductIds.value = [];
+  } else {
+    const currentUnit = getUnitDisplay(rows.value[normalizedRowIndex]);
+    selectedProductIds.value = currentUnit?.product_id ? [Number(currentUnit.product_id)] : [];
+  }
   showProductSelector.value = true;
 };
 
-const selectProductUnit = (unit) => {
-  const unitId = String(unit.id);
-  const priceCost = String(Math.round(Number(unit.price_cost || 0)));
-
-  if (activeRowIndex.value === null || activeRowIndex.value < 0 || activeRowIndex.value >= rows.value.length) {
-    addRow({
-      product_unit_id: unitId,
-      qty: '1',
-      price_cost: priceCost,
-      amount: priceCost,
-      update_cost: false
-    });
-  } else {
-    const row = rows.value[activeRowIndex.value];
-    row.product_unit_id = unitId;
-    if (!row.qty) {
-      row.qty = '1';
-    }
-    row.price_cost = priceCost;
-    syncAmount(row);
-  }
-
+const closeProductSelector = () => {
   showProductSelector.value = false;
+  selectedProductIds.value = [];
   activeRowIndex.value = null;
 };
 
+const toggleProductSelection = (productId) => {
+  const nextId = Number(productId);
+  if (isProductSelected(nextId)) {
+    selectedProductIds.value = selectedProductIds.value.filter((id) => id !== nextId);
+    return;
+  }
+
+  selectedProductIds.value = [...selectedProductIds.value, nextId];
+};
+
+const applySelectedProducts = () => {
+  if (!selectedProductIds.value.length) {
+    return;
+  }
+
+  if (activeRowIndex.value !== null && activeRowIndex.value >= 0 && activeRowIndex.value < rows.value.length) {
+    const productId = Number(selectedProductIds.value[0] || 0);
+    const unit = getDefaultUnit(productId);
+    if (!unit?.id) {
+      toast.error('Sản phẩm chưa có đơn vị nhập phù hợp.');
+      return;
+    }
+
+    const row = rows.value[activeRowIndex.value];
+    const qty = Number(row.qty || 0) > 0 ? String(row.qty) : '1';
+    row.product_unit_id = String(unit.id);
+    row.qty = qty;
+    row.price_cost = formatPriceInput(unit.price_cost || 0, false);
+    syncAmount(row);
+    closeProductSelector();
+    return;
+  }
+
+  let addedCount = 0;
+  let invalidCount = 0;
+
+  selectedProductIds.value.forEach((productId) => {
+    const unit = getDefaultUnit(productId);
+    if (!unit?.id) {
+      invalidCount += 1;
+      return;
+    }
+
+    const amount = Math.round(Number(unit.price_cost || 0));
+    addRow({
+      product_unit_id: String(unit.id),
+      qty: '1',
+      price_cost: amount > 0 ? String(amount) : '',
+      amount: amount > 0 ? String(amount) : '',
+      update_cost: false
+    });
+    addedCount += 1;
+  });
+
+  if (invalidCount > 0) {
+    toast.error(`${invalidCount} sản phẩm chưa có đơn vị nhập phù hợp.`);
+  }
+
+  if (addedCount > 0) {
+    closeProductSelector();
+  }
+};
+
+const openManualItemModal = (index = null) => {
+  editingManualIndex.value = index;
+
+  if (index === null || index < 0 || index >= manualItems.value.length) {
+    resetManualDraft();
+  } else {
+    const source = manualItems.value[index];
+    manualItemDraft.value = {
+      ...normalizeManualDraft(),
+      item_name: source.item_name || '',
+      unit_name: source.unit_name || '',
+      qty: String(source.qty ?? '1'),
+      price_cost: String(source.price_cost ?? ''),
+      amount: String(source.amount ?? ''),
+      save_as_product: Boolean(source.save_as_product),
+      saved_product_id: String(source.saved_product_id ?? ''),
+      product_base_unit_id: String(source.product_base_unit_id ?? ''),
+      product_category_id: String(source.product_category_id ?? '')
+    };
+  }
+
+  showManualItemModal.value = true;
+};
+
+const openQtyModal = (index) => {
+  editingQtyRowIndex.value = index;
+  qtyDraftValue.value = String(rows.value[index]?.qty || '1');
+  showQtyModal.value = true;
+};
+
+const closeQtyModal = () => {
+  showQtyModal.value = false;
+  editingQtyRowIndex.value = null;
+  qtyDraftValue.value = '1';
+};
+
+const saveQtyModal = () => {
+  if (!editingQtyRow.value) {
+    closeQtyModal();
+    return;
+  }
+
+  const qty = Number(qtyDraftValue.value || 0);
+  if (qty <= 0) {
+    toast.error('Số lượng phải lớn hơn 0.');
+    return;
+  }
+
+  editingQtyRow.value.qty = String(qty);
+  syncAmount(editingQtyRow.value);
+  closeQtyModal();
+};
+
+const openPriceModal = (index) => {
+  editingPriceRowIndex.value = index;
+  priceDraftValue.value = formatPriceInput(rows.value[index]?.price_cost || 0, false);
+  showPriceModal.value = true;
+};
+
+const closePriceModal = () => {
+  showPriceModal.value = false;
+  editingPriceRowIndex.value = null;
+  priceDraftValue.value = '';
+};
+
+const savePriceModal = () => {
+  if (!editingPriceRow.value) {
+    closePriceModal();
+    return;
+  }
+
+  const nextPrice = parsePriceShorthand(priceDraftValue.value);
+  editingPriceRow.value.price_cost = formatPriceInput(nextPrice, true);
+  syncAmount(editingPriceRow.value);
+  closePriceModal();
+};
+
+const closeManualItemModal = () => {
+  showManualItemModal.value = false;
+  editingManualIndex.value = null;
+  resetManualDraft();
+};
+
+const saveManualItem = async () => {
+  const normalizedItem = {
+    item_name: String(manualItemDraft.value.item_name || '').trim(),
+    unit_name: String(manualItemDraft.value.unit_name || '').trim(),
+    qty: String(manualItemDraft.value.qty || '').trim(),
+    price_cost: formatPriceInput(manualItemDraft.value.price_cost, true),
+    amount: formatPriceInput(manualItemDraft.value.amount, true),
+    save_as_product: Boolean(manualItemDraft.value.save_as_product),
+    saved_product_id: String(manualItemDraft.value.saved_product_id || ''),
+    product_base_unit_id: String(manualItemDraft.value.product_base_unit_id || ''),
+    product_category_id: String(manualItemDraft.value.product_category_id || '')
+  };
+
+  if (!normalizedItem.item_name) {
+    toast.error('Vui lòng nhập tên sản phẩm khác.');
+    return;
+  }
+
+  if (Number(normalizedItem.qty || 0) <= 0) {
+    toast.error('Số lượng sản phẩm khác phải lớn hơn 0.');
+    return;
+  }
+
+  if (!normalizedItem.amount && normalizedItem.price_cost) {
+    const qty = Number(normalizedItem.qty || 0);
+    const price = parseAmount(normalizedItem.price_cost || 0);
+    const amount = qty * price;
+    normalizedItem.amount = amount > 0 ? formatter.format(Math.round(amount)) : '';
+  }
+
+  if (!normalizedItem.price_cost && normalizedItem.amount) {
+    const qty = Number(normalizedItem.qty || 0);
+    const amount = parseAmount(normalizedItem.amount || 0);
+    const price = qty > 0 ? Math.round(amount / qty) : 0;
+    normalizedItem.price_cost = price > 0 ? formatter.format(price) : '';
+  }
+
+  if (editingManualIndex.value === null || editingManualIndex.value < 0 || editingManualIndex.value >= manualItems.value.length) {
+    addManualItem(normalizedItem);
+  } else {
+    manualItems.value[editingManualIndex.value] = {
+      ...manualItems.value[editingManualIndex.value],
+      ...normalizedItem
+    };
+  }
+
+  closeManualItemModal();
+  toast.success('Đã lưu sản phẩm khác.');
+};
+
+const validateBeforeSubmit = () => {
+  if (!Number(form.value.supplier_id || 0)) {
+    toast.error('Vui lòng chọn nhà cung cấp.');
+    openSupplierModal();
+    return false;
+  }
+
+  if (!rows.value.length && !manualItems.value.length) {
+    toast.error('Vui lòng chọn ít nhất một sản phẩm hoặc thêm sản phẩm khác.');
+    openProductSelector();
+    return false;
+  }
+
+  const hasInvalidRow = rows.value.some((row) => !String(row.product_unit_id || '').trim() || Number(row.qty || 0) <= 0);
+  if (hasInvalidRow) {
+    toast.error('Danh sách sản phẩm còn dòng chưa hợp lệ.');
+    return false;
+  }
+
+  const hasInvalidManualItem = manualItems.value.some((item) => !String(item.item_name || '').trim() || Number(item.qty || 0) <= 0);
+  if (hasInvalidManualItem) {
+    toast.error('Sản phẩm khác còn dữ liệu chưa hợp lệ.');
+    return false;
+  }
+
+  return true;
+};
+
 const submit = async () => {
+  if (!validateBeforeSubmit()) {
+    return;
+  }
+
   try {
+    const manualProductsReady = await persistManualProducts();
+    if (!manualProductsReady) {
+      return;
+    }
+
     const payload = isEdit.value
-      ? await submitUpdate(Number(route.params.id))
+      ? await submitUpdate(Number(route.params.id || 0))
       : await submitCreate();
 
     toast.success(payload?.message || (isEdit.value ? 'Đã cập nhật phiếu nhập hàng.' : 'Đã tạo phiếu nhập hàng.'));
@@ -134,20 +728,70 @@ const submit = async () => {
       await router.push({ name: 'purchases.detail', params: { id: nextId } });
       return;
     }
+
     await router.push('/purchases');
   } catch (_err) {
     toast.error((isEdit.value ? updateError.value : createError.value) || 'Không thể lưu phiếu nhập.');
   }
 };
 
+const initializePage = async () => {
+  resetState();
+  await loadBootstrap();
+
+  if (isEdit.value) {
+    await loadEdit(Number(route.params.id || 0));
+  }
+};
+
+watch(supplierMode, async (mode) => {
+  if (mode !== 'new') {
+    return;
+  }
+
+  await nextTick();
+  supplierNameInput.value?.focus();
+});
+
+watch(
+  () => summary.value.grandTotal,
+  () => {
+    if (syncingPaidAmount.value) {
+      return;
+    }
+
+    syncPaidAmountFromSummary();
+  }
+);
+
+watch(
+  () => form.value.payment_status,
+  (status) => {
+    if (isEdit.value) {
+      return;
+    }
+
+    if (status === 'pay' || !String(form.value.paid_amount || '').trim()) {
+      syncPaidAmountFromSummary();
+    }
+  }
+);
+
+watch(
+  () => route.params.id,
+  async () => {
+    try {
+      await initializePage();
+    } catch (_err) {
+      toast.error(bootstrapError.value || 'Không thể tải dữ liệu form phiếu nhập.');
+    }
+  }
+);
+
 onMounted(async () => {
   try {
-    await loadBootstrap();
-    if (isEdit.value) {
-      await loadEdit(Number(route.params.id));
-    } else if (!rows.length) {
-      openProductSelector();
-    }
+    await initializePage();
+    syncPaidAmountFromSummary();
   } catch (_err) {
     toast.error(bootstrapError.value || 'Không thể tải dữ liệu form phiếu nhập.');
   }
@@ -161,136 +805,352 @@ onMounted(async () => {
     <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải dữ liệu form...</div>
 
     <template v-else>
-      <section class="app-card space-y-4">
-        <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">Nhà cung cấp</label>
-          <div class="relative">
-            <select v-model="form.supplier_id" class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500">
-              <option value="">Chọn nhà cung cấp</option>
-              <option v-for="supplier in suppliers" :key="supplier.id" :value="String(supplier.id)">{{ supplier.name }}</option>
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <section class="space-y-4">
+        <section class="rounded-lg border border-slate-200 bg-white">
+          <div class="flex items-center gap-2 border-b border-slate-100 px-4 py-2 text-sm font-medium text-slate-800">
+            <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-700"><Users class="h-4 w-4" /></span>
+            <span>Nhà cung cấp</span>
+          </div>
+
+          <div class="px-4 py-3">
+            <button
+              type="button"
+              class="flex w-full items-center justify-between rounded-lg border border-dashed border-amber-300 bg-amber-50 px-3 py-2 text-left text-sm text-amber-800 hover:border-amber-400 hover:bg-amber-100"
+              @click="openSupplierModal"
+            >
+              <div class="flex items-center gap-2">
+                <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100 text-amber-700"><Users class="h-4 w-4" /></span>
+                <span class="flex flex-col">
+                  <span class="font-medium">{{ selectedSupplierSummary.title }}</span>
+                  <span class="text-xs text-amber-700">{{ selectedSupplierSummary.meta }}</span>
+                </span>
+              </div>
+              <span class="ml-2 inline-flex h-6 w-6 items-center justify-center text-amber-500">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m8 6 4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </span>
+            </button>
+          </div>
+        </section>
+
+        <section class="rounded-lg border border-slate-200 bg-white">
+          <div class="flex items-center justify-between border-b border-slate-100 px-4 py-2 text-sm font-medium text-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-700"><Package class="h-4 w-4" /></span>
+              <span>Sản phẩm nhập</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" class="app-btn-secondary !min-h-0 px-3 py-1 text-sm" @click="openManualItemModal()">Sản phẩm khác</button>
+              <button type="button" class="app-btn-primary !min-h-0 gap-1.5 px-3 py-1 text-sm" @click="openProductSelector()">
+                <Plus class="h-3.5 w-3.5" />
+                <span>Thêm SP</span>
+              </button>
             </div>
           </div>
-        </div>
 
-        <div class="rounded-xl border border-slate-200">
-          <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-800">
-            <span>Danh sách sản phẩm</span>
-            <button type="button" class="inline-flex h-9 items-center rounded-lg border border-brand-600 px-3 text-sm font-medium text-brand-700" @click="openProductSelector()">Thêm SP</button>
-          </div>
           <div class="space-y-3 p-4">
-            <div v-if="!rows.length" class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-center text-sm text-slate-500">Chưa có sản phẩm nào.</div>
-            <div v-for="(row, index) in rows" :key="index" class="rounded-xl border border-slate-200 bg-white p-3">
+            <div v-if="!rows.length && !manualItems.length" class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-center text-sm text-slate-500">Chưa có sản phẩm nào.</div>
+
+            <div v-for="(row, index) in rows" :key="`row-${index}`" class="rounded-xl border border-slate-200 bg-white p-3">
               <div class="flex items-start justify-between gap-3">
-                <div class="flex-1 space-y-3">
-                  <div>
-                    <label class="mb-1 block text-sm font-medium text-slate-700">Sản phẩm / đơn vị</label>
-                    <button type="button" class="flex h-10 w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-3 text-left text-sm outline-none hover:border-brand-400" @click="openProductSelector(index)">
-                      <span class="truncate text-slate-700">
-                        {{ getUnitDisplay(row) ? `${getUnitDisplay(row).product_name} / ${getUnitDisplay(row).unit_name}` : 'Chọn sản phẩm' }}
-                      </span>
-                      <span class="text-brand-700">Đổi</span>
+                <div class="min-w-0 flex-1">
+                  <button type="button" class="inline-flex items-center gap-1.5 text-left font-medium text-slate-900 hover:text-brand-700" @click="openProductSelector(index)">
+                    <span>{{ getProductRowLabel(row) }}</span>
+                    <PencilLine class="h-3.5 w-3.5 text-slate-400" />
+                  </button>
+                  <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-600">
+                    <button type="button" class="text-left hover:text-brand-700" @click="openQtyModal(index)">
+                      Số lượng: <span class="font-medium text-slate-900">{{ row.qty }}</span>
                     </button>
+                    <button type="button" class="text-left hover:text-brand-700" @click="openPriceModal(index)">
+                      Giá nhập: <span class="font-medium text-slate-900">{{ formatMoney(row.price_cost) }}</span>
+                    </button>
+                    <span>Thành tiền: <span class="font-medium text-slate-900">{{ formatMoney(row.amount || Number(row.qty || 0) * parsePriceShorthand(row.price_cost || 0)) }}</span></span>
                   </div>
-                  <div class="grid gap-3 md:grid-cols-4">
-                    <div>
-                      <label class="mb-1 block text-sm font-medium text-slate-700">Số lượng</label>
-                      <input v-model="row.qty" type="number" min="0" step="0.001" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" @input="syncAmount(row)" />
-                    </div>
-                    <div>
-                      <label class="mb-1 block text-sm font-medium text-slate-700">Giá nhập</label>
-                      <input v-model="row.price_cost" type="number" min="0" step="1000" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" @input="syncAmount(row)" @focus="fillRowFromUnit(row)" @blur="applyPriceCostX1000(row)" />
-                    </div>
-                    <div>
-                      <label class="mb-1 block text-sm font-medium text-slate-700">Thành tiền</label>
-                      <input v-model="row.amount" type="number" min="0" step="1000" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
-                    </div>
-                    <label class="flex items-end gap-2 pb-2 text-sm text-slate-700">
-                      <input v-model="row.update_cost" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600" />
-                      <span>Cập nhật giá vốn</span>
-                    </label>
-                  </div>
+                  <label class="mt-2 inline-flex items-center gap-2 text-sm text-slate-700">
+                    <input v-model="row.update_cost" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600" />
+                    <span>Cập nhật giá vốn</span>
+                  </label>
                 </div>
                 <button type="button" class="text-sm font-medium text-rose-600 hover:text-rose-700" @click="removeRow(index)">Xóa</button>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
-          <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
-            <div class="flex items-center justify-between"><span class="text-slate-600">Tổng số lượng</span><span class="font-medium text-slate-900">{{ summary.totalQty }}</span></div>
-            <div class="mt-2 flex items-center justify-between"><span class="text-slate-600">Tổng tiền hàng</span><span class="font-medium text-brand-700">{{ formatMoney(summary.totalAmount) }}</span></div>
+            <div v-if="manualItems.length" class="space-y-2">
+              <div class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <span>Sản phẩm khác</span>
+                <span class="text-xs text-slate-500">Không cập nhật tồn kho</span>
+              </div>
+              <div v-for="(item, index) in manualItems" :key="`manual-${index}`" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0 flex-1">
+                    <button type="button" class="text-left font-medium text-slate-900 hover:text-brand-700" @click="openManualItemModal(index)">{{ getManualItemLabel(item) }}</button>
+                    <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-600">
+                      <span>Số lượng: <span class="font-medium text-slate-900">{{ item.qty }}</span></span>
+                      <span v-if="item.unit_name">Đơn vị: <span class="font-medium text-slate-900">{{ item.unit_name }}</span></span>
+                      <span>Giá nhập: <span class="font-medium text-slate-900">{{ formatMoney(item.price_cost) }}</span></span>
+                      <span>Thành tiền: <span class="font-medium text-slate-900">{{ formatMoney(item.amount) }}</span></span>
+                    </div>
+                    <label class="mt-2 inline-flex items-center gap-2 text-sm text-slate-700">
+                      <input v-model="item.save_as_product" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600" :disabled="Number(item.saved_product_id || 0) > 0" />
+                      <span>{{ Number(item.saved_product_id || 0) > 0 ? 'Đã lưu thành sản phẩm' : 'Lưu thành sản phẩm' }}</span>
+                    </label>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <button type="button" class="text-sm font-medium text-brand-700 hover:text-brand-800" @click="openManualItemModal(index)">Sửa</button>
+                    <button type="button" class="text-sm font-medium text-rose-600 hover:text-rose-700" @click="removeManualItem(index)">Xóa</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="space-y-3">
+        </section>
+
+        <section class="space-y-4">
+          <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
+            <div class="flex items-center justify-between"><span class="text-slate-600">Tiền hàng</span><span class="font-medium text-brand-700">{{ formatMoney(summary.totalAmount) }}</span></div>
+            <div v-if="summary.manualAmount > 0" class="mt-2 flex items-center justify-between"><span class="text-slate-600">Tiền sản phẩm khác</span><span class="font-medium text-brand-700">{{ formatMoney(summary.manualAmount) }}</span></div>
+            <div class="mt-3 flex items-center justify-between border-t border-slate-200 pt-3"><span class="font-medium text-slate-700">Tổng nhập</span><span class="text-lg font-semibold text-slate-900">{{ formatMoney(summary.grandTotal) }}</span></div>
+          </div>
+
+          <div class="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-slate-700">Ngày giờ phiếu nhập</label>
+              <input v-model="form.purchase_date" type="datetime-local" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
+            </div>
+
             <template v-if="!isEdit">
               <div>
                 <label class="mb-1 block text-sm font-medium text-slate-700">Trạng thái thanh toán</label>
-                <div class="relative">
-                  <select v-model="form.payment_status" class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500">
-                    <option value="pay">Thanh toán</option>
-                    <option value="debt">Ghi nợ</option>
-                  </select>
-                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                  </div>
+                <div class="app-segment">
+                  <button type="button" class="app-segment-item" :class="form.payment_status === 'pay' ? 'app-segment-item-active' : ''" @click="form.payment_status = 'pay'">Thanh toán</button>
+                  <button type="button" class="app-segment-item" :class="form.payment_status === 'debt' ? 'app-segment-item-active' : ''" @click="form.payment_status = 'debt'">Ghi nợ</button>
                 </div>
               </div>
+
               <div>
                 <label class="mb-1 block text-sm font-medium text-slate-700">Hình thức thanh toán</label>
-                <div class="relative">
-                  <select v-model="form.payment_method" class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500">
-                    <option value="cash">Tiền mặt</option>
-                    <option value="bank">Chuyển khoản</option>
-                  </select>
-                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                  </div>
+                <div class="app-segment">
+                  <button type="button" class="app-segment-item" :class="form.payment_method === 'cash' ? 'app-segment-item-active' : ''" @click="form.payment_method = 'cash'">Tiền mặt</button>
+                  <button type="button" class="app-segment-item" :class="form.payment_method === 'bank' ? 'app-segment-item-active' : ''" @click="form.payment_method = 'bank'">Chuyển khoản</button>
                 </div>
               </div>
+
               <div>
                 <label class="mb-1 block text-sm font-medium text-slate-700">Số tiền thanh toán</label>
-                <input v-model="form.paid_amount" type="number" min="0" step="1000" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" @blur="applyPaidAmountX1000" />
+                <div class="relative">
+                  <input v-model="form.paid_amount" type="text" inputmode="numeric" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" @input="formatMoneyField(form, 'paid_amount')" />
+                  <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+                </div>
               </div>
             </template>
+
             <div>
               <label class="mb-1 block text-sm font-medium text-slate-700">Ghi chú</label>
               <textarea v-model="form.note" rows="3" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500" placeholder="Nhập ghi chú cho phiếu nhập này..."></textarea>
             </div>
           </div>
-        </div>
+        </section>
 
-        <button type="button" class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-brand-600 bg-brand-600 px-4 text-sm font-medium text-white disabled:opacity-50" :disabled="saving" @click="submit">
-          {{ isEdit ? 'Cập nhật phiếu' : 'Lưu phiếu' }}
-        </button>
+        <button type="button" class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-brand-600 bg-brand-600 px-4 text-sm font-medium text-white disabled:opacity-50" :disabled="saving" @click="submit">{{ isEdit ? 'Cập nhật phiếu' : 'Lưu phiếu' }}</button>
       </section>
 
-      <div v-if="showProductSelector" class="fixed inset-0 z-40 flex items-end justify-center bg-slate-900/40 p-4 sm:items-center" @click.self="showProductSelector = false">
-        <div class="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white">
-          <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-            <h2 class="text-sm font-semibold text-slate-900">Chọn sản phẩm</h2>
-            <button type="button" class="text-sm font-medium text-slate-500 hover:text-slate-700" @click="showProductSelector = false">Đóng</button>
-          </div>
-          <div class="space-y-3 p-4">
-            <input v-model="productKeyword" type="search" placeholder="Tìm theo tên sản phẩm / đơn vị" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
-            <div class="max-h-80 space-y-2 overflow-y-auto">
-              <button
-                v-for="unit in filteredUnits"
-                :key="unit.id"
-                type="button"
-                class="w-full rounded-xl border border-slate-200 px-3 py-2 text-left transition hover:border-brand-300 hover:bg-brand-50"
-                @click="selectProductUnit(unit)"
-              >
-                <div class="font-medium text-slate-900">{{ unit.product_name }}</div>
-                <div class="mt-1 text-sm text-slate-600">{{ unit.unit_name }} • Giá vốn {{ formatMoney(unit.price_cost || 0) }}</div>
-              </button>
-              <div v-if="!filteredUnits.length" class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-5 text-center text-sm text-slate-500">Không tìm thấy sản phẩm phù hợp.</div>
+      <Teleport to="body">
+        <transition name="app-modal-fade-up">
+          <div v-if="showSupplierModal" class="app-modal-overlay app-modal-open" @click.self="closeSupplierModal">
+            <div class="app-modal-sheet app-modal-sheet-fill">
+              <div class="app-modal-header">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-700"><Users class="h-4 w-4" /></span>
+                  <h2 class="app-modal-title">Chọn nhà cung cấp</h2>
+                </div>
+                <button type="button" class="app-modal-close" @click="closeSupplierModal"><X class="h-4 w-4" /></button>
+              </div>
+
+              <div class="app-modal-body app-modal-body-fill pt-2 pb-3 space-y-3">
+                <div class="app-segment">
+                  <button type="button" class="app-segment-item" :class="supplierMode === 'existing' ? 'app-segment-item-active' : ''" @click="supplierMode = 'existing'">Nhà cung cấp cũ</button>
+                  <button type="button" class="app-segment-item" :class="supplierMode === 'new' ? 'app-segment-item-active' : ''" @click="supplierMode = 'new'">Nhà cung cấp mới</button>
+                </div>
+
+                <template v-if="supplierMode === 'existing'">
+                  <div><input v-model="supplierKeyword" type="search" placeholder="Tìm theo tên, SĐT, địa chỉ..." class="app-input" /></div>
+                  <div class="app-modal-body-scroll rounded-lg border border-slate-200">
+                    <button v-for="supplier in filteredSuppliers" :key="supplier.id" type="button" class="flex w-full items-center justify-between gap-2 border-b border-slate-100 px-3 py-2 text-left last:border-b-0" @click="pendingSupplierId = String(supplier.id)">
+                      <div class="flex min-w-0 items-center gap-2">
+                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-700"><Users class="h-4 w-4" /></span>
+                        <div class="min-w-0">
+                          <div class="truncate font-medium text-slate-900">{{ supplier.name }}<span v-if="supplier.phone"> - {{ supplier.phone }}</span></div>
+                          <div v-if="supplier.address" class="mt-0.5 line-clamp-2 text-xs text-slate-500">{{ supplier.address }}</div>
+                        </div>
+                      </div>
+                      <span v-if="isPendingSupplier(supplier.id)" class="inline-flex items-center gap-1 text-xs font-medium text-brand-700">
+                        <span class="inline-flex h-4 w-4 items-center justify-center rounded-lg bg-brand-100 text-brand-700">✓</span>
+                        <span>Đã chọn</span>
+                      </span>
+                    </button>
+                    <div v-if="!filteredSuppliers.length" class="px-3 py-4 text-center text-sm text-slate-500">Chưa có nhà cung cấp phù hợp.</div>
+                  </div>
+                </template>
+
+                <template v-else>
+                  <label class="space-y-1">
+                    <span class="app-label">Tên nhà cung cấp</span>
+                    <input ref="supplierNameInput" v-model="supplierDraft.name" type="text" class="app-input" />
+                  </label>
+                  <label class="space-y-1">
+                    <span class="app-label">Số điện thoại</span>
+                    <input v-model="supplierDraft.phone" type="text" class="app-input" />
+                  </label>
+                  <label class="space-y-1">
+                    <span class="app-label">Địa chỉ</span>
+                    <input v-model="supplierDraft.address" type="text" class="app-input" />
+                  </label>
+                </template>
+              </div>
+
+              <div class="app-modal-footer">
+                <button type="button" class="app-btn-secondary" @click="closeSupplierModal">Hủy</button>
+                <button v-if="supplierMode === 'existing'" type="button" class="app-btn-primary" @click="applySelectedSupplier">Chọn</button>
+                <button v-else type="button" class="app-btn-primary" :disabled="createSupplierLoading" @click="saveNewSupplier">Lưu nhà cung cấp</button>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </transition>
+
+        <transition name="app-modal-fade-up">
+          <div v-if="showProductSelector" class="app-modal-overlay app-modal-open" @click.self="closeProductSelector">
+            <div class="app-modal-sheet app-modal-sheet-fill">
+              <div class="app-modal-header">
+                <h2 class="app-modal-title">Chọn sản phẩm</h2>
+                <button type="button" class="app-modal-close" @click="closeProductSelector"><X class="h-4 w-4" /></button>
+              </div>
+              <div class="app-modal-body app-modal-body-fill pt-2 pb-3">
+                <div class="mb-2"><input v-model="productKeyword" type="search" placeholder="Tìm sản phẩm, mã hàng..." class="app-input" /></div>
+                <div class="app-modal-body-scroll rounded-lg border border-slate-200">
+                  <button v-for="product in filteredProducts" :key="product.id" type="button" class="flex w-full items-center justify-between gap-2 border-b border-slate-100 px-3 py-2 text-left last:border-b-0" @click="toggleProductSelection(product.id)">
+                    <div class="min-w-0 flex-1">
+                      <div class="font-medium text-slate-900">{{ product.name }}<span v-if="product.unitName" class="text-slate-500"> - {{ product.unitName }}</span></div>
+                      <div class="mt-0.5 text-sm text-slate-500">{{ product.code || 'Không có mã' }}</div>
+                      <div class="mt-0.5 text-sm font-medium text-brand-700">{{ formatMoney(product.priceCost || 0) }}</div>
+                    </div>
+                    <span class="inline-flex h-5 w-5 items-center justify-center rounded-md border text-xs font-semibold" :class="isProductSelected(product.id) ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300 bg-white text-transparent'">✓</span>
+                  </button>
+                  <div v-if="!filteredProducts.length" class="p-3 text-center text-sm text-slate-500">Không tìm thấy sản phẩm phù hợp.</div>
+                </div>
+              </div>
+              <div class="app-modal-footer">
+                <button type="button" class="app-btn-secondary" @click="closeProductSelector">Hủy</button>
+                <button type="button" class="app-btn-primary" :disabled="!selectedProductIds.length" @click="applySelectedProducts">Áp dụng{{ selectedProductIds.length ? ` (${selectedProductIds.length})` : '' }}</button>
+              </div>
+            </div>
+          </div>
+        </transition>
+
+        <transition name="app-modal-fade-up">
+          <div v-if="showManualItemModal" class="app-modal-overlay app-modal-open" @click.self="closeManualItemModal">
+            <div class="app-modal-sheet-sm">
+              <div class="app-modal-header">
+                <h2 class="app-modal-title">{{ manualModalHeading }}</h2>
+                <button type="button" class="app-modal-close" @click="closeManualItemModal"><X class="h-4 w-4" /></button>
+              </div>
+              <div class="app-modal-body space-y-4">
+                <label class="space-y-1">
+                  <span class="app-label">Tên hàng</span>
+                  <input v-model="manualItemDraft.item_name" type="text" class="app-input" />
+                </label>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <label class="space-y-1">
+                    <span class="app-label">Đơn vị</span>
+                    <div class="grid">
+                      <select v-model="manualItemDraft.unit_name" class="col-start-1 row-start-1 h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500">
+                        <option value="">Chọn đơn vị</option>
+                        <option v-for="unit in baseUnits" :key="`manual-unit-${unit.id}`" :value="unit.name">{{ unit.name }}</option>
+                      </select>
+                      <span class="pointer-events-none col-start-1 row-start-1 ml-auto mr-3 self-center text-slate-400">
+                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                      </span>
+                    </div>
+                  </label>
+                  <label class="space-y-1">
+                    <span class="app-label">Số lượng</span>
+                    <input v-model="manualItemDraft.qty" type="number" min="0" step="0.01" class="app-input text-right" @input="syncManualAmount" />
+                  </label>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <label class="space-y-1">
+                    <span class="app-label">Giá nhập</span>
+                    <div class="relative">
+                      <input v-model="manualItemDraft.price_cost" type="text" inputmode="numeric" class="app-input pr-8 text-right" @input="onManualPriceInput" @blur="onManualPriceBlur" />
+                      <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+                    </div>
+                  </label>
+                  <label class="space-y-1">
+                    <span class="app-label">Thành tiền</span>
+                    <div class="relative">
+                      <input v-model="manualItemDraft.amount" type="text" inputmode="numeric" class="app-input pr-8 text-right" @input="onManualAmountInput" @blur="onManualAmountBlur" />
+                      <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+                    </div>
+                  </label>
+                </div>
+                <div v-if="hasManualSavedProduct" class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                  Sản phẩm này đã được lưu vào danh mục sản phẩm.
+                </div>
+              </div>
+              <div class="app-modal-footer">
+                <button type="button" class="app-btn-secondary" @click="closeManualItemModal">Hủy</button>
+                <button type="button" class="app-btn-primary" @click="saveManualItem">Lưu</button>
+              </div>
+            </div>
+          </div>
+        </transition>
+
+        <transition name="app-modal-fade-up">
+          <div v-if="showQtyModal" class="app-modal-overlay app-modal-open" @click.self="closeQtyModal">
+            <div class="app-modal-sheet-sm">
+              <div class="app-modal-header">
+                <h2 class="app-modal-title">Sửa số lượng</h2>
+                <button type="button" class="app-modal-close" @click="closeQtyModal"><X class="h-4 w-4" /></button>
+              </div>
+              <div class="app-modal-body space-y-4">
+                <div class="text-sm text-slate-600">{{ getUnitDisplay(editingQtyRow)?.product_name || 'Sản phẩm' }}</div>
+                <label class="space-y-1">
+                  <span class="app-label">Số lượng</span>
+                  <input v-model="qtyDraftValue" type="number" min="0" step="0.001" class="app-input text-right" />
+                </label>
+              </div>
+              <div class="app-modal-footer">
+                <button type="button" class="app-btn-secondary" @click="closeQtyModal">Hủy</button>
+                <button type="button" class="app-btn-primary" @click="saveQtyModal">Lưu</button>
+              </div>
+            </div>
+          </div>
+        </transition>
+
+        <transition name="app-modal-fade-up">
+          <div v-if="showPriceModal" class="app-modal-overlay app-modal-open" @click.self="closePriceModal">
+            <div class="app-modal-sheet-sm">
+              <div class="app-modal-header">
+                <h2 class="app-modal-title">Sửa giá nhập</h2>
+                <button type="button" class="app-modal-close" @click="closePriceModal"><X class="h-4 w-4" /></button>
+              </div>
+              <div class="app-modal-body space-y-4">
+                <div class="text-sm text-slate-600">{{ getUnitDisplay(editingPriceRow)?.product_name || 'Sản phẩm' }}</div>
+                <label class="space-y-1">
+                  <span class="app-label">Giá nhập</span>
+                  <div class="relative">
+                    <input v-model="priceDraftValue" type="text" inputmode="numeric" class="app-input pr-8 text-right" @input="priceDraftValue = formatPriceInput(priceDraftValue, false)" />
+                    <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+                  </div>
+                </label>
+              </div>
+              <div class="app-modal-footer">
+                <button type="button" class="app-btn-secondary" @click="closePriceModal">Hủy</button>
+                <button type="button" class="app-btn-primary" @click="savePriceModal">Lưu</button>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </Teleport>
     </template>
   </section>
 </template>

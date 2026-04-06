@@ -218,6 +218,35 @@ class CustomerService
         ];
     }
 
+    public static function getCustomerBulkPaymentData($customerId): array
+    {
+        $customerId = (int) $customerId;
+        if ($customerId <= 0) {
+            return ['success' => false, 'redirect' => 'customer'];
+        }
+
+        $customer = Customer::find($customerId);
+        if (!$customer) {
+            return ['success' => false, 'redirect' => 'customer'];
+        }
+
+        $orders = CustomerRepository::findDebtOrdersByCustomerId($customerId);
+        $totalDebt = 0.0;
+        foreach ($orders as $order) {
+            $debt = isset($order['debt_amount']) ? (float) $order['debt_amount'] : 0.0;
+            if ($debt > 0) {
+                $totalDebt += $debt;
+            }
+        }
+
+        return [
+            'success' => true,
+            'customer' => $customer,
+            'orders' => $orders,
+            'totalDebt' => $totalDebt,
+        ];
+    }
+
     public static function recordCustomerPayment(int $orderId, $amount, string $note): array
     {
         if ($orderId <= 0 || $amount <= 0) {
@@ -253,6 +282,45 @@ class CustomerService
             'success' => true,
             'message' => 'Đã ghi nhận thanh toán.',
             'redirect' => 'customer/view?id=' . $customerId,
+        ];
+    }
+
+    public static function recordCustomerBulkPayment(int $customerId, $amount, string $note): array
+    {
+        $customerId = (int) $customerId;
+        if ($customerId <= 0 || $amount <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Dữ liệu thanh toán không hợp lệ.',
+                'redirect' => 'customer',
+            ];
+        }
+
+        $customer = Customer::find($customerId);
+        if (!$customer) {
+            return [
+                'success' => false,
+                'message' => 'Không tìm thấy khách hàng.',
+                'redirect' => 'customer',
+            ];
+        }
+
+        try {
+            $result = PaymentService::recordCustomerDebtPayment($customerId, $amount, $note, 'cash');
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Không thể ghi nhận thanh toán: ' . $e->getMessage(),
+                'redirect' => 'customer/view?id=' . $customerId,
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Đã ghi nhận thanh toán công nợ.',
+            'redirect' => 'customer/view?id=' . $customerId,
+            'appliedAmount' => isset($result['applied_amount']) ? (float) $result['applied_amount'] : 0.0,
+            'allocations' => isset($result['allocations']) ? $result['allocations'] : [],
         ];
     }
 

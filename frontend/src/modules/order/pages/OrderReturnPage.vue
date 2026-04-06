@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useOrderReturn } from '../composables/useOrderReturn';
 import { useToast } from '../../../shared/composables/useToast';
+import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -70,12 +71,7 @@ onMounted(async () => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
-      <div>
-        <RouterLink :to="{ name: 'orders.detail', params: { id: route.params.id } }" class="text-sm font-medium text-slate-500 hover:text-slate-700">Quay lại chi tiết</RouterLink>
-        <h1 class="mt-1 text-lg font-semibold text-slate-900">Trả hàng đơn #{{ order?.order_code || orderId }}</h1>
-      </div>
-    </header>
+    <DetailHeaderBar :title="`Trả hàng đơn #${order?.order_code || orderId}`" :back-to="{ name: 'orders.detail', params: { id: route.params.id } }" />
 
     <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải...</div>
 

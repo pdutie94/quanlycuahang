@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { Pencil, Trash2 } from '@lucide/vue';
+import { Pencil, ReceiptText, Trash2 } from '@lucide/vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useCustomerDetail } from '../composables/useCustomerDetail';
 import { useToast } from '../../../shared/composables/useToast';
@@ -50,6 +50,7 @@ onMounted(async () => {
     <DetailHeaderBar :title="customer ? `Khách hàng ${customer.name}` : 'Chi tiết khách hàng'" back-to="/customers">
       <template #actions="{ closeMenu }">
         <template v-if="customer">
+          <RouterLink v-if="Number(summary.total_debt || 0) > 0" :to="{ name: 'customers.debtPayment', params: { id: customer.id } }" class="detail-header-menu-item detail-header-menu-item-amber" @click="closeMenu"><ReceiptText class="h-4 w-4 shrink-0" /><span>Thu tiền</span></RouterLink>
           <RouterLink :to="{ name: 'customers.edit', params: { id: customer.id } }" class="detail-header-menu-item" @click="closeMenu"><Pencil class="h-4 w-4 shrink-0" /><span>Chỉnh sửa</span></RouterLink>
           <button type="button" class="detail-header-menu-item detail-header-menu-item-rose" @click="closeMenu(); showDeleteModal = true"><Trash2 class="h-4 w-4 shrink-0" /><span>Xóa khách hàng</span></button>
         </template>
@@ -86,11 +87,14 @@ onMounted(async () => {
 
       <section v-else class="space-y-3">
         <div class="text-sm font-medium text-slate-600">Đơn hàng</div>
-        <OrderItemCard v-for="order in orders" :key="order.id" :order="order" :to="{ name: 'orders.detail', params: { id: order.id } }" :link-enabled="false" customer-fallback="Khách lẻ">
-          <template #actions>
-            <RouterLink v-if="order.order_status !== 'cancelled' && Number(order.total_amount || 0) - Number(order.paid_amount || 0) > 0" :to="{ name: 'customers.payment', params: { orderId: order.id } }" class="inline-flex h-8 items-center rounded-lg border border-brand-600 bg-brand-600 px-3 text-xs font-medium text-white">Thu tiền</RouterLink>
-            <RouterLink :to="{ name: 'orders.detail', params: { id: order.id } }" class="inline-flex h-8 items-center rounded-lg border border-slate-300 px-3 text-xs font-medium text-slate-700">Xem đơn</RouterLink>
-          </template>
+        <OrderItemCard
+          v-for="order in orders"
+          :key="order.id"
+          :order="order"
+          :to="{ name: 'orders.detail', params: { id: order.id } }"
+          customer-fallback="Khách lẻ"
+        >
+          <!-- Không còn nút Thu tiền -->
         </OrderItemCard>
       </section>
     </template>

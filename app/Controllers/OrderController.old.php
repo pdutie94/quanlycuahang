@@ -236,7 +236,7 @@ class OrderController extends Controller
 
         $ok = OrderSoftDelete::softDelete($id);
         if ($ok) {
-            $this->setFlash('success', 'Đã xóa tạm đơn hàng. Có thể khôi phục trong vòng 30 ngày.');
+            $this->setFlash('success', 'Đã xóa tạm đơn hàng. Có thể khôi phục trong vòng 7 ngày.');
         } else {
             $this->setFlash('error', 'Không thể xóa đơn hàng.');
         }
@@ -277,7 +277,7 @@ class OrderController extends Controller
             $this->redirect('order');
         }
 
-        $days = isset($_GET['days']) ? (int) $_GET['days'] : 30;
+        $days = isset($_GET['days']) ? (int) $_GET['days'] : 7;
         $count = OrderSoftDelete::purgeOlderThanDays($days);
 
         $this->setFlash('success', 'Đã xóa vĩnh viễn ' . (int) $count . ' đơn hàng đã xóa tạm quá ' . (int) $days . ' ngày.');

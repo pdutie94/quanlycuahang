@@ -5,6 +5,11 @@ export async function fetchOrders(params = {}) {
   return response.data;
 }
 
+export async function fetchDeletedOrders(params = {}) {
+  const response = await api.get('/orders/deleted', { params });
+  return response.data;
+}
+
 export async function fetchOrderDetail(id) {
   const response = await api.get(`/orders/${id}`);
   return response.data;
@@ -52,6 +57,16 @@ export async function updateOrderStatus(id, payload) {
 
 export async function deleteOrder(id) {
   const response = await api.delete(`/orders/${id}`);
+  return response.data;
+}
+
+export async function restoreOrder(id) {
+  const response = await api.post(`/orders/${id}/restore`);
+  return response.data;
+}
+
+export async function purgeDeletedOrders(ids) {
+  const response = await api.post('/orders/purge-selected', { ids });
   return response.data;
 }
 

@@ -135,6 +135,23 @@ CREATE TABLE `order_manual_items` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `purchase_manual_items`
+--
+
+DROP TABLE IF EXISTS `purchase_manual_items`;
+CREATE TABLE `purchase_manual_items` (
+  `id` int UNSIGNED NOT NULL,
+  `purchase_id` int UNSIGNED NOT NULL,
+  `item_name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `unit_name` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `qty` decimal(15,4) NOT NULL DEFAULT '0.0000',
+  `price_cost` bigint UNSIGNED NOT NULL DEFAULT '0',
+  `amount` bigint UNSIGNED NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `payments`
 --
 
@@ -558,6 +575,13 @@ ALTER TABLE `purchase_logs`
   ADD KEY `idx_purchase_logs_purchase_id` (`purchase_id`);
 
 --
+-- Indexes for table `purchase_manual_items`
+--
+ALTER TABLE `purchase_manual_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_purchase_manual_items_purchase_id` (`purchase_id`);
+
+--
 -- Indexes for table `schema_version`
 --
 ALTER TABLE `schema_version`
@@ -692,6 +716,12 @@ ALTER TABLE `purchase_logs`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `purchase_manual_items`
+--
+ALTER TABLE `purchase_manual_items`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `schema_version`
 --
 ALTER TABLE `schema_version`
@@ -805,6 +835,12 @@ ALTER TABLE `purchases`
 --
 ALTER TABLE `purchase_logs`
   ADD CONSTRAINT `fk_purchase_logs_purchase` FOREIGN KEY (`purchase_id`) REFERENCES `purchases` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `purchase_manual_items`
+--
+ALTER TABLE `purchase_manual_items`
+  ADD CONSTRAINT `fk_purchase_manual_items_purchase` FOREIGN KEY (`purchase_id`) REFERENCES `purchases` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

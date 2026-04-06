@@ -122,6 +122,25 @@ class CustomerApiController
         ]);
     }
 
+    public function customerPaymentInfo(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $customerId = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($customerId <= 0) {
+            return ApiResponse::error($response, 'Invalid customer id', 422);
+        }
+
+        $result = \CustomerService::getCustomerBulkPaymentData($customerId);
+        if (empty($result['success'])) {
+            return ApiResponse::error($response, 'Customer not found', 404);
+        }
+
+        return ApiResponse::success($response, [
+            'customer' => $result['customer'],
+            'orders' => isset($result['orders']) ? $result['orders'] : [],
+            'total_debt' => isset($result['totalDebt']) ? (float) $result['totalDebt'] : 0,
+        ]);
+    }
+
     public function paymentStore(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $orderId = isset($args['order_id']) ? (int) $args['order_id'] : 0;
@@ -143,6 +162,30 @@ class CustomerApiController
             'order_id' => $orderId,
             'amount' => $amount,
         ], isset($result['message']) ? (string) $result['message'] : 'Đã ghi nhận thanh toán.');
+    }
+
+    public function customerPaymentStore(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $customerId = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($customerId <= 0) {
+            return ApiResponse::error($response, 'Invalid customer id', 422);
+        }
+
+        $payload = $this->normalizePayload($request);
+        $amountRaw = isset($payload['amount']) ? $payload['amount'] : 0;
+        $amount = \Money::parseAmount($amountRaw);
+        $note = isset($payload['note']) ? trim((string) $payload['note']) : '';
+
+        $result = \CustomerService::recordCustomerBulkPayment($customerId, $amount, $note);
+        if (empty($result['success'])) {
+            return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Record customer payment failed', 422);
+        }
+
+        return ApiResponse::success($response, [
+            'customer_id' => $customerId,
+            'amount' => isset($result['appliedAmount']) ? (float) $result['appliedAmount'] : $amount,
+            'allocations' => isset($result['allocations']) ? $result['allocations'] : [],
+        ], isset($result['message']) ? (string) $result['message'] : 'Đã ghi nhận thanh toán công nợ.');
     }
 
     private function normalizePayload(ServerRequestInterface $request): array

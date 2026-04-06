@@ -67,6 +67,24 @@ class CustomerRepository
         return $stmt->fetchAll();
     }
 
+    public static function findDebtOrdersByCustomerId(int $customerId): array
+    {
+        $pdo = Database::getInstance();
+        $stmt = $pdo->prepare('SELECT o.*, (o.total_amount - o.paid_amount) AS debt_amount,
+            c.name AS customer_name,
+            c.phone AS customer_phone,
+            c.address AS customer_address
+            FROM orders o
+            INNER JOIN customers c ON c.id = o.customer_id
+            WHERE o.customer_id = ?
+              AND o.deleted_at IS NULL
+              AND (o.order_status IS NULL OR o.order_status <> \'cancelled\')
+              AND (o.total_amount - o.paid_amount) > 0
+            ORDER BY o.order_date ASC, o.id ASC');
+        $stmt->execute([$customerId]);
+        return $stmt->fetchAll();
+    }
+
     public static function updateById(int $id, array $data)
     {
         $pdo = Database::getInstance();

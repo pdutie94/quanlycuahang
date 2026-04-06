@@ -165,7 +165,7 @@ if (root) {
   const app = createApp(App);
   app.use(router);
   app.mount(root);
-  bindGlobalMoneyFormatter(root);
+  bindGlobalMoneyFormatter(document.body);
 
   window.__SPA_ROUTER__ = router;
 }

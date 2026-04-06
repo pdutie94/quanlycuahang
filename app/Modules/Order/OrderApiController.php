@@ -31,6 +31,29 @@ class OrderApiController
         ]);
     }
 
+    public function deletedList(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $query = $request->getQueryParams();
+        $data = \OrderService::getDeletedOrderListData($query, 20);
+
+        return ApiResponse::success($response, [
+            'items' => isset($data['orders']) ? $data['orders'] : [],
+            'meta' => [
+                'page' => isset($data['page']) ? (int) $data['page'] : 1,
+                'per_page' => isset($data['perPage']) ? (int) $data['perPage'] : 20,
+                'total_pages' => isset($data['totalPages']) ? (int) $data['totalPages'] : 1,
+                'total_count' => isset($data['totalCount']) ? (int) $data['totalCount'] : 0,
+            ],
+            'filters' => [
+                'q' => isset($data['keyword']) ? $data['keyword'] : '',
+                'status' => isset($data['status']) ? $data['status'] : '',
+                'order_status' => isset($data['orderStatus']) ? $data['orderStatus'] : '',
+                'from_date' => isset($data['fromDate']) ? $data['fromDate'] : '',
+                'to_date' => isset($data['toDate']) ? $data['toDate'] : '',
+            ],
+        ]);
+    }
+
     public function detail(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $id = isset($args['id']) ? (int) $args['id'] : 0;
@@ -493,6 +516,38 @@ class OrderApiController
         return ApiResponse::success($response, [
             'id' => $orderId,
         ], isset($result['message']) ? (string) $result['message'] : 'Đã xóa tạm đơn hàng.');
+    }
+
+    public function restore(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $orderId = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($orderId <= 0) {
+            return ApiResponse::error($response, 'Invalid order id', 422);
+        }
+
+        $result = \OrderService::restoreOrderById($orderId);
+        if (empty($result['success'])) {
+            return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Restore order failed', 422);
+        }
+
+        return ApiResponse::success($response, [
+            'id' => $orderId,
+        ], isset($result['message']) ? (string) $result['message'] : 'Đã khôi phục đơn hàng.');
+    }
+
+    public function purgeSelected(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $payload = $this->normalizePayload($request);
+        $ids = isset($payload['ids']) && is_array($payload['ids']) ? $payload['ids'] : [];
+
+        $result = \OrderService::purgeDeletedOrderIds($ids);
+        if (empty($result['success'])) {
+            return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Purge deleted orders failed', 422);
+        }
+
+        return ApiResponse::success($response, [
+            'count' => count($ids),
+        ], isset($result['message']) ? (string) $result['message'] : 'Đã xóa vĩnh viễn các đơn hàng đã chọn.');
     }
 
     private function normalizePayload(ServerRequestInterface $request): array

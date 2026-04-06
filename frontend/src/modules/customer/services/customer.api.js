@@ -10,6 +10,11 @@ export async function fetchCustomerDetail(id) {
   return response.data;
 }
 
+export async function fetchCustomerDebtPaymentInfo(id) {
+  const response = await api.get(`/customers/${id}/payment`);
+  return response.data;
+}
+
 export async function createCustomer(payload) {
   const response = await api.post('/customers', payload);
   return response.data;
@@ -32,5 +37,10 @@ export async function fetchCustomerPaymentInfo(orderId) {
 
 export async function submitCustomerPayment(orderId, payload) {
   const response = await api.post(`/customers/orders/${orderId}/payment`, payload);
+  return response.data;
+}
+
+export async function submitCustomerDebtPayment(id, payload) {
+  const response = await api.post(`/customers/${id}/payment`, payload);
   return response.data;
 }

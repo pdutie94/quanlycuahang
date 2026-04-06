@@ -67,6 +67,8 @@ return function (App $app) {
 
         $customerController = new CustomerApiController();
         $group->get('/customers', [$customerController, 'list']);
+        $group->get('/customers/{id}/payment', [$customerController, 'customerPaymentInfo']);
+        $group->post('/customers/{id}/payment', [$customerController, 'customerPaymentStore']);
         $group->get('/customers/{id}', [$customerController, 'detail']);
         $group->post('/customers', [$customerController, 'create']);
         $group->put('/customers/{id}', [$customerController, 'update']);
@@ -87,6 +89,7 @@ return function (App $app) {
 
         $orderController = new OrderApiController();
         $group->get('/orders', [$orderController, 'list']);
+        $group->get('/orders/deleted', [$orderController, 'deletedList']);
         $group->get('/orders/{id}', [$orderController, 'detail']);
         $group->get('/orders/{id}/preview', [$orderController, 'preview']);
         $group->get('/orders/{id}/invoice', [$orderController, 'invoice']);
@@ -96,6 +99,8 @@ return function (App $app) {
         $group->patch('/orders/{id}', [$orderController, 'update']);
         $group->post('/orders/{id}/status', [$orderController, 'updateStatus']);
         $group->delete('/orders/{id}', [$orderController, 'delete']);
+        $group->post('/orders/{id}/restore', [$orderController, 'restore']);
+        $group->post('/orders/purge-selected', [$orderController, 'purgeSelected']);
         $group->post('/orders/{id}/return', [$orderController, 'returnStore']);
         $group->post('/orders/{id}/payment', [$orderController, 'paymentStore']);
         $group->post('/orders/{id}/payment/reset', [$orderController, 'paymentReset']);
@@ -111,6 +116,7 @@ return function (App $app) {
         $group->post('/purchases', [$purchaseController, 'create']);
         $group->put('/purchases/{id}', [$purchaseController, 'update']);
         $group->patch('/purchases/{id}', [$purchaseController, 'update']);
+        $group->delete('/purchases/{id}', [$purchaseController, 'delete']);
         $group->post('/purchases/{id}/payment', [$purchaseController, 'paymentStore']);
 
         $reportController = new ReportApiController();

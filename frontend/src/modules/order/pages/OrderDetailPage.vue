@@ -409,6 +409,33 @@ const getHistoryTone = (log) => {
   };
 };
 
+const groupedLogs = computed(() => {
+  const groups = [];
+  const groupMap = new Map();
+
+  for (const log of logs.value) {
+    const timeText = formatHistoryDate(log?.created_at) || '-';
+    if (!groupMap.has(timeText)) {
+      const group = {
+        key: `${timeText}-${log?.id || groups.length}`,
+        timeText,
+        entries: []
+      };
+      groupMap.set(timeText, group);
+      groups.push(group);
+    }
+
+    const group = groupMap.get(timeText);
+    group.entries.push({
+      ...log,
+      parsed: parseLogLine(log?.detail),
+      tone: getHistoryTone(log)
+    });
+  }
+
+  return groups;
+});
+
 const submitPaymentForm = async () => {
   if (orderId.value <= 0) {
     return;
@@ -507,7 +534,7 @@ onMounted(async () => {
     <ActionConfirmSheet
       :open="showDeleteOrderModal"
       title="Xóa đơn hàng"
-      description="Bạn có chắc chắn muốn xóa tạm đơn hàng này? Đơn sẽ được lưu 30 ngày trước khi xóa hẳn."
+      description="Bạn có chắc chắn muốn xóa tạm đơn hàng này? Đơn sẽ được lưu 7 ngày trước khi xóa hẳn."
       confirm-label="Xóa đơn hàng"
       :loading="deleteLoading"
       @cancel="showDeleteOrderModal = false"
@@ -751,7 +778,7 @@ onMounted(async () => {
           </div>
         </section>
 
-        <section v-if="logs.length" class="rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
+        <section v-if="groupedLogs.length" class="rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
           <h2 class="flex items-center gap-2 text-base font-medium text-slate-800">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-violet-100 text-violet-700">
               <History class="h-3.5 w-3.5" />
@@ -761,18 +788,26 @@ onMounted(async () => {
           <p class="text-sm text-slate-500">Nhật ký các lần thay đổi trạng thái, thanh toán và cập nhật mặt hàng của đơn.</p>
           <div class="max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50/70">
             <div
-              v-for="log in logs"
-              :key="log.id"
-              class="flex gap-3 border-b border-slate-200 px-3 py-2.5 text-sm last:border-b-0"
-              :class="getHistoryTone(log).row"
+              v-for="group in groupedLogs"
+              :key="group.key"
+              class="border-b border-slate-200 px-3 py-2.5 last:border-b-0"
             >
-              <div class="pt-1">
-                <span class="block h-2 w-2 rounded-full" :class="getHistoryTone(log).dot"></span>
+              <div class="mb-2">
+                <span class="leading-none inline-flex items-center rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">{{ group.timeText }}</span>
               </div>
-              <div class="min-w-0 flex-1">
-                <div class="text-xs font-medium tracking-wide" :class="getHistoryTone(log).meta">{{ formatHistoryDate(log.created_at) }}</div>
-                <div class="mt-0.5 leading-5" :class="getHistoryTone(log).detail">{{ parseLogLine(log.detail).text }}</div>
-              </div>
+              <ul class="space-y-1 text-sm">
+                <li
+                  v-for="entry in group.entries"
+                  :key="entry.id"
+                  class="flex gap-3 rounded-md p-1"
+                  :class="entry.tone.row"
+                >
+                  <div class="pt-1">
+                    <span class="mt-[2px] block h-2 w-2 rounded-full" :class="entry.tone.dot"></span>
+                  </div>
+                  <div class="min-w-0 flex-1 leading-5" :class="entry.tone.detail">{{ entry.parsed.text }}</div>
+                </li>
+              </ul>
             </div>
           </div>
         </section>

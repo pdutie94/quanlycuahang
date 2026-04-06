@@ -44,6 +44,48 @@ class OrderRepository
         return $stmt->fetchAll();
     }
 
+    public static function countDeletedFiltered(array $filters): int
+    {
+        $query = self::buildListQuery($filters, true);
+
+        $pdo = Database::getInstance();
+        $sql = 'SELECT COUNT(*) FROM orders o LEFT JOIN customers c ON o.customer_id = c.id ' . $query['whereSql'];
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($query['params']);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    public static function paginateDeletedFiltered(array $filters, int $limit, int $offset): array
+    {
+        $query = self::buildListQuery($filters, true);
+
+        $pdo = Database::getInstance();
+        $sql = 'SELECT o.*, c.name AS customer_name, c.phone AS customer_phone, COALESCE(ic.items_count, 0) AS items_count
+                FROM orders o
+                LEFT JOIN customers c ON o.customer_id = c.id
+                LEFT JOIN (
+                    SELECT order_id, SUM(count_items) AS items_count
+                    FROM (
+                        SELECT order_id, COUNT(*) AS count_items
+                        FROM order_items
+                        GROUP BY order_id
+                        UNION ALL
+                        SELECT order_id, COUNT(*) AS count_items
+                        FROM order_manual_items
+                        GROUP BY order_id
+                    ) t
+                    GROUP BY order_id
+                ) ic ON ic.order_id = o.id
+                ' . $query['whereSql'] . '
+                ORDER BY o.deleted_at DESC, o.id DESC
+                LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($query['params']);
+
+        return $stmt->fetchAll();
+    }
+
     public static function findActiveById($id)
     {
         $id = (int) $id;
@@ -194,7 +236,7 @@ class OrderRepository
         return $stmt->fetch();
     }
 
-    private static function buildListQuery(array $filters): array
+    private static function buildListQuery(array $filters, bool $deletedOnly = false): array
     {
         $keyword = isset($filters['keyword']) ? trim((string) $filters['keyword']) : '';
         $status = isset($filters['status']) ? (string) $filters['status'] : '';
@@ -237,7 +279,7 @@ class OrderRepository
             $params[] = $toDate . ' 23:59:59';
         }
 
-        $whereSql = 'WHERE o.deleted_at IS NULL';
+        $whereSql = $deletedOnly ? 'WHERE o.deleted_at IS NOT NULL' : 'WHERE o.deleted_at IS NULL';
         if (!empty($where)) {
             $whereSql .= ' AND ' . implode(' AND ', $where);
         }

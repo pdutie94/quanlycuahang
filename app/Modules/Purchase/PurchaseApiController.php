@@ -46,6 +46,7 @@ class PurchaseApiController
         return ApiResponse::success($response, [
             'purchase' => isset($result['purchase']) ? $result['purchase'] : null,
             'items' => isset($result['items']) ? $result['items'] : [],
+            'manual_items' => isset($result['manualItems']) ? $result['manualItems'] : [],
             'payments' => isset($result['payments']) ? $result['payments'] : [],
             'logs' => isset($result['logs']) ? $result['logs'] : [],
         ]);
@@ -98,6 +99,7 @@ class PurchaseApiController
             'id' => $id,
             'purchase' => isset($view['purchase']) ? $view['purchase'] : null,
             'items' => isset($view['items']) ? $view['items'] : [],
+            'manual_items' => isset($view['manualItems']) ? $view['manualItems'] : [],
             'payments' => isset($view['payments']) ? $view['payments'] : [],
             'logs' => isset($view['logs']) ? $view['logs'] : [],
         ], isset($result['message']) ? (string) $result['message'] : 'Đã cập nhật phiếu nhập hàng.');
@@ -131,6 +133,29 @@ class PurchaseApiController
         } catch (\Exception $e) {
             return ApiResponse::error($response, 'Không thể ghi nhận thanh toán: ' . $e->getMessage(), 422);
         }
+    }
+
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $purchaseId = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($purchaseId <= 0) {
+            return ApiResponse::error($response, 'Invalid purchase id', 422);
+        }
+
+        $result = \PurchaseService::deletePurchase($purchaseId);
+        if (empty($result['success'])) {
+            return ApiResponse::error(
+                $response,
+                isset($result['message']) ? (string) $result['message'] : 'Delete purchase failed',
+                422
+            );
+        }
+
+        return ApiResponse::success(
+            $response,
+            ['id' => $purchaseId],
+            isset($result['message']) ? (string) $result['message'] : 'Đã xóa phiếu nhập hàng.'
+        );
     }
 
     private function normalizePayload(ServerRequestInterface $request): array

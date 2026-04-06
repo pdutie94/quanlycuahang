@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
+import PurchaseListItemCard from '../components/PurchaseListItemCard.vue';
 import { X } from '@lucide/vue';
 import { usePurchases } from '../composables/usePurchases';
 import { useToast } from '../../../shared/composables/useToast';
@@ -116,24 +117,14 @@ const applyFilters = async () => {
       <div v-else-if="!items.length" class="app-empty-state">Chưa có phiếu nhập hàng nào.</div>
       <template v-else>
         <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
-          <RouterLink v-for="item in items" :key="item.id" :to="{ name: 'purchases.detail', params: { id: item.id } }" class="app-list-card">
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center justify-between gap-2">
-                <div class="truncate text-sm font-medium text-slate-900">{{ item.supplier_name || 'Chưa có nhà cung cấp' }}</div>
-                <span class="inline-flex shrink-0 items-center rounded-md px-2 py-0.5 text-xs font-semibold" :class="item.status === 'paid' ? 'bg-brand-50 text-brand-700' : 'bg-amber-50 text-amber-700'">{{ item.status === 'paid' ? 'Đã thanh toán' : 'Còn nợ' }}</span>
-              </div>
-              <div class="mt-1 flex items-center gap-1 truncate text-sm text-slate-600 leading-none">
-                <span class="truncate">{{ item.purchase_code }}</span>
-                <span class="text-slate-300">·</span>
-                <span class="truncate">{{ formatDateTime(item.purchase_date) }}</span>
-              </div>
-              <div class="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600">
-                <span>Tổng: <span class="font-medium text-slate-900">{{ formatMoney(item.total_amount) }}</span></span>
-                <span>Trả: <span class="font-medium text-brand-600">{{ formatMoney(item.paid_amount) }}</span></span>
-                <span>Nợ: <span class="font-medium" :class="Number(item.total_amount || 0) - Number(item.paid_amount || 0) > 0 ? 'text-rose-600' : 'text-slate-700'">{{ formatMoney(Number(item.total_amount || 0) - Number(item.paid_amount || 0)) }}</span></span>
-              </div>
-            </div>
-          </RouterLink>
+            <RouterLink
+              v-for="item in items"
+              :key="item.id"
+              :to="{ name: 'purchases.detail', params: { id: item.id } }"
+              class="block"
+            >
+              <PurchaseListItemCard :purchase="item" :format-money="formatMoney" :format-date-time="formatDateTime" />
+            </RouterLink>
         </transition-group>
       </template>
     </div>

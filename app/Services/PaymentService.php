@@ -2,6 +2,94 @@
 
 class PaymentService
 {
+    public static function recordCustomerDebtPayment($customerId, $amount, $note, $paymentMethod)
+    {
+        $customerId = (int) $customerId;
+        $pdo = Database::getInstance();
+        $pdo->beginTransaction();
+
+        try {
+            if ($customerId <= 0) {
+                throw new Exception('Khách hàng không hợp lệ.');
+            }
+
+            if ($amount <= 0) {
+                throw new Exception('Số tiền thanh toán không hợp lệ.');
+            }
+
+            $customerStmt = $pdo->prepare('SELECT id FROM customers WHERE id = ? AND deleted_at IS NULL LIMIT 1');
+            $customerStmt->execute([$customerId]);
+            $customer = $customerStmt->fetch();
+            if (!$customer) {
+                throw new Exception('Không tìm thấy khách hàng.');
+            }
+
+            $ordersStmt = $pdo->prepare('SELECT * FROM orders
+                WHERE customer_id = ?
+                  AND deleted_at IS NULL
+                  AND (order_status IS NULL OR order_status <> \'cancelled\')
+                  AND (total_amount - paid_amount) > 0
+                ORDER BY order_date ASC, id ASC
+                FOR UPDATE');
+            $ordersStmt->execute([$customerId]);
+            $orders = $ordersStmt->fetchAll();
+
+            if (empty($orders)) {
+                throw new Exception('Khách hàng này không còn đơn nào cần thu tiền.');
+            }
+
+            $remainingToAllocate = (float) $amount;
+            $allocations = [];
+            $appliedAmount = 0.0;
+
+            foreach ($orders as $order) {
+                if ($remainingToAllocate <= 0) {
+                    break;
+                }
+
+                $orderRemaining = (float) $order['total_amount'] - (float) $order['paid_amount'];
+                if ($orderRemaining <= 0) {
+                    continue;
+                }
+
+                $allocationAmount = $remainingToAllocate;
+                if ($allocationAmount > $orderRemaining) {
+                    $allocationAmount = $orderRemaining;
+                }
+
+                if ($allocationAmount <= 0) {
+                    continue;
+                }
+
+                $paymentResult = self::applyOrderPayment($pdo, $order, $allocationAmount, $note, $paymentMethod);
+                $remainingToAllocate -= $allocationAmount;
+                $appliedAmount += $allocationAmount;
+                $allocations[] = [
+                    'order_id' => (int) $order['id'],
+                    'order_code' => isset($order['order_code']) ? $order['order_code'] : '',
+                    'applied_amount' => $allocationAmount,
+                    'remaining_after' => isset($paymentResult['remaining_after']) ? (float) $paymentResult['remaining_after'] : 0.0,
+                ];
+            }
+
+            if ($appliedAmount <= 0) {
+                throw new Exception('Không có khoản nợ nào để ghi nhận thanh toán.');
+            }
+
+            $pdo->commit();
+            ReportService::clearReportCache();
+
+            return [
+                'applied_amount' => $appliedAmount,
+                'remaining_unapplied' => $remainingToAllocate > 0 ? $remainingToAllocate : 0.0,
+                'allocations' => $allocations,
+            ];
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
     public static function recordPurchasePayment($purchaseId, $amount, $note, $paymentMethod)
     {
         $pdo = Database::getInstance();
@@ -119,73 +207,7 @@ class PaymentService
                 throw new Exception('Không tìm thấy đơn hàng.');
             }
 
-            $orderStatus = isset($order['order_status']) ? $order['order_status'] : 'pending';
-            if ($orderStatus === 'cancelled') {
-                throw new Exception('Đơn hàng đã hủy, không thể thu tiền.');
-            }
-
-            $totalAmount = isset($order['total_amount']) ? (float) $order['total_amount'] : 0.0;
-            $paidAmountOld = isset($order['paid_amount']) ? (float) $order['paid_amount'] : 0.0;
-
-            $remaining = $totalAmount - $paidAmountOld;
-            if ($remaining <= 0) {
-                throw new Exception('Đơn hàng này đã được thanh toán đủ.');
-            }
-
-            $remainingBefore = $remaining;
-            if ($amount > $remaining) {
-                $amount = $remaining;
-            }
-
-            if ($amount <= 0) {
-                throw new Exception('Số tiền thanh toán không hợp lệ.');
-            }
-
-            if (class_exists('Payment')) {
-                Payment::create([
-                    'type' => 'customer',
-                    'customer_id' => isset($order['customer_id']) ? $order['customer_id'] : null,
-                    'supplier_id' => null,
-                    'order_id' => $orderId,
-                    'purchase_id' => null,
-                    'amount' => $amount,
-                    'note' => $note,
-                ]);
-            }
-
-            $newPaid = $paidAmountOld + $amount;
-            $newStatus = $newPaid >= $totalAmount ? 'paid' : 'debt';
-
-            $orderNote = isset($order['note']) ? (string) $order['note'] : '';
-            $orderNoteWithMethod = self::appendPaymentMethodTagToNote($orderNote, $paymentMethod);
-
-            $updateStmt = $pdo->prepare('UPDATE orders SET paid_amount = ?, status = ?, note = ? WHERE id = ?');
-            $updateStmt->execute([
-                $newPaid,
-                $newStatus,
-                $orderNoteWithMethod,
-                $orderId,
-            ]);
-
-            if (class_exists('OrderLog')) {
-                $methodText = $paymentMethod === 'bank' ? 'Chuyển khoản' : 'Tiền mặt';
-                $remainingAfter = $totalAmount - $newPaid;
-                if ($remainingAfter < 0) {
-                    $remainingAfter = 0;
-                }
-                OrderLog::create([
-                    'order_id' => $orderId,
-                    'action' => 'payment',
-                    'detail' => [
-                        'type' => 'payment',
-                        'amount' => $amount,
-                        'method' => $paymentMethod,
-                        'method_text' => $methodText,
-                        'remaining_before' => $remainingBefore,
-                        'remaining_after' => $remainingAfter,
-                    ],
-                ]);
-            }
+            self::applyOrderPayment($pdo, $order, $amount, $note, $paymentMethod);
 
             $pdo->commit();
             ReportService::clearReportCache();
@@ -312,5 +334,93 @@ class PaymentService
         }
 
         return $noteTrim;
+    }
+
+    protected static function applyOrderPayment($pdo, array $order, $amount, $note, $paymentMethod): array
+    {
+        $orderId = isset($order['id']) ? (int) $order['id'] : 0;
+        if ($orderId <= 0) {
+            throw new Exception('Không tìm thấy đơn hàng.');
+        }
+
+        $orderStatus = isset($order['order_status']) ? $order['order_status'] : 'pending';
+        if ($orderStatus === 'cancelled') {
+            throw new Exception('Đơn hàng đã hủy, không thể thu tiền.');
+        }
+
+        $totalAmount = isset($order['total_amount']) ? (float) $order['total_amount'] : 0.0;
+        $paidAmountOld = isset($order['paid_amount']) ? (float) $order['paid_amount'] : 0.0;
+        $remaining = $totalAmount - $paidAmountOld;
+
+        if ($remaining <= 0) {
+            throw new Exception('Đơn hàng này đã được thanh toán đủ.');
+        }
+
+        $remainingBefore = $remaining;
+        if ($amount > $remaining) {
+            $amount = $remaining;
+        }
+
+        if ($amount <= 0) {
+            throw new Exception('Số tiền thanh toán không hợp lệ.');
+        }
+
+        if (class_exists('Payment')) {
+            Payment::create([
+                'type' => 'customer',
+                'customer_id' => isset($order['customer_id']) ? $order['customer_id'] : null,
+                'supplier_id' => null,
+                'order_id' => $orderId,
+                'purchase_id' => null,
+                'amount' => $amount,
+                'note' => $note,
+            ]);
+        }
+
+        $newPaid = $paidAmountOld + $amount;
+        if ($newPaid > $totalAmount) {
+            $newPaid = $totalAmount;
+        }
+        $newStatus = $newPaid >= $totalAmount ? 'paid' : 'debt';
+
+        $orderNote = isset($order['note']) ? (string) $order['note'] : '';
+        $orderNoteWithMethod = self::appendPaymentMethodTagToNote($orderNote, $paymentMethod);
+
+        $updateStmt = $pdo->prepare('UPDATE orders SET paid_amount = ?, status = ?, note = ? WHERE id = ?');
+        $updateStmt->execute([
+            $newPaid,
+            $newStatus,
+            $orderNoteWithMethod,
+            $orderId,
+        ]);
+
+        $remainingAfter = $totalAmount - $newPaid;
+        if ($remainingAfter < 0) {
+            $remainingAfter = 0;
+        }
+
+        if (class_exists('OrderLog')) {
+            $methodText = $paymentMethod === 'bank' ? 'Chuyển khoản' : 'Tiền mặt';
+            OrderLog::create([
+                'order_id' => $orderId,
+                'action' => 'payment',
+                'detail' => [
+                    'type' => 'payment',
+                    'amount' => $amount,
+                    'method' => $paymentMethod,
+                    'method_text' => $methodText,
+                    'remaining_before' => $remainingBefore,
+                    'remaining_after' => $remainingAfter,
+                ],
+            ]);
+        }
+
+        return [
+            'paid_amount' => $amount,
+            'remaining_before' => $remainingBefore,
+            'remaining_after' => $remainingAfter,
+            'new_paid' => $newPaid,
+            'status' => $newStatus,
+        ];
     }
 }

@@ -55,7 +55,7 @@ if ($remainingHeader < 0) {
 			</a>
 		<?php } ?>
 		<?php if ($orderStatusHeader !== 'completed') { ?>
-			<form method="post" action="<?php echo $basePath; ?>/order/delete" class="flex items-center justify-between gap-2 px-3 py-1.5 text-slate-700 hover:bg-rose-50" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tạm đơn hàng này? Đơn sẽ được lưu 30 ngày trước khi xóa hẳn.');">
+			<form method="post" action="<?php echo $basePath; ?>/order/delete" class="flex items-center justify-between gap-2 px-3 py-1.5 text-slate-700 hover:bg-rose-50" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tạm đơn hàng này? Đơn sẽ được lưu 7 ngày trước khi xóa hẳn.');">
 				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
 				<input type="hidden" name="id" value="<?php echo (int) $order['id']; ?>">
 				<button type="submit" class="flex w-full items-center justify-between gap-2 text-left">

@@ -76,8 +76,12 @@ class SupplierApiController
             return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Cannot create supplier', 422);
         }
 
+        $supplierId = isset($result['supplierId']) ? (int) $result['supplierId'] : 0;
+        $supplier = $supplierId > 0 && class_exists('\Supplier') ? \Supplier::find($supplierId) : null;
+
         return ApiResponse::success($response, [
-            'message' => isset($result['message']) ? (string) $result['message'] : 'Đã thêm nhà cung cấp.',
+            'id' => $supplierId,
+            'supplier' => $supplier,
         ]);
     }
 

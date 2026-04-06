@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
+import { RouterLink } from 'vue-router';
 import { X } from '@lucide/vue';
 import { useOrders } from '../composables/useOrders';
 import { useToast } from '../../../shared/composables/useToast';
@@ -119,6 +120,9 @@ const clearFilters = async () => {
         >
           Đã hủy
         </button>
+        <RouterLink to="/orders/deleted" class="border inline-flex items-center rounded-lg border-rose-300 bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700">
+          Đơn đã xóa
+        </RouterLink>
         <FilterClearChip :active="hasAnyFilter" @clear="clearFilters" />
       </template>
     </ListHeaderBar>

@@ -18,6 +18,10 @@ class ApiAuthMiddleware implements MiddlewareInterface
             return ApiResponse::error($factory->createResponse(), 'Unauthorized', 401);
         }
 
+        if (class_exists('\OrderService')) {
+            \OrderService::autoPurgeExpiredDeletedOrders(7, 3600);
+        }
+
         return $handler->handle($request);
     }
 }

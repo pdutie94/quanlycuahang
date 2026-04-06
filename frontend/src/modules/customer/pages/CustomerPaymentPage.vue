@@ -1,8 +1,9 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useCustomerPayment } from '../composables/useCustomerPayment';
 import { useToast } from '../../../shared/composables/useToast';
+import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -45,10 +46,7 @@ onMounted(async () => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
-      <RouterLink v-if="order?.customer_id" :to="{ name: 'customers.detail', params: { id: order.customer_id } }" class="text-sm font-medium text-slate-500 hover:text-slate-700">Quay lại khách hàng</RouterLink>
-      <h1 class="mt-1 text-lg font-semibold text-slate-900">Thu tiền khách hàng</h1>
-    </header>
+    <DetailHeaderBar title="Thu tiền khách hàng" :back-to="order?.customer_id ? { name: 'customers.detail', params: { id: order.customer_id } } : '/customers'" />
 
     <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải...</div>
     <template v-else-if="order">

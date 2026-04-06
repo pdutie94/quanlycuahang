@@ -118,8 +118,9 @@ class SupplierService
             ];
         }
 
+        $supplierId = 0;
         if (class_exists('Supplier')) {
-            Supplier::create([
+            $supplierId = (int) Supplier::create([
                 'name' => $name,
                 'phone' => $phone,
                 'address' => $address,
@@ -129,6 +130,7 @@ class SupplierService
         return [
             'success' => true,
             'message' => 'Đã thêm nhà cung cấp.',
+            'supplierId' => $supplierId,
             'redirect' => 'supplier',
         ];
     }

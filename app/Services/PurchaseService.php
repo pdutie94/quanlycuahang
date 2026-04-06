@@ -2,6 +2,22 @@
 
 class PurchaseService
 {
+    private static function normalizePurchaseDate($value): string
+    {
+        $raw = trim((string) $value);
+        if ($raw === '') {
+            return date('Y-m-d H:i:s');
+        }
+
+        $raw = str_replace('T', ' ', $raw);
+        $dt = date_create($raw);
+        if ($dt === false) {
+            return date('Y-m-d H:i:s');
+        }
+
+        return $dt->format('Y-m-d H:i:s');
+    }
+
     public static function getPurchaseListData(array $queryParams, int $perPage = 20): array
     {
         $filters = self::normalizeListFilters($queryParams);
@@ -44,6 +60,7 @@ class PurchaseService
             'success' => true,
             'purchase' => $purchase,
             'items' => PurchaseRepository::findItemsByPurchaseId($id),
+            'manualItems' => PurchaseRepository::findManualItemsByPurchaseId($id),
             'payments' => PurchaseRepository::findPaymentsByPurchaseId($id),
             'logs' => class_exists('PurchaseLog') ? PurchaseLog::findByPurchase($id) : [],
         ];
@@ -94,6 +111,7 @@ class PurchaseService
             'suppliers' => class_exists('Supplier') ? Supplier::all() : [],
             'productUnits' => PurchaseRepository::findPurchaseUnitsForEdit(),
             'items' => PurchaseRepository::findItemsByPurchaseId($id),
+            'manualItems' => PurchaseRepository::findManualItemsByPurchaseId($id),
             'paymentMethod' => $paymentMethod,
             'noteForEdit' => $noteForEdit,
         ];
@@ -111,6 +129,7 @@ class PurchaseService
         }
 
         $itemsPayload = self::extractItemsPayload($payload);
+        $manualItemsPayload = self::extractManualItemsPayload($payload);
         if (!$itemsPayload['valid']) {
             return [
                 'success' => false,
@@ -119,15 +138,26 @@ class PurchaseService
             ];
         }
 
+        if (!$manualItemsPayload['valid']) {
+            return [
+                'success' => false,
+                'message' => 'Dữ liệu sản phẩm khác không hợp lệ.',
+                'redirect' => 'purchase/create',
+            ];
+        }
+
         $note = isset($payload['note']) ? trim((string) $payload['note']) : '';
         $paymentMethod = isset($payload['payment_method']) && $payload['payment_method'] === 'bank' ? 'bank' : 'cash';
+        $purchaseDate = self::normalizePurchaseDate(isset($payload['purchase_date']) ? $payload['purchase_date'] : '');
 
         $pdo = Database::getInstance();
         $pdo->beginTransaction();
 
         try {
             $itemsResult = self::preparePurchaseItems($itemsPayload, true);
-            if (empty($itemsResult['items'])) {
+            $manualItemsResult = self::preparePurchaseManualItems($manualItemsPayload);
+
+            if (empty($itemsResult['items']) && empty($manualItemsResult['items'])) {
                 $pdo->rollBack();
                 return [
                     'success' => false,
@@ -140,16 +170,19 @@ class PurchaseService
             if ($paidAmount < 0) {
                 $paidAmount = 0;
             }
-            if ($paidAmount > $itemsResult['totalAmount']) {
-                $paidAmount = $itemsResult['totalAmount'];
+            $grandTotalAmount = $itemsResult['totalAmount'] + $manualItemsResult['totalAmount'];
+
+            if ($paidAmount > $grandTotalAmount) {
+                $paidAmount = $grandTotalAmount;
             }
 
-            $status = $paidAmount >= $itemsResult['totalAmount'] ? 'paid' : 'debt';
+            $status = $paidAmount >= $grandTotalAmount ? 'paid' : 'debt';
             $purchaseNoteForSave = self::buildPurchaseNoteWithMethod($note, $paymentMethod, $paidAmount > 0);
 
             $purchaseId = Purchase::create([
                 'supplier_id' => $supplierId,
-                'total_amount' => $itemsResult['totalAmount'],
+                'purchase_date' => $purchaseDate,
+                'total_amount' => $grandTotalAmount,
                 'paid_amount' => $paidAmount,
                 'status' => $status,
                 'note' => $purchaseNoteForSave,
@@ -158,6 +191,11 @@ class PurchaseService
             foreach ($itemsResult['items'] as $row) {
                 $row['purchase_id'] = $purchaseId;
                 PurchaseItem::create($row);
+            }
+
+            foreach ($manualItemsResult['items'] as $row) {
+                $row['purchase_id'] = $purchaseId;
+                PurchaseManualItem::create($row);
             }
 
             InventoryService::adjustForNewPurchaseItems($itemsResult['items']);
@@ -189,8 +227,8 @@ class PurchaseService
                     'action' => 'create',
                     'detail' => [
                         'type' => 'create',
-                        'items_count' => count($itemsResult['items']),
-                        'total_amount' => $itemsResult['totalAmount'],
+                        'items_count' => count($itemsResult['items']) + count($manualItemsResult['items']),
+                        'total_amount' => $grandTotalAmount,
                         'paid_amount' => $paidAmount,
                         'status' => $status,
                         'payment_method' => $paymentMethod,
@@ -236,6 +274,7 @@ class PurchaseService
         }
 
         $itemsPayload = self::extractItemsPayload($payload);
+        $manualItemsPayload = self::extractManualItemsPayload($payload);
         if (!$itemsPayload['valid']) {
             return [
                 'success' => false,
@@ -244,8 +283,17 @@ class PurchaseService
             ];
         }
 
+        if (!$manualItemsPayload['valid']) {
+            return [
+                'success' => false,
+                'message' => 'Dữ liệu sản phẩm khác không hợp lệ.',
+                'redirect' => 'purchase/edit?id=' . $id,
+            ];
+        }
+
         $note = isset($payload['note']) ? trim((string) $payload['note']) : '';
         $paymentMethod = isset($payload['payment_method']) && $payload['payment_method'] === 'bank' ? 'bank' : 'cash';
+        $purchaseDate = self::normalizePurchaseDate(isset($payload['purchase_date']) ? $payload['purchase_date'] : '');
 
         $pdo = Database::getInstance();
         $pdo->beginTransaction();
@@ -262,7 +310,8 @@ class PurchaseService
             }
 
             $itemsResult = self::preparePurchaseItems($itemsPayload, false);
-            if (empty($itemsResult['items'])) {
+            $manualItemsResult = self::preparePurchaseManualItems($manualItemsPayload);
+            if (empty($itemsResult['items']) && empty($manualItemsResult['items'])) {
                 $pdo->rollBack();
                 return [
                     'success' => false,
@@ -275,19 +324,22 @@ class PurchaseService
             if ($paidAmount < 0) {
                 $paidAmount = 0.0;
             }
-            if ($paidAmount > $itemsResult['totalAmount']) {
-                $paidAmount = $itemsResult['totalAmount'];
+            $grandTotalAmount = $itemsResult['totalAmount'] + $manualItemsResult['totalAmount'];
+            if ($paidAmount > $grandTotalAmount) {
+                $paidAmount = $grandTotalAmount;
             }
 
-            $status = $paidAmount >= $itemsResult['totalAmount'] ? 'paid' : 'debt';
+            $status = $paidAmount >= $grandTotalAmount ? 'paid' : 'debt';
 
             $oldItems = PurchaseRepository::findItemsByPurchaseId($id);
             InventoryService::rollbackOldPurchaseItems($oldItems);
             PurchaseRepository::deleteItemsByPurchaseId($id);
+            PurchaseRepository::deleteManualItemsByPurchaseId($id);
 
             PurchaseRepository::updatePurchaseById($id, [
                 'supplier_id' => $supplierId,
-                'total_amount' => $itemsResult['totalAmount'],
+                'purchase_date' => $purchaseDate,
+                'total_amount' => $grandTotalAmount,
                 'paid_amount' => $paidAmount,
                 'status' => $status,
                 'note' => self::buildPurchaseNoteWithMethod($note, $paymentMethod, $paidAmount > 0),
@@ -296,6 +348,11 @@ class PurchaseService
             foreach ($itemsResult['items'] as $row) {
                 $row['purchase_id'] = $id;
                 PurchaseItem::create($row);
+            }
+
+            foreach ($manualItemsResult['items'] as $row) {
+                $row['purchase_id'] = $id;
+                PurchaseManualItem::create($row);
             }
 
             InventoryService::adjustForNewPurchaseItems($itemsResult['items']);
@@ -308,12 +365,12 @@ class PurchaseService
                     'detail' => [
                         'type' => 'update',
                         'old_total' => isset($purchase['total_amount']) ? (float) $purchase['total_amount'] : 0.0,
-                        'new_total' => $itemsResult['totalAmount'],
+                        'new_total' => $grandTotalAmount,
                         'old_paid' => isset($purchase['paid_amount']) ? (float) $purchase['paid_amount'] : 0.0,
                         'new_paid' => $paidAmount,
                         'old_status' => isset($purchase['status']) ? $purchase['status'] : '',
                         'new_status' => $status,
-                        'items_count' => count($itemsResult['items']),
+                        'items_count' => count($itemsResult['items']) + count($manualItemsResult['items']),
                     ],
                 ]);
             }
@@ -360,6 +417,57 @@ class PurchaseService
         ];
     }
 
+    public static function deletePurchase(int $id): array
+    {
+        if ($id <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Phiếu nhập không hợp lệ.',
+                'redirect' => 'purchase',
+            ];
+        }
+
+        $pdo = Database::getInstance();
+        $pdo->beginTransaction();
+
+        try {
+            $purchase = PurchaseRepository::findByIdForUpdate($id);
+            if (!$purchase) {
+                $pdo->rollBack();
+                return [
+                    'success' => false,
+                    'message' => 'Không tìm thấy phiếu nhập.',
+                    'redirect' => 'purchase',
+                ];
+            }
+
+            $items = PurchaseRepository::findItemsByPurchaseId($id);
+            InventoryService::rollbackOldPurchaseItems($items);
+
+            PurchaseRepository::deletePaymentsByPurchaseId($id);
+            PurchaseRepository::deleteLogsByPurchaseId($id);
+            PurchaseRepository::deleteItemsByPurchaseId($id);
+            PurchaseRepository::deleteManualItemsByPurchaseId($id);
+            PurchaseRepository::deletePurchaseById($id);
+
+            $pdo->commit();
+            ReportService::clearReportCache();
+
+            return [
+                'success' => true,
+                'message' => 'Đã xóa phiếu nhập hàng #' . $id . '.',
+                'redirect' => 'purchase',
+            ];
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            return [
+                'success' => false,
+                'message' => 'Không thể xóa phiếu nhập hàng: ' . $e->getMessage(),
+                'redirect' => 'purchase/view?id=' . $id,
+            ];
+        }
+    }
+
     private static function resolvePagination(int $page, int $totalCount, int $perPage): array
     {
         $totalPages = (int) ceil($totalCount / $perPage);
@@ -396,6 +504,30 @@ class PurchaseService
             'priceCosts' => $priceCosts,
             'amountInputs' => is_array($amountInputs) ? $amountInputs : [],
             'updateCostFlags' => $updateCostFlags,
+        ];
+    }
+
+    private static function extractManualItemsPayload(array $payload): array
+    {
+        $itemNames = isset($payload['manual_item_name']) ? $payload['manual_item_name'] : [];
+        $unitNames = isset($payload['manual_unit_name']) ? $payload['manual_unit_name'] : [];
+        $qtys = isset($payload['manual_qty']) ? $payload['manual_qty'] : [];
+        $priceCosts = isset($payload['manual_price_cost']) ? $payload['manual_price_cost'] : [];
+        $amounts = isset($payload['manual_amount']) ? $payload['manual_amount'] : [];
+
+        $valid = is_array($itemNames)
+            && is_array($unitNames)
+            && is_array($qtys)
+            && is_array($priceCosts)
+            && (empty($amounts) || is_array($amounts));
+
+        return [
+            'valid' => $valid,
+            'itemNames' => $itemNames,
+            'unitNames' => $unitNames,
+            'qtys' => $qtys,
+            'priceCosts' => $priceCosts,
+            'amounts' => is_array($amounts) ? $amounts : [],
         ];
     }
 
@@ -491,6 +623,51 @@ class PurchaseService
             'items' => $itemsPrepared,
             'totalAmount' => $totalAmount,
             'updateCostByUnit' => $updateCostByUnit,
+        ];
+    }
+
+    private static function preparePurchaseManualItems(array $itemsPayload): array
+    {
+        $totalAmount = 0.0;
+        $itemsPrepared = [];
+
+        foreach ($itemsPayload['itemNames'] as $index => $itemNameRaw) {
+            $itemName = trim((string) $itemNameRaw);
+            $unitName = isset($itemsPayload['unitNames'][$index]) ? trim((string) $itemsPayload['unitNames'][$index]) : '';
+            $qtyRaw = isset($itemsPayload['qtys'][$index]) ? $itemsPayload['qtys'][$index] : '';
+            $qty = (float) str_replace([',', ' '], ['', ''], (string) $qtyRaw);
+            $priceCostRaw = isset($itemsPayload['priceCosts'][$index]) ? $itemsPayload['priceCosts'][$index] : '';
+            $priceCost = Money::parseAmount($priceCostRaw);
+            $amountRaw = isset($itemsPayload['amounts'][$index]) ? $itemsPayload['amounts'][$index] : '';
+            $amount = Money::parseAmount($amountRaw);
+
+            if ($itemName === '' || $qty <= 0) {
+                continue;
+            }
+
+            if ($amount > 0 && $qty > 0) {
+                $priceCost = $amount / $qty;
+            } else {
+                $amount = $qty * max(0, $priceCost);
+            }
+
+            if ($amount < 0 || $priceCost < 0) {
+                continue;
+            }
+
+            $totalAmount += $amount;
+            $itemsPrepared[] = [
+                'item_name' => $itemName,
+                'unit_name' => $unitName,
+                'qty' => $qty,
+                'price_cost' => $priceCost,
+                'amount' => $amount,
+            ];
+        }
+
+        return [
+            'items' => $itemsPrepared,
+            'totalAmount' => $totalAmount,
         ];
     }
 

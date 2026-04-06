@@ -29,3 +29,8 @@ export async function recordPurchasePayment(id, payload) {
   const response = await api.post(`/purchases/${id}/payment`, payload);
   return response.data;
 }
+
+export async function deletePurchase(id) {
+  const response = await api.delete(`/purchases/${id}`);
+  return response.data;
+}

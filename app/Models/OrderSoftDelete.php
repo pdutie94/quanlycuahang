@@ -22,7 +22,7 @@ class OrderSoftDelete
     {
         $days = (int) $days;
         if ($days <= 0) {
-            $days = 30;
+            $days = 7;
         }
 
         $pdo = Database::getInstance();
@@ -33,23 +33,52 @@ class OrderSoftDelete
         $stmt->execute([$cutoff]);
         $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        if (empty($ids)) {
+        return self::purgeByIds($ids);
+    }
+
+    public static function purgeByIds($ids)
+    {
+        if (!is_array($ids)) {
             return 0;
         }
 
-        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $normalizedIds = [];
+        foreach ($ids as $id) {
+            $id = (int) $id;
+            if ($id > 0) {
+                $normalizedIds[] = $id;
+            }
+        }
+
+        if (empty($normalizedIds)) {
+            return 0;
+        }
+
+        $pdo = Database::getInstance();
+        $placeholders = implode(',', array_fill(0, count($normalizedIds), '?'));
+
+        $deletedOnlyIdsStmt = $pdo->prepare('SELECT id FROM orders WHERE deleted_at IS NOT NULL AND id IN (' . $placeholders . ')');
+        $deletedOnlyIdsStmt->execute($normalizedIds);
+        $deletedOnlyIds = $deletedOnlyIdsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (empty($deletedOnlyIds)) {
+            return 0;
+        }
 
         $deleteLogs = $pdo->prepare('DELETE FROM order_logs WHERE order_id IN (' . $placeholders . ')');
-        $deleteLogs->execute($ids);
+        $deleteLogs->execute($deletedOnlyIds);
 
         $deletePayments = $pdo->prepare('DELETE FROM payments WHERE type = \'customer\' AND order_id IN (' . $placeholders . ')');
-        $deletePayments->execute($ids);
+        $deletePayments->execute($deletedOnlyIds);
 
         $deleteItems = $pdo->prepare('DELETE FROM order_items WHERE order_id IN (' . $placeholders . ')');
-        $deleteItems->execute($ids);
+        $deleteItems->execute($deletedOnlyIds);
+
+        $deleteManualItems = $pdo->prepare('DELETE FROM order_manual_items WHERE order_id IN (' . $placeholders . ')');
+        $deleteManualItems->execute($deletedOnlyIds);
 
         $deleteOrders = $pdo->prepare('DELETE FROM orders WHERE id IN (' . $placeholders . ')');
-        $deleteOrders->execute($ids);
+        $deleteOrders->execute($deletedOnlyIds);
 
         return $deleteOrders->rowCount();
     }

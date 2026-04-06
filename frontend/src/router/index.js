@@ -3,12 +3,14 @@ import LoginPage from '../modules/auth/pages/LoginPage.vue';
 import { clearAuthCache, me } from '../modules/auth/services/auth.api';
 import CategoryFormPage from '../modules/category/pages/CategoryFormPage.vue';
 import CategoryListPage from '../modules/category/pages/CategoryListPage.vue';
+import CustomerDebtPaymentPage from '../modules/customer/pages/CustomerDebtPaymentPage.vue';
 import CustomerDetailPage from '../modules/customer/pages/CustomerDetailPage.vue';
 import CustomerFormPage from '../modules/customer/pages/CustomerFormPage.vue';
 import CustomerListPage from '../modules/customer/pages/CustomerListPage.vue';
 import CustomerPaymentPage from '../modules/customer/pages/CustomerPaymentPage.vue';
 import DashboardPage from '../modules/dashboard/pages/DashboardPage.vue';
 import SupplierDetailPage from '../modules/supplier/pages/SupplierDetailPage.vue';
+import SupplierDebtPaymentPage from '../modules/supplier/pages/SupplierDebtPaymentPage.vue';
 import SupplierFormPage from '../modules/supplier/pages/SupplierFormPage.vue';
 import SupplierListPage from '../modules/supplier/pages/SupplierListPage.vue';
 import UnitListPage from '../modules/unit/pages/UnitListPage.vue';
@@ -17,6 +19,7 @@ import OrderFormPage from '../modules/order/pages/OrderFormPage.vue';
 import OrderInvoicePage from '../modules/order/pages/OrderInvoicePage.vue';
 import OrderListPage from '../modules/order/pages/OrderListPage.vue';
 import OrderReturnPage from '../modules/order/pages/OrderReturnPage.vue';
+import OrderTrashPage from '../modules/order/pages/OrderTrashPage.vue';
 import PosPage from '../modules/pos/pages/PosPage.vue';
 import PurchaseDetailPage from '../modules/purchase/pages/PurchaseDetailPage.vue';
 import PurchaseFormPage from '../modules/purchase/pages/PurchaseFormPage.vue';
@@ -150,6 +153,11 @@ export const router = createRouter({
       component: CustomerDetailPage
     },
     {
+      path: '/customers/:id/payment',
+      name: 'customers.debtPayment',
+      component: CustomerDebtPaymentPage
+    },
+    {
       path: '/customers/:id/edit',
       name: 'customers.edit',
       component: CustomerFormPage
@@ -163,6 +171,11 @@ export const router = createRouter({
       path: '/orders',
       name: 'orders.list',
       component: OrderListPage
+    },
+    {
+      path: '/orders/deleted',
+      name: 'orders.deleted',
+      component: OrderTrashPage
     },
     {
       path: '/orders/create',
@@ -228,6 +241,11 @@ export const router = createRouter({
       path: '/suppliers/:id',
       name: 'suppliers.detail',
       component: SupplierDetailPage
+    },
+    {
+      path: '/suppliers/:id/payment',
+      name: 'suppliers.debtPayment',
+      component: SupplierDebtPaymentPage
     },
     {
       path: '/suppliers/:id/edit',

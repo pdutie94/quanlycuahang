@@ -23,6 +23,27 @@ class OrderService
         ];
     }
 
+    public static function getDeletedOrderListData(array $queryParams, int $perPage = 20): array
+    {
+        $filters = self::normalizeListFilters($queryParams);
+        $totalCount = OrderRepository::countDeletedFiltered($filters);
+        $pagination = self::resolvePagination($filters['page'], $totalCount, $perPage);
+        $orders = OrderRepository::paginateDeletedFiltered($filters, $pagination['perPage'], $pagination['offset']);
+
+        return [
+            'orders' => $orders,
+            'keyword' => $filters['keyword'],
+            'status' => $filters['status'],
+            'orderStatus' => $filters['orderStatus'],
+            'fromDate' => $filters['fromDate'],
+            'toDate' => $filters['toDate'],
+            'page' => $pagination['page'],
+            'totalPages' => $pagination['totalPages'],
+            'totalCount' => $totalCount,
+            'perPage' => $pagination['perPage'],
+        ];
+    }
+
     public static function normalizeListFilters(array $queryParams): array
     {
         $keyword = isset($queryParams['q']) ? trim((string) $queryParams['q']) : '';
@@ -1378,7 +1399,7 @@ class OrderService
         return [
             'success' => $ok,
             'message' => $ok
-                ? 'Đã xóa tạm đơn hàng. Có thể khôi phục trong vòng 30 ngày.'
+                ? 'Đã xóa tạm đơn hàng. Có thể khôi phục trong vòng 7 ngày.'
                 : 'Không thể xóa đơn hàng.',
             'redirect' => 'order',
         ];
@@ -1412,11 +1433,11 @@ class OrderService
         ];
     }
 
-    public static function purgeDeletedOrders($days = 30): array
+    public static function purgeDeletedOrders($days = 7): array
     {
         $days = (int) $days;
         if ($days <= 0) {
-            $days = 30;
+            $days = 7;
         }
 
         if (!class_exists('OrderSoftDelete')) {
@@ -1434,6 +1455,97 @@ class OrderService
             'message' => 'Đã xóa vĩnh viễn ' . (int) $count . ' đơn hàng đã xóa tạm quá ' . (int) $days . ' ngày.',
             'redirect' => 'order',
         ];
+    }
+
+    public static function purgeDeletedOrderIds(array $ids): array
+    {
+        if (!class_exists('OrderSoftDelete')) {
+            return [
+                'success' => false,
+                'message' => 'Chức năng xóa vĩnh viễn chưa sẵn sàng.',
+                'redirect' => 'order',
+            ];
+        }
+
+        $count = OrderSoftDelete::purgeByIds($ids);
+        if ($count <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Không có đơn hàng đã xóa tạm hợp lệ để xóa vĩnh viễn.',
+                'redirect' => 'order',
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Đã xóa vĩnh viễn ' . (int) $count . ' đơn hàng đã chọn.',
+            'redirect' => 'order',
+        ];
+    }
+
+    public static function autoPurgeExpiredDeletedOrders(int $days = 7, int $throttleSeconds = 3600): void
+    {
+        $days = (int) $days;
+        if ($days <= 0) {
+            $days = 7;
+        }
+
+        $throttleSeconds = (int) $throttleSeconds;
+        if ($throttleSeconds <= 0) {
+            $throttleSeconds = 3600;
+        }
+
+        if (!class_exists('OrderSoftDelete')) {
+            return;
+        }
+
+        $runtimeFile = sys_get_temp_dir() . '/order_soft_delete_auto_purge.runtime';
+        $lockFile = sys_get_temp_dir() . '/order_soft_delete_auto_purge.lock';
+        $now = time();
+
+        $lastRun = 0;
+        if (is_file($runtimeFile)) {
+            $lastRunRaw = @file_get_contents($runtimeFile);
+            $lastRun = (int) $lastRunRaw;
+        }
+
+        if ($lastRun > 0 && ($now - $lastRun) < $throttleSeconds) {
+            return;
+        }
+
+        $lockHandle = @fopen($lockFile, 'c');
+        if (!$lockHandle) {
+            return;
+        }
+
+        try {
+            if (!@flock($lockHandle, LOCK_EX | LOCK_NB)) {
+                return;
+            }
+
+            clearstatcache(true, $runtimeFile);
+            $lastRun = 0;
+            if (is_file($runtimeFile)) {
+                $lastRunRaw = @file_get_contents($runtimeFile);
+                $lastRun = (int) $lastRunRaw;
+            }
+
+            if ($lastRun > 0 && ($now - $lastRun) < $throttleSeconds) {
+                return;
+            }
+
+            OrderSoftDelete::purgeOlderThanDays($days);
+            @file_put_contents($runtimeFile, (string) $now, LOCK_EX);
+        } catch (\Throwable $e) {
+            if (class_exists('LogService')) {
+                LogService::logError('OrderService::autoPurgeExpiredDeletedOrders exception', [
+                    'exception' => $e->getMessage(),
+                ]);
+            }
+        } finally {
+            @flock($lockHandle, LOCK_UN);
+            @fclose($lockHandle);
+        }
     }
 
     public static function calculateAdjustedOrderSummary(array $order, array $adjustments = [], array $input = [], array $options = []): array

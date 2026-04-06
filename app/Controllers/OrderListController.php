@@ -217,7 +217,7 @@ class OrderListController extends Controller
     {
         $this->requireLogin();
 
-        $result = OrderService::purgeDeletedOrders(isset($_GET['days']) ? $_GET['days'] : 30);
+        $result = OrderService::purgeDeletedOrders(isset($_GET['days']) ? $_GET['days'] : 7);
         $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
         $this->redirect(isset($result['redirect']) ? $result['redirect'] : 'order');
     }
