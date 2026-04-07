@@ -1,4 +1,6 @@
 <script setup>
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney } = useFormat();
 import { computed, onMounted, reactive, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useToast } from '../../../shared/composables/useToast';
@@ -18,7 +20,7 @@ const form = reactive({
   page: 1
 });
 
-const formatMoney = (amount) => `${new Intl.NumberFormat('vi-VN').format(Number(amount || 0))} đ`;
+// Đã thay thế bằng useFormat
 const totalPages = computed(() => Number(meta.value?.total_pages || 1));
 const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value);
 const isRefreshing = computed(() => loading.value && hasLoadedOnce.value);

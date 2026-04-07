@@ -1,4 +1,6 @@
 <script setup>
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney, formatDateTime } = useFormat();
 import { computed, onMounted, ref, watch } from 'vue';
 import { BanknoteArrowDown, ClipboardList, History, Pencil, Trash2, Users } from '@lucide/vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
@@ -18,15 +20,7 @@ const paymentNote = ref('');
 const showPayment = ref(false);
 const showDeleteModal = ref(false);
 
-const formatter = new Intl.NumberFormat('vi-VN');
-const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
-const formatNumber = (value) => Number(value || 0).toLocaleString('vi-VN', { maximumFractionDigits: 3 });
-const formatDateTime = (value) => {
-  if (!value) return '';
-  const date = new Date(String(value).replace(' ', 'T'));
-  if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
-};
+// Đã thay thế bằng useFormat
 
 const totals = computed(() => {
   const total = Number(purchase.value?.total_amount || 0);

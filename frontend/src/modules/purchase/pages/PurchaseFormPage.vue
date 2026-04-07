@@ -1,4 +1,6 @@
 <script setup>
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney, parseAmount } = useFormat();
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { Package, PencilLine, Plus, Users, X } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -80,22 +82,7 @@ const manualItemDraft = ref({
   product_category_id: ''
 });
 
-const formatter = new Intl.NumberFormat('vi-VN');
-
-const formatMoney = (amount) => `${formatter.format(parseAmount(amount))} đ`;
-
-function parseAmount(value) {
-  if (value === null || value === undefined) {
-    return 0;
-  }
-
-  const digits = String(value).replace(/[^0-9-]/g, '');
-  if (!digits || digits === '-') {
-    return 0;
-  }
-
-  return Number(digits);
-}
+// Đã thay thế bằng useFormat
 
 function parsePriceShorthand(raw) {
   const str = String(raw ?? '').trim();

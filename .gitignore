@@ -6,3 +6,5 @@ public/uploads/
 uploads/
 .DS_Store
 Thumbs.db
+package/
+full-package/

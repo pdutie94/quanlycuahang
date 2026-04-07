@@ -1,4 +1,6 @@
 <script setup>
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney } = useFormat();
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { useMissingCostReport } from '../composables/useMissingCostReport';
@@ -9,7 +11,7 @@ const form = reactive({ q: '', start_date: '', end_date: '' });
 const selectedIds = ref([]);
 const hasLoadedOnce = ref(false);
 
-const formatMoney = (amount) => `${new Intl.NumberFormat('vi-VN').format(Number(amount || 0))} đ`;
+// Đã thay thế bằng useFormat
 const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value);
 const isRefreshing = computed(() => loading.value && hasLoadedOnce.value);
 

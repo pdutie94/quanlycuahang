@@ -11,11 +11,11 @@
   - [x] customer
   - [x] dashboard
   - [x] order
-  - [ ] pos
-  - [ ] product
-  - [ ] purchase
-  - [ ] report
-  - [ ] supplier
+  - [x] pos
+  - [x] product
+  - [x] purchase
+  - [x] report
+  - [x] supplier
   - [ ] system
   - [ ] unit
 

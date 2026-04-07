@@ -1,4 +1,6 @@
 <script setup>
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney, formatDateTime } = useFormat();
 import { onMounted, ref, computed } from 'vue';
 // Tổng hợp số liệu cho 3 box đầu trang
 const summary = computed(() => {
@@ -26,14 +28,7 @@ const toast = useToast();
 const { supplier, purchases, totalDebt, loading, error, load, remove, deleteLoading, deleteError } = useSupplierDetail();
 const showDeleteModal = ref(false);
 
-const formatter = new Intl.NumberFormat('vi-VN');
-const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
-const formatDateTime = (value) => {
-  if (!value) return '';
-  const date = new Date(String(value).replace(' ', 'T'));
-  if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
-};
+// Đã thay thế bằng useFormat
 
 const loadPage = async () => {
   try {

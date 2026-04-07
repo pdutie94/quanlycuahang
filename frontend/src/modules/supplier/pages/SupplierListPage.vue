@@ -1,4 +1,6 @@
 <script setup>
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney } = useFormat();
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useSupplierList } from '../composables/useSupplierList';
@@ -11,8 +13,7 @@ const keyword = ref('');
 const { suppliers, meta, loading, error, load } = useSupplierList();
 const toast = useToast();
 
-const currencyFormatter = new Intl.NumberFormat('vi-VN');
-const formatMoney = (amount) => currencyFormatter.format(Number(amount || 0));
+// Đã thay thế bằng useFormat
 
 const {
   hasMore,

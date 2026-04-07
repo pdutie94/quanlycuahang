@@ -1,4 +1,6 @@
 <script setup>
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney, formatDateTime, parseAmount } = useFormat();
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { CirclePlus, Minus, Pencil, Plus, RefreshCw, Tag, X } from '@lucide/vue';
@@ -64,20 +66,7 @@ const surchargeDraftValue = ref('');
 const customerMode = ref('guest');
 const customerNameInput = ref(null);
 
-const numberFormatter = new Intl.NumberFormat('vi-VN');
-
-const formatMoney = (amount) => `${numberFormatter.format(Number(amount || 0))} đ`;
-
-const parseAmount = (value) => {
-  if (value === null || value === undefined) {
-    return 0;
-  }
-  const digits = String(value).replace(/[^0-9-]/g, '');
-  if (!digits || digits === '-') {
-    return 0;
-  }
-  return Number(digits);
-};
+// Đã thay thế bằng useFormat
 
 const formatMoneyInput = (value, allowEmpty = true) => {
   const amount = parseAmount(value);

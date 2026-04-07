@@ -1,4 +1,6 @@
 <script setup>
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney } = useFormat();
 import { onMounted, reactive } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { useInventoryReport } from '../composables/useInventoryReport';

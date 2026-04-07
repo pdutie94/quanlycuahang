@@ -1,4 +1,6 @@
 <script setup>
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney } = useFormat();
 import { computed, ref, watch } from 'vue';
 import { RouterLink } from 'vue-router';
 import { Check, X } from '@lucide/vue';
@@ -84,7 +86,7 @@ watch(filters, () => {
   syncFiltersFromApi();
 });
 
-const formatMoney = (value) => Number(value || 0).toLocaleString('vi-VN');
+// Đã thay thế bằng useFormat
 
 const formatQty = (value) => Number(value || 0).toLocaleString('vi-VN');
 

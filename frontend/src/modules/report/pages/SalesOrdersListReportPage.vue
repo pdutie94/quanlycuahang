@@ -1,4 +1,6 @@
 <script setup>
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney } = useFormat();
 import { computed, onMounted, reactive, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useToast } from '../../../shared/composables/useToast';

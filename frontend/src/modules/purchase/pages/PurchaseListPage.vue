@@ -1,4 +1,6 @@
 <script setup>
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney, formatDateTime } = useFormat();
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import PurchaseListItemCard from '../components/PurchaseListItemCard.vue';
@@ -18,14 +20,7 @@ const showFilters = ref(false);
 const { items, suppliers, meta, loading, error, load } = usePurchases();
 const toast = useToast();
 
-const formatter = new Intl.NumberFormat('vi-VN');
-const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
-const formatDateTime = (value) => {
-  if (!value) return '';
-  const date = new Date(String(value).replace(' ', 'T'));
-  if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
-};
+// Đã thay thế bằng useFormat
 
 const {
   hasMore,

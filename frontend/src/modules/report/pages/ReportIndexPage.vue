@@ -1,4 +1,6 @@
 <script setup>
+import { useFormat } from '../../../shared/composables/useFormat';
+const { formatMoney } = useFormat();
 import { onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useToast } from '../../../shared/composables/useToast';
@@ -7,8 +9,7 @@ import { useReportOverview } from '../composables/useReportOverview';
 const toast = useToast();
 const { overview, loading, error, load } = useReportOverview();
 
-const formatter = new Intl.NumberFormat('vi-VN');
-const formatMoney = (amount) => `${formatter.format(Number(amount || 0))} đ`;
+// Đã thay thế bằng useFormat
 
 onMounted(async () => {
   try {
