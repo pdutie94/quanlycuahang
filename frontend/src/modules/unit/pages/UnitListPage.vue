@@ -1,150 +1,152 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
+import { Pencil, Trash2, Check, X as IconX, Plus } from '@lucide/vue';
+import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
+import ActionConfirmSheet from '../../../shared/components/ActionConfirmSheet.vue';
 import { useUnitList } from '../composables/useUnitList';
 
 const toast = useToast();
-const { items, load, refresh, loading, error, submitCreate, createLoading, createError, submitUpdate, updateLoading, updateError, submitDelete, deleteLoading, deleteError } = useUnitList();
+const { items, meta, page, load, loadMore, loading, submitCreate, createLoading, submitUpdate, updateLoading, submitDelete, deleteLoading } = useUnitList();
 
-const createName = ref('');
-const editMap = ref({});
-const pendingDeleteId = ref(null);
-let pendingDeleteTimer = null;
+const newName = ref('');
+const addLoading = ref(false);
+const editingId = ref(null);
+const editingName = ref('');
+const showDeleteModal = ref(false);
+const deletingItem = ref(null);
 
-const syncEditMap = () => {
-  const nextMap = {};
-  for (const unit of items.value) {
-    nextMap[unit.id] = unit.name || '';
-  }
-  editMap.value = nextMap;
-};
-
-const loadPage = async () => {
-  try {
-    await load();
-    syncEditMap();
-  } catch (_err) {
-    toast.error(error.value || 'Không thể tải danh sách đơn vị tính.');
-  }
-};
-
-const refreshPage = async () => {
-  try {
-    await refresh();
-    syncEditMap();
-  } catch (_err) {
-    toast.error(error.value || 'Không thể tải danh sách đơn vị tính.');
-  }
-};
-
-const handleCreate = async () => {
-  try {
-    const result = await submitCreate({ name: createName.value });
-    if (result?.success) {
-      toast.success(result?.message || 'Đã thêm đơn vị tính.');
-      createName.value = '';
-      await refreshPage();
-      return;
-    }
-    toast.error(result?.message || createError.value || 'Không thể thêm đơn vị tính.');
-  } catch (_err) {
-    toast.error(createError.value || 'Không thể thêm đơn vị tính.');
-  }
-};
-
-const handleUpdate = async (id) => {
-  try {
-    const result = await submitUpdate(id, { name: editMap.value[id] || '' });
-    if (result?.success) {
-      toast.success(result?.message || 'Đã cập nhật đơn vị tính.');
-      await refreshPage();
-      return;
-    }
-    toast.error(result?.message || updateError.value || 'Không thể cập nhật đơn vị tính.');
-  } catch (_err) {
-    toast.error(updateError.value || 'Không thể cập nhật đơn vị tính.');
-  }
-};
-
-const resetPendingDelete = () => {
-  pendingDeleteId.value = null;
-  if (pendingDeleteTimer) {
-    window.clearTimeout(pendingDeleteTimer);
-    pendingDeleteTimer = null;
-  }
-};
-
-const handleDelete = async (id) => {
-  if (pendingDeleteId.value !== id) {
-    pendingDeleteId.value = id;
-    if (pendingDeleteTimer) {
-      window.clearTimeout(pendingDeleteTimer);
-    }
-    pendingDeleteTimer = window.setTimeout(() => {
-      pendingDeleteId.value = null;
-      pendingDeleteTimer = null;
-    }, 4000);
-    toast.info('Nhấn Xóa lần nữa để xác nhận.');
+const handleAdd = async () => {
+  if (!newName.value.trim()) {
+    toast.error('Vui lòng nhập tên đơn vị.');
     return;
   }
-
-  resetPendingDelete();
-
+  addLoading.value = true;
   try {
-    const result = await submitDelete(id);
-    if (result?.success) {
-      toast.success(result?.message || 'Đã xóa đơn vị tính.');
-      await refreshPage();
-      return;
+    const res = await submitCreate({ name: newName.value });
+    const { id, name } = res?.data || {};
+    if (res?.success && id && name) {
+      items.value.unshift({ id, name });
+      toast.success('Đã thêm đơn vị tính.');
+      newName.value = '';
+    } else {
+      toast.error(res?.message || 'Không thể thêm đơn vị tính.');
     }
-    toast.error(result?.message || deleteError.value || 'Không thể xóa đơn vị tính.');
-  } catch (_err) {
-    toast.error(deleteError.value || 'Không thể xóa đơn vị tính.');
+  } finally {
+    addLoading.value = false;
+  }
+};
+
+const startEdit = (item) => {
+  editingId.value = item.id;
+  editingName.value = item.name;
+};
+const cancelEdit = () => {
+  editingId.value = null;
+  editingName.value = '';
+};
+const handleEdit = async (item) => {
+  if (!editingName.value.trim()) {
+    toast.error('Vui lòng nhập tên đơn vị.');
+    return;
+  }
+  updateLoading.value = true;
+  try {
+    const res = await submitUpdate(item.id, { name: editingName.value });
+    if (res?.success) {
+      toast.success('Đã cập nhật đơn vị tính.');
+      const idx = items.value.findIndex(i => i.id === item.id);
+      if (idx !== -1) items.value[idx].name = editingName.value;
+      editingId.value = null;
+      editingName.value = '';
+    } else {
+      toast.error(res?.message || 'Không thể cập nhật đơn vị tính.');
+    }
+  } finally {
+    updateLoading.value = false;
+  }
+};
+
+const handleDelete = (item) => {
+  deletingItem.value = item;
+  showDeleteModal.value = true;
+};
+const confirmDelete = async () => {
+  if (!deletingItem.value) return;
+  deleteLoading.value = true;
+  try {
+    const res = await submitDelete(deletingItem.value.id);
+    if (res?.success) {
+      toast.success('Đã xóa đơn vị tính.');
+      items.value = items.value.filter(i => i.id !== deletingItem.value.id);
+      showDeleteModal.value = false;
+      deletingItem.value = null;
+    } else {
+      toast.error(res?.message || 'Không thể xóa đơn vị tính.');
+    }
+  } finally {
+    deleteLoading.value = false;
+  }
+};
+
+const onScroll = (e) => {
+  const el = e.target;
+  if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
+    loadMore();
   }
 };
 
 onMounted(async () => {
-  await loadPage();
-});
-
-onBeforeUnmount(() => {
-  resetPendingDelete();
+  await load(1);
 });
 </script>
 
 <template>
   <section class="space-y-3">
-    <header class="app-card">
-      <h1 class="text-lg font-semibold text-slate-900">Đơn vị tính</h1>
-
-      <form class="mt-3 flex gap-2" @submit.prevent="handleCreate">
-        <input
-          v-model="createName"
-          type="text"
-          placeholder="VD: Cái, Hộp, Kg..."
-          class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500"
-          :disabled="loading || createLoading || updateLoading || deleteLoading"
-          required
-        />
-        <button type="submit" class="h-10 rounded-xl border border-brand-600 bg-brand-600 px-4 text-sm font-medium text-white" :disabled="loading || createLoading || updateLoading || deleteLoading">Thêm</button>
-      </form>
-    </header>
-
-    <div class="space-y-3">
+    <div class="mb-2">
+      <h1 class="font-display text-xl font-bold text-slate-900 md:text-2xl">Đơn vị tính</h1>
+    </div>
+    <form class="mt-0 flex gap-2 mb-2" @submit.prevent="handleAdd">
+      <input v-model="newName" type="text" class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500" placeholder="VD: Cái, Hộp, Kg..." :disabled="addLoading" />
+      <button type="submit" class="rounded-lg bg-brand-600 px-3 py-2 text-white disabled:opacity-50" :disabled="addLoading" title="Thêm mới"><Plus class="w-4 h-4" /></button>
+    </form>
+    <div class="space-y-3" @scroll="onScroll">
       <div v-if="loading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>
       <div v-else-if="!items.length" class="app-empty-state">Chưa có đơn vị tính nào.</div>
-
-      <div v-for="item in items" v-else :key="item.id" class="app-list-card">
-        <div class="flex flex-wrap items-center gap-2">
-          <input
-            v-model="editMap[item.id]"
-            type="text"
-            class="h-10 min-w-0 flex-1 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500"
-            :disabled="loading || createLoading || updateLoading || deleteLoading"
-          />
-          <button type="button" class="h-10 rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700" :disabled="loading || createLoading || updateLoading || deleteLoading" @click="handleUpdate(item.id)">Lưu</button>
-          <button type="button" class="h-10 rounded-xl border border-rose-300 px-4 text-sm font-medium text-rose-600" :disabled="loading || createLoading || updateLoading || deleteLoading" @click="handleDelete(item.id)">Xóa</button>
+      <div v-else class="space-y-3">
+        <div v-for="item in items" :key="item.id" class="app-list-card flex items-center justify-between gap-2">
+          <div class="flex-1">
+            <template v-if="editingId === item.id">
+              <input v-model="editingName" type="text" class="rounded-lg border border-slate-300 px-2 py-1 text-sm outline-none focus:border-brand-500 w-48" :disabled="updateLoading" />
+            </template>
+            <template v-else>
+              <span class="text-sm font-medium text-slate-900">{{ item.name }}</span>
+            </template>
+          </div>
+          <div class="flex gap-2">
+            <template v-if="editingId === item.id">
+              <button class="p-1.5 rounded hover:bg-brand-50 text-brand-700 disabled:opacity-50" :disabled="updateLoading" @click="handleEdit(item)" title="Lưu"><Check class="w-4 h-4" /></button>
+              <button class="p-1.5 rounded hover:bg-slate-100 text-slate-700" @click="cancelEdit" title="Hủy"><IconX class="w-4 h-4" /></button>
+            </template>
+            <template v-else>
+              <button class="p-1.5 rounded hover:bg-slate-100" title="Sửa" @click="startEdit(item)"><Pencil class="w-4 h-4" /></button>
+              <button class="p-1.5 rounded hover:bg-rose-50 disabled:opacity-50" title="Xóa" :disabled="deleteLoading" @click="handleDelete(item)">
+                <Trash2 class="w-4 h-4" />
+              </button>
+            </template>
+          </div>
         </div>
+        <InfiniteListStatus :visible="true" :loadingMore="loading" :hasMore="meta.page < meta.total_pages" />
+        <ActionConfirmSheet
+          :open="showDeleteModal"
+          title="Xóa đơn vị tính"
+          :description="deletingItem && deletingItem.name ? `Bạn có chắc chắn muốn xóa đơn vị tính '${deletingItem.name}'? Thao tác này không thể hoàn tác.` : ''"
+          confirm-label="Xóa"
+          cancel-label="Hủy"
+          :loading="deleteLoading"
+          @cancel="showDeleteModal = false"
+          @confirm="confirmDelete"
+        />
       </div>
     </div>
   </section>

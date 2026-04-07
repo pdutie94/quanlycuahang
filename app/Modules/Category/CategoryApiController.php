@@ -45,11 +45,22 @@ class CategoryApiController
         $payload = $this->normalizePayload($request);
         $result = \CategoryService::createCategory($payload);
 
-        if (empty($result['success'])) {
+        if (empty($result['success']) || empty($result['category'])) {
             return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Cannot create category', 422);
         }
 
-        return ApiResponse::success($response, [], isset($result['message']) ? (string) $result['message'] : 'Đã thêm danh mục sản phẩm.');
+        // Đưa các trường id, name, created_at... ra ngoài data
+        $cat = $result['category'];
+        $data = [
+            'id' => $cat['id'] ?? null,
+            'name' => $cat['name'] ?? '',
+            'created_at' => $cat['created_at'] ?? null,
+        ];
+        return ApiResponse::success(
+            $response,
+            $data,
+            isset($result['message']) ? (string) $result['message'] : 'Đã thêm danh mục sản phẩm.'
+        );
     }
 
     public function update(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface

@@ -19,10 +19,19 @@ class UnitService
             ];
         }
 
-        Unit::create(['name' => $name]);
+        $id = Unit::create(['name' => $name]);
+        $unit = null;
+        if ($id) {
+            $pdo = Database::getInstance();
+            $stmt = $pdo->prepare('SELECT * FROM units WHERE id = ?');
+            $stmt->execute([$id]);
+            $unit = $stmt->fetch();
+        }
         return [
-            'success' => true,
-            'message' => 'Đã thêm đơn vị tính.',
+            'success' => (bool)$unit,
+            'message' => $unit ? 'Đã thêm đơn vị tính.' : 'Không thể tạo đơn vị.',
+            'unit' => $unit,
+            'id' => $id,
             'redirect' => 'unit',
         ];
     }

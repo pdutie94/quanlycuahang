@@ -1,7 +1,7 @@
 import { api } from '../../../shared/services/api';
 
-export async function fetchUnits() {
-  const response = await api.get('/units');
+export async function fetchUnits(params = {}) {
+  const response = await api.get('/units', { params });
   return response.data;
 }
 

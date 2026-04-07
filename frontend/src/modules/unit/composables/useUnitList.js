@@ -4,20 +4,34 @@ import { useFetch } from '../../../shared/composables/useFetch';
 
 export function useUnitList() {
   const items = ref([]);
+  const meta = ref({ page: 1, per_page: 20, total_pages: 1 });
+  const page = ref(1);
 
   const listRequest = useFetch(fetchUnits);
   const createRequest = useFetch(createUnit);
   const updateRequest = useFetch(updateUnit);
   const deleteRequest = useFetch(deleteUnit);
 
-  const applyListData = (data) => {
-    items.value = data?.items || [];
+  const applyListData = (data, append = false) => {
+    if (append) {
+      items.value.push(...(data?.items || []));
+    } else {
+      items.value = data?.items || [];
+    }
+    meta.value = data?.meta || { page: 1, per_page: 20, total_pages: 1 };
   };
 
-  const load = async () => {
-    const payload = await listRequest.execute();
-    applyListData(payload?.data || {});
+  const load = async (p = 1, append = false) => {
+    const payload = await listRequest.execute({ page: p });
+    applyListData(payload?.data || {}, append);
+    page.value = p;
     return payload;
+  };
+
+  const loadMore = async () => {
+    if (meta.value.page >= meta.value.total_pages) return;
+    const nextPage = meta.value.page + 1;
+    await load(nextPage, true);
   };
 
   const refresh = async () => {
@@ -32,7 +46,10 @@ export function useUnitList() {
 
   return {
     items,
+    meta,
+    page,
     load,
+    loadMore,
     refresh,
     loading: listRequest.loading,
     error: listRequest.error,

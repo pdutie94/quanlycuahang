@@ -22,11 +22,16 @@ class UnitApiController
         $payload = $this->normalizePayload($request);
         $result = \UnitService::createUnit($payload);
 
-        if (empty($result['success'])) {
+        if (empty($result['success']) || empty($result['unit'])) {
             return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Cannot create unit', 422);
         }
 
-        return ApiResponse::success($response, [], isset($result['message']) ? (string) $result['message'] : 'Đã thêm đơn vị tính.');
+        $unit = $result['unit'];
+        $data = [
+            'id' => $unit['id'] ?? null,
+            'name' => $unit['name'] ?? '',
+        ];
+        return ApiResponse::success($response, $data, isset($result['message']) ? (string) $result['message'] : 'Đã thêm đơn vị tính.');
     }
 
     public function update(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface

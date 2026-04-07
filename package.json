@@ -8,7 +8,9 @@
     "build:css": "tailwindcss -c tailwind.config.js -i resources/css/tailwind.css -o public/assets/css/tailwind.css --minify",
     "watch:css": "tailwindcss -c tailwind.config.js -i resources/css/tailwind.css -o public/assets/css/tailwind.css --watch",
     "watch": "concurrently \"npm:watch:spa\" \"npm:watch:css\"",
-    "build": "npm run build:css && npm run build:spa"
+    "build": "npm run build:css && npm run build:spa",
+    "build-package": "bash build-package.sh",
+    "build-full-package": "bash build-full-package.sh"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.5",

@@ -172,11 +172,18 @@ const normalizeDecimalDisplay = (value) => {
 
 const roundDownThousand = (value) => {
   const amount = typeof value === 'number' ? value : parseAmount(value);
-  if (amount <= 0) {
-    return 0;
-  }
+  if (amount <= 0) return 0;
+  const normalizedAmount = Math.round(amount);
+  const remainder = normalizedAmount % 1000;
+  const baseAmount = normalizedAmount - remainder;
+  // <=700 làm tròn xuống, >700 làm tròn lên
+  if (remainder > 700) return baseAmount + 1000;
+  return baseAmount;
+};
 
-  return Math.floor(Math.round(amount) / 1000) * 1000;
+const manualRoundTotal = () => {
+  // Không reset discount/surcharge, chỉ làm tròn payment_amount
+  form.value.payment_amount = formatMoneyInput(roundDownThousand(finalTotal.value));
 };
 
 const discountDraftSuffix = computed(() => {
@@ -926,7 +933,7 @@ onMounted(async () => {
               <span class="text-lg font-medium text-slate-900">Tổng cộng</span>
               <div class="inline-flex items-center gap-1 text-lg font-semibold text-brand-700">
                 <span>{{ formatMoney(finalTotal) }}</span>
-                <button type="button" class="inline-flex h-5 w-5 items-center justify-center text-slate-400" @click="resetTotals">
+                <button type="button" class="inline-flex h-5 w-5 items-center justify-center text-slate-400" @click="manualRoundTotal">
                   <RefreshCw class="h-3.5 w-3.5" />
                 </button>
               </div>

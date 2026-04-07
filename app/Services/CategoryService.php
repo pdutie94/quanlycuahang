@@ -72,13 +72,20 @@ class CategoryService
             ];
         }
 
+        $category = null;
+        $id = null;
         if (class_exists('ProductCategory')) {
-            ProductCategory::create(['name' => $name]);
+            $id = ProductCategory::create(['name' => $name]);
+            if ($id) {
+                $category = ProductCategory::find($id);
+            }
         }
 
         return [
-            'success' => true,
-            'message' => 'Đã thêm danh mục sản phẩm.',
+            'success' => (bool)$category,
+            'message' => $category ? 'Đã thêm danh mục sản phẩm.' : 'Không thể tạo danh mục.',
+            'category' => $category,
+            'id' => $id,
             'redirect' => 'category',
         ];
     }
