@@ -9,8 +9,15 @@ set -e
 COMPARE_REF=${1:-HEAD~1}
 PKG_NAME="deploy-$(date +%Y%m%d-%H%M%S).zip"
 
+
 # 1. Lấy danh sách file thay đổi (trừ node_modules, frontend)
 CHANGED_FILES=$(git diff --name-only $COMPARE_REF HEAD | grep -vE '^(frontend/|node_modules/)' || true)
+
+# 1b. Nếu có file mới trong sql/ thì thêm vào gói
+SQL_CHANGED=$(git diff --name-only $COMPARE_REF HEAD | grep '^sql/' || true)
+if [ -n "$SQL_CHANGED" ]; then
+  CHANGED_FILES="$CHANGED_FILES\n$SQL_CHANGED"
+fi
 
 # 2. Kiểm tra vendor có thay đổi không
 VENDOR_CHANGED=$(echo "$CHANGED_FILES" | grep '^vendor/' || true)

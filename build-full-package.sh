@@ -8,8 +8,8 @@ mkdir "$PKG_DIR"
 # 1. Copy toàn bộ source code PHP (trừ các thư mục không cần thiết)
 # Copy từng thư mục/file cần thiết
 
-# Không copy resources/ (chỉ dùng để build frontend)
-for item in app backend bootstrap config public routes vendor composer.json composer.lock db-structure.sql; do
+ # Không copy resources/ (chỉ dùng để build frontend)
+for item in app backend bootstrap config public routes vendor composer.json composer.lock db-structure.sql sql; do
   if [ -e "$item" ]; then
     cp -r "$item" "$PKG_DIR/"
   fi
