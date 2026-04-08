@@ -1,7 +1,6 @@
 <script setup>
 import CustomerItemCard from '../../../shared/components/CustomerItemCard.vue';
 import { computed, ref } from 'vue';
-import { RouterLink } from 'vue-router';
 import { useCustomers } from '../composables/useCustomers';
 import { useToast } from '../../../shared/composables/useToast';
 import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
@@ -15,14 +14,10 @@ const debtStatus = ref('');
 const { items, meta, loading, error, load } = useCustomers();
 const toast = useToast();
 
-import { useFormat } from '../../../shared/composables/useFormat';
-const { formatMoney } = useFormat();
-
 const {
   hasMore,
   loadingMore,
   isInitialLoading,
-  infiniteSentinel,
   refresh
 } = useInfiniteList({
   itemsRef: items,

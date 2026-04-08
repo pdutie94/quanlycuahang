@@ -6,7 +6,6 @@ import ReportNavButtons from '../components/ReportNavButtons.vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
 import { computed, onMounted, reactive, ref } from 'vue';
-import { RouterLink } from 'vue-router';
 import { useToast } from '../../../shared/composables/useToast';
 import { useCustomerDebtReport } from '../composables/useCustomerDebtReport';
 
@@ -16,13 +15,10 @@ const form = reactive({ start_date: '', end_date: '', q: '', show_all: false });
 const meta = ref({ page: 1, total_pages: 1, total_count: 0, per_page: 30 });
 const hasLoadedOnce = ref(false);
 const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value);
-const isRefreshing = computed(() => loading.value && hasLoadedOnce.value);
 
 const {
   hasMore,
   loadingMore,
-  infiniteSentinel,
-  refresh
 } = useInfiniteList({
   itemsRef: rows,
   metaRef: meta,

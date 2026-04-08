@@ -1,9 +1,8 @@
 <script setup>
 import { BarChart2, Package, User, Truck, Tag } from '@lucide/vue';
-// ...existing code...
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
-import { computed, onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useToast } from '../../../shared/composables/useToast';
 import { useSalesReport } from '../composables/useSalesReport';
@@ -13,8 +12,6 @@ import OrderItemCard from '../../../shared/components/OrderItemCard.vue';
 
 const toast = useToast();
 const { rows, summary, meta, loading, error, load } = useSalesReport();
-const hasLoadedOnce = ref(false);
-const infiniteSentinel = ref(null);
 
 const form = reactive({
   filter_mode: 'day',

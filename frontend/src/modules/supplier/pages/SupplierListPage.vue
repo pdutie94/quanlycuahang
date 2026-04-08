@@ -1,7 +1,6 @@
 <script setup>
 import SupplierItemCard from '../../../shared/components/SupplierItemCard.vue';
 import { ref } from 'vue';
-import { RouterLink } from 'vue-router';
 import { useSupplierList } from '../composables/useSupplierList';
 import { useToast } from '../../../shared/composables/useToast';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
@@ -12,13 +11,10 @@ const keyword = ref('');
 const { suppliers, meta, loading, error, load } = useSupplierList();
 const toast = useToast();
 
-// Đã thay thế bằng useFormat
-
 const {
   hasMore,
   loadingMore,
   isInitialLoading,
-  infiniteSentinel,
   refresh
 } = useInfiniteList({
   itemsRef: suppliers,
