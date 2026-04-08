@@ -8,7 +8,7 @@ import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
-const { form, customer, loading, error, loadEdit, submitCreate, createLoading, createError, submitUpdate, updateLoading, updateError } = useCustomerForm();
+const { form, loading, error, loadEdit, submitCreate, createLoading, createError, submitUpdate, updateLoading, updateError } = useCustomerForm();
 
 const isEdit = computed(() => Boolean(route.params.id));
 const pageTitle = computed(() => (isEdit.value ? 'Sửa khách hàng' : 'Thêm khách hàng'));

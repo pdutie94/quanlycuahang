@@ -2,12 +2,10 @@
 import { computed, ref, watch } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import {
-  Archive,
   ArrowRight,
   ChartPie,
   House,
   LayoutGrid,
-  LogOut,
   Menu,
   Package,
   ReceiptText,
