@@ -144,7 +144,7 @@ onMounted(async () => {
     <div v-if="isInitialLoading" class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">Đang tải...</div>
     <div v-else-if="!rows.length" class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">Không có dữ liệu doanh thu.</div>
 
-    <section v-else class="space-y-2">
+    <section v-else class="space-y-3">
       <OrderItemCard v-for="row in rows" :key="row.id" :order="row" :link-enabled="true" :show-view-icon="true" />
       <InfiniteListStatus :visible="rows.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
       <div v-if="rows.length && hasMore" ref="infiniteListSentinel" class="h-1 w-full"></div>
