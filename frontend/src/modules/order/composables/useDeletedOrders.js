@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { fetchDeletedOrders, purgeDeletedOrders, restoreOrder } from '../services/order.api';
 import { useFetch } from '../../../shared/composables/useFetch';
 
-const defaultMeta = { page: 1, total_pages: 1, total_count: 0, per_page: 20 };
+const defaultMeta = { page: 1, total_pages: 1, total_count: 0, per_page: 30 };
 const defaultFilters = {
   q: '',
   status: '',

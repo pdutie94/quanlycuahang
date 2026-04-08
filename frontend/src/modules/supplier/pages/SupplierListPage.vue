@@ -1,6 +1,5 @@
 <script setup>
-import { useFormat } from '../../../shared/composables/useFormat';
-const { formatMoney } = useFormat();
+import SupplierItemCard from '../../../shared/components/SupplierItemCard.vue';
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useSupplierList } from '../composables/useSupplierList';
@@ -53,19 +52,12 @@ const applySearch = async () => {
       <div v-else-if="!suppliers.length" class="app-empty-state">Chưa có nhà cung cấp nào.</div>
       <template v-else>
         <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
-          <RouterLink
+          <SupplierItemCard
             v-for="supplier in suppliers"
             :key="supplier.id"
+            :supplier="supplier"
             :to="{ name: 'suppliers.detail', params: { id: supplier.id } }"
-            class="app-list-card"
-          >
-            <div class="text-sm font-medium text-slate-900">{{ supplier.name }}</div>
-            <div v-if="supplier.phone || supplier.address" class="mt-1 flex items-center gap-1 truncate text-sm text-slate-500 leading-none">
-              <div v-if="supplier.phone">SĐT: {{ supplier.phone }}</div>
-              <span v-if="supplier.phone && supplier.address" class="text-slate-300">·</span>
-              <div v-if="supplier.address" class="line-clamp-1">Địa chỉ: {{ supplier.address }}</div>
-            </div>
-          </RouterLink>
+          />
         </transition-group>
       </template>
     </div>

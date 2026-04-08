@@ -1,4 +1,5 @@
 <script setup>
+import ReportNavButtons from '../components/ReportNavButtons.vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
 import { computed, onMounted, reactive, ref } from 'vue';
@@ -78,8 +79,9 @@ onMounted(async () => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
+    <header>
       <h1 class="text-lg font-semibold text-slate-900">Báo cáo giá vốn thiếu</h1>
+      <ReportNavButtons />
       <form class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-4" @submit.prevent="loadPage">
         <label class="space-y-1">
           <span class="app-label">Từ khóa</span>

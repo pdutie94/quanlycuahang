@@ -4,13 +4,13 @@ import { useFetch } from '../../../shared/composables/useFetch';
 
 export function useCategoryList() {
   const items = ref([]);
-  const meta = ref({ page: 1, per_page: 20, total_pages: 1 });
+  const meta = ref({ page: 1, per_page: 30, total_pages: 1 });
   const request = useFetch(fetchCategories);
 
   const load = async (page = 1) => {
     const payload = await request.execute({ page });
     items.value = payload?.data?.items || [];
-    meta.value = payload?.data?.meta || { page: 1, per_page: 20, total_pages: 1 };
+    meta.value = payload?.data?.meta || { page: 1, per_page: 30, total_pages: 1 };
     return payload;
   };
 

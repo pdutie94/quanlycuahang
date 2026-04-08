@@ -1,4 +1,15 @@
 module.exports = {
+  safelist: [
+    'bg-green-50',
+    'bg-green-500',
+    'bg-green-600',
+    'border-green-300',
+    'border-green-400',
+    'text-green-700',
+    'text-green-600',
+    'bg-white',
+    'text-white',
+  ],
   content: [
     "./app/Views/**/*.php",
     "./app/Controllers/**/*.php",

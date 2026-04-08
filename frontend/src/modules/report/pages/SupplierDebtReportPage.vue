@@ -1,4 +1,8 @@
 <script setup>
+import SupplierItemCard from '../../../shared/components/SupplierItemCard.vue';
+import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
+import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
+import ReportNavButtons from '../components/ReportNavButtons.vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
 import { computed, onMounted, reactive, ref } from 'vue';
@@ -7,12 +11,33 @@ import { useToast } from '../../../shared/composables/useToast';
 import { useSupplierDebtReport } from '../composables/useSupplierDebtReport';
 
 const toast = useToast();
-const { rows, summary, loading, error, load } = useSupplierDebtReport();
+
+const { rows, summary, loading, error, load, meta } = useSupplierDebtReport();
 const form = reactive({ start_date: '', end_date: '', q: '', show_all: false });
 const hasLoadedOnce = ref(false);
 const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value);
 const isRefreshing = computed(() => loading.value && hasLoadedOnce.value);
 
+const {
+  hasMore,
+  loadingMore,
+  infiniteSentinel,
+  refresh
+} = useInfiniteList({
+  itemsRef: rows,
+  metaRef: meta,
+  loadingRef: loading,
+  fetchPage: (page) => load({
+    start_date: form.start_date,
+    end_date: form.end_date,
+    q: form.q,
+    show_all: form.show_all ? '1' : '0',
+    page
+  }),
+  onError: () => {
+    toast.error(error.value || 'Không thể tải báo cáo công nợ nhà cung cấp.');
+  }
+});
 // Đã thay thế bằng useFormat
 
 const loadPage = async () => {
@@ -44,12 +69,9 @@ onMounted(async () => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
+    <header>
       <h1 class="text-lg font-semibold text-slate-900">Công nợ nhà cung cấp</h1>
-      <div class="mt-3 flex flex-wrap gap-2">
-        <RouterLink to="/reports" class="inline-flex h-9 items-center rounded-lg border border-slate-300 px-3 text-sm font-medium text-slate-700">Báo cáo tổng quan</RouterLink>
-        <RouterLink to="/reports/customer-debt" class="inline-flex h-9 items-center rounded-lg border border-slate-300 px-3 text-sm font-medium text-slate-700">Công nợ khách hàng</RouterLink>
-      </div>
+      <ReportNavButtons />
 
       <form class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-4" @submit.prevent="loadPage">
         <label class="space-y-1">
@@ -81,21 +103,28 @@ onMounted(async () => {
       <article class="rounded-2xl border border-violet-100 bg-violet-50 p-3"><div class="text-sm text-violet-700">Còn nợ</div><div class="mt-1 text-lg font-semibold text-violet-800">{{ formatMoney(summary.debt_amount) }}</div></article>
     </section>
 
-    <div v-if="isRefreshing" class="px-1 text-xs font-medium text-slate-500">Đang cập nhật công nợ nhà cung cấp...</div>
-    <div v-if="isInitialLoading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải...</div>
-    <div v-else-if="!rows.length" class="app-empty-state">Không có dữ liệu công nợ phù hợp.</div>
-
-    <section v-else class="rounded-2xl border border-slate-200 bg-white p-2 sm:p-4" :class="isRefreshing ? 'opacity-70 transition-opacity' : 'transition-opacity'">
-      <div v-for="row in rows" :key="row.id" class="rounded-xl border border-slate-200 p-3 mb-2">
-        <div class="text-sm font-medium text-slate-900">{{ row.name || 'Nhà cung cấp' }}</div>
-        <div class="mt-1 text-sm text-slate-600">{{ row.phone || 'Không có SĐT' }}</div>
-        <div class="mt-1 text-sm text-slate-600">{{ row.address || 'Không có địa chỉ' }}</div>
-        <div class="mt-2 grid grid-cols-1 gap-1 text-sm sm:grid-cols-3">
-          <div>Tổng nhập: <span class="font-medium text-slate-900">{{ formatMoney(row.total_amount) }}</span></div>
-          <div>Đã trả: <span class="font-medium text-brand-700">{{ formatMoney(row.paid_amount) }}</span></div>
-          <div>Còn nợ: <span class="font-medium" :class="Number(row.debt_amount || 0) > 0 ? 'text-violet-700' : 'text-slate-700'">{{ formatMoney(row.debt_amount) }}</span></div>
-        </div>
+    <div class="space-y-3">
+      <div v-if="isInitialLoading" class="app-card text-center text-sm text-slate-500">
+        Đang tải...
       </div>
-    </section>
+
+      <div v-else-if="!rows.length" class="app-empty-state">
+        Chưa có nhà cung cấp nào.
+      </div>
+
+      <template v-else>
+        <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
+          <SupplierItemCard
+            v-for="row in rows"
+            :key="row.id"
+            :supplier="row"
+            :to="{ name: 'suppliers.detail', params: { id: row.id } }"
+          />
+        </transition-group>
+      </template>
+    </div>
+
+    <InfiniteListStatus :visible="rows.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
+    <div v-if="rows.length && hasMore" ref="infiniteSentinel" class="h-1 w-full"></div>
   </section>
 </template>

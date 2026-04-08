@@ -6,7 +6,7 @@ export function useSupplierList() {
   const suppliers = ref([]);
   const keyword = ref('');
   const currentPage = ref(1);
-  const meta = ref({ page: 1, per_page: 20, total_pages: 1 });
+  const meta = ref({ page: 1, per_page: 30, total_pages: 1 });
 
   const request = useFetch(fetchSuppliers);
 
@@ -16,7 +16,7 @@ export function useSupplierList() {
     const payload = await request.execute({ q: query, page });
     
     suppliers.value = payload?.data?.items || [];
-    meta.value = payload?.data?.meta || { page: 1, per_page: 20, total_pages: 1 };
+    meta.value = payload?.data?.meta || { page: 1, per_page: 30, total_pages: 1 };
     
     return payload;
   };

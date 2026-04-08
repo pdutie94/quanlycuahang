@@ -26,6 +26,18 @@ class SupplierService
             $suppliers = $keyword !== ''
                 ? Supplier::searchPaginate($keyword, $perPage, $offset)
                 : Supplier::paginate($perPage, $offset);
+
+            // Tổng hợp công nợ cho từng supplier
+            $pdo = Database::getInstance();
+            foreach ($suppliers as &$supplier) {
+                $stmt = $pdo->prepare('SELECT COALESCE(SUM(total_amount),0) AS total_amount, COALESCE(SUM(paid_amount),0) AS paid_amount FROM purchases WHERE supplier_id = ?');
+                $stmt->execute([$supplier['id']]);
+                $row = $stmt->fetch();
+                $supplier['total_amount'] = isset($row['total_amount']) ? (float)$row['total_amount'] : 0.0;
+                $supplier['paid_amount'] = isset($row['paid_amount']) ? (float)$row['paid_amount'] : 0.0;
+                $supplier['debt_amount'] = $supplier['total_amount'] - $supplier['paid_amount'];
+            }
+            unset($supplier);
         }
 
         return [

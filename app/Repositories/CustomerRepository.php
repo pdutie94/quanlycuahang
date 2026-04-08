@@ -26,14 +26,18 @@ class CustomerRepository
         $pdo = Database::getInstance();
         $query = self::buildListQuery($filters);
 
-        $sql = 'SELECT c.*, COALESCE(SUM(o.total_amount - o.paid_amount), 0) AS debt_amount
-                FROM customers c
-                LEFT JOIN orders o ON o.customer_id = c.id
-                ' . $query['whereSql'] . '
-                GROUP BY c.id
-                ' . $query['havingSql'] . '
-                ORDER BY c.name
-                LIMIT ? OFFSET ?';
+
+        $sql = 'SELECT c.*,
+            COALESCE(SUM(CASE WHEN o.deleted_at IS NULL AND (o.order_status IS NULL OR o.order_status <> "cancelled") THEN o.total_amount ELSE 0 END), 0) AS total_amount,
+            COALESCE(SUM(CASE WHEN o.deleted_at IS NULL AND (o.order_status IS NULL OR o.order_status <> "cancelled") THEN o.paid_amount ELSE 0 END), 0) AS paid_amount,
+            COALESCE(SUM(CASE WHEN o.deleted_at IS NULL AND (o.order_status IS NULL OR o.order_status <> "cancelled") THEN (o.total_amount - o.paid_amount) ELSE 0 END), 0) AS debt_amount
+            FROM customers c
+            LEFT JOIN orders o ON o.customer_id = c.id
+            ' . $query['whereSql'] . '
+            GROUP BY c.id
+            ' . $query['havingSql'] . '
+            ORDER BY c.name
+            LIMIT ? OFFSET ?';
 
         $stmt = $pdo->prepare($sql);
         foreach ($query['params'] as $index => $value) {

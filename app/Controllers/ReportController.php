@@ -1,3 +1,22 @@
+    public function costUpdate()
+    {
+        $this->requireLogin();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->verifyCsrfToken();
+            $productId = isset($_POST['product_id']) ? (int)$_POST['product_id'] : 0;
+            $priceCost = isset($_POST['price_cost']) ? $_POST['price_cost'] : '';
+            $result = ReportService::updateProductCost($productId, $priceCost);
+            $this->setFlash($result['success'] ? 'success' : 'error', $result['message']);
+            $this->redirect('report/cost-update');
+            return;
+        }
+
+        $this->render('reports/cost_update', [
+            'title' => 'Cập nhật giá vốn',
+            'items' => ReportService::getCostUpdateData(),
+        ]);
+    }
 <?php
 
 class ReportController extends Controller

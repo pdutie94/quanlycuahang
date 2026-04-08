@@ -43,6 +43,50 @@ class ReportService
         return $decoded['value'];
     }
 
+    public static function updateProductCost(int $productId, $priceCost): array
+    {
+        $productId = (int)$productId;
+        $priceCost = (float)str_replace([',', ' '], ['', ''], (string)$priceCost);
+        if ($productId <= 0) {
+            return [
+                'success' => false,
+                'message' => 'Sản phẩm không hợp lệ.'
+            ];
+        }
+        $pdo = Database::getInstance();
+        // Cập nhật giá vốn cho đơn vị cơ bản
+        $stmt = $pdo->prepare('UPDATE product_units SET price_cost = ? WHERE product_id = ? AND unit_id = (SELECT base_unit_id FROM products WHERE id = ?)');
+        $ok = $stmt->execute([$priceCost, $productId, $productId]);
+        if ($ok) {
+            return [
+                'success' => true,
+                'message' => 'Đã cập nhật giá vốn.'
+            ];
+        }
+        return [
+            'success' => false,
+            'message' => 'Không thể cập nhật giá vốn.'
+        ];
+    }
+    public static function getCostUpdateData(): array
+    {
+        $pdo = Database::getInstance();
+
+        $sql = 'SELECT p.id, p.code, p.name, c.name AS category_name, u.name AS base_unit_name,
+            COALESCE(i.qty_base, 0) AS qty_base, i.updated_at,
+            pu.price_cost AS price_cost, pu.min_step AS min_step
+            FROM products p
+            JOIN units u ON p.base_unit_id = u.id
+            LEFT JOIN product_categories c ON p.category_id = c.id
+            LEFT JOIN inventory i ON i.product_id = p.id
+            LEFT JOIN product_units pu ON pu.product_id = p.id AND pu.unit_id = p.base_unit_id
+            WHERE p.deleted_at IS NULL
+            ORDER BY p.name';
+
+        $stmt = $pdo->query($sql);
+        return $stmt->fetchAll();
+    }
+
     protected static function setCache($key, $value, $ttl = 600)
     {
         if (function_exists('apcu_store') && ini_get('apc.enabled')) {
@@ -419,6 +463,8 @@ class ReportService
         $endDate = isset($queryParams['end_date']) && $queryParams['end_date'] !== '' ? $queryParams['end_date'] : '';
         $keyword = isset($queryParams['q']) ? trim($queryParams['q']) : '';
         $showAll = isset($queryParams['show_all']) && $queryParams['show_all'] === '1';
+        $page = isset($queryParams['page']) ? max(1, (int)$queryParams['page']) : 1;
+        $perPage = isset($queryParams['per_page']) ? max(1, (int)$queryParams['per_page']) : 30;
 
         $conditions = [];
         $params = [];
@@ -444,6 +490,23 @@ class ReportService
             $whereSql = 'WHERE ' . implode(' AND ', $conditions);
         }
 
+        // Đếm tổng số supplier phù hợp
+        $countSql = 'SELECT COUNT(*) FROM (
+            SELECT s.id
+            FROM suppliers s
+            JOIN purchases p ON p.supplier_id = s.id
+            ' . $whereSql . '
+            GROUP BY s.id, s.name, s.phone, s.address
+            ' . (!$showAll ? 'HAVING COALESCE(SUM(p.total_amount - p.paid_amount), 0) > 0' : '') . '
+        ) t';
+        $countStmt = $pdo->prepare($countSql);
+        $countStmt->execute($params);
+        $totalCount = (int)$countStmt->fetchColumn();
+
+        $totalPages = $totalCount > 0 ? (int)ceil($totalCount / $perPage) : 1;
+        if ($page > $totalPages) $page = $totalPages;
+        $offset = ($page - 1) * $perPage;
+
         $sql = 'SELECT
             s.id,
             s.name,
@@ -462,6 +525,7 @@ class ReportService
         }
 
         $sql .= ' ORDER BY debt_amount DESC, s.name ASC';
+        $sql .= ' LIMIT ' . (int)$perPage . ' OFFSET ' . (int)$offset;
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
@@ -473,10 +537,21 @@ class ReportService
             'debt_amount' => 0.0,
         ];
 
-        foreach ($rows as $row) {
-            $summary['total_amount'] += isset($row['total_amount']) ? (float) $row['total_amount'] : 0.0;
-            $summary['paid_amount'] += isset($row['paid_amount']) ? (float) $row['paid_amount'] : 0.0;
-            $summary['debt_amount'] += isset($row['debt_amount']) ? (float) $row['debt_amount'] : 0.0;
+        // Tổng hợp lại toàn bộ (không phân trang) để lấy summary
+        $summarySql = 'SELECT
+            COALESCE(SUM(p.total_amount), 0) AS total_amount,
+            COALESCE(SUM(p.paid_amount), 0) AS paid_amount,
+            COALESCE(SUM(p.total_amount - p.paid_amount), 0) AS debt_amount
+        FROM suppliers s
+        JOIN purchases p ON p.supplier_id = s.id
+        ' . $whereSql;
+        $summaryStmt = $pdo->prepare($summarySql);
+        $summaryStmt->execute($params);
+        $summaryRow = $summaryStmt->fetch();
+        if ($summaryRow) {
+            $summary['total_amount'] = (float)$summaryRow['total_amount'];
+            $summary['paid_amount'] = (float)$summaryRow['paid_amount'];
+            $summary['debt_amount'] = (float)$summaryRow['debt_amount'];
         }
 
         return [
@@ -486,6 +561,12 @@ class ReportService
             'endDate' => $endDate,
             'keyword' => $keyword,
             'showAll' => $showAll,
+            'meta' => [
+                'page' => $page,
+                'total_pages' => $totalPages,
+                'total_count' => $totalCount,
+                'per_page' => $perPage
+            ]
         ];
     }
 
@@ -754,11 +835,13 @@ class ReportService
         $pdo = Database::getInstance();
 
         $sql = 'SELECT p.id, p.code, p.name, c.name AS category_name, u.name AS base_unit_name,
-            COALESCE(i.qty_base, 0) AS qty_base, i.updated_at
+            COALESCE(i.qty_base, 0) AS qty_base, i.updated_at,
+            pu.min_step AS min_step
             FROM products p
             JOIN units u ON p.base_unit_id = u.id
             LEFT JOIN product_categories c ON p.category_id = c.id
             LEFT JOIN inventory i ON i.product_id = p.id
+            LEFT JOIN product_units pu ON pu.product_id = p.id AND pu.unit_id = p.base_unit_id
             WHERE p.deleted_at IS NULL
             ORDER BY p.name';
 

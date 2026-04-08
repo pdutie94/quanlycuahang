@@ -4,7 +4,7 @@ import { useFetch } from '../../../shared/composables/useFetch';
 
 export function useUnitList() {
   const items = ref([]);
-  const meta = ref({ page: 1, per_page: 20, total_pages: 1 });
+  const meta = ref({ page: 1, per_page: 30, total_pages: 1 });
   const page = ref(1);
 
   const listRequest = useFetch(fetchUnits);
@@ -18,7 +18,7 @@ export function useUnitList() {
     } else {
       items.value = data?.items || [];
     }
-    meta.value = data?.meta || { page: 1, per_page: 20, total_pages: 1 };
+    meta.value = data?.meta || { page: 1, per_page: 30, total_pages: 1 };
   };
 
   const load = async (p = 1, append = false) => {

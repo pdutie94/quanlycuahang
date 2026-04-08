@@ -114,7 +114,6 @@ watch(
             <RouterLink to="/units" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50"><Ruler class="h-4 w-4 text-slate-500" />Đơn vị tính</RouterLink>
             <RouterLink to="/change-password" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50"><User class="h-4 w-4 text-slate-500" />Tài khoản</RouterLink>
             <RouterLink to="/migrations" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50"><ArrowRight class="h-4 w-4 text-slate-500" />Migration</RouterLink>
-            <button type="button" class="flex min-h-10 items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-3 text-left text-rose-700 hover:bg-rose-100" @click="onLogout"><LogOut class="h-4 w-4" />Đăng xuất</button>
           </div>
         </div>
           </div>

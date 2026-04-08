@@ -4,7 +4,7 @@ import { useFetch } from '../../../shared/composables/useFetch';
 
 export function useOrders() {
   const items = ref([]);
-  const meta = ref({ page: 1, total_pages: 1, total_count: 0, per_page: 20 });
+  const meta = ref({ page: 1, total_pages: 1, total_count: 0, per_page: 30 });
   const filters = ref({
     q: '',
     status: '',
@@ -18,7 +18,7 @@ export function useOrders() {
   const load = async (params = {}) => {
     const payload = await execute(params);
     items.value = payload?.data?.items || [];
-    meta.value = payload?.data?.meta || { page: 1, total_pages: 1, total_count: 0, per_page: 20 };
+    meta.value = payload?.data?.meta || { page: 1, total_pages: 1, total_count: 0, per_page: 30 };
     filters.value = payload?.data?.filters || {
       q: '',
       status: '',

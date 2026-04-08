@@ -1,4 +1,5 @@
 <script setup>
+import CustomerItemCard from '../../../shared/components/CustomerItemCard.vue';
 import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useCustomers } from '../composables/useCustomers';
@@ -90,6 +91,7 @@ const clearFilters = async () => {
       </template>
     </ListHeaderBar>
 
+
     <div class="space-y-3">
       <div v-if="isInitialLoading" class="app-card text-center text-sm text-slate-500">
         Đang tải...
@@ -101,26 +103,12 @@ const clearFilters = async () => {
 
       <template v-else>
         <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
-          <RouterLink
+          <CustomerItemCard
             v-for="item in items"
             :key="item.id"
+            :customer="item"
             :to="{ name: 'customers.detail', params: { id: item.id } }"
-            class="app-list-card"
-          >
-            <div class="min-w-0 flex-1">
-              <div class="">
-                <div class="min-w-0 truncate text-sm font-medium text-slate-900">{{ item.name }}</div>
-              </div>
-              <div class="mt-1 flex items-center gap-1 truncate text-sm text-slate-600 leading-none">
-                <span v-if="item.phone" class="truncate">{{ item.phone || 'Chưa có SĐT' }}</span>
-                <span v-if="item.phone && item.address" class="text-slate-300">·</span>
-                <span v-if="item.address" class="truncate">{{ item.address || 'Chưa có địa chỉ' }}</span>
-              </div>
-              <div class="text-sm text-slate-500 mt-0.5">
-                Nợ: <span class="font-medium" :class="Number(item.debt_amount || 0) > 0 ? 'text-rose-600' : 'text-slate-700'">{{ formatMoney(item.debt_amount) }}</span>
-              </div>
-            </div>
-          </RouterLink>
+          />
         </transition-group>
       </template>
     </div>

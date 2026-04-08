@@ -1,4 +1,5 @@
 <script setup>
+import ReportNavButtons from '../components/ReportNavButtons.vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
 import { onMounted, reactive } from 'vue';
@@ -9,9 +10,20 @@ const toast = useToast();
 const { items, loading, error, load, refresh, adjust, adjustLoading, adjustError } = useInventoryReport();
 const qtyMap = reactive({});
 
+
+function formatQty(val, minStep) {
+  const step = Number(minStep) || 1;
+  if (step >= 1) {
+    return String(Math.round(Number(val)));
+  }
+  // Tính số chữ số thập phân hợp lý dựa vào min_step
+  const decimals = step.toString().split('.')[1]?.length || 0;
+  return Number(val).toFixed(decimals).replace(/\.0+$/, '');
+}
+
 const syncQtyMap = () => {
   for (const item of items.value) {
-    qtyMap[item.id] = String(item.qty_base ?? 0);
+    qtyMap[item.id] = formatQty(item.qty_base ?? 0, item.min_step);
   }
 };
 
@@ -55,9 +67,9 @@ onMounted(async () => {
 
 <template>
   <section class="space-y-4">
-    <header class="app-card">
+    <header>
       <h1 class="text-lg font-semibold text-slate-900">Báo cáo tồn kho</h1>
-      <p class="mt-1 text-sm text-slate-600">Cập nhật tồn kho trực tiếp từ API /api/reports/inventory.</p>
+      <ReportNavButtons />
     </header>
 
     <div v-if="loading" class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">Đang tải...</div>
@@ -65,12 +77,19 @@ onMounted(async () => {
 
     <section v-else class="space-y-2">
       <article v-for="item in items" :key="item.id" class="rounded-xl border border-slate-200 bg-white p-3 text-sm">
-        <div class="font-medium text-slate-900">{{ item.name }}</div>
-        <div class="mt-1 text-slate-500">{{ item.code }} - {{ item.category_name || 'Không có danh mục' }}</div>
-        <div class="mt-2 flex flex-wrap items-end gap-2">
-          <input v-model="qtyMap[item.id]" type="number" step="0.01" min="0" class="h-10 w-40 rounded-lg border border-slate-300 px-3" />
+        <div class="text-sm font-medium text-slate-900">
+          {{ item.name }} <span class="text-slate-500">- {{ item.base_unit_name }}</span>
+        </div>
+        <div class="mt-1 flex flex-wrap items-end gap-2">
+          <input
+            v-model="qtyMap[item.id]"
+            type="number"
+            :step="item.min_step || 1"
+            min="0"
+            class="h-10 w-40 rounded-lg border border-slate-300 px-3"
+            :inputmode="(item.min_step && Number(item.min_step) < 1) ? 'decimal' : 'numeric'"
+          />
           <button type="button" class="h-10 rounded-lg bg-brand-600 px-3 text-white" :disabled="adjustLoading" @click="submitAdjust(item)">Cập nhật</button>
-          <span class="text-slate-500">Đơn vị: {{ item.base_unit_name }}</span>
         </div>
       </article>
     </section>

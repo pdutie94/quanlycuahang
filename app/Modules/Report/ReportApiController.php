@@ -54,6 +54,32 @@ class ReportApiController
         ]);
     }
 
+    public function costUpdate(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        if ($request->getMethod() === 'POST') {
+            $payload = $this->normalizePayload($request);
+            $productId = isset($payload['product_id']) ? (int)$payload['product_id'] : 0;
+            $priceCost = isset($payload['price_cost']) ? $payload['price_cost'] : '';
+            $result = \ReportService::updateProductCost($productId, $priceCost);
+            if (empty($result['success'])) {
+                return ApiResponse::error(
+                    $response,
+                    isset($result['message']) ? (string) $result['message'] : 'Không thể cập nhật giá vốn.',
+                    422
+                );
+            }
+            return ApiResponse::success($response, [
+                'product_id' => $productId,
+                'price_cost' => $priceCost,
+            ], isset($result['message']) ? (string) $result['message'] : 'Đã cập nhật giá vốn.');
+        }
+
+        $items = \ReportService::getCostUpdateData();
+        return ApiResponse::success($response, [
+            'items' => $items,
+        ]);
+    }
+
     public function customerDebt(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $query = $request->getQueryParams();

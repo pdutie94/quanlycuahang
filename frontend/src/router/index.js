@@ -35,148 +35,149 @@ import SalesReportPage from '../modules/report/pages/SalesReportPage.vue';
 import SupplierDebtReportPage from '../modules/report/pages/SupplierDebtReportPage.vue';
 import ChangePasswordPage from '../modules/system/pages/ChangePasswordPage.vue';
 import MigrationPage from '../modules/system/pages/MigrationPage.vue';
+const routerBase = window.__BASE_PATH__ || '';
 
-const basePath = document?.body?.dataset?.basePath || '/';
-const routerBase = basePath && basePath !== '/' ? `${basePath}/` : '/';
-
-export const router = createRouter({
-  history: createWebHistory(routerBase),
-  routes: [
-    {
-      path: '/login',
-      name: 'auth.login',
-      component: LoginPage,
-      meta: { public: true, hideShell: true }
-    },
-    {
-      path: '/',
-      redirect: '/dashboard'
-    },
-    {
-      path: '/dashboard',
-      name: 'dashboard.index',
-      component: DashboardPage
-    },
-    {
-      path: '/products',
-      name: 'products.list',
-      component: ProductListPage
-    },
-    {
-      path: '/products/create',
-      name: 'products.create',
-      component: ProductFormPage
-    },
-    {
-      path: '/products/:id/edit',
-      name: 'products.edit',
-      component: ProductFormPage
-    },
-    {
-      path: '/categories',
-      name: 'categories.list',
-      component: CategoryListPage
-    },
-    {
-      path: '/categories/create',
-      name: 'categories.create',
-      component: CategoryFormPage
-    },
-    {
-      path: '/categories/:id/edit',
-      name: 'categories.edit',
-      component: CategoryFormPage
-    },
-    {
-      path: '/units',
-      name: 'units.list',
-      component: UnitListPage
-    },
-    {
-      path: '/reports',
-      name: 'reports.index',
-      component: ReportIndexPage
-    },
-    {
-      path: '/reports/customer-debt',
-      name: 'reports.customerDebt',
-      component: CustomerDebtReportPage
-    },
-    {
-      path: '/reports/supplier-debt',
-      name: 'reports.supplierDebt',
-      component: SupplierDebtReportPage
-    },
-    {
-      path: '/reports/sales',
-      name: 'reports.sales',
-      component: SalesReportPage
-    },
-    {
-      path: '/reports/sales-orders',
-      name: 'reports.salesOrders',
-      component: SalesOrdersListReportPage
-    },
-    {
-      path: '/reports/inventory',
-      name: 'reports.inventory',
-      component: InventoryReportPage
-    },
-    {
-      path: '/reports/missing-cost',
-      name: 'reports.missingCost',
-      component: MissingCostReportPage
-    },
-    {
-      path: '/change-password',
-      name: 'auth.changePassword',
-      component: ChangePasswordPage
-    },
-    {
-      path: '/migrations',
-      name: 'system.migrations',
-      component: MigrationPage
-    },
-    {
-      path: '/customers',
-      name: 'customers.list',
-      component: CustomerListPage
-    },
-    {
-      path: '/customers/create',
-      name: 'customers.create',
-      component: CustomerFormPage
-    },
-    {
-      path: '/customers/:id',
-      name: 'customers.detail',
-      component: CustomerDetailPage
-    },
-    {
-      path: '/customers/:id/payment',
-      name: 'customers.debtPayment',
-      component: CustomerDebtPaymentPage
-    },
-    {
-      path: '/customers/:id/edit',
-      name: 'customers.edit',
-      component: CustomerFormPage
-    },
-    {
-      path: '/customers/orders/:orderId/payment',
-      name: 'customers.payment',
-      component: CustomerPaymentPage
-    },
-    {
-      path: '/orders',
-      name: 'orders.list',
-      component: OrderListPage
-    },
-    {
-      path: '/orders/deleted',
-      name: 'orders.deleted',
-      component: OrderTrashPage
-    },
+const routes = [
+  {
+    path: '/reports/inventory',
+    name: 'reports.inventory',
+    component: InventoryReportPage
+  },
+  {
+    path: '/reports/cost-update',
+    name: 'reports.costUpdate',
+    component: () => import('../modules/report/pages/CostUpdatePage.vue')
+  },
+  {
+    path: '/login',
+    name: 'auth.login',
+    component: LoginPage,
+    meta: { public: true, hideShell: true }
+  },
+  {
+    path: '/',
+    redirect: '/dashboard'
+  },
+  {
+    path: '/dashboard',
+    name: 'dashboard.index',
+    component: DashboardPage
+  },
+  {
+    path: '/products',
+    name: 'products.list',
+    component: ProductListPage
+  },
+  {
+    path: '/products/create',
+    name: 'products.create',
+    component: ProductFormPage
+  },
+  {
+    path: '/products/:id/edit',
+    name: 'products.edit',
+    component: ProductFormPage
+  },
+  {
+    path: '/categories',
+    name: 'categories.list',
+    component: CategoryListPage
+  },
+  {
+    path: '/categories/create',
+    name: 'categories.create',
+    component: CategoryFormPage
+  },
+  {
+    path: '/categories/:id/edit',
+    name: 'categories.edit',
+    component: CategoryFormPage
+  },
+  {
+    path: '/units',
+    name: 'units.list',
+    component: UnitListPage
+  },
+  {
+    path: '/reports',
+    name: 'reports.index',
+    component: ReportIndexPage
+  },
+  {
+    path: '/reports/customer-debt',
+    name: 'reports.customerDebt',
+    component: CustomerDebtReportPage
+  },
+  {
+    path: '/reports/supplier-debt',
+    name: 'reports.supplierDebt',
+    component: SupplierDebtReportPage
+  },
+  {
+    path: '/reports/sales',
+    name: 'reports.sales',
+    component: SalesReportPage
+  },
+  {
+    path: '/reports/sales-orders',
+    name: 'reports.salesOrders',
+    component: SalesOrdersListReportPage
+  },
+  {
+    path: '/reports/missing-cost',
+    name: 'reports.missingCost',
+    component: MissingCostReportPage
+  },
+  {
+    path: '/change-password',
+    name: 'auth.changePassword',
+    component: ChangePasswordPage
+  },
+  {
+    path: '/migrations',
+    name: 'system.migrations',
+    component: MigrationPage
+  },
+  {
+    path: '/customers',
+    name: 'customers.list',
+    component: CustomerListPage
+  },
+  {
+    path: '/customers/create',
+    name: 'customers.create',
+    component: CustomerFormPage
+  },
+  {
+    path: '/customers/:id',
+    name: 'customers.detail',
+    component: CustomerDetailPage
+  },
+  {
+    path: '/customers/:id/payment',
+    name: 'customers.debtPayment',
+    component: CustomerDebtPaymentPage
+  },
+  {
+    path: '/customers/:id/edit',
+    name: 'customers.edit',
+    component: CustomerFormPage
+  },
+  {
+    path: '/customers/orders/:orderId/payment',
+    name: 'customers.payment',
+    component: CustomerPaymentPage
+  },
+  {
+    path: '/orders',
+    name: 'orders.list',
+    component: OrderListPage
+  },
+  {
+    path: '/orders/deleted',
+    name: 'orders.deleted',
+    component: OrderTrashPage
+  },
     {
       path: '/orders/create',
       name: 'orders.create',
@@ -253,7 +254,13 @@ export const router = createRouter({
       component: SupplierFormPage
     }
   ]
+
+const router = createRouter({
+  history: createWebHistory(routerBase),
+  routes
 });
+
+export default router;
 
 router.beforeEach(async (to) => {
   if (to.meta?.public) {

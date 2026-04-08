@@ -128,5 +128,9 @@ return function (App $app) {
         $group->post('/reports/inventory/adjust', [$reportController, 'inventoryAdjust']);
         $group->get('/reports/missing-cost', [$reportController, 'missingCost']);
         $group->post('/reports/missing-cost/update', [$reportController, 'missingCostUpdate']);
+
+        // Giá vốn
+        $group->get('/reports/cost-update', [$reportController, 'costUpdate']);
+        $group->post('/reports/cost-update', [$reportController, 'costUpdate']);
     })->add(new ApiAuthMiddleware());
 };
