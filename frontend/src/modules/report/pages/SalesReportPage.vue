@@ -9,14 +9,17 @@ import { useSalesReport } from '../composables/useSalesReport';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import OrderItemCard from '../../../shared/components/OrderItemCard.vue';
+import ReportNavButtons from '../components/ReportNavButtons.vue';
 
 const toast = useToast();
 const { rows, summary, meta, loading, error, load } = useSalesReport();
 
+const today = new Date().toISOString().slice(0, 10);
+const thisMonth = today.slice(0, 7);
 const form = reactive({
   filter_mode: 'day',
-  day: '',
-  month: '',
+  day: today,
+  month: thisMonth,
   quarter: '',
   quarter_year: String(new Date().getFullYear()),
   year: String(new Date().getFullYear())
@@ -57,23 +60,7 @@ const applyFilter = async () => {
   await refresh();
 };
 
-const prevPage = async () => {
-  if (form.page <= 1 || loading.value) return;
-  form.page -= 1;
-  await loadPage();
-};
 
-const nextPage = async () => {
-  if (form.page >= totalPages.value || loading.value) return;
-  form.page += 1;
-  await loadPage();
-};
-
-onMounted(async () => {
-  form.day = new Date().toISOString().slice(0, 10);
-  form.month = form.day.slice(0, 7);
-  await loadPage();
-});
 </script>
 
 <template>
@@ -81,13 +68,7 @@ onMounted(async () => {
     <header>
       <h1 class="text-lg font-semibold text-slate-900">Báo cáo doanh thu chi tiết</h1>
       <p class="mt-1 text-sm text-slate-500">Xem danh sách đơn hàng, doanh thu và lợi nhuận theo khoảng thời gian.</p>
-      <div class="mt-3 flex flex-wrap gap-2 overflow-x-auto">
-        <RouterLink to="/reports/sales" class="inline-flex items-center gap-1 rounded-lg border pl-1 pr-2 py-1 text-sm font-medium border-brand-300 bg-brand-50 text-brand-700"><span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-brand-500 text-white"><BarChart2 class="h-4 w-4" /></span><span>Doanh thu chi tiết</span></RouterLink>
-        <RouterLink to="/reports/inventory" class="inline-flex items-center gap-1 rounded-lg border pl-1 pr-2 py-1 text-sm font-medium border-sky-300 bg-sky-50 text-sky-700"><span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-sky-500 text-white"><Package class="h-4 w-4" /></span><span>Cập nhật tồn kho</span></RouterLink>
-        <RouterLink to="/reports/customer-debt" class="inline-flex items-center gap-1 rounded-lg border pl-1 pr-2 py-1 text-sm font-medium border-rose-300 bg-rose-50 text-rose-700"><span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-rose-500 text-white"><User class="h-4 w-4" /></span><span>Công nợ khách hàng</span></RouterLink>
-        <RouterLink to="/reports/supplier-debt" class="inline-flex items-center gap-1 rounded-lg border pl-1 pr-2 py-1 text-sm font-medium border-violet-300 bg-violet-50 text-violet-700"><span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-violet-500 text-white"><Truck class="h-4 w-4" /></span><span>Công nợ nhà cung cấp</span></RouterLink>
-        <RouterLink to="/reports/missing-cost" class="inline-flex items-center gap-1 rounded-lg border pl-1 pr-2 py-1 text-sm font-medium border-amber-300 bg-amber-50 text-amber-700"><span class="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-amber-500 text-white"><Tag class="h-4 w-4" /></span><span>Cập nhật giá vốn</span></RouterLink>
-      </div>
+      <ReportNavButtons />
       <form class="app-card mt-3 flex flex-col gap-2" @submit.prevent="applyFilter">
         <div class="flex gap-2 flex-wrap">
           <button type="button" class="inline-flex h-9 items-center rounded-xl border px-4 text-sm font-medium border-slate-300 text-slate-700 hover:bg-slate-100" :class="{ 'border-brand-600 bg-brand-50 text-brand-700': form.filter_mode === 'day' }" @click="form.filter_mode = 'day'">Ngày</button>
