@@ -21,6 +21,18 @@ const showPayment = ref(false);
 const showDeleteModal = ref(false);
 
 // Đã thay thế bằng useFormat
+const numberFormatter = new Intl.NumberFormat('vi-VN');
+const formatNumber = (value) => {
+  const nextValue = Number(value || 0);
+  if (Number.isInteger(nextValue)) {
+    return numberFormatter.format(nextValue);
+  }
+
+  return nextValue.toLocaleString('vi-VN', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
+};
 
 const totals = computed(() => {
   const total = Number(purchase.value?.total_amount || 0);

@@ -36,26 +36,45 @@ export function useProducts() {
 
   const load = async (params = {}) => {
     const payload = await execute(params);
+
     const rows = payload?.data?.items || [];
     const unitsByProduct = payload?.data?.product_units_by_product || {};
 
-    items.value = rows.map((item) => {
+    const transformedItems = rows.map((item) => {
       const productId = Number(item?.id || 0);
-      const units = unitsByProduct[String(productId)] || unitsByProduct[productId] || [];
+      const units =
+        unitsByProduct[String(productId)] ||
+        unitsByProduct[productId] ||
+        [];
+
       const primaryPrice = resolvePrimaryPrice(item, units);
 
       return {
         ...item,
+        id: Number(item.id), // normalize luôn
         display_price_sell: primaryPrice.priceSell,
         display_price_cost: primaryPrice.priceCost,
         display_price_unit_name: primaryPrice.priceUnitName
       };
     });
 
+    // 👇 QUAN TRỌNG: set items cho load đầu
+    if (params.page === 1 || !params.page) {
+      items.value = transformedItems;
+    }
+
     meta.value = payload?.data?.meta || { page: 1, total_pages: 1 };
-    filters.value = payload?.data?.filters || { q: '', stock: 'all', category_id: null };
+    filters.value = payload?.data?.filters || {};
     categories.value = payload?.data?.categories || [];
-    return payload;
+
+    // 👇 TRẢ VỀ items đã transform cho infinite scroll
+    return {
+      ...payload,
+      data: {
+        ...payload.data,
+        items: transformedItems
+      }
+    };
   };
 
   return {

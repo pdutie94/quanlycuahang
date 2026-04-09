@@ -1046,7 +1046,14 @@ onMounted(async () => {
               </div>
               <div class="relative" v-if="discountDraftType !== 'none'">
                 <label class="mb-1 block text-sm text-slate-700">Giá trị giảm giá</label>
-                <input v-model="discountDraftValue" type="text" inputmode="numeric" data-money-format="off" class="app-input pr-8 text-right" @input="onDiscountDraftValueInput" />
+                <input
+                  v-model="discountDraftValue"
+                  type="text"
+                  inputmode="numeric"
+                  :data-money-format="discountDraftType === 'percent' ? 'off' : null"
+                  class="app-input pr-8 text-right"
+                  @input="onDiscountDraftValueInput"
+                />
                 <span class="pointer-events-none absolute inset-y-0 right-3 mt-6 flex items-center text-sm text-slate-500">{{ discountDraftSuffix }}</span>
               </div>
             </div>

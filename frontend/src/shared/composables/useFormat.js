@@ -2,7 +2,7 @@
 // Dùng chung cho format tiền, ngày, parseAmount
 import { ref } from 'vue';
 
-const currencyFormatter = new Intl.NumberFormat('vi-VN');
+const numberFormatter = new Intl.NumberFormat('vi-VN');
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',
   month: '2-digit',
@@ -13,7 +13,7 @@ const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
 
 export function useFormat() {
   function formatMoney(value) {
-    return `${currencyFormatter.format(Number(value || 0))} đ`;
+    return `${numberFormatter.format(Number(value || 0))} đ`;
   }
 
   function formatDateTime(value) {
@@ -28,5 +28,17 @@ export function useFormat() {
     return Number(normalized || 0);
   }
 
-  return { formatMoney, formatDateTime, parseAmount };
+  const formatNumber = (value) => {
+    const nextValue = Number(value || 0);
+    if (Number.isInteger(nextValue)) {
+      return numberFormatter.format(nextValue);
+    }
+
+    return nextValue.toLocaleString('vi-VN', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    });
+  };
+
+  return { formatMoney, formatDateTime, parseAmount, formatNumber };
 }

@@ -90,8 +90,10 @@ watch(filters, () => {
 
 const formatQty = (value) => Number(value || 0).toLocaleString('vi-VN');
 
-const hasSellPrice = (item) => Number(item.display_price_sell || 0) > 0;
-
+const hasSellPrice = (item) => {
+  console.log('Check sell price for', item.name, 'display_price_sell', item.display_price_sell);
+  return Number(item.display_price_sell || 0) > 0;
+}
 const getStatus = (item) => {
   const qty = Number(item.inventory_qty_base || item.qty_base || 0);
   const minStock = Number(item.min_stock_qty || 0);
@@ -196,7 +198,7 @@ const getCategoryName = (item) => item.category_name || 'Chưa phân loại';
                 </div>
 
                 <div class="mt-0.5 flex items-center gap-x-2 text-sm">
-                  <span v-if="hasSellPrice(item)" class="font-medium text-brand-600">{{ formatMoney(item.display_price_sell) }} đ<span v-if="item.display_price_unit_name || getPrimaryUnit(item)">/{{ item.display_price_unit_name || getPrimaryUnit(item) }}</span></span>
+                  <span v-if="hasSellPrice(item)" class="font-medium text-brand-600">{{ formatMoney(item.display_price_sell) }}<span v-if="item.display_price_unit_name || getPrimaryUnit(item)">/{{ item.display_price_unit_name || getPrimaryUnit(item) }}</span></span>
                   <span v-else class="font-medium text-slate-500">Chưa có giá</span>
                 </div>
               </div>

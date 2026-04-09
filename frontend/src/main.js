@@ -104,9 +104,32 @@ function bindGlobalMoneyFormatter(container) {
       return;
     }
 
-    const formatted = formatMoneyInputValue(target.value);
-    if (formatted !== target.value) {
+    // --- Caret/cursor fix ---
+    // Save caret position before formatting
+    const prevValue = target.value;
+    const prevLen = prevValue.length;
+    const prevPos = target.selectionStart;
+
+    const formatted = formatMoneyInputValue(prevValue);
+    if (formatted !== prevValue) {
+      // Calculate new caret position
+      // Count digits before caret in old value
+      let digitsBefore = 0;
+      for (let i = 0; i < prevPos; ++i) {
+        if (prevValue[i] >= '0' && prevValue[i] <= '9') digitsBefore++;
+      }
+      // Find the position in formatted string after same number of digits
+      let newPos = 0, digitCount = 0;
+      while (newPos < formatted.length && digitCount < digitsBefore) {
+        if (formatted[newPos] >= '0' && formatted[newPos] <= '9') digitCount++;
+        newPos++;
+      }
+      // Set value and caret
       target.value = formatted;
+      // Use setTimeout to ensure caret is set after DOM update
+      setTimeout(() => {
+        target.setSelectionRange(newPos, newPos);
+      }, 0);
       target.dispatchEvent(new Event('input', { bubbles: true }));
     }
   };

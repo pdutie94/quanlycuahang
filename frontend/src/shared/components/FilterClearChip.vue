@@ -18,7 +18,7 @@ defineEmits(['clear']);
 <template>
   <button
     type="button"
-    class="border inline-flex h-[30px] w-[30px] items-center justify-center rounded-lg border-rose-200 bg-rose-50 text-rose-700 transition hover:bg-rose-100"
+    class="shrink-0 border inline-flex h-[30px] w-[30px] items-center justify-center rounded-lg border-rose-200 bg-rose-50 text-rose-700 transition hover:bg-rose-100"
     :class="active ? 'visible' : 'invisible pointer-events-none'"
     :aria-label="label"
     @click="$emit('clear')"

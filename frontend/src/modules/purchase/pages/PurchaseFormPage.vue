@@ -1,8 +1,8 @@
 <script setup>
 import { useFormat } from '../../../shared/composables/useFormat';
-const { formatMoney, parseAmount } = useFormat();
+const { formatMoney, parseAmount, formatNumber } = useFormat();
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import { Package, PencilLine, Plus, Users, X } from '@lucide/vue';
+import { Package, PencilLine, Users, X, Plus } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 import { usePurchaseForm } from '../composables/usePurchaseForm';
 import { useToast } from '../../../shared/composables/useToast';
@@ -43,6 +43,7 @@ const {
   updateError
 } = usePurchaseForm();
 
+const formatter = new Intl.NumberFormat('vi-VN');
 const isEdit = computed(() => Number(route.params.id || 0) > 0);
 const pageTitle = computed(() => (isEdit.value ? 'Chỉnh sửa phiếu nhập' : 'Tạo phiếu nhập hàng'));
 const loading = computed(() => bootstrapLoading.value);
@@ -823,14 +824,11 @@ onMounted(async () => {
           <div class="flex items-center justify-between border-b border-slate-100 px-4 py-2 text-sm font-medium text-slate-800">
             <div class="flex items-center gap-2">
               <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-700"><Package class="h-4 w-4" /></span>
-              <span>Sản phẩm nhập</span>
+              <span>Danh sách SP</span>
             </div>
             <div class="flex items-center gap-2">
-              <button type="button" class="app-btn-secondary !min-h-0 px-3 py-1 text-sm" @click="openManualItemModal()">Sản phẩm khác</button>
-              <button type="button" class="app-btn-primary !min-h-0 gap-1.5 px-3 py-1 text-sm" @click="openProductSelector()">
-                <Plus class="h-3.5 w-3.5" />
-                <span>Thêm SP</span>
-              </button>
+              <button type="button" class="app-btn-secondary !min-h-0 gap-1.5 px-3 py-1 text-sm" @click="openManualItemModal()"><Plus class="w-4 h-4" /><Package class="h-5 w-5"/></button>
+              <button type="button" class="app-btn-primary !min-h-0 gap-1.5 px-3 py-1 text-sm" @click="openProductSelector()"><Plus class="w-4 h-4" /><Package class="h-5 w-5"/></button>
             </div>
           </div>
 
@@ -846,7 +844,7 @@ onMounted(async () => {
                   </button>
                   <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-600">
                     <button type="button" class="text-left hover:text-brand-700" @click="openQtyModal(index)">
-                      Số lượng: <span class="font-medium text-slate-900">{{ row.qty }}</span>
+                      Số lượng: <span class="font-medium text-slate-900">{{ formatNumber(row.qty) }}</span>
                     </button>
                     <button type="button" class="text-left hover:text-brand-700" @click="openPriceModal(index)">
                       Giá nhập: <span class="font-medium text-slate-900">{{ formatMoney(row.price_cost) }}</span>
@@ -872,7 +870,7 @@ onMounted(async () => {
                   <div class="min-w-0 flex-1">
                     <button type="button" class="text-left font-medium text-slate-900 hover:text-brand-700" @click="openManualItemModal(index)">{{ getManualItemLabel(item) }}</button>
                     <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-600">
-                      <span>Số lượng: <span class="font-medium text-slate-900">{{ item.qty }}</span></span>
+                      <span>Số lượng: <span class="font-medium text-slate-900">{{ formatNumber(item.qty) }}</span></span>
                       <span v-if="item.unit_name">Đơn vị: <span class="font-medium text-slate-900">{{ item.unit_name }}</span></span>
                       <span>Giá nhập: <span class="font-medium text-slate-900">{{ formatMoney(item.price_cost) }}</span></span>
                       <span>Thành tiền: <span class="font-medium text-slate-900">{{ formatMoney(item.amount) }}</span></span>
