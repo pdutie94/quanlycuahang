@@ -67,7 +67,7 @@ const customerMode = ref('guest');
 const customerNameInput = ref(null);
 
 // Đã thay thế bằng useFormat
-
+const numberFormatter = new Intl.NumberFormat('vi-VN');
 const formatMoneyInput = (value, allowEmpty = true) => {
   const amount = parseAmount(value);
   if (amount <= 0) {
@@ -686,7 +686,7 @@ onMounted(async () => {
                   <button type="button" class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-300 text-slate-600" @click="decreaseCartQty(item)">
                     <Minus class="h-3.5 w-3.5" />
                   </button>
-                  <input v-model="item.quantity" :min="getCartItemMinQty(item)" :step="getCartItemStep(item)" type="number" class="h-6 w-14 rounded-md border border-slate-300 text-center text-sm outline-none" @change="normalizeCartQty(item)" />
+                  <input v-model="item.quantity" :min="getCartItemMinQty(item)" :step="getCartItemStep(item)" type="number" class="h-6 w-10 rounded-md border border-slate-300 text-center text-sm outline-none" @change="normalizeCartQty(item)" />
                   <button type="button" class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-300 text-slate-600" @click="increaseCartQty(item)">
                     <Plus class="h-3.5 w-3.5" />
                   </button>
@@ -738,7 +738,7 @@ onMounted(async () => {
                     :min="getManualQtyMin(item)"
                     :step="getManualQtyStep(item)"
                     type="number"
-                    class="h-6 w-14 rounded-md border border-slate-300 text-center text-sm outline-none"
+                    class="h-6 w-10 rounded-md border border-slate-300 text-center text-sm outline-none"
                     @click.stop
                     @change="normalizeManualQty(item)"
                   />

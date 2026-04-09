@@ -830,7 +830,7 @@ onMounted(async () => {
                     <button type="button" class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-300 text-slate-600" @click="decreaseRowQty(row)">
                       <Minus class="h-3.5 w-3.5" />
                     </button>
-                    <input v-model="row.qty" :min="getRowStep(row)" :step="getRowStep(row)" type="number" class="h-6 w-14 rounded-md border border-slate-300 text-center text-sm outline-none" @change="normalizeRowQty(row)" />
+                    <input v-model="row.qty" :min="getRowStep(row)" :step="getRowStep(row)" type="number" class="h-6 w-10 rounded-md border border-slate-300 text-center text-sm outline-none" @change="normalizeRowQty(row)" />
                     <button type="button" class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-300 text-slate-600" @click="increaseRowQty(row)">
                       <Plus class="h-3.5 w-3.5" />
                     </button>
@@ -883,7 +883,7 @@ onMounted(async () => {
                         :min="getManualQtyMin(item)"
                         :step="getManualQtyStep(item)"
                         type="number"
-                        class="h-6 w-14 rounded-md border border-slate-300 text-center text-sm outline-none"
+                        class="h-6 w-10 rounded-md border border-slate-300 text-center text-sm outline-none"
                         @click.stop
                         @change="normalizeManualQty(item)"
                       />
