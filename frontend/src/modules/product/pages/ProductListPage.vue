@@ -22,6 +22,7 @@ const {
   hasMore,
   loadingMore,
   isInitialLoading,
+  infiniteSentinel,
   refresh
 } = useInfiniteList({
   itemsRef: items,
@@ -118,7 +119,6 @@ const getCategoryName = (item) => item.category_name || 'Chưa phân loại';
       title="Sản phẩm"
       subtitle="Quản lý danh sách sản phẩm đang bán."
       :create-to="{ name: 'products.create' }"
-      create-label="Tạo mới"
       search-placeholder="Tìm kiếm theo tên, SKU..."
       filter-type="grid"
       @search="applySearch"

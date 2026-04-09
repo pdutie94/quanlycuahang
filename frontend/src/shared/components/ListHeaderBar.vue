@@ -116,7 +116,7 @@ const onClearKeyword = () => {
             class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-white transition hover:bg-brand-700"
           >
             <CirclePlus class="h-5 w-5" />
-            <span>{{ createLabel }}</span>
+            <!-- <span>{{ createLabel }}</span> -->
           </RouterLink>
         </div>
       </div>

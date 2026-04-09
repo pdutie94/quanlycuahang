@@ -32,6 +32,7 @@ const {
   hasMore,
   loadingMore,
   isInitialLoading,
+  infiniteSentinel,
   refresh
 } = useInfiniteList({
   itemsRef: items,
