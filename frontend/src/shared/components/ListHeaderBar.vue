@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, useSlots } from 'vue';
 import { RouterLink } from 'vue-router';
-import { CirclePlus, LayoutGrid, Search, SlidersHorizontal, X } from '@lucide/vue';
+import { Plus, CirclePlus, LayoutGrid, Search, SlidersHorizontal, X } from '@lucide/vue';
 
 const props = defineProps({
   title: {
@@ -113,9 +113,9 @@ const onClearKeyword = () => {
           <RouterLink
             v-if="createTo"
             :to="createTo"
-            class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-2 text-white transition hover:bg-brand-700"
+            class="inline-flex w-10 h-10 items-center justify-center gap-2 rounded-xl bg-brand-600 text-white transition hover:bg-brand-700"
           >
-            <CirclePlus class="h-5 w-5" />
+            <Plus class="h-5 w-5" />
             <!-- <span>{{ createLabel }}</span> -->
           </RouterLink>
         </div>
