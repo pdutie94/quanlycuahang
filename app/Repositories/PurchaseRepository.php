@@ -99,7 +99,7 @@ class PurchaseRepository
     public static function findPurchaseUnitsForCreate(): array
     {
         $pdo = Database::getInstance();
-        $stmt = $pdo->query('SELECT pu.id, pu.product_id, pu.factor, pu.price_cost, p.name AS product_name, p.code AS product_code, p.image_path AS product_image_path, u.name AS unit_name
+        $stmt = $pdo->query('SELECT pu.id, pu.product_id, pu.factor, pu.price_cost, pu.allow_fraction, pu.min_step, p.name AS product_name, p.code AS product_code, p.image_path AS product_image_path, u.name AS unit_name
             FROM product_units pu
             JOIN products p ON pu.product_id = p.id
             JOIN units u ON pu.unit_id = u.id

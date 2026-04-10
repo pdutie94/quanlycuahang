@@ -120,6 +120,8 @@ export function usePurchaseForm() {
       qty: String(item.qty ?? ''),
       price_cost: String(item.price_cost ?? ''),
       amount: String(item.amount ?? ''),
+      allow_fraction: typeof item.allow_fraction !== 'undefined' ? item.allow_fraction : undefined,
+      min_step: typeof item.min_step !== 'undefined' ? item.min_step : undefined,
       update_cost: false
     }));
     manualItems.value = (payload?.data?.manual_items || []).map((item) => ({

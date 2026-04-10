@@ -1,12 +1,14 @@
 <script setup>
 import { useFormat } from '../../../shared/composables/useFormat';
-const { formatMoney, parseAmount, formatNumber } = useFormat();
+const { formatMoney, parseAmount, formatNumber, formatMoneyInput, formatPriceInput } = useFormat();
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import { Package, PencilLine, Users, X, Plus } from '@lucide/vue';
+import { Package, Users, X, Plus } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 import { usePurchaseForm } from '../composables/usePurchaseForm';
 import { useToast } from '../../../shared/composables/useToast';
 import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
+
+
 
 const route = useRoute();
 const router = useRouter();
@@ -52,8 +54,6 @@ const saving = computed(() => createLoading.value || updateLoading.value);
 const showSupplierModal = ref(false);
 const showProductSelector = ref(false);
 const showManualItemModal = ref(false);
-const showQtyModal = ref(false);
-const showPriceModal = ref(false);
 const supplierMode = ref('existing');
 const supplierKeyword = ref('');
 const productKeyword = ref('');
@@ -61,11 +61,7 @@ const pendingSupplierId = ref('');
 const selectedProductIds = ref([]);
 const activeRowIndex = ref(null);
 const editingManualIndex = ref(null);
-const editingQtyRowIndex = ref(null);
-const editingPriceRowIndex = ref(null);
 const supplierNameInput = ref(null);
-const qtyDraftValue = ref('1');
-const priceDraftValue = ref('');
 const supplierDraft = ref({
   name: '',
   phone: '',
@@ -83,61 +79,36 @@ const manualItemDraft = ref({
   product_category_id: ''
 });
 
-// Đã thay thế bằng useFormat
-
-function parsePriceShorthand(raw) {
-  const str = String(raw ?? '').trim();
-  if (!str) {
-    return 0;
+// --- normalizeRowQty logic từ OrderFormPage ---
+const getRowStep = (row) => {
+  const unit = getUnitDisplay(row);
+  const allowFraction = Number(unit?.allow_fraction || 0) === 1;
+  const minStep = Number(unit?.min_step || 1);
+  if (!allowFraction) {
+    return 1;
   }
-
-  const dotIdx = str.indexOf('.');
-  if (dotIdx !== -1 && (str.match(/\./g) || []).length === 1) {
-    const afterDot = str.slice(dotIdx + 1).replace(/[^0-9]/g, '');
-    if (afterDot.length < 3) {
-      const num = parseFloat(str.replace(/[^0-9.]/g, ''));
-      if (!Number.isNaN(num) && num > 0) {
-        return num < 1000 ? Math.round(num * 1000) : Math.round(num);
-      }
-
-      return 0;
-    }
+  if (!Number.isFinite(minStep) || minStep <= 0) {
+    return 1;
   }
+  return minStep;
+};
 
-  const digits = str.replace(/[^0-9]/g, '');
-  if (!digits) {
-    return 0;
+const formatQtyValue = (value) => Number(value || 0).toFixed(4).replace(/\.?0+$/, '');
+
+const normalizeRowQty = (row) => {
+  const step = getRowStep(row);
+  const currentQty = Number(row.qty || 0);
+  if (!Number.isFinite(currentQty) || currentQty <= 0) {
+    row.qty = formatQtyValue(step);
+    return;
   }
-
-  const num = Number(digits);
-  return num > 0 && num < 1000 ? num * 1000 : num;
-}
-
-function formatPriceInput(value, allowEmpty = true) {
-  const amount = parsePriceShorthand(value);
-  if (amount <= 0) {
-    return allowEmpty ? '' : '0';
+  if (step === 1) {
+    row.qty = formatQtyValue(Math.max(1, Math.round(currentQty)));
+    return;
   }
-
-  return formatter.format(amount);
-}
-
-function formatMoneyField(target, key, allowEmpty = true) {
-  target[key] = formatPriceInput(target[key], allowEmpty);
-}
-
-function sanitizeMoneyInput(value) {
-  return String(value ?? '').replace(/[^0-9.]/g, '');
-}
-
-function formatExactMoneyInput(value, allowEmpty = true) {
-  const amount = parseAmount(value);
-  if (amount <= 0) {
-    return allowEmpty ? '' : '0';
-  }
-
-  return formatter.format(amount);
-}
+  const normalizedQty = Math.max(step, Math.round(currentQty / step) * step);
+  row.qty = formatQtyValue(normalizedQty);
+};
 
 const filteredSuppliers = computed(() => {
   const keyword = String(supplierKeyword.value || '').trim().toLowerCase();
@@ -211,22 +182,7 @@ const isProductSelected = (productId) => selectedProductIds.value.includes(Numbe
 const isPendingSupplier = (supplierId) => String(pendingSupplierId.value) === String(supplierId);
 const getDefaultUnit = (productId) => productUnits.value.find((unit) => Number(unit.product_id) === Number(productId)) || null;
 const getUnitDisplay = (row) => rowDisplayMap.value.get(String(row.product_unit_id)) || null;
-const editingQtyRow = computed(() => {
-  const index = Number(editingQtyRowIndex.value);
-  if (index < 0 || index >= rows.value.length) {
-    return null;
-  }
 
-  return rows.value[index] || null;
-});
-const editingPriceRow = computed(() => {
-  const index = Number(editingPriceRowIndex.value);
-  if (index < 0 || index >= rows.value.length) {
-    return null;
-  }
-
-  return rows.value[index] || null;
-});
 const manualModalHeading = computed(() => {
   if (editingManualIndex.value === null) {
     return 'Thêm sản phẩm khác';
@@ -240,84 +196,6 @@ const manualModalHeading = computed(() => {
 const hasManualSavedProduct = computed(() => Number(manualItemDraft.value.saved_product_id || 0) > 0);
 const syncingPaidAmount = ref(false);
 
-const getProductRowLabel = (row) => {
-  const unit = getUnitDisplay(row);
-  if (!unit) {
-    return 'Chọn sản phẩm';
-  }
-
-  return [unit.product_name, unit.unit_name].filter(Boolean).join(' - ');
-};
-
-const getManualItemLabel = (item) => [item.item_name, item.unit_name].filter(Boolean).join(' - ') || 'Sản phẩm khác';
-
-const syncAmount = (row) => {
-  const qty = Number(row.qty || 0);
-  const price = parsePriceShorthand(row.price_cost || 0);
-  const amount = qty * price;
-  row.amount = amount > 0 ? formatter.format(Math.round(amount)) : '';
-};
-
-const fillRowFromUnit = (row) => {
-  const unit = getUnitDisplay(row);
-  if (!unit) {
-    return;
-  }
-
-  if (!parseAmount(row.price_cost)) {
-    row.price_cost = formatPriceInput(unit.price_cost || 0, false);
-  }
-
-  syncAmount(row);
-};
-
-const syncManualAmount = () => {
-  const qty = Number(manualItemDraft.value.qty || 0);
-  const price = parseAmount(manualItemDraft.value.price_cost || 0);
-  const amount = qty * price;
-  manualItemDraft.value.amount = amount > 0 ? formatter.format(Math.round(amount)) : '';
-};
-
-const syncManualPriceFromAmount = () => {
-  const qty = Number(manualItemDraft.value.qty || 0);
-  const amount = parseAmount(manualItemDraft.value.amount || 0);
-
-  if (qty <= 0) {
-    return;
-  }
-
-  const price = amount > 0 ? Math.round(amount / qty) : 0;
-  manualItemDraft.value.price_cost = price > 0 ? formatter.format(price) : '';
-};
-
-const onManualPriceInput = () => {
-  manualItemDraft.value.price_cost = sanitizeMoneyInput(manualItemDraft.value.price_cost);
-  if (!manualItemDraft.value.price_cost) {
-    manualItemDraft.value.amount = '';
-  }
-};
-
-const onManualPriceBlur = () => {
-  manualItemDraft.value.price_cost = formatPriceInput(manualItemDraft.value.price_cost, true);
-  if (manualItemDraft.value.price_cost) {
-    syncManualAmount();
-  }
-};
-
-const onManualAmountInput = () => {
-  manualItemDraft.value.amount = sanitizeMoneyInput(manualItemDraft.value.amount);
-  if (!manualItemDraft.value.amount) {
-    manualItemDraft.value.price_cost = '';
-  }
-};
-
-const onManualAmountBlur = () => {
-  manualItemDraft.value.amount = formatPriceInput(manualItemDraft.value.amount, true);
-  if (manualItemDraft.value.amount) {
-    syncManualPriceFromAmount();
-    manualItemDraft.value.price_cost = formatPriceInput(manualItemDraft.value.price_cost, true);
-  }
-};
 
 const normalizeManualDraft = () => ({
   item_name: '',
@@ -495,7 +373,7 @@ const applySelectedProducts = () => {
     }
 
     const row = rows.value[activeRowIndex.value];
-    const qty = Number(row.qty || 0) > 0 ? String(row.qty) : '1';
+    const qty = Number(row.qty || 0) > 0 ? formatNumber(row.qty) : '1';
     row.product_unit_id = String(unit.id);
     row.qty = qty;
     row.price_cost = formatPriceInput(unit.price_cost || 0, false);
@@ -556,59 +434,6 @@ const openManualItemModal = (index = null) => {
   }
 
   showManualItemModal.value = true;
-};
-
-const openQtyModal = (index) => {
-  editingQtyRowIndex.value = index;
-  qtyDraftValue.value = String(rows.value[index]?.qty || '1');
-  showQtyModal.value = true;
-};
-
-const closeQtyModal = () => {
-  showQtyModal.value = false;
-  editingQtyRowIndex.value = null;
-  qtyDraftValue.value = '1';
-};
-
-const saveQtyModal = () => {
-  if (!editingQtyRow.value) {
-    closeQtyModal();
-    return;
-  }
-
-  const qty = Number(qtyDraftValue.value || 0);
-  if (qty <= 0) {
-    toast.error('Số lượng phải lớn hơn 0.');
-    return;
-  }
-
-  editingQtyRow.value.qty = String(qty);
-  syncAmount(editingQtyRow.value);
-  closeQtyModal();
-};
-
-const openPriceModal = (index) => {
-  editingPriceRowIndex.value = index;
-  priceDraftValue.value = formatPriceInput(rows.value[index]?.price_cost || 0, false);
-  showPriceModal.value = true;
-};
-
-const closePriceModal = () => {
-  showPriceModal.value = false;
-  editingPriceRowIndex.value = null;
-  priceDraftValue.value = '';
-};
-
-const savePriceModal = () => {
-  if (!editingPriceRow.value) {
-    closePriceModal();
-    return;
-  }
-
-  const nextPrice = parsePriceShorthand(priceDraftValue.value);
-  editingPriceRow.value.price_cost = formatPriceInput(nextPrice, true);
-  syncAmount(editingPriceRow.value);
-  closePriceModal();
 };
 
 const closeManualItemModal = () => {
@@ -723,12 +548,67 @@ const submit = async () => {
   }
 };
 
+// --- normalizeManualQty logic từ OrderFormPage ---
+const detectManualQtyPrecision = (value) => {
+  const rawValue = String(value ?? '').trim();
+  if (!rawValue || !rawValue.includes('.')) {
+    return 0;
+  }
+  const fractionalPart = rawValue.split('.')[1].replace(/[^0-9]/g, '').replace(/0+$/, '');
+  return fractionalPart.length;
+};
+
+const getManualQtyPrecision = (item) => {
+  const storedPrecision = Number(item?.qty_precision);
+  if (Number.isInteger(storedPrecision) && storedPrecision >= 0) {
+    return storedPrecision;
+  }
+  return detectManualQtyPrecision(item?.qty);
+};
+
+const getManualQtyStep = (item) => 1 / (10 ** getManualQtyPrecision(item));
+const getManualQtyMin = (item) => getManualQtyStep(item);
+
+const roundManualQtyByPrecision = (value, precision) => {
+  const factor = 10 ** precision;
+  return Math.round(Number(value || 0) * factor) / factor;
+};
+
+const formatManualQtyValue = (value, precision = 4) => Number(value || 0).toFixed(precision).replace(/\.?0+$/, '');
+
+const normalizeManualQty = (item) => {
+  const typedPrecision = detectManualQtyPrecision(item.qty);
+  item.qty_precision = typedPrecision;
+  const currentQty = Number(item.qty || 0);
+  const precision = getManualQtyPrecision(item);
+  const step = getManualQtyStep(item);
+  const minQty = getManualQtyMin(item);
+  if (!Number.isFinite(currentQty) || currentQty <= 0) {
+    item.qty_precision = 0;
+    item.qty = formatManualQtyValue(1, 0);
+    return;
+  }
+  const normalizedQty = Math.max(minQty, roundManualQtyByPrecision(Math.round(currentQty / step) * step, precision));
+  item.qty = formatManualQtyValue(normalizedQty, Math.max(precision, 0));
+};
+
 const initializePage = async () => {
   resetState();
   await loadBootstrap();
 
   if (isEdit.value) {
     await loadEdit(Number(route.params.id || 0));
+    // Normalize số lượng cho từng row khi load form edit
+    rows.value.forEach((row) => {
+      normalizeRowQty(row);
+      row.price_cost = formatMoneyInput(row.price_cost, false);
+      row.amount = formatMoneyInput(row.amount, false);
+    });
+    // Normalize số lượng cho từng sản phẩm khác khi load form edit
+    manualItems.value.forEach((item) => {
+      normalizeManualQty(item);
+      item.price_cost = formatMoneyInput(item.price_cost, false);
+    });
   }
 };
 
@@ -820,84 +700,129 @@ onMounted(async () => {
           </div>
         </section>
 
-        <section class="rounded-lg border border-slate-200 bg-white">
-          <div class="flex items-center justify-between border-b border-slate-100 px-4 py-2 text-sm font-medium text-slate-800">
+        <section class="bg-white">
+          <div class="flex items-center justify-between text-sm font-medium text-slate-800">
             <div class="flex items-center gap-2">
               <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-700"><Package class="h-4 w-4" /></span>
-              <span>Danh sách SP</span>
+              <span>Sản phẩm</span>
             </div>
             <div class="flex items-center gap-2">
-              <button type="button" class="app-btn-secondary !min-h-0 gap-1.5 px-3 py-1 text-sm" @click="openManualItemModal()"><Plus class="w-4 h-4" /><Package class="h-5 w-5"/></button>
-              <button type="button" class="app-btn-primary !min-h-0 gap-1.5 px-3 py-1 text-sm" @click="openProductSelector()"><Plus class="w-4 h-4" /><Package class="h-5 w-5"/></button>
+              <button type="button" class="app-btn-primary !min-h-0 gap-1.5 px-3 py-1 text-sm" @click="openProductSelector()"><Plus class="w-4 h-4" />Thêm</button>
             </div>
           </div>
 
-          <div class="space-y-3 p-4">
-            <div v-if="!rows.length && !manualItems.length" class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-center text-sm text-slate-500">Chưa có sản phẩm nào.</div>
-
-            <div v-for="(row, index) in rows" :key="`row-${index}`" class="rounded-xl border border-slate-200 bg-white p-3">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0 flex-1">
-                  <button type="button" class="inline-flex items-center gap-1.5 text-left font-medium text-slate-900 hover:text-brand-700" @click="openProductSelector(index)">
-                    <span>{{ getProductRowLabel(row) }}</span>
-                    <PencilLine class="h-3.5 w-3.5 text-slate-400" />
-                  </button>
-                  <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-600">
-                    <button type="button" class="text-left hover:text-brand-700" @click="openQtyModal(index)">
-                      Số lượng: <span class="font-medium text-slate-900">{{ formatNumber(row.qty) }}</span>
-                    </button>
-                    <button type="button" class="text-left hover:text-brand-700" @click="openPriceModal(index)">
-                      Giá nhập: <span class="font-medium text-slate-900">{{ formatMoney(row.price_cost) }}</span>
-                    </button>
-                    <span>Thành tiền: <span class="font-medium text-slate-900">{{ formatMoney(row.amount || Number(row.qty || 0) * parsePriceShorthand(row.price_cost || 0)) }}</span></span>
-                  </div>
-                  <label class="mt-2 inline-flex items-center gap-2 text-sm text-slate-700">
-                    <input v-model="row.update_cost" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600" />
-                    <span>Cập nhật giá vốn</span>
-                  </label>
+          <div class="space-y-3 mt-3">
+            <div v-if="!rows.length" class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-center text-sm text-slate-500">Chưa có sản phẩm nào.</div>
+            
+            <div v-for="(row, index) in rows" :key="`row-${index}`" class="rounded-xl border border-slate-200 bg-white px-3 pt-2 pb-1.5">
+              <div class="flex flex-row items-center gap-2 sm:gap-3">
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-sm truncate">{{ getUnitDisplay(row)?.product_name || '' }}</div>
                 </div>
                 <button type="button" class="text-sm font-medium text-rose-600 hover:text-rose-700" @click="removeRow(index)">Xóa</button>
               </div>
-            </div>
-
-            <div v-if="manualItems.length" class="space-y-2">
-              <div class="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <span>Sản phẩm khác</span>
-                <span class="text-xs text-slate-500">Không cập nhật tồn kho</span>
-              </div>
-              <div v-for="(item, index) in manualItems" :key="`manual-${index}`" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
-                <div class="flex items-start justify-between gap-3">
-                  <div class="min-w-0 flex-1">
-                    <button type="button" class="text-left font-medium text-slate-900 hover:text-brand-700" @click="openManualItemModal(index)">{{ getManualItemLabel(item) }}</button>
-                    <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-600">
-                      <span>Số lượng: <span class="font-medium text-slate-900">{{ formatNumber(item.qty) }}</span></span>
-                      <span v-if="item.unit_name">Đơn vị: <span class="font-medium text-slate-900">{{ item.unit_name }}</span></span>
-                      <span>Giá nhập: <span class="font-medium text-slate-900">{{ formatMoney(item.price_cost) }}</span></span>
-                      <span>Thành tiền: <span class="font-medium text-slate-900">{{ formatMoney(item.amount) }}</span></span>
-                    </div>
-                    <label class="mt-2 inline-flex items-center gap-2 text-sm text-slate-700">
-                      <input v-model="item.save_as_product" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600" :disabled="Number(item.saved_product_id || 0) > 0" />
-                      <span>{{ Number(item.saved_product_id || 0) > 0 ? 'Đã lưu thành sản phẩm' : 'Lưu thành sản phẩm' }}</span>
-                    </label>
+              <div class="mt-1 grid grid-cols-2 md:grid-cols-3 gap-2">
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 mb-0.5">Số lượng</label>
+                  <div class="relative">
+                        <input
+                          type="number"
+                          v-model="row.qty"
+                          min="0"
+                          :step="(row.allow_fraction == 1 ? (row.min_step || 1) : (getUnitDisplay(row)?.allow_fraction == 1 ? (getUnitDisplay(row)?.min_step || 1) : 1))"
+                          class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-10"
+                          @change="normalizeRowQty(row)"
+                        />
+                    <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">{{ getUnitDisplay(row)?.unit_name || '' }}</span>
                   </div>
-                  <div class="flex items-center gap-3">
-                    <button type="button" class="text-sm font-medium text-brand-700 hover:text-brand-800" @click="openManualItemModal(index)">Sửa</button>
-                    <button type="button" class="text-sm font-medium text-rose-600 hover:text-rose-700" @click="removeManualItem(index)">Xóa</button>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 mb-0.5">Giá nhập</label>
+                  <div class="relative">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" min="0" v-model="row.price_cost" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7"  @input="row.price_cost = formatPriceInput(formatMoneyInput(row.price_cost, false), false)"/>
+                    <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">đ</span>
+                  </div>
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                  <label class="block text-xs font-medium text-slate-600 mb-0.5">Thành tiền</label>
+                  <div class="relative">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" min="0" v-model="row.amount" @input="row.amount = formatPriceInput(formatMoneyInput(row.amount, false), false)" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" />
+                    <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">đ</span>
                   </div>
                 </div>
               </div>
+              <label class="mt-2 inline-flex items-center gap-2 text-sm text-slate-700">
+                <input v-model="row.update_cost" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600" />
+                <span>Cập nhật giá vốn</span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-lg bg-white">
+          <div class="flex items-center justify-between text-sm font-medium text-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-700"><Package class="h-4 w-4" /></span>
+              <span>Sản phẩm khác</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" class="app-btn-primary !min-h-0 gap-1.5 px-3 py-1 text-sm" @click="openManualItemModal()"><Plus class="w-4 h-4" /> Thêm</button>
+            </div>
+          </div>
+
+          <div class="space-y-3 mt-3">
+            <div v-if="!manualItems.length" class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-center text-sm text-slate-500">Chưa có sản phẩm nào.</div>
+            
+            <div v-for="(item, index) in manualItems" :key="`manual-${index}`" class="rounded-xl border border-slate-200 bg-white px-3 pt-2 pb-1.5">
+              <div class="flex flex-row items-center gap-2 sm:gap-3">
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-sm truncate">{{ item.item_name }}</div>
+                </div>
+                <button type="button" class="text-sm font-medium text-brand-700 hover:text-brand-800" @click="openManualItemModal(index)">Sửa</button>
+                <button type="button" class="text-sm font-medium text-rose-600 hover:text-rose-700" @click="removeManualItem(index)">Xóa</button>
+              </div>
+              <div class="mt-1 grid grid-cols-2 md:grid-cols-3 gap-2">
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 mb-0.5">Số lượng</label>
+                  <div class="relative">
+                      <input
+                        type="number"
+                        v-model="item.qty"
+                        min="0"
+                        class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-10"
+                      />
+                    <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">{{ item.unit_name }}</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 mb-0.5">Giá nhập</label>
+                  <div class="relative">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" min="0" v-model="item.price_cost" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" @input="item.price_cost = formatPriceInput(formatMoneyInput(item.price_cost, false), false)" />
+                    <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">đ</span>
+                  </div>
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                  <label class="block text-xs font-medium text-slate-600 mb-0.5">Thành tiền</label>
+                  <div class="relative">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" min="0" v-model="item.amount" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" @input="item.amount = formatPriceInput(formatMoneyInput(item.amount, false), false)" />
+                    <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">đ</span>
+                  </div>
+                </div>
+              </div>
+              <label class="mt-2 inline-flex items-center gap-2 text-sm text-slate-700">
+                <input v-model="item.save_as_product" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600" :disabled="Number(item.saved_product_id || 0) > 0" />
+                <span>{{ Number(item.saved_product_id || 0) > 0 ? 'Đã lưu thành sản phẩm' : 'Lưu thành sản phẩm' }}</span>
+              </label>
             </div>
           </div>
         </section>
 
         <section class="space-y-4">
           <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
-            <div class="flex items-center justify-between"><span class="text-slate-600">Tiền hàng</span><span class="font-medium text-brand-700">{{ formatMoney(summary.totalAmount) }}</span></div>
-            <div v-if="summary.manualAmount > 0" class="mt-2 flex items-center justify-between"><span class="text-slate-600">Tiền sản phẩm khác</span><span class="font-medium text-brand-700">{{ formatMoney(summary.manualAmount) }}</span></div>
-            <div class="mt-3 flex items-center justify-between border-t border-slate-200 pt-3"><span class="font-medium text-slate-700">Tổng nhập</span><span class="text-lg font-semibold text-slate-900">{{ formatMoney(summary.grandTotal) }}</span></div>
+            <div class="flex items-center justify-between"><span class="font-medium text-slate-700">Tổng nhập</span><span class="text-lg font-semibold text-slate-900">{{ formatMoney(summary.grandTotal) }}</span></div>
           </div>
 
-          <div class="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+          <div class="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
             <div>
               <label class="mb-1 block text-sm font-medium text-slate-700">Ngày giờ phiếu nhập</label>
               <input v-model="form.purchase_date" type="datetime-local" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
@@ -923,7 +848,7 @@ onMounted(async () => {
               <div>
                 <label class="mb-1 block text-sm font-medium text-slate-700">Số tiền thanh toán</label>
                 <div class="relative">
-                  <input v-model="form.paid_amount" type="text" inputmode="numeric" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" @input="formatMoneyField(form, 'paid_amount')" />
+                  <input v-model="form.paid_amount" type="text" inputmode="numeric" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" @input="form.paid_amount = formatPriceInput(formatMoneyInput(form.paid_amount, false), false)" />
                   <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                 </div>
               </div>
@@ -1015,7 +940,6 @@ onMounted(async () => {
                   <button v-for="product in filteredProducts" :key="product.id" type="button" class="flex w-full items-center justify-between gap-2 border-b border-slate-100 px-3 py-2 text-left last:border-b-0" @click="toggleProductSelection(product.id)">
                     <div class="min-w-0 flex-1">
                       <div class="font-medium text-slate-900">{{ product.name }}<span v-if="product.unitName" class="text-slate-500"> - {{ product.unitName }}</span></div>
-                      <div class="mt-0.5 text-sm text-slate-500">{{ product.code || 'Không có mã' }}</div>
                       <div class="mt-0.5 text-sm font-medium text-brand-700">{{ formatMoney(product.priceCost || 0) }}</div>
                     </div>
                     <span class="inline-flex h-5 w-5 items-center justify-center rounded-md border text-xs font-semibold" :class="isProductSelected(product.id) ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300 bg-white text-transparent'">✓</span>
@@ -1038,12 +962,14 @@ onMounted(async () => {
                 <h2 class="app-modal-title">{{ manualModalHeading }}</h2>
                 <button type="button" class="app-modal-close" @click="closeManualItemModal"><X class="h-4 w-4" /></button>
               </div>
-              <div class="app-modal-body space-y-4">
-                <label class="space-y-1">
-                  <span class="app-label">Tên hàng</span>
-                  <input v-model="manualItemDraft.item_name" type="text" class="app-input" />
-                </label>
-                <div class="grid gap-4 sm:grid-cols-2">
+              <div class="app-modal-body space-y-2">
+                <div>
+                  <label class="space-y-1">
+                    <span class="app-label">Tên hàng</span>
+                    <input v-model="manualItemDraft.item_name" type="text" class="app-input" />
+                  </label>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
                   <label class="space-y-1">
                     <span class="app-label">Đơn vị</span>
                     <div class="grid">
@@ -1058,10 +984,10 @@ onMounted(async () => {
                   </label>
                   <label class="space-y-1">
                     <span class="app-label">Số lượng</span>
-                    <input v-model="manualItemDraft.qty" type="number" min="0" step="0.01" class="app-input text-right" @input="syncManualAmount" />
+                      <input v-model="manualItemDraft.qty" type="number" min="0" step="1" class="app-input text-right" @input="onManualQtyInput" @blur="onManualQtyBlur" />
                   </label>
                 </div>
-                <div class="grid gap-4 sm:grid-cols-2">
+                <div class="grid grid-cols-2 gap-3">
                   <label class="space-y-1">
                     <span class="app-label">Giá nhập</span>
                     <div class="relative">
@@ -1084,53 +1010,6 @@ onMounted(async () => {
               <div class="app-modal-footer">
                 <button type="button" class="app-btn-secondary" @click="closeManualItemModal">Hủy</button>
                 <button type="button" class="app-btn-primary" @click="saveManualItem">Lưu</button>
-              </div>
-            </div>
-          </div>
-        </transition>
-
-        <transition name="app-modal-fade-up">
-          <div v-if="showQtyModal" class="app-modal-overlay app-modal-open" @click.self="closeQtyModal">
-            <div class="app-modal-sheet-sm">
-              <div class="app-modal-header">
-                <h2 class="app-modal-title">Sửa số lượng</h2>
-                <button type="button" class="app-modal-close" @click="closeQtyModal"><X class="h-4 w-4" /></button>
-              </div>
-              <div class="app-modal-body space-y-4">
-                <div class="text-sm text-slate-600">{{ getUnitDisplay(editingQtyRow)?.product_name || 'Sản phẩm' }}</div>
-                <label class="space-y-1">
-                  <span class="app-label">Số lượng</span>
-                  <input v-model="qtyDraftValue" type="number" min="0" step="0.001" class="app-input text-right" />
-                </label>
-              </div>
-              <div class="app-modal-footer">
-                <button type="button" class="app-btn-secondary" @click="closeQtyModal">Hủy</button>
-                <button type="button" class="app-btn-primary" @click="saveQtyModal">Lưu</button>
-              </div>
-            </div>
-          </div>
-        </transition>
-
-        <transition name="app-modal-fade-up">
-          <div v-if="showPriceModal" class="app-modal-overlay app-modal-open" @click.self="closePriceModal">
-            <div class="app-modal-sheet-sm">
-              <div class="app-modal-header">
-                <h2 class="app-modal-title">Sửa giá nhập</h2>
-                <button type="button" class="app-modal-close" @click="closePriceModal"><X class="h-4 w-4" /></button>
-              </div>
-              <div class="app-modal-body space-y-4">
-                <div class="text-sm text-slate-600">{{ getUnitDisplay(editingPriceRow)?.product_name || 'Sản phẩm' }}</div>
-                <label class="space-y-1">
-                  <span class="app-label">Giá nhập</span>
-                  <div class="relative">
-                    <input v-model="priceDraftValue" type="text" inputmode="numeric" class="app-input pr-8 text-right" @input="priceDraftValue = formatPriceInput(priceDraftValue, false)" />
-                    <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
-                  </div>
-                </label>
-              </div>
-              <div class="app-modal-footer">
-                <button type="button" class="app-btn-secondary" @click="closePriceModal">Hủy</button>
-                <button type="button" class="app-btn-primary" @click="savePriceModal">Lưu</button>
               </div>
             </div>
           </div>

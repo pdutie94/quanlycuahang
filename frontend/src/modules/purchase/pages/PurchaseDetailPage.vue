@@ -2,7 +2,7 @@
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney, formatDateTime } = useFormat();
 import { computed, onMounted, ref, watch } from 'vue';
-import { BanknoteArrowDown, ClipboardList, History, Pencil, Trash2, Users } from '@lucide/vue';
+import { Package, BanknoteArrowDown, ClipboardList, History, Pencil, Trash2, Users } from '@lucide/vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { usePurchaseDetail } from '../composables/usePurchaseDetail';
 import { useToast } from '../../../shared/composables/useToast';
@@ -343,34 +343,42 @@ watch(
       </section>
 
       <section v-if="items.length" class="rounded-2xl border border-slate-200 bg-white">
-        <div class="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-800">Danh sách sản phẩm</div>
+        <div class="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-700"><Package class="h-4 w-4" /></span>
+            <span>Sản phẩm</span>
+          </div>
+        </div>
         <div class="divide-y divide-slate-100">
           <div v-for="item in items" :key="item.id" class="flex flex-col gap-2 px-4 py-3 text-sm sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0">
               <div class="truncate font-medium text-slate-900">{{ item.product_name }}</div>
-              <div class="mt-1 text-slate-600">Số lượng: <span class="font-medium text-slate-900">{{ formatNumber(item.qty) }}<span v-if="item.unit_name"> {{ item.unit_name }}</span></span></div>
-            </div>
-            <div class="flex flex-col items-end gap-1 text-sm">
-              <div><span class="text-slate-500">Giá vốn:</span> <span class="font-medium text-slate-900">{{ formatMoney(item.price_cost) }}</span></div>
-              <div><span class="text-slate-500">Thành tiền:</span> <span class="font-medium text-slate-900">{{ formatMoney(item.amount) }}</span></div>
+              <div class="flex flex-wrap gap-x-3 gap-y-1 text-sm mt-1 text-slate-600">
+                <div>SL: <span class="font-medium text-slate-900">{{ formatNumber(item.qty) }} <span v-if="item.unit_name"> {{ item.unit_name }}</span></span></div>
+                <div>Nhập: <span class="font-medium text-slate-900">{{ formatMoney(item.price_cost) }}</span></div>
+                <div>Tổng: <span class="font-medium text-slate-900">{{ formatMoney(item.amount) }}</span></div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       <section v-if="manualItems.length" class="rounded-2xl border border-slate-200 bg-white">
-        <div class="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-800">Sản phẩm khác</div>
+        <div class="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-700"><Package class="h-4 w-4" /></span>
+            <span>Sản phẩm khác</span>
+          </div>
+        </div>
         <div class="divide-y divide-slate-100">
           <div v-for="item in manualItems" :key="`manual-${item.id}`" class="flex flex-col gap-2 px-4 py-3 text-sm sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0">
               <div class="truncate font-medium text-slate-900">{{ item.item_name }}</div>
-              <div class="mt-1 text-slate-600">
-                Số lượng: <span class="font-medium text-slate-900">{{ formatNumber(item.qty) }}<span v-if="item.unit_name"> {{ item.unit_name }}</span></span>
+              <div class="flex flex-wrap gap-x-3 gap-y-1 text-sm mt-1 text-slate-600">
+                <div>SL: <span class="font-medium text-slate-900">{{ formatNumber(item.qty) }} <span v-if="item.unit_name"> {{ item.unit_name }}</span></span></div>
+                <div>Nhập: <span class="font-medium text-slate-900">{{ formatMoney(item.price_cost) }}</span></div>
+                <div>Tổng: <span class="font-medium text-slate-900">{{ formatMoney(item.amount) }}</span></div>
               </div>
-            </div>
-            <div class="flex flex-col items-end gap-1 text-sm">
-              <div><span class="text-slate-500">Giá nhập:</span> <span class="font-medium text-slate-900">{{ formatMoney(item.price_cost) }}</span></div>
-              <div><span class="text-slate-500">Thành tiền:</span> <span class="font-medium text-slate-900">{{ formatMoney(item.amount) }}</span></div>
             </div>
           </div>
         </div>

@@ -40,5 +40,58 @@ export function useFormat() {
     });
   };
 
-  return { formatMoney, formatDateTime, parseAmount, formatNumber };
+  const formatMoneyInput = (value, allowEmpty = true) => {
+    const amount = parseAmount(value);
+    if (amount <= 0) {
+      return allowEmpty ? '' : '0';
+    }
+
+    return numberFormatter.format(amount);
+  };
+
+  const formatMoneyInputValue = (rawValue) => {
+    const digits = String(rawValue ?? '').replace(/[^0-9]/g, '');
+    if (!digits) {
+      return '';
+    }
+
+    return numberFormatter.format(Number(digits));
+  };
+  
+  const parsePriceShorthand = (raw) => {
+    const str = String(raw ?? '').trim();
+    if (!str) return 0;
+
+    const dotIdx = str.indexOf('.');
+    if (dotIdx !== -1 && (str.match(/\./g) || []).length === 1) {
+      const afterDot = str.slice(dotIdx + 1).replace(/[^0-9]/g, '');
+      if (afterDot.length < 3) {
+        const num = parseFloat(str.replace(/[^0-9.]/g, ''));
+        if (!Number.isNaN(num) && num > 0) {
+          return num < 1000 ? Math.round(num * 1000) : Math.round(num);
+        }
+        return 0;
+      }
+    }
+
+    const digits = str.replace(/[^0-9]/g, '');
+    if (!digits) {
+      return 0;
+    }
+
+    const num = Number(digits);
+    return num > 0 && num < 1000 ? num * 1000 : num;
+  };
+  
+  const formatPriceInput = (value, allowEmpty = true) => {
+    const amount = parsePriceShorthand(value);
+    if (amount <= 0) {
+      return allowEmpty ? '' : '0';
+    }
+
+    return numberFormatter.format(amount);
+  };
+
+
+  return { formatMoney, formatDateTime, parseAmount, formatNumber, formatMoneyInput, formatMoneyInputValue, formatPriceInput };
 }

@@ -56,10 +56,20 @@ class PurchaseService
             ];
         }
 
+        // Lấy danh sách items
+        $items = PurchaseRepository::findItemsByPurchaseId($id);
+        // Map thêm allow_fraction, min_step cho từng item
+        foreach ($items as &$item) {
+            $unit = PurchaseRepository::findProductUnitForPurchase($item['product_unit_id']);
+            $item['allow_fraction'] = isset($unit['allow_fraction']) ? (int)$unit['allow_fraction'] : 0;
+            $item['min_step'] = isset($unit['min_step']) ? (float)$unit['min_step'] : 1;
+        }
+        unset($item);
+
         return [
             'success' => true,
             'purchase' => $purchase,
-            'items' => PurchaseRepository::findItemsByPurchaseId($id),
+            'items' => $items,
             'manualItems' => PurchaseRepository::findManualItemsByPurchaseId($id),
             'payments' => PurchaseRepository::findPaymentsByPurchaseId($id),
             'logs' => class_exists('PurchaseLog') ? PurchaseLog::findByPurchase($id) : [],
