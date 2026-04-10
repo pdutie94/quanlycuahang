@@ -739,14 +739,14 @@ onMounted(async () => {
                 <div>
                   <label class="block text-xs font-medium text-slate-600 mb-0.5">Giá nhập</label>
                   <div class="relative">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" min="0" v-model="row.price_cost" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7"  @input="row.price_cost = formatPriceInput(formatMoneyInput(row.price_cost, false), false)"/>
+                    <input type="text" v-money-input min="0" v-model="row.price_cost" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" />
                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">đ</span>
                   </div>
                 </div>
                 <div class="col-span-2 md:col-span-1">
                   <label class="block text-xs font-medium text-slate-600 mb-0.5">Thành tiền</label>
                   <div class="relative">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" min="0" v-model="row.amount" @input="row.amount = formatPriceInput(formatMoneyInput(row.amount, false), false)" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" />
+                    <input type="text" v-money-input min="0" v-model="row.amount" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" />
                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">đ</span>
                   </div>
                 </div>
@@ -797,14 +797,14 @@ onMounted(async () => {
                 <div>
                   <label class="block text-xs font-medium text-slate-600 mb-0.5">Giá nhập</label>
                   <div class="relative">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" min="0" v-model="item.price_cost" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" @input="item.price_cost = formatPriceInput(formatMoneyInput(item.price_cost, false), false)" />
+                    <input type="text" v-money-input min="0" v-model="item.price_cost" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" />
                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">đ</span>
                   </div>
                 </div>
                 <div class="col-span-2 md:col-span-1">
                   <label class="block text-xs font-medium text-slate-600 mb-0.5">Thành tiền</label>
                   <div class="relative">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" min="0" v-model="item.amount" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" @input="item.amount = formatPriceInput(formatMoneyInput(item.amount, false), false)" />
+                    <input type="text" v-money-input min="0" v-model="item.amount" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" />
                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">đ</span>
                   </div>
                 </div>

@@ -2,7 +2,7 @@
 // Dùng chung cho format tiền, ngày, parseAmount
 import { ref } from 'vue';
 
-const numberFormatter = new Intl.NumberFormat('vi-VN');
+export const numberFormatter = new Intl.NumberFormat('vi-VN');
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',
   month: '2-digit',
