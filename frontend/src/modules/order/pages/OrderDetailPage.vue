@@ -824,7 +824,7 @@ onMounted(async () => {
                 <label class="block space-y-1 text-sm text-slate-700">
                   <span class="app-label">Số tiền thu</span>
                   <div class="relative">
-                    <input v-model="paymentAmount" type="text" inputmode="numeric" class="app-input pr-9 text-right" placeholder="Nhập số tiền" @input="onPaymentAmountInput" @blur="onPaymentAmountBlur" />
+                    <input v-model="paymentAmount" type="text" inputmode="numeric" v-money-input class="app-input pr-9 text-right" placeholder="Nhập số tiền" />
                     <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                   </div>
                 </label>

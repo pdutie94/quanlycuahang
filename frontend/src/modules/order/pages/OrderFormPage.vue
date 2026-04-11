@@ -1021,7 +1021,7 @@ onMounted(async () => {
             <label v-if="form.payment_status === 'pay'" class="space-y-1 md:col-span-2">
               <span class="app-label">Số tiền thanh toán</span>
               <div class="relative">
-                <input v-model="form.payment_amount" type="text" inputmode="numeric" class="app-input pr-8 text-right" @input="formatMoneyField(form, 'payment_amount')" />
+                <input v-model="form.payment_amount" type="text" inputmode="numeric" v-money-input class="app-input pr-8 text-right" />
                 <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
               </div>
             </label>

@@ -327,7 +327,7 @@ watch(
           <label class="space-y-1">
             <span class="app-label">Số tiền thanh toán</span>
             <div class="relative">
-              <input v-model="paymentAmount" type="text" inputmode="numeric" :placeholder="String(totals.debt)" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+              <input v-model="paymentAmount" type="text" v-money-input :placeholder="String(totals.debt)" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
               <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
             </div>
           </label>

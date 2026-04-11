@@ -5,6 +5,10 @@ PKG_DIR="full-package"
 rm -rf "$PKG_DIR"
 mkdir "$PKG_DIR"
 
+# Tự động cập nhật version cho index.html để cache busting
+echo "Đang cập nhật version cho index.html..."
+node scripts/update-index-version.js
+echo "Đã cập nhật version cho index.html."
 
 # 1. Copy các thư mục cần thiết (bỏ db-structure.sql, giữ robots.txt, favicon, .htaccess)
 for item in app backend bootstrap config public routes vendor composer.json composer.lock sql; do

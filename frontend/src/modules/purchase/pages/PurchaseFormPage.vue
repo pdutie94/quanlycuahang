@@ -708,7 +708,7 @@ onMounted(async () => {
           </div>
         </section>
 
-        <section class="bg-white">
+        <section>
           <div class="flex items-center justify-between text-sm font-medium text-slate-800">
             <div class="flex items-center gap-2">
               <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-700"><Package class="h-4 w-4" /></span>
@@ -770,7 +770,7 @@ onMounted(async () => {
           </div>
         </section>
 
-        <section class="rounded-lg bg-white">
+        <section>
           <div class="flex items-center justify-between text-sm font-medium text-slate-800">
             <div class="flex items-center gap-2">
               <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-700"><Package class="h-4 w-4" /></span>

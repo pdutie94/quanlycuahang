@@ -868,7 +868,7 @@ onMounted(async () => {
 
           <div v-if="isPayNow" class="relative">
             <label class="mb-1 block text-sm text-slate-700">Số tiền thanh toán</label>
-            <input v-model="paymentAmount" type="text" inputmode="numeric" class="app-input pr-8 text-right" />
+            <input v-model="paymentAmount" type="text" v-money-input class="app-input pr-8 text-right" />
             <span class="pointer-events-none absolute inset-y-0 right-3 mt-6 flex items-center text-sm text-slate-500">đ</span>
           </div>
 
@@ -908,7 +908,7 @@ onMounted(async () => {
               <label class="space-y-1">
                 <span class="mb-1 block text-sm text-slate-700">Đơn giá mới</span>
                 <div class="relative">
-                  <input v-model="priceDraftValue" type="text" inputmode="numeric" class="app-input pr-8 text-right font-medium text-slate-900" />
+                  <input v-model="priceDraftValue" type="text" v-money-input class="app-input pr-8 text-right font-medium text-slate-900" />
                   <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                 </div>
               </label>
@@ -1049,7 +1049,7 @@ onMounted(async () => {
                 <input
                   v-model="discountDraftValue"
                   type="text"
-                  inputmode="numeric"
+                  v-money-input
                   :data-money-format="discountDraftType === 'percent' ? 'off' : null"
                   class="app-input pr-8 text-right"
                   @input="onDiscountDraftValueInput"
@@ -1078,7 +1078,7 @@ onMounted(async () => {
               <label>
                 <span class="mb-1 block text-sm text-slate-700">Số tiền phụ thu</span>
                 <div class="relative">
-                  <input v-model="surchargeDraftValue" type="text" inputmode="numeric" class="app-input pr-8 text-right" />
+                  <input v-model="surchargeDraftValue" type="text" v-money-input class="app-input pr-8 text-right" />
                   <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                 </div>
               </label>
@@ -1117,14 +1117,14 @@ onMounted(async () => {
                 <label class="space-y-1">
                   <span class="mb-1 block text-sm text-slate-700">Giá vốn</span>
                   <div class="relative">
-                    <input v-model="manualItemDraft.price_buy" type="text" inputmode="numeric" class="app-input pr-8 text-right" />
+                    <input v-model="manualItemDraft.price_buy" type="text" v-money-input class="app-input pr-8 text-right" />
                     <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                   </div>
                 </label>
                 <label class="space-y-1">
                   <span class="mb-1 block text-sm text-slate-700">Giá bán</span>
                   <div class="relative">
-                    <input v-model="manualItemDraft.price_sell" type="text" inputmode="numeric" class="app-input pr-8 text-right" />
+                    <input v-model="manualItemDraft.price_sell" type="text" v-money-input class="app-input pr-8 text-right" />
                     <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                   </div>
                 </label>

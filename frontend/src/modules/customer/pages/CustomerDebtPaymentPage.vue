@@ -104,7 +104,7 @@ onMounted(async () => {
         <div>
           <label class="mb-1 block text-sm font-medium text-slate-700">Số tiền thu</label>
           <div class="relative">
-            <input v-model="amount" type="text" inputmode="numeric" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+            <input v-model="amount" type="text" v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
             <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
           </div>
           <p class="mt-1 text-xs text-slate-500">Ví dụ nhập 5000000, hệ thống sẽ trừ lần lượt vào các đơn cũ nhất còn nợ.</p>
