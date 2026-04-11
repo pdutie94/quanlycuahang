@@ -2,7 +2,7 @@
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
 import { computed, ref, watch } from 'vue';
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { Check, X } from '@lucide/vue';
 import { useProducts } from '../composables/useProducts';
 import { useToast } from '../../../shared/composables/useToast';
@@ -11,12 +11,25 @@ import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 
+
+const route = useRoute();
+const router = useRouter();
+
 const keyword = ref('');
 const stockFilter = ref('all');
 const categoryId = ref('');
 const showCategoryModal = ref(false);
 const { items, meta, filters, categories, loading, error, load } = useProducts();
 const toast = useToast();
+
+// Đọc filter từ URL query khi load
+const initFromQuery = () => {
+  keyword.value = String(route.query.q || '');
+  stockFilter.value = String(route.query.stock || 'all');
+  categoryId.value = route.query.category_id ? String(route.query.category_id) : '';
+};
+
+initFromQuery();
 
 const {
   hasMore,
@@ -28,28 +41,40 @@ const {
   itemsRef: items,
   metaRef: meta,
   loadingRef: loading,
+  autoLoad: false,
   fetchPage: (page) =>
     load({
       q: keyword.value,
       stock: stockFilter.value,
       category_id: categoryId.value || '',
-      page
+      page: route.query.page || page
     }),
   onError: () => {
     toast.error(error.value || 'Không thể tải danh sách sản phẩm.');
   }
 });
 
+
 const applySearch = async () => {
-  await refresh();
+  router.push({
+    query: {
+      ...route.query,
+      q: keyword.value || undefined,
+      page: undefined // reset page
+    }
+  });
 };
 
 const applyStock = async (value) => {
-  if (stockFilter.value === value) {
-    return;
-  }
+  if (stockFilter.value === value) return;
   stockFilter.value = value;
-  await refresh();
+  router.push({
+    query: {
+      ...route.query,
+      stock: value !== 'all' ? value : undefined,
+      page: undefined
+    }
+  });
 };
 
 const hasAnyFilter = computed(() => stockFilter.value !== 'all' || categoryId.value !== '');
@@ -60,38 +85,39 @@ const applyCategory = async (value) => {
     showCategoryModal.value = false;
     return;
   }
-
   categoryId.value = nextValue;
   showCategoryModal.value = false;
-  await refresh();
+  router.push({
+    query: {
+      ...route.query,
+      category_id: nextValue || undefined,
+      page: undefined
+    }
+  });
 };
 
 const clearFilters = async () => {
-  stockFilter.value = 'all';
-  categoryId.value = '';
-  await refresh();
+  router.push({ query: {} });
 };
 
 const selectedCategoryIdNumber = computed(() => Number(categoryId.value || 0));
 
-const syncFiltersFromApi = () => {
-  keyword.value = String(filters.value?.q || keyword.value || '');
-  stockFilter.value = String(filters.value?.stock || stockFilter.value || 'all');
-  const nextCategory = filters.value?.category_id;
-  categoryId.value = nextCategory ? String(nextCategory) : '';
-};
 
-syncFiltersFromApi();
-watch(filters, () => {
-  syncFiltersFromApi();
-});
+// Watch query để reload data và sync filter từ URL
+watch(
+  () => route.query,
+  async () => {
+    initFromQuery();
+    await refresh();
+  },
+  { immediate: true }
+);
 
 // Đã thay thế bằng useFormat
 
 const formatQty = (value) => Number(value || 0).toLocaleString('vi-VN');
 
 const hasSellPrice = (item) => {
-  console.log('Check sell price for', item.name, 'display_price_sell', item.display_price_sell);
   return Number(item.display_price_sell || 0) > 0;
 }
 const getStatus = (item) => {

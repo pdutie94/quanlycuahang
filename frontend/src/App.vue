@@ -56,7 +56,7 @@ watch(
       <div class="app-content-wrap py-4 pb-6">
         <router-view v-slot="{ Component, route: currentRoute }">
           <transition name="page-fade" mode="out-in" appear>
-            <component :is="Component" :key="currentRoute.fullPath" />
+            <component :is="Component" :key="currentRoute.path" />
           </transition>
         </router-view>
       </div>

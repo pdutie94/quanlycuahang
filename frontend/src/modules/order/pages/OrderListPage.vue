@@ -1,6 +1,6 @@
 <script setup>
-import { computed, ref } from 'vue';
-import { RouterLink } from 'vue-router';
+import { computed, ref, watch } from 'vue';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { X } from '@lucide/vue';
 import { useOrders } from '../composables/useOrders';
 import { useToast } from '../../../shared/composables/useToast';
@@ -10,6 +10,10 @@ import OrderItemCard from '../../../shared/components/OrderItemCard.vue';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 
+
+const route = useRoute();
+const router = useRouter();
+
 const keyword = ref('');
 const paymentStatus = ref('');
 const orderStatus = ref('');
@@ -17,8 +21,20 @@ const fromDate = ref('');
 const toDate = ref('');
 const showAdvancedFilter = ref(false);
 
+// Đọc filter từ URL query khi load
+const initFromQuery = () => {
+  keyword.value = String(route.query.q || '');
+  paymentStatus.value = String(route.query.status || '');
+  orderStatus.value = String(route.query.order_status || '');
+  fromDate.value = String(route.query.from_date || '');
+  toDate.value = String(route.query.to_date || '');
+};
+
+initFromQuery();
+
 const { items, meta, loading, error, load } = useOrders();
 const toast = useToast();
+
 
 const buildParams = () => ({
   q: keyword.value,
@@ -27,6 +43,7 @@ const buildParams = () => ({
   from_date: fromDate.value,
   to_date: toDate.value
 });
+
 
 const {
   hasMore,
@@ -38,24 +55,53 @@ const {
   itemsRef: items,
   metaRef: meta,
   loadingRef: loading,
-  fetchPage: (page) => load({ ...buildParams(), page }),
+  fetchPage: (page) =>
+    load({
+      q: keyword.value,
+      status: paymentStatus.value,
+      order_status: orderStatus.value,
+      from_date: fromDate.value,
+      to_date: toDate.value,
+      page: route.query.page || page
+    }),
   onError: () => {
     toast.error(error.value || 'Không thể tải danh sách đơn hàng.');
   }
 });
 
+
 const applySearch = async () => {
-  await refresh();
+  router.push({
+    query: {
+      ...route.query,
+      q: keyword.value || undefined,
+      page: undefined // reset page
+    }
+  });
 };
 
 const applyOrderStatus = async (value) => {
   orderStatus.value = value;
-  await refresh();
+  router.push({
+    query: {
+      ...route.query,
+      order_status: value || undefined,
+      page: undefined
+    }
+  });
 };
 
 const applyAdvancedFilter = async () => {
   showAdvancedFilter.value = false;
-  await refresh();
+  router.push({
+    query: {
+      ...route.query,
+      status: paymentStatus.value || undefined,
+      from_date: fromDate.value || undefined,
+      to_date: toDate.value || undefined,
+      page: undefined
+    }
+  });
 };
 
 const clearAdvancedFilter = async () => {
@@ -63,8 +109,17 @@ const clearAdvancedFilter = async () => {
   fromDate.value = '';
   toDate.value = '';
   showAdvancedFilter.value = false;
-  await refresh();
+  router.push({
+    query: {
+      ...route.query,
+      status: undefined,
+      from_date: undefined,
+      to_date: undefined,
+      page: undefined
+    }
+  });
 };
+
 
 const hasAdvancedFilter = computed(() => paymentStatus.value !== '' || fromDate.value !== '' || toDate.value !== '');
 const hasAnyFilter = computed(() => orderStatus.value !== '' || hasAdvancedFilter.value);
@@ -74,8 +129,18 @@ const clearFilters = async () => {
   paymentStatus.value = '';
   fromDate.value = '';
   toDate.value = '';
-  await refresh();
+  router.push({ query: {} });
 };
+
+// Watch query để reload data và sync filter từ URL
+watch(
+  () => route.query,
+  async () => {
+    initFromQuery();
+    await refresh();
+  },
+  { immediate: true }
+);
 </script>
 
 <template>

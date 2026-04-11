@@ -32,7 +32,8 @@ export function useInfiniteList(options) {
     fetchPage,
     onError,
     getItemId = (item) => toNumber(item?.id),
-    rootMargin = '240px 0px'
+    rootMargin = '240px 0px',
+    autoLoad = true
   } = options;
 
   const page = ref(1);
@@ -116,6 +117,8 @@ export function useInfiniteList(options) {
   };
 
   onMounted(async () => {
+    if (!autoLoad) return;
+    
     await loadPage(false);
     await setupInfiniteObserver();
   });
