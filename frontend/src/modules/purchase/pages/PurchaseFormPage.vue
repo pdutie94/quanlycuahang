@@ -72,11 +72,7 @@ const manualItemDraft = ref({
   unit_name: '',
   qty: '1',
   price_cost: '',
-  amount: '',
-  save_as_product: false,
-  saved_product_id: '',
-  product_base_unit_id: '',
-  product_category_id: ''
+  amount: ''
 });
 
 // --- normalizeRowQty logic từ OrderFormPage ---
@@ -104,11 +100,16 @@ const normalizeRowQty = (row) => {
   }
   if (step === 1) {
     row.qty = formatQtyValue(Math.max(1, Math.round(currentQty)));
-    return;
+  } else {
+    const normalizedQty = Math.max(step, Math.round(currentQty / step) * step);
+    row.qty = formatQtyValue(normalizedQty);
   }
-  const normalizedQty = Math.max(step, Math.round(currentQty / step) * step);
-  row.qty = formatQtyValue(normalizedQty);
 };
+
+function onRowQtyBlur(row) {
+  normalizeRowQty(row);
+  onRowQtyInput(row);
+}
 
 const filteredSuppliers = computed(() => {
   const keyword = String(supplierKeyword.value || '').trim().toLowerCase();
@@ -163,6 +164,78 @@ const productCatalog = computed(() => {
   return Array.from(map.values());
 });
 
+// --- Đồng bộ giá nhập, tổng tiền, số lượng cho từng dòng sản phẩm ---
+function parseMoneyInput(val) {
+  return Number(String(val).replace(/\D/g, '')) || 0;
+}
+
+// --- Đồng bộ giá nhập, tổng tiền, số lượng cho sản phẩm khác (manualItems & manualItemDraft) ---
+function onManualQtyInput(item) {
+  // 🔥 chỉ detect khi user gõ
+  const precision = detectManualQtyPrecision(item.qty);
+
+  if (precision > 0) {
+    item.qty_precision = precision;
+  }
+
+  // logic cũ
+  const qty = Number(item.qty) || 0;
+  const amount = parseMoneyInput(item.amount);
+
+  if (qty > 0) {
+    item.price_cost = amount > 0 ? formatter.format(Math.round(amount / qty)) : '';
+  } else {
+    item.price_cost = '';
+  }
+}
+
+function onManualPriceInput(item) {
+  // Khi sửa giá nhập: tính lại tổng
+  const qty = Number(item.qty) || 0;
+  const price = parseMoneyInput(item.price_cost);
+  item.amount = qty > 0 && price > 0 ? formatter.format(qty * price) : '';
+}
+
+function onManualAmountInput(item) {
+  // Khi sửa tổng: tính lại giá nhập
+  const qty = Number(item.qty) || 0;
+  const amount = parseMoneyInput(item.amount);
+  if (qty > 0) {
+    item.price_cost = amount > 0 ? formatter.format(Math.round(amount / qty)) : '';
+  } else {
+    item.price_cost = '';
+  }
+}
+
+function onRowQtyInput(row) {
+  // Khi sửa số lượng: giữ tổng, tính lại giá nhập
+  const qty = Number(row.qty) || 0;
+  const amount = parseMoneyInput(row.amount);
+  if (qty > 0) {
+    row.price_cost = amount > 0 ? formatter.format(Math.round(amount / qty)) : '';
+  } else {
+    row.price_cost = '';
+  }
+}
+
+function onRowPriceInput(row) {
+  // Khi sửa giá nhập: tính lại tổng
+  const qty = Number(row.qty) || 0;
+  const price = parseMoneyInput(row.price_cost);
+  row.amount = qty > 0 && price > 0 ? formatter.format(qty * price) : '';
+}
+
+function onRowAmountInput(row) {
+  // Khi sửa tổng: tính lại giá nhập
+  const qty = Number(row.qty) || 0;
+  const amount = parseMoneyInput(row.amount);
+  if (qty > 0) {
+    row.price_cost = amount > 0 ? formatter.format(Math.round(amount / qty)) : '';
+  } else {
+    row.price_cost = '';
+  }
+}
+
 const filteredProducts = computed(() => {
   const keyword = String(productKeyword.value || '').trim().toLowerCase();
   if (!keyword) {
@@ -193,7 +266,7 @@ const manualModalHeading = computed(() => {
 
   return displayName;
 });
-const hasManualSavedProduct = computed(() => Number(manualItemDraft.value.saved_product_id || 0) > 0);
+
 const syncingPaidAmount = ref(false);
 
 
@@ -202,68 +275,12 @@ const normalizeManualDraft = () => ({
   unit_name: '',
   qty: '1',
   price_cost: '',
-  amount: '',
-  save_as_product: false,
-  saved_product_id: '',
-  product_base_unit_id: '',
-  product_category_id: ''
+  amount: ''
 });
 
 const normalizeUnitName = (value) => String(value || '').trim().toLowerCase();
 
-const resolveBaseUnitIdFromManualItem = (item) => {
-  const unitName = normalizeUnitName(item.unit_name);
-  if (!unitName) {
-    return 0;
-  }
 
-  const matchedUnit = baseUnits.value.find((unit) => normalizeUnitName(unit.name) === unitName);
-  return matchedUnit?.id ? Number(matchedUnit.id) : 0;
-};
-
-const persistManualProducts = async () => {
-  for (let index = 0; index < manualItems.value.length; index += 1) {
-    const item = manualItems.value[index];
-    if (!item?.save_as_product || Number(item.saved_product_id || 0) > 0) {
-      continue;
-    }
-
-    const baseUnitId = resolveBaseUnitIdFromManualItem(item);
-    if (baseUnitId <= 0) {
-      toast.error(`Đơn vị của ${item.item_name || 'sản phẩm khác'} chưa khớp đơn vị tính hiện có.`);
-      return false;
-    }
-
-    try {
-      const productResponse = await createInlineProduct({
-        name: item.item_name,
-        code: '',
-        base_unit_id: String(baseUnitId),
-        category_id: '',
-        price_sell_single: '',
-        price_cost_single: item.price_cost,
-        allow_fraction: '0',
-        min_step: '1',
-        inventory_qty_base: '',
-        min_stock_qty: '',
-        redirect: 'exit'
-      });
-      const savedProductId = Number(productResponse?.data?.id || productResponse?.data?.product?.id || 0);
-      if (savedProductId > 0) {
-        manualItems.value[index] = {
-          ...manualItems.value[index],
-          saved_product_id: String(savedProductId),
-          product_base_unit_id: String(baseUnitId)
-        };
-      }
-    } catch (_err) {
-      toast.error(createProductError.value || 'Không thể lưu sản phẩm mới từ sản phẩm khác.');
-      return false;
-    }
-  }
-
-  return true;
-};
 
 const syncPaidAmountFromSummary = () => {
   if (isEdit.value) {
@@ -396,8 +413,8 @@ const applySelectedProducts = () => {
     addRow({
       product_unit_id: String(unit.id),
       qty: '1',
-      price_cost: amount > 0 ? String(amount) : '',
-      amount: amount > 0 ? String(amount) : '',
+      price_cost: amount > 0 ? formatPriceInput(amount) : '',
+      amount: amount > 0 ? formatPriceInput(amount) : '',
       update_cost: false
     });
     addedCount += 1;
@@ -425,11 +442,7 @@ const openManualItemModal = (index = null) => {
       unit_name: source.unit_name || '',
       qty: String(source.qty ?? '1'),
       price_cost: String(source.price_cost ?? ''),
-      amount: String(source.amount ?? ''),
-      save_as_product: Boolean(source.save_as_product),
-      saved_product_id: String(source.saved_product_id ?? ''),
-      product_base_unit_id: String(source.product_base_unit_id ?? ''),
-      product_category_id: String(source.product_category_id ?? '')
+      amount: String(source.amount ?? '')
     };
   }
 
@@ -448,11 +461,7 @@ const saveManualItem = async () => {
     unit_name: String(manualItemDraft.value.unit_name || '').trim(),
     qty: String(manualItemDraft.value.qty || '').trim(),
     price_cost: formatPriceInput(manualItemDraft.value.price_cost, true),
-    amount: formatPriceInput(manualItemDraft.value.amount, true),
-    save_as_product: Boolean(manualItemDraft.value.save_as_product),
-    saved_product_id: String(manualItemDraft.value.saved_product_id || ''),
-    product_base_unit_id: String(manualItemDraft.value.product_base_unit_id || ''),
-    product_category_id: String(manualItemDraft.value.product_category_id || '')
+    amount: formatPriceInput(manualItemDraft.value.amount, true)
   };
 
   if (!normalizedItem.item_name) {
@@ -526,23 +535,12 @@ const submit = async () => {
   }
 
   try {
-    const manualProductsReady = await persistManualProducts();
-    if (!manualProductsReady) {
-      return;
-    }
-
     const payload = isEdit.value
       ? await submitUpdate(Number(route.params.id || 0))
       : await submitCreate();
 
     toast.success(payload?.message || (isEdit.value ? 'Đã cập nhật phiếu nhập hàng.' : 'Đã tạo phiếu nhập hàng.'));
-    const nextId = Number(payload?.data?.id || route.params.id || 0);
-    if (nextId > 0) {
-      await router.push({ name: 'purchases.detail', params: { id: nextId } });
-      return;
-    }
-
-    await router.push('/purchases');
+    // Không chuyển hướng, giữ nguyên trang hiện tại sau khi cập nhật/tạo phiếu
   } catch (_err) {
     toast.error((isEdit.value ? updateError.value : createError.value) || 'Không thể lưu phiếu nhập.');
   }
@@ -560,8 +558,8 @@ const detectManualQtyPrecision = (value) => {
 
 const getManualQtyPrecision = (item) => {
   const storedPrecision = Number(item?.qty_precision);
-  if (Number.isInteger(storedPrecision) && storedPrecision >= 0) {
-    return storedPrecision;
+  if (Number.isInteger(item.qty_precision)) {
+    return item.qty_precision;
   }
   return detectManualQtyPrecision(item?.qty);
 };
@@ -577,20 +575,28 @@ const roundManualQtyByPrecision = (value, precision) => {
 const formatManualQtyValue = (value, precision = 4) => Number(value || 0).toFixed(precision).replace(/\.?0+$/, '');
 
 const normalizeManualQty = (item) => {
-  const typedPrecision = detectManualQtyPrecision(item.qty);
-  item.qty_precision = typedPrecision;
   const currentQty = Number(item.qty || 0);
   const precision = getManualQtyPrecision(item);
   const step = getManualQtyStep(item);
   const minQty = getManualQtyMin(item);
+
   if (!Number.isFinite(currentQty) || currentQty <= 0) {
-    item.qty_precision = 0;
-    item.qty = formatManualQtyValue(1, 0);
+    item.qty = formatManualQtyValue(1, precision);
     return;
   }
-  const normalizedQty = Math.max(minQty, roundManualQtyByPrecision(Math.round(currentQty / step) * step, precision));
-  item.qty = formatManualQtyValue(normalizedQty, Math.max(precision, 0));
+
+  const normalizedQty = Math.max(
+    minQty,
+    Math.round(currentQty / step) * step
+  );
+
+  item.qty = formatManualQtyValue(normalizedQty, precision);
 };
+
+function onManualQtyBlur(item) {
+  normalizeManualQty(item);
+  onManualQtyInput(item);
+}
 
 const initializePage = async () => {
   resetState();
@@ -608,6 +614,8 @@ const initializePage = async () => {
     manualItems.value.forEach((item) => {
       normalizeManualQty(item);
       item.price_cost = formatMoneyInput(item.price_cost, false);
+      item.amount = formatMoneyInput(item.amount, false);
+      console.log(item.qty);
     });
   }
 };
@@ -726,12 +734,15 @@ onMounted(async () => {
                   <label class="block text-xs font-medium text-slate-600 mb-0.5">Số lượng</label>
                   <div class="relative">
                         <input
-                          type="number"
+                          type="text"
+                          inputmode="numeric"
+                          pattern="[0-9]*(\.[0-9]+)?"
                           v-model="row.qty"
                           min="0"
                           :step="(row.allow_fraction == 1 ? (row.min_step || 1) : (getUnitDisplay(row)?.allow_fraction == 1 ? (getUnitDisplay(row)?.min_step || 1) : 1))"
                           class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-10"
-                          @change="normalizeRowQty(row)"
+                          @input="onRowQtyInput(row)"
+                          @blur="onRowQtyBlur(row)"
                         />
                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">{{ getUnitDisplay(row)?.unit_name || '' }}</span>
                   </div>
@@ -739,14 +750,14 @@ onMounted(async () => {
                 <div>
                   <label class="block text-xs font-medium text-slate-600 mb-0.5">Giá nhập</label>
                   <div class="relative">
-                    <input type="text" v-money-input min="0" v-model="row.price_cost" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" />
+                    <input type="text" v-money-input min="0" v-model="row.price_cost" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" @input="onRowPriceInput(row)" />
                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">đ</span>
                   </div>
                 </div>
                 <div class="col-span-2 md:col-span-1">
                   <label class="block text-xs font-medium text-slate-600 mb-0.5">Thành tiền</label>
                   <div class="relative">
-                    <input type="text" v-money-input min="0" v-model="row.amount" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" />
+                    <input type="text" v-money-input min="0" v-model="row.amount" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" @input="onRowAmountInput(row)" />
                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">đ</span>
                   </div>
                 </div>
@@ -773,7 +784,7 @@ onMounted(async () => {
           <div class="space-y-3 mt-3">
             <div v-if="!manualItems.length" class="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-center text-sm text-slate-500">Chưa có sản phẩm nào.</div>
             
-            <div v-for="(item, index) in manualItems" :key="`manual-${index}`" class="rounded-xl border border-slate-200 bg-white px-3 pt-2 pb-1.5">
+            <div v-for="(item, index) in manualItems" :key="`manual-${index}`" class="rounded-xl border border-slate-200 bg-white px-3 pt-2 pb-2.5">
               <div class="flex flex-row items-center gap-2 sm:gap-3">
                 <div class="flex-1 min-w-0">
                   <div class="font-medium text-sm truncate">{{ item.item_name }}</div>
@@ -785,34 +796,34 @@ onMounted(async () => {
                 <div>
                   <label class="block text-xs font-medium text-slate-600 mb-0.5">Số lượng</label>
                   <div class="relative">
-                      <input
-                        type="number"
-                        v-model="item.qty"
-                        min="0"
-                        class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-10"
-                      />
+                        <input
+                          type="text"
+                          v-model="item.qty"
+                          inputmode="numeric"
+                          pattern="[0-9]*(\.[0-9]+)?"
+                          class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-10"
+                          @input="onManualQtyInput(item)"
+                          @blur="onManualQtyBlur(item)"
+                        />
                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">{{ item.unit_name }}</span>
                   </div>
                 </div>
                 <div>
                   <label class="block text-xs font-medium text-slate-600 mb-0.5">Giá nhập</label>
                   <div class="relative">
-                    <input type="text" v-money-input min="0" v-model="item.price_cost" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" />
+                    <input type="text" v-money-input min="0" v-model="item.price_cost" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" @input="onManualPriceInput(item)" />
                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">đ</span>
                   </div>
                 </div>
                 <div class="col-span-2 md:col-span-1">
                   <label class="block text-xs font-medium text-slate-600 mb-0.5">Thành tiền</label>
                   <div class="relative">
-                    <input type="text" v-money-input min="0" v-model="item.amount" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" />
+                    <input type="text" v-money-input min="0" v-model="item.amount" class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-7" @input="onManualAmountInput(item)" />
                     <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400">đ</span>
                   </div>
                 </div>
               </div>
-              <label class="mt-2 inline-flex items-center gap-2 text-sm text-slate-700">
-                <input v-model="item.save_as_product" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600" :disabled="Number(item.saved_product_id || 0) > 0" />
-                <span>{{ Number(item.saved_product_id || 0) > 0 ? 'Đã lưu thành sản phẩm' : 'Lưu thành sản phẩm' }}</span>
-              </label>
+
             </div>
           </div>
         </section>
@@ -848,7 +859,7 @@ onMounted(async () => {
               <div>
                 <label class="mb-1 block text-sm font-medium text-slate-700">Số tiền thanh toán</label>
                 <div class="relative">
-                  <input v-model="form.paid_amount" type="text" inputmode="numeric" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" @input="form.paid_amount = formatPriceInput(formatMoneyInput(form.paid_amount, false), false)" />
+                  <input v-model="form.paid_amount" type="text" v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
                   <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                 </div>
               </div>
@@ -984,28 +995,26 @@ onMounted(async () => {
                   </label>
                   <label class="space-y-1">
                     <span class="app-label">Số lượng</span>
-                      <input v-model="manualItemDraft.qty" type="number" min="0" step="1" class="app-input text-right" @input="onManualQtyInput" @blur="onManualQtyBlur" />
+                      <input v-model="manualItemDraft.qty" type="number" min="0" step="1" class="app-input text-right" @input="onManualQtyInput(manualItemDraft)" @blur="onManualQtyBlur" />
                   </label>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <label class="space-y-1">
                     <span class="app-label">Giá nhập</span>
                     <div class="relative">
-                      <input v-model="manualItemDraft.price_cost" type="text" inputmode="numeric" class="app-input pr-8 text-right" @input="onManualPriceInput" @blur="onManualPriceBlur" />
+                      <input v-model="manualItemDraft.price_cost" type="text" v-money-input class="app-input pr-8 text-right" @input="onManualPriceInput(manualItemDraft)" @blur="onManualPriceBlur" />
                       <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                     </div>
                   </label>
                   <label class="space-y-1">
                     <span class="app-label">Thành tiền</span>
                     <div class="relative">
-                      <input v-model="manualItemDraft.amount" type="text" inputmode="numeric" class="app-input pr-8 text-right" @input="onManualAmountInput" @blur="onManualAmountBlur" />
+                      <input v-model="manualItemDraft.amount" type="text" v-money-input class="app-input pr-8 text-right" @input="onManualAmountInput(manualItemDraft)" @blur="onManualAmountBlur" />
                       <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                     </div>
                   </label>
                 </div>
-                <div v-if="hasManualSavedProduct" class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-                  Sản phẩm này đã được lưu vào danh mục sản phẩm.
-                </div>
+
               </div>
               <div class="app-modal-footer">
                 <button type="button" class="app-btn-secondary" @click="closeManualItemModal">Hủy</button>
