@@ -34,11 +34,7 @@ function createEmptyManualItem() {
     unit_name: '',
     qty: '1',
     price_cost: '',
-    amount: '',
-    save_as_product: false,
-    saved_product_id: '',
-    product_base_unit_id: '',
-    product_category_id: ''
+    amount: ''
   };
 }
 
@@ -263,7 +259,6 @@ export function usePurchaseForm() {
     addManualItem,
     removeManualItem,
     createInlineSupplier,
-    createInlineProduct,
     createSupplierLoading: createSupplierRequest.loading,
     createSupplierError: createSupplierRequest.error,
     createProductLoading: createProductRequest.loading,

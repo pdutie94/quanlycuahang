@@ -2,33 +2,38 @@
 // Tự động format tiền khi blur, giữ nguyên khi nhập
 import { numberFormatter } from '../composables/useFormat';
 
+function formatMoneyInput(val) {
+  const raw = String(val).replace(/\D/g, '');
+  if (!raw) return '';
+  const num = Number(raw);
+  return !isNaN(num) && num > 0 ? numberFormatter.format(num) : '';
+}
+
 export default {
   mounted(el) {
+    // Always show numeric keyboard on mobile
+    el.setAttribute('inputmode', 'numeric');
+    el.setAttribute('pattern', '[0-9]*');
+
+    // Format on mount
+    if (el.value) {
+      el.value = formatMoneyInput(el.value);
+    }
+
     el.inputHandler = (e) => {
-      // Chỉ cho phép số và dấu chấm
-      let val = e.target.value.replace(/[^\d.]/g, '');
-      // Không cho nhiều dấu chấm
-      const parts = val.split('.');
-      if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
-      e.target.value = val;
-      // Sync v-model
-      el.dispatchEvent(new Event('input', { bubbles: true }));
-    };
-    el.blurHandler = (e) => {
-      let val = e.target.value;
-      if (!val) return;
-      // Format số
-      const num = Number(val.replace(/[^\d.]/g, ''));
-      if (!isNaN(num) && num > 0) {
-        e.target.value = numberFormatter.format(Number(val.replace(/[^\d.]/g, '')));
+      // Only allow digits
+      let raw = e.target.value.replace(/\D/g, '');
+      // Format with thousands separator
+      let formatted = raw ? numberFormatter.format(Number(raw)) : '';
+      if (e.target.value !== formatted) {
+        e.target.value = formatted;
         el.dispatchEvent(new Event('input', { bubbles: true }));
       }
     };
+
     el.addEventListener('input', el.inputHandler);
-    el.addEventListener('blur', el.blurHandler);
   },
   unmounted(el) {
     el.removeEventListener('input', el.inputHandler);
-    el.removeEventListener('blur', el.blurHandler);
   }
 };
