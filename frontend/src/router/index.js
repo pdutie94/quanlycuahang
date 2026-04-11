@@ -15,7 +15,6 @@ import SupplierFormPage from '../modules/supplier/pages/SupplierFormPage.vue';
 import SupplierListPage from '../modules/supplier/pages/SupplierListPage.vue';
 import UnitListPage from '../modules/unit/pages/UnitListPage.vue';
 import OrderDetailPage from '../modules/order/pages/OrderDetailPage.vue';
-import OrderFormPage from '../modules/order/pages/OrderFormPage.vue';
 import OrderInvoicePage from '../modules/order/pages/OrderInvoicePage.vue';
 import OrderListPage from '../modules/order/pages/OrderListPage.vue';
 import OrderReturnPage from '../modules/order/pages/OrderReturnPage.vue';
@@ -183,11 +182,6 @@ const routes = [
       path: '/orders/:id',
       name: 'orders.detail',
       component: OrderDetailPage
-    },
-    {
-      path: '/orders/:id/edit',
-      name: 'orders.edit',
-      component: OrderFormPage
     },
     {
       path: '/orders/:id/return',
