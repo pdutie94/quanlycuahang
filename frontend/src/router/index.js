@@ -178,11 +178,7 @@ const routes = [
     name: 'orders.deleted',
     component: OrderTrashPage
   },
-    {
-      path: '/orders/create',
-      name: 'orders.create',
-      component: OrderFormPage
-    },
+    // Đã bỏ route tạo đơn hàng riêng, chuyển sang POS
     {
       path: '/orders/:id',
       name: 'orders.detail',

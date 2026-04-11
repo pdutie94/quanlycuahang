@@ -149,7 +149,7 @@ watch(
       v-model="keyword"
       title="Đơn hàng"
       subtitle="Quản lý danh sách đơn hàng bán ra."
-      :create-to="{ name: 'orders.create' }"
+      :create-to="{ name: 'pos.index' }"
       create-label="Tạo đơn"
       search-placeholder="Tìm theo mã đơn, tên khách, SĐT..."
       filter-type="filter"
