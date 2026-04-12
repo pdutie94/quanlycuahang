@@ -74,7 +74,7 @@ const loading = computed(() => bootstrapLoading.value || (isEdit.value && detail
 const saving = computed(() => createLoading.value || updateLoading.value);
 
 import { useFormat } from '../../../shared/composables/useFormat';
-const { formatMoney, formatDateTime, parseAmount } = useFormat();
+const { formatMoney, parseAmount } = useFormat();
 
 const formatMoneyInput = (value, allowEmpty = true) => {
   const amount = parseAmount(value);
@@ -412,10 +412,6 @@ const decreaseManualQty = (item) => {
 
 const formatMoneyField = (obj, field) => {
   obj[field] = formatMoneyInput(obj[field]);
-};
-
-const formatMoneyFieldRequired = (obj, field) => {
-  obj[field] = formatMoneyInput(obj[field], false);
 };
 
 const formatPriceField = (obj, field, allowEmpty = true) => {
@@ -1021,7 +1017,7 @@ onMounted(async () => {
             <label v-if="form.payment_status === 'pay'" class="space-y-1 md:col-span-2">
               <span class="app-label">Số tiền thanh toán</span>
               <div class="relative">
-                <input v-model="form.payment_amount" type="text" inputmode="numeric" v-money-input class="app-input pr-8 text-right" />
+                <input v-model="form.payment_amount" type="text" v-money-input class="app-input pr-8 text-right" />
                 <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
               </div>
             </label>
@@ -1138,7 +1134,7 @@ onMounted(async () => {
               <label class="space-y-1">
                 <span class="app-label">Đơn giá mới</span>
                 <div class="relative">
-                  <input v-model="priceDraftValue" type="text" inputmode="numeric" class="app-input pr-8 text-right font-medium text-slate-900" @input="priceDraftValue = formatPriceInput(priceDraftValue, false)" />
+                  <input v-model="priceDraftValue" type="text" v-money-input class="app-input pr-8 text-right font-medium text-slate-900" @input="priceDraftValue = formatPriceInput(priceDraftValue, false)" />
                   <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                 </div>
               </label>
@@ -1179,14 +1175,14 @@ onMounted(async () => {
                 <label class="space-y-1">
                   <span class="app-label">Giá vốn</span>
                   <div class="relative">
-                    <input v-model="manualItemDraft.price_buy" type="text" inputmode="numeric" class="app-input pr-8 text-right" @input="formatPriceField(manualItemDraft, 'price_buy', false)" />
+                    <input v-model="manualItemDraft.price_buy" type="text" v-money-input class="app-input pr-8 text-right" />
                     <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                   </div>
                 </label>
                 <label class="space-y-1">
                   <span class="app-label">Giá bán</span>
                   <div class="relative">
-                    <input v-model="manualItemDraft.price_sell" type="text" inputmode="numeric" class="app-input pr-8 text-right" @input="formatPriceField(manualItemDraft, 'price_sell', false)" />
+                    <input v-model="manualItemDraft.price_sell" type="text" v-money-input class="app-input pr-8 text-right" />
                     <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                   </div>
                 </label>
@@ -1218,7 +1214,7 @@ onMounted(async () => {
               <label v-if="discountDraftType !== 'none'" class="space-y-1">
                 <span class="app-label">Giá trị giảm</span>
                 <div class="relative">
-                  <input v-model="discountDraftValue" type="text" inputmode="numeric" class="app-input pr-8 text-right" :data-money-format="discountDraftType === 'percent' ? 'off' : null" :data-money-x1000="discountDraftType === 'percent' ? 'off' : null" @input="onDiscountDraftValueInput" />
+                  <input v-model="discountDraftValue" type="text" v-money-input class="app-input pr-8 text-right" :data-money-format="discountDraftType === 'percent' ? 'off' : null" :data-money-x1000="discountDraftType === 'percent' ? 'off' : null" @input="onDiscountDraftValueInput" />
                   <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">{{ discountDraftSuffix }}</span>
                 </div>
               </label>
@@ -1244,7 +1240,7 @@ onMounted(async () => {
               <label class="space-y-1">
                 <span class="app-label">Số tiền phụ thu</span>
                 <div class="relative">
-                  <input v-model="surchargeDraftValue" type="text" inputmode="numeric" class="app-input pr-8 text-right" @input="surchargeDraftValue = formatMoneyInput(surchargeDraftValue, false)" />
+                  <input v-model="surchargeDraftValue" type="text" v-money-input class="app-input pr-8 text-right" @input="surchargeDraftValue = formatMoneyInput(surchargeDraftValue, false)" />
                   <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                 </div>
               </label>
