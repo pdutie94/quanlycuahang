@@ -229,6 +229,13 @@ class ProductService
         if (array_key_exists('min_stock_qty', $payload)) {
             $data['min_stock_qty'] = self::normalizeOptionalPositiveQuantity($payload['min_stock_qty']);
         }
+        // Thêm auto_price_enabled, auto_price_value
+        if (array_key_exists('auto_price_enabled', $payload)) {
+            $data['auto_price_enabled'] = (int)$payload['auto_price_enabled'] ? 1 : 0;
+        }
+        if (array_key_exists('auto_price_value', $payload)) {
+            $data['auto_price_value'] = $payload['auto_price_value'] !== '' ? (int)$payload['auto_price_value'] : null;
+        }
 
         return $data;
     }

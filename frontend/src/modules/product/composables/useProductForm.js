@@ -45,7 +45,9 @@ export function useProductForm() {
     min_step: '1',
     inventory_qty_base: '',
     min_stock_qty: '',
-    redirect: 'stay'
+    redirect: 'stay',
+    auto_price_enabled: 0,
+    auto_price_value: ''
   });
 
   const productLogs = ref([]);
@@ -73,7 +75,9 @@ export function useProductForm() {
       min_step: formatStepValue(firstUnit?.min_step),
       inventory_qty_base: data.inventory_qty_base !== null && data.inventory_qty_base !== undefined ? String(data.inventory_qty_base) : '',
       min_stock_qty: data.product?.min_stock_qty !== null && data.product?.min_stock_qty !== undefined ? String(data.product.min_stock_qty) : '',
-      redirect: form.value.redirect || 'stay'
+      redirect: form.value.redirect || 'stay',
+      auto_price_enabled: data.product?.auto_price_enabled ? 1 : 0,
+      auto_price_value: data.product?.auto_price_value ?? ''
     };
   };
 
@@ -114,7 +118,9 @@ export function useProductForm() {
     min_step: form.value.min_step,
     inventory_qty_base: form.value.inventory_qty_base,
     min_stock_qty: form.value.min_stock_qty,
-    redirect: form.value.redirect
+    redirect: form.value.redirect,
+    auto_price_enabled: form.value.auto_price_enabled,
+    auto_price_value: form.value.auto_price_value
   });
 
   const submitCreate = async () => createRequest.execute(buildPayload());

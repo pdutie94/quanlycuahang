@@ -1,12 +1,14 @@
 <script setup>
-import { ClipboardList, History, Package, Tags, Trash2 } from '@lucide/vue';
-import { computed, onMounted, ref } from 'vue';
+import { ClipboardList, History, Package, Tags, Trash2, X } from '@lucide/vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductForm } from '../composables/useProductForm';
 import { useToast } from '../../../shared/composables/useToast';
 import ActionConfirmSheet from '../../../shared/components/ActionConfirmSheet.vue';
 import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
+import { useFormat } from '../../../shared/composables/useFormat';
 
+const { parseAmount, formatMoneyInput } = useFormat();
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
@@ -40,7 +42,34 @@ const isEdit = computed(() => Boolean(route.params.id));
 const pageTitle = computed(() => (isEdit.value ? 'Sửa sản phẩm' : 'Thêm sản phẩm'));
 const loading = computed(() => bootstrapLoading.value || (isEdit.value && editLoading.value));
 const saving = computed(() => createLoading.value || updateLoading.value);
-const showDeleteModal = ref(false);
+
+let lastManualPrice = '';
+
+// Tự động cập nhật giá bán: giá bán = giá vốn + giá tự động
+watch([
+  () => form.value.auto_price_enabled,
+  () => form.value.auto_price_value,
+  () => form.value.price_cost_single
+], ([enabled, autoVal, costVal], [prevEnabled]) => {
+  // Khi vừa bật tự động
+  if (enabled && !prevEnabled) {
+    lastManualPrice = form.value.price_sell_single;
+  }
+  // Khi đang bật tự động thì luôn tính giá
+  if (enabled) {
+    const cost = parseAmount(costVal || '');
+    const auto = parseAmount(autoVal || '');
+    if (!isNaN(cost) && !isNaN(auto) && cost > 0 && auto > 0) {
+      form.value.price_sell_single = formatMoneyInput(cost + auto);
+    } else {
+      form.value.price_sell_single = lastManualPrice;
+    }
+  }
+  // Khi vừa tắt tự động thì trả lại giá thủ công
+  if (!enabled && prevEnabled) {
+    form.value.price_sell_single = lastManualPrice;
+  }
+});
 
 const historyDateFormatter = new Intl.DateTimeFormat('vi-VN', {
   hour: '2-digit',
@@ -139,6 +168,7 @@ const deleteCurrentProduct = async () => {
   }
 };
 
+
 onMounted(async () => {
   try {
     await loadBootstrap();
@@ -154,8 +184,8 @@ onMounted(async () => {
 <template>
   <section class="space-y-4">
     <DetailHeaderBar :title="pageTitle" back-to="/products">
-      <template #actions="{ closeMenu }">
-        <button v-if="isEdit && product" type="button" class="detail-header-menu-item detail-header-menu-item-rose" @click="closeMenu(); showDeleteModal = true"><Trash2 class="h-4 w-4 shrink-0" /><span>Xóa sản phẩm</span></button>
+      <template v-if="isEdit" #actions="{ closeMenu }">
+        <button v-if="product" type="button" class="detail-header-menu-item detail-header-menu-item-rose" @click="closeMenu(); showDeleteModal = true"><Trash2 class="h-4 w-4 shrink-0" /><span>Xóa sản phẩm</span></button>
       </template>
     </DetailHeaderBar>
 
@@ -232,7 +262,14 @@ onMounted(async () => {
             <div class="flex flex-col gap-1">
               <label class="text-sm font-medium text-slate-700">Giá bán</label>
               <div class="relative">
-                <input v-model="form.price_sell_single" type="text"  v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+                <input
+                  v-model="form.price_sell_single"
+                  type="text"
+                  v-money-input
+                  class="h-10 w-full rounded-xl border px-3 pr-8 text-sm outline-none focus:border-brand-500"
+                  :class="form.auto_price_enabled ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-slate-900 border-slate-300'"
+                  :disabled="form.auto_price_enabled"
+                />
                 <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">đ</span>
               </div>
             </div>
@@ -240,22 +277,38 @@ onMounted(async () => {
             <div class="flex flex-col gap-1">
               <label class="text-sm font-medium text-slate-700">Giá nhập</label>
               <div class="relative">
-                <input v-model="form.price_cost_single" type="text"  v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+                <input v-model="form.price_cost_single" type="text" v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
                 <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">đ</span>
               </div>
             </div>
           </div>
 
-          <label class="flex items-center gap-2 text-sm text-slate-700">
+          <label class="flex items-center gap-2 text-sm text-slate-700 mt-2">
+            <input v-model="form.auto_price_enabled" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600" :true-value="1" :false-value="0" />
+            <span>Thiết lập giá bán tự động</span>
+          </label>
+
+          <div v-if="form.auto_price_enabled" class="flex flex-col gap-1 mt-1">
+            <label class="text-sm font-medium text-slate-700">Giá bán tự động</label>
+            <div class="relative">
+              <input v-model="form.auto_price_value" type="text" v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" placeholder="Nhập số tiền cố định" />
+              <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">đ</span>
+            </div>
+            <p class="text-xs text-slate-400">Giá bán sẽ được tự động thiết lập theo số tiền này. Bạn sẽ không chỉnh sửa được giá bán thủ công.</p>
+          </div>
+
+          <label class="flex items-center gap-2 text-sm text-slate-700 mt-2">
             <input v-model="form.allow_fraction" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600" />
             <span>Cho phép bán lẻ (số lượng thập phân)</span>
           </label>
 
-          <div v-if="form.allow_fraction" class="flex flex-col gap-1 max-w-xs">
+          <div v-if="form.allow_fraction" class="flex flex-col gap-1">
             <label class="text-sm font-medium text-slate-700">Bước lẻ nhỏ nhất</label>
             <input v-model="form.min_step" type="text" class="h-10 w-full rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" placeholder="Ví dụ: 0.1" />
           </div>
         </section>
+
+        <!-- Đã bỏ section Thiết lập giá bán tự động -->
 
         <section class="rounded-2xl border border-slate-200 bg-white p-4 space-y-2">
           <h2 class="flex items-center gap-2 text-base font-medium text-slate-800">

@@ -34,6 +34,7 @@ import SalesReportPage from '../modules/report/pages/SalesReportPage.vue';
 import SupplierDebtReportPage from '../modules/report/pages/SupplierDebtReportPage.vue';
 import ChangePasswordPage from '../modules/system/pages/ChangePasswordPage.vue';
 import MigrationPage from '../modules/system/pages/MigrationPage.vue';
+import CostUpdatePage from '../modules/report/pages/CostUpdatePage.vue';
 const routerBase = window.__BASE_PATH__ || '';
 
 const routes = [
@@ -45,7 +46,7 @@ const routes = [
   {
     path: '/reports/cost-update',
     name: 'reports.costUpdate',
-    component: () => import('../modules/report/pages/CostUpdatePage.vue')
+    component: CostUpdatePage
   },
   {
     path: '/login',

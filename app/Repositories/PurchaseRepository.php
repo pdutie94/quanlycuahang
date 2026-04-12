@@ -186,8 +186,36 @@ class PurchaseRepository
     public static function updateProductUnitCost(int $unitId, float $priceCost)
     {
         $pdo = Database::getInstance();
+        // Update price_cost
         $stmt = $pdo->prepare('UPDATE product_units SET price_cost = ? WHERE id = ?');
-        $stmt->execute([(int) round($priceCost), $unitId]);
+        $stmt->execute([$priceCost, $unitId]);
+
+        // Fetch product_id for this unit
+        $unitStmt = $pdo->prepare('SELECT product_id FROM product_units WHERE id = ?');
+        $unitStmt->execute([$unitId]);
+        $unitRow = $unitStmt->fetch();
+        if (!$unitRow || !isset($unitRow['product_id'])) {
+            return;
+        }
+        $productId = (int)$unitRow['product_id'];
+
+        // Fetch auto_price_enabled and auto_price_value from products
+        $productStmt = $pdo->prepare('SELECT auto_price_enabled, auto_price_value FROM products WHERE id = ?');
+        $productStmt->execute([$productId]);
+        $productRow = $productStmt->fetch();
+        if (!$productRow || (int)$productRow['auto_price_enabled'] !== 1) {
+            return;
+        }
+        $autoPriceValue = isset($productRow['auto_price_value']) ? (float)$productRow['auto_price_value'] : 0;
+        if ($autoPriceValue <= 0) {
+            return;
+        }
+
+        // Calculate new price_sell
+        $newPriceSell = round($priceCost + $autoPriceValue);
+        // Update price_sell for this unit
+        $updateSellStmt = $pdo->prepare('UPDATE product_units SET price_sell = ? WHERE id = ?');
+        $updateSellStmt->execute([$newPriceSell, $unitId]);
     }
 
     private static function buildListQuery(array $filters): array

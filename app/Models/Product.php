@@ -223,7 +223,12 @@ protected static function useProductSalesSummary(): bool
         $pdo = Database::getInstance();
         $stmt = $pdo->prepare('SELECT p.*, u.name AS base_unit_name, c.name AS category_name FROM products p JOIN units u ON p.base_unit_id = u.id LEFT JOIN product_categories c ON p.category_id = c.id WHERE p.id = ? AND p.deleted_at IS NULL');
         $stmt->execute([$id]);
-        return $stmt->fetch();
+        $row = $stmt->fetch();
+        if ($row) {
+            $row['auto_price_enabled'] = isset($row['auto_price_enabled']) ? (int)$row['auto_price_enabled'] : 0;
+            $row['auto_price_value'] = isset($row['auto_price_value']) ? (int)$row['auto_price_value'] : null;
+        }
+        return $row;
     }
 
     public static function create($data)
@@ -235,13 +240,15 @@ protected static function useProductSalesSummary(): bool
             $code = self::generateUniqueCode(isset($data['name']) ? $data['name'] : '');
         }
 
-        $stmt = $pdo->prepare('INSERT INTO products (name, code, category_id, base_unit_id, min_stock_qty) VALUES (?, ?, ?, ?, ?)');
+        $stmt = $pdo->prepare('INSERT INTO products (name, code, category_id, base_unit_id, min_stock_qty, auto_price_enabled, auto_price_value) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
             $data['name'],
             $code,
             $data['category_id'],
             $data['base_unit_id'],
             isset($data['min_stock_qty']) ? $data['min_stock_qty'] : null,
+            isset($data['auto_price_enabled']) ? (int)$data['auto_price_enabled'] : 0,
+            isset($data['auto_price_value']) ? $data['auto_price_value'] : null,
         ]);
         return $pdo->lastInsertId();
     }
@@ -255,13 +262,15 @@ protected static function useProductSalesSummary(): bool
             $code = self::generateUniqueCode(isset($data['name']) ? $data['name'] : '', $id);
         }
 
-        $stmt = $pdo->prepare('UPDATE products SET name = ?, code = ?, category_id = ?, base_unit_id = ?, min_stock_qty = ? WHERE id = ?');
+        $stmt = $pdo->prepare('UPDATE products SET name = ?, code = ?, category_id = ?, base_unit_id = ?, min_stock_qty = ?, auto_price_enabled = ?, auto_price_value = ? WHERE id = ?');
         return $stmt->execute([
             $data['name'],
             $code,
             $data['category_id'],
             $data['base_unit_id'],
             isset($data['min_stock_qty']) ? $data['min_stock_qty'] : null,
+            isset($data['auto_price_enabled']) ? (int)$data['auto_price_enabled'] : 0,
+            isset($data['auto_price_value']) ? $data['auto_price_value'] : null,
             $id,
         ]);
     }

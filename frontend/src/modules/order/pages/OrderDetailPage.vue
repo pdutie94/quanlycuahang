@@ -473,6 +473,8 @@ watch(order, () => {
 onMounted(async () => {
   await loadOrder();
 });
+
+console.log( canEditOrder.value );
 </script>
 
 <template>
