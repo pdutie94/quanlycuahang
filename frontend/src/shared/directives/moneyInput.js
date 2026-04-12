@@ -13,7 +13,7 @@ export default {
   mounted(el) {
     // Always show numeric keyboard on mobile
     el.setAttribute('inputmode', 'numeric');
-    el.setAttribute('pattern', '[0-9]*');
+    el.setAttribute('pattern', '[0-9]*(\\.[0-9]+)?');
 
     // Format on mount
     if (el.value) {

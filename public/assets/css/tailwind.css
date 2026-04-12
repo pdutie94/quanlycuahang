@@ -1275,10 +1275,6 @@ a,
   visibility: visible;
 }
 
-.invisible{
-  visibility: hidden;
-}
-
 .fixed{
   position: fixed;
 }
@@ -1578,10 +1574,6 @@ a,
   max-height: 18rem;
 }
 
-.max-h-80{
-  max-height: 20rem;
-}
-
 .\!min-h-0{
   min-height: 0px !important;
 }
@@ -1724,10 +1716,6 @@ a,
 
 .max-w-\[50\%\]{
   max-width: 50%;
-}
-
-.max-w-full{
-  max-width: 100%;
 }
 
 .max-w-md{

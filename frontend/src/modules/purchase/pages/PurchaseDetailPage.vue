@@ -18,6 +18,17 @@ const paymentAmount = ref('');
 const paymentMethod = ref('cash');
 const paymentNote = ref('');
 const showPayment = ref(false);
+
+// Khi mở modal thanh toán, tự động điền số tiền còn nợ nếu chưa nhập
+watch(showPayment, (val) => {
+  if (val && totals.value.debt > 0) {
+    // Chỉ set nếu chưa nhập gì trước đó
+    if (!paymentAmount.value) {
+      paymentAmount.value = String(totals.value.debt);
+    }
+  }
+  // Khi đóng modal, có thể reset nếu muốn (giữ lại để user nhập lại nếu cần)
+});
 const showDeleteModal = ref(false);
 
 // Đã thay thế bằng useFormat
@@ -307,40 +318,66 @@ watch(
         </div>
       </section>
 
-      <section v-if="showPayment && totals.debt > 0" class="app-card">
-        <h2 class="text-sm font-medium text-slate-800">Thanh toán phiếu nhập</h2>
-        <div class="mt-3 grid gap-3 md:grid-cols-3 text-sm">
-          <div class="rounded-md bg-slate-50 px-3 py-2"><div class="text-slate-500">Tổng tiền</div><div class="mt-1 font-medium text-slate-900">{{ formatMoney(totals.total) }}</div></div>
-          <div class="rounded-md bg-brand-50 px-3 py-2"><div class="text-brand-600">Đã trả</div><div class="mt-1 font-medium text-brand-700">{{ formatMoney(totals.paid) }}</div></div>
-          <div class="rounded-md bg-slate-50 px-3 py-2"><div class="text-slate-500">Còn nợ</div><div class="mt-1 font-medium text-rose-600">{{ formatMoney(totals.debt) }}</div></div>
-        </div>
-        <div class="mt-4 grid gap-3 md:grid-cols-3">
-          <label class="space-y-1">
-            <span class="app-label">Hình thức thanh toán</span>
-            <div class="relative">
-              <select v-model="paymentMethod" class="h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500"><option value="cash">Tiền mặt</option><option value="bank">Chuyển khoản</option></select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <Teleport to="body">
+        <transition name="app-modal-fade-up">
+          <div v-if="showPayment && totals.debt > 0" class="app-modal-overlay app-modal-open" @click.self="showPayment = false">
+            <div class="app-modal-sheet-sm">
+              <div class="app-modal-header">
+                <h2 class="app-modal-title">Thanh toán phiếu nhập</h2>
+                <button type="button" class="app-modal-close" @click="showPayment = false">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 6 8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </button>
               </div>
+              <form class="app-modal-body space-y-4" @submit.prevent="pay">
+                <div class="grid grid-cols-3 gap-3 text-sm">
+                  <div class="rounded-md bg-slate-50 px-3 py-2">
+                    <div class="text-sm uppercase text-slate-500">Tổng tiền</div>
+                    <div class="mt-1 font-medium text-slate-900">{{ formatMoney(totals.total) }}</div>
+                  </div>
+                  <div class="rounded-md bg-brand-50 px-3 py-2">
+                    <div class="text-sm uppercase text-brand-600">Đã trả</div>
+                    <div class="mt-1 font-medium text-brand-700">{{ formatMoney(totals.paid) }}</div>
+                  </div>
+                  <div class="rounded-md bg-slate-50 px-3 py-2">
+                    <div class="text-sm uppercase text-slate-500">Còn nợ</div>
+                    <div class="mt-1 font-medium text-rose-600">{{ formatMoney(totals.debt) }}</div>
+                  </div>
+                </div>
+
+                <div class="space-y-1">
+                  <label class="block text-sm text-slate-700">Hình thức thanh toán</label>
+                  <div class="app-segment">
+                    <button type="button" class="app-segment-item" :class="paymentMethod === 'cash' ? 'app-segment-item-active' : ''" @click="paymentMethod = 'cash'">
+                      Tiền mặt
+                    </button>
+                    <button type="button" class="app-segment-item" :class="paymentMethod === 'bank' ? 'app-segment-item-active' : ''" @click="paymentMethod = 'bank'">
+                      Chuyển khoản
+                    </button>
+                  </div>
+                </div>
+
+                <label class="block space-y-1 text-sm text-slate-700">
+                  <span class="app-label">Số tiền thanh toán</span>
+                  <div class="relative">
+                    <input v-model="paymentAmount" type="text"  v-money-input class="app-input pr-9 text-right" />
+                    <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+                  </div>
+                </label>
+
+                <label class="block space-y-1 text-sm text-slate-700">
+                  <span class="app-label">Ghi chú</span>
+                  <textarea v-model="paymentNote" rows="2" class="form-field block w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm outline-none transition focus:border-brand-500"></textarea>
+                </label>
+
+                <div class="app-modal-footer mt-2 border-t border-slate-100 px-0 py-0 pt-2">
+                  <button type="button" class="app-btn-secondary" @click="showPayment = false">Hủy</button>
+                  <button type="submit" class="app-btn-primary" :disabled="paymentLoading">Xác nhận thanh toán</button>
+                </div>
+              </form>
             </div>
-          </label>
-          <label class="space-y-1">
-            <span class="app-label">Số tiền thanh toán</span>
-            <div class="relative">
-              <input v-model="paymentAmount" type="text" v-money-input :placeholder="String(totals.debt)" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
-              <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
-            </div>
-          </label>
-          <label class="space-y-1">
-            <span class="app-label">Ghi chú</span>
-            <input v-model="paymentNote" type="text" placeholder="Ghi chú" class="h-10 rounded-xl border border-slate-300 px-3 text-sm outline-none focus:border-brand-500" />
-          </label>
-        </div>
-        <div class="mt-4 flex gap-2">
-          <button type="button" class="h-10 rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700" @click="showPayment = false">Hủy</button>
-          <button type="button" class="h-10 rounded-xl border border-brand-600 bg-brand-600 px-4 text-sm font-medium text-white disabled:opacity-50" :disabled="paymentLoading" @click="pay">Xác nhận thanh toán</button>
-        </div>
-      </section>
+          </div>
+        </transition>
+      </Teleport>
 
       <section v-if="items.length" class="rounded-2xl border border-slate-200 bg-white">
         <div class="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-800">

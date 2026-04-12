@@ -99,8 +99,7 @@ onMounted(async () => {
           <input
             v-model="priceMap[item.id]"
             type="text"
-            inputmode="numeric"
-            pattern="[0-9.,]*"
+            v-money-input
             min="0"
             class="h-10 w-40 rounded-lg border border-slate-300 px-3"
           />

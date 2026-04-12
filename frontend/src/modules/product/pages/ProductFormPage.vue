@@ -232,7 +232,7 @@ onMounted(async () => {
             <div class="flex flex-col gap-1">
               <label class="text-sm font-medium text-slate-700">Giá bán</label>
               <div class="relative">
-                <input v-model="form.price_sell_single" type="text" inputmode="numeric" v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+                <input v-model="form.price_sell_single" type="text"  v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
                 <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">đ</span>
               </div>
             </div>
@@ -240,7 +240,7 @@ onMounted(async () => {
             <div class="flex flex-col gap-1">
               <label class="text-sm font-medium text-slate-700">Giá nhập</label>
               <div class="relative">
-                <input v-model="form.price_cost_single" type="text" inputmode="numeric" v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+                <input v-model="form.price_cost_single" type="text"  v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
                 <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">đ</span>
               </div>
             </div>
