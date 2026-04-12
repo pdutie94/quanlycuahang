@@ -480,7 +480,7 @@ console.log( canEditOrder.value );
 <template>
   <section class="space-y-4">
     <DetailHeaderBar :title="order ? `Đơn hàng #${order.order_code}` : `Đơn hàng #${orderId}`" back-to="/orders">
-      <template #actions="{ closeMenu }">
+      <template #actions="{ closeMenu }" >
         <template v-if="order">
           <RouterLink :to="{ name: 'orders.invoice', params: { id: order.id } }" class="detail-header-menu-item" @click="closeMenu"><FileText class="h-4 w-4 shrink-0" /><span>In hóa đơn</span></RouterLink>
           <button v-if="canCollectPayment" type="button" class="detail-header-menu-item" @click="closeMenu(); openPaymentModal()"><BanknoteArrowDown class="h-4 w-4 shrink-0" /><span>Thu tiền</span></button>
