@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from '../../../shared/composables/useToast';
@@ -22,7 +22,7 @@ const submit = async () => {
       return;
     }
     toast.error(result?.message || 'Đăng nhập thất bại.');
-  } catch (err) {
+  } catch (err: any) {
     toast.error(err?.response?.data?.message || 'Đăng nhập thất bại.');
   } finally {
     state.loading = false;

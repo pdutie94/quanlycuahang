@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney, formatDateTime } = useFormat();
 import { onMounted, ref, computed } from 'vue';
@@ -33,7 +33,7 @@ const showDeleteModal = ref(false);
 const loadPage = async () => {
   try {
     await load(Number(route.params.id || 0));
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(error.value || 'Không thể tải chi tiết nhà cung cấp.');
   }
 };
@@ -48,7 +48,7 @@ const deleteCurrentSupplier = async () => {
     showDeleteModal.value = false;
     toast.success(payload?.message || 'Đã xóa nhà cung cấp.');
     router.push('/suppliers');
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(deleteError.value || 'Không thể xóa nhà cung cấp.');
   }
 };
@@ -58,7 +58,7 @@ onMounted(async () => {
 });
 
 // Map lại dữ liệu purchase để tương thích với component chung
-function mapPurchase(purchase) {
+function mapPurchase(purchase: any) {
   // Đảm bảo có các field: supplier_name, status, total_amount, paid_amount, purchase_code, purchase_date
   return {
     ...purchase,

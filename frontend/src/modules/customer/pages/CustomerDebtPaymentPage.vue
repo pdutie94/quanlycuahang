@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 
 import { onMounted, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -42,7 +42,7 @@ const loadPage = async () => {
     // Format số tiền ngay từ đầu
     const raw = Math.round(Number(totalDebt.value || 0));
     amount.value = raw > 0 ? formatMoney(raw).replace(' đ', '') : '';
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(error.value || 'Không thể tải thông tin thu tiền công nợ.');
   }
 };
@@ -53,7 +53,7 @@ const save = async () => {
     const allocatedOrders = Array.isArray(payload?.data?.allocations) ? payload.data.allocations.length : 0;
     toast.success(allocatedOrders > 0 ? `Đã ghi nhận thanh toán cho ${allocatedOrders} đơn.` : (payload?.message || 'Đã ghi nhận thanh toán công nợ.'));
     await router.push({ name: 'customers.detail', params: { id: route.params.id } });
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(submitError.value || 'Không thể ghi nhận thanh toán công nợ.');
   }
 };
@@ -132,11 +132,11 @@ onMounted(async () => {
           </div>
 
           <div v-else class="space-y-2">
-            <article v-for="item in preview" :key="item.orderId" class="rounded-xl border border-slate-200 bg-white px-3 py-3">
+            <article v-for="item in preview" :key="item.id" class="rounded-xl border border-slate-200 bg-white px-3 py-3">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <div class="text-sm font-semibold text-slate-900">{{ item.orderCode }}</div>
-                  <div class="mt-1 text-xs text-slate-500">{{ formatDateTime(item.orderDate) }}</div>
+                  <div class="text-sm font-semibold text-slate-900">{{ item.code }}</div>
+                  <div class="mt-1 text-xs text-slate-500">{{ formatDateTime(item.date) }}</div>
                 </div>
                 <div class="rounded-lg bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700">Phân bổ {{ formatMoney(item.allocatedAmount) }}</div>
               </div>

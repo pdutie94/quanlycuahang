@@ -1,14 +1,19 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { applyMigrations, fetchMigrationInfo, runMigrationVersion } from '../services/migration.api';
 
 const toast = useToast();
 const state = reactive({ loading: false, submitting: false });
-const info = reactive({ current_version: '1.0.0', latest_version: '1.0.0', pending_versions: [], all_versions: [] });
+const info = reactive<{
+  current_version: string;
+  latest_version: string;
+  pending_versions: string[];
+  all_versions: string[];
+}>({ current_version: '1.0.0', latest_version: '1.0.0', pending_versions: [], all_versions: [] });
 const pendingCount = ref(0);
 
-const applyInfoData = (data) => {
+const applyInfoData = (data: any) => {
   info.current_version = data?.current_version || '1.0.0';
   info.latest_version = data?.latest_version || '1.0.0';
   info.pending_versions = data?.pending_versions || [];
@@ -25,7 +30,7 @@ const loadPage = async () => {
       return;
     }
     toast.error(result?.message || 'Không thể tải thông tin migration.');
-  } catch (err) {
+  } catch (err: any) {
     toast.error(err?.response?.data?.message || 'Không thể tải thông tin migration.');
   } finally {
     state.loading = false;
@@ -40,7 +45,7 @@ const refreshPage = async () => {
       return;
     }
     toast.error(result?.message || 'Không thể tải thông tin migration.');
-  } catch (err) {
+  } catch (err: any) {
     toast.error(err?.response?.data?.message || 'Không thể tải thông tin migration.');
   }
 };
@@ -56,14 +61,14 @@ const runPending = async () => {
       return;
     }
     toast.error(result?.message || 'Không thể chạy migration.');
-  } catch (err) {
+  } catch (err: any) {
     toast.error(err?.response?.data?.message || 'Không thể chạy migration.');
   } finally {
     state.submitting = false;
   }
 };
 
-const runVersion = async (version) => {
+const runVersion = async (version: string) => {
   if (state.submitting) return;
   state.submitting = true;
   try {
@@ -74,7 +79,7 @@ const runVersion = async (version) => {
       return;
     }
     toast.error(result?.message || `Không thể chạy version ${version}.`);
-  } catch (err) {
+  } catch (err: any) {
     toast.error(err?.response?.data?.message || `Không thể chạy version ${version}.`);
   } finally {
     state.submitting = false;

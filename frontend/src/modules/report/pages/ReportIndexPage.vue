@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { BarChart2, Package, User, Truck, Tag } from '@lucide/vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 import ReportNavButtons from '../components/ReportNavButtons.vue';
@@ -16,7 +16,7 @@ const { overview, loading, error, load } = useReportOverview();
 onMounted(async () => {
   try {
     await load();
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(error.value || 'Không thể tải báo cáo tổng quan.');
   }
 });

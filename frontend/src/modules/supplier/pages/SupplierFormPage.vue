@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { useRouter, useRoute, RouterLink } from 'vue-router';
 import { useSupplierForm } from '../composables/useSupplierForm';
@@ -17,7 +17,7 @@ const loadPage = async () => {
   if (isEdit.value) {
     try {
       await loadEdit(Number(route.params.id || 0));
-    } catch (_err) {
+    } catch (_err: any) {
       toast.error('Không thể tải thông tin nhà cung cấp.');
     }
   }
@@ -33,7 +33,7 @@ const handleSubmit = async () => {
     } else {
       toast.error(result?.message || createError.value || updateError.value || 'Lỗi khi lưu nhà cung cấp.');
     }
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(createError.value || updateError.value || 'Lỗi khi lưu nhà cung cấp.');
   }
 };

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
 import { computed, ref, watch } from 'vue';
@@ -65,7 +65,7 @@ const applySearch = async () => {
   });
 };
 
-const applyStock = async (value) => {
+const applyStock = async (value: string) => {
   if (stockFilter.value === value) return;
   stockFilter.value = value;
   router.push({
@@ -79,7 +79,7 @@ const applyStock = async (value) => {
 
 const hasAnyFilter = computed(() => stockFilter.value !== 'all' || categoryId.value !== '');
 
-const applyCategory = async (value) => {
+const applyCategory = async (value: string | number) => {
   const nextValue = String(value || '');
   if (categoryId.value === nextValue) {
     showCategoryModal.value = false;
@@ -115,12 +115,12 @@ watch(
 
 // Đã thay thế bằng useFormat
 
-const formatQty = (value) => Number(value || 0).toLocaleString('vi-VN');
+const formatQty = (value: any) => Number(value || 0).toLocaleString('vi-VN');
 
-const hasSellPrice = (item) => {
+const hasSellPrice = (item: Record<string, any>) => {
   return Number(item.display_price_sell || 0) > 0;
 }
-const getStatus = (item) => {
+const getStatus = (item: Record<string, any>) => {
   const qty = Number(item.inventory_qty_base || item.qty_base || 0);
   const minStock = Number(item.min_stock_qty || 0);
 
@@ -135,9 +135,9 @@ const getStatus = (item) => {
   return { label: 'Còn hàng', className: 'text-brand-700' };
 };
 
-const getPrimaryUnit = (item) => item.base_unit_name || '';
+const getPrimaryUnit = (item: Record<string, any>) => item.base_unit_name || '';
 
-const getCategoryName = (item) => item.category_name || 'Chưa phân loại';
+const getCategoryName = (item: Record<string, any>) => item.category_name || 'Chưa phân loại';
 </script>
 
 <template>

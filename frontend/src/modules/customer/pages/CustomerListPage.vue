@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import CustomerItemCard from '../../../shared/components/CustomerItemCard.vue';
 import { computed, ref } from 'vue';
 import { useCustomers } from '../composables/useCustomers';
@@ -24,7 +24,7 @@ const {
   itemsRef: items,
   metaRef: meta,
   loadingRef: loading,
-  fetchPage: (page) =>
+  fetchPage: (page: number) =>
     load({
       q: keyword.value,
       debt_status: debtStatus.value,
@@ -39,7 +39,7 @@ const applySearch = async () => {
   await refresh();
 };
 
-const applyDebtStatus = async (value) => {
+const applyDebtStatus = async (value: string) => {
   debtStatus.value = value;
   await refresh();
 };

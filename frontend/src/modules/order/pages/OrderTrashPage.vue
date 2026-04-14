@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { CheckSquare, RotateCcw, Trash2 } from '@lucide/vue';
@@ -11,7 +11,7 @@ import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 
 const keyword = ref('');
 const showPurgeConfirm = ref(false);
-const selectedIds = ref([]);
+const selectedIds = ref<number[]>([]);
 const restoringId = ref(0);
 
 const { items, meta, loading, error, load, restore, restoreError, purgeSelected, purgeLoading, purgeError } = useDeletedOrders();
@@ -30,7 +30,7 @@ const {
   itemsRef: items,
   metaRef: meta,
   loadingRef: loading,
-  fetchPage: (page) => load({ ...buildParams(), page }),
+  fetchPage: (page: number) => load({ ...buildParams(), page }),
   onError: () => {
     toast.error(error.value || 'Không thể tải danh sách đơn đã xóa tạm.');
   }
@@ -39,7 +39,7 @@ const {
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney, formatDateTime, parseAmount } = useFormat();
 
-const formatPurgeDeadline = (value) => {
+const formatPurgeDeadline = (value: any) => {
   if (!value) {
     return '';
   }
@@ -77,7 +77,7 @@ const toggleSelectAllLoaded = () => {
   selectedIds.value = Array.from(new Set([...selectedIds.value, ...loadedIds.value]));
 };
 
-const toggleSelection = (id) => {
+const toggleSelection = (id: number | string) => {
   const nextId = Number(id || 0);
   if (nextId <= 0) {
     return;
@@ -91,7 +91,7 @@ const toggleSelection = (id) => {
   selectedIds.value = [...selectedIds.value, nextId];
 };
 
-const restoreItem = async (id) => {
+const restoreItem = async (id: number | string) => {
   const nextId = Number(id || 0);
   if (nextId <= 0) {
     return;
@@ -103,7 +103,7 @@ const restoreItem = async (id) => {
     toast.success(payload?.message || 'Đã khôi phục đơn hàng.');
     selectedIds.value = selectedIds.value.filter((value) => Number(value) !== nextId);
     await refresh();
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(restoreError.value || 'Không thể khôi phục đơn hàng.');
   } finally {
     restoringId.value = 0;
@@ -122,7 +122,7 @@ const purgeSelectedItems = async () => {
     selectedIds.value = [];
     showPurgeConfirm.value = false;
     await refresh();
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(purgeError.value || 'Không thể xóa vĩnh viễn các đơn hàng đã chọn.');
   }
 };

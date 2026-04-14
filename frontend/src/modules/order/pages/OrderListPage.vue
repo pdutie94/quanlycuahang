@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { X } from '@lucide/vue';
@@ -62,7 +62,7 @@ const {
       order_status: orderStatus.value,
       from_date: fromDate.value,
       to_date: toDate.value,
-      page: route.query.page || page
+      page: (route.query.page as string) || page
     }),
   onError: () => {
     toast.error(error.value || 'Không thể tải danh sách đơn hàng.');
@@ -80,7 +80,7 @@ const applySearch = async () => {
   });
 };
 
-const applyOrderStatus = async (value) => {
+const applyOrderStatus = async (value: string) => {
   orderStatus.value = value;
   router.push({
     query: {

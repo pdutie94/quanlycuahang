@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney, formatDateTime } = useFormat();
 import { ref } from 'vue';
@@ -32,7 +32,7 @@ const {
   itemsRef: items,
   metaRef: meta,
   loadingRef: loading,
-  fetchPage: (page) => load({ q: keyword.value, supplier_id: supplierId.value, from_date: fromDate.value, to_date: toDate.value, page }),
+  fetchPage: (page: number) => load({ q: keyword.value, supplier_id: supplierId.value, from_date: fromDate.value, to_date: toDate.value, page }),
   onError: () => {
     toast.error(error.value || 'Không thể tải danh sách phiếu nhập.');
   }

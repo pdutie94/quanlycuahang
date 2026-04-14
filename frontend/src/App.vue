@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import {
@@ -31,7 +31,7 @@ const onLogout = async () => {
   try {
     const result = await logout();
     toast.success(result?.message || 'Đã đăng xuất.');
-  } catch (error) {
+  } catch (error: any) {
     toast.error(error?.response?.data?.message || 'Đã đăng xuất.');
   } finally {
     showMenu.value = false;

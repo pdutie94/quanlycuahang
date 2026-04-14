@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney, formatDateTime, parseAmount } = useFormat();
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
@@ -37,11 +37,11 @@ const showCustomerModal = ref(false);
 const showPriceModal = ref(false);
 const productSelectorKeyword = ref('');
 const customerKeyword = ref('');
-const selectedProductIds = ref([]);
+const selectedProductIds = ref<number[]>([]);
 const pendingCustomerId = ref('');
 const editingPriceItemId = ref('');
 const priceDraftValue = ref('');
-const editingManualIndex = ref(null);
+const editingManualIndex = ref<number | null>(null);
 const manualItemDraft = ref({
   item_name: '',
   unit_name: '',
@@ -57,18 +57,18 @@ const note = ref('');
 const paymentStatus = ref('pay');
 const paymentMethod = ref('cash');
 const paymentAmount = ref('');
-const discountType = ref('none');
+const discountType = ref<'none' | 'fixed' | 'percent'>('none');
 const discountValue = ref('');
 const surchargeAmount = ref('');
-const discountDraftType = ref('none');
+const discountDraftType = ref<'none' | 'fixed' | 'percent'>('none');
 const discountDraftValue = ref('');
 const surchargeDraftValue = ref('');
 const customerMode = ref('guest');
-const customerNameInput = ref(null);
+const customerNameInput = ref<HTMLInputElement | null>(null);
 
 // Đã thay thế bằng useFormat
 const numberFormatter = new Intl.NumberFormat('vi-VN');
-const formatMoneyInput = (value, allowEmpty = true) => {
+const formatMoneyInput = (value: any, allowEmpty = true) => {
   const amount = parseAmount(value);
   if (amount <= 0) {
     return allowEmpty ? '' : '0';
@@ -79,7 +79,7 @@ const formatMoneyInput = (value, allowEmpty = true) => {
 
 // Parses a price input that may use decimal shorthand: "24.5" → 24500, "2" → 2000.
 // Keeps discount/percent paths separate (parseAmount is unchanged).
-const parsePriceShorthand = (raw) => {
+const parsePriceShorthand = (raw: any) => {
   const str = String(raw ?? '').trim();
   if (!str) return 0;
   const dotIdx = str.indexOf('.');
@@ -111,7 +111,7 @@ const discountDraftSuffix = computed(() => {
   return '';
 });
 
-const roundDownThousand = (value) => {
+const roundDownThousand = (value: any) => {
   const amount = typeof value === 'number' ? value : parseAmount(value);
   if (amount <= 0) return 0;
   const normalizedAmount = Math.round(amount);
@@ -247,11 +247,11 @@ watch([paymentStatus, finalTotal], () => {
   syncPaymentAmount();
 }, { immediate: true });
 
-const getUnits = (productId) => productUnitsByProduct.value[String(productId)] || productUnitsByProduct.value[productId] || [];
-const getCartItemUnit = (item) => getUnits(item.product_id).find((unit) => Number(unit.unit_id) === Number(item.unit_id)) || null;
-const getCartItemUnitName = (item) => getUnits(item.product_id).find((unit) => Number(unit.unit_id) === Number(item.unit_id))?.unit_name || '';
-const getCartItemBasePrice = (item) => Number(item?.base_price || item?.price || 0);
-const getCartItemStep = (item) => {
+const getUnits = (productId: any) => productUnitsByProduct.value[String(productId)] || productUnitsByProduct.value[productId] || [];
+const getCartItemUnit = (item: any) => getUnits(item.product_id).find((unit: any) => Number(unit.unit_id) === Number(item.unit_id)) || null;
+const getCartItemUnitName = (item: any) => getUnits(item.product_id).find((unit: any) => Number(unit.unit_id) === Number(item.unit_id))?.unit_name || '';
+const getCartItemBasePrice = (item: any) => Number(item?.base_price || item?.price || 0);
+const getCartItemStep = (item: any) => {
   const unit = getCartItemUnit(item);
   const allowFraction = Number(unit?.allow_fraction || 0) === 1;
   const minStep = Number(unit?.min_step || 1);
@@ -266,9 +266,9 @@ const getCartItemStep = (item) => {
 
   return minStep;
 };
-const getCartItemMinQty = (item) => getCartItemStep(item);
-const formatQtyValue = (value) => Number(value || 0).toFixed(4).replace(/\.?0+$/, '');
-const normalizeCartQty = (item) => {
+const getCartItemMinQty = (item: any) => getCartItemStep(item);
+const formatQtyValue = (value: any) => Number(value || 0).toFixed(4).replace(/\.?0+$/, '');
+const normalizeCartQty = (item: any) => {
   const step = getCartItemStep(item);
   const minQty = getCartItemMinQty(item);
   const currentQty = Number(item.quantity || 0);
@@ -286,18 +286,18 @@ const normalizeCartQty = (item) => {
   const normalizedQty = Math.max(minQty, Math.round(currentQty / step) * step);
   item.quantity = formatQtyValue(normalizedQty);
 };
-const increaseCartQty = (item) => {
+const increaseCartQty = (item: any) => {
   const step = getCartItemStep(item);
   item.quantity = formatQtyValue(Number(item.quantity || 0) + step);
 };
-const decreaseCartQty = (item) => {
+const decreaseCartQty = (item: any) => {
   const step = getCartItemStep(item);
   const minQty = getCartItemMinQty(item);
   const nextQty = Math.max(minQty, Number(item.quantity || 0) - step);
   item.quantity = formatQtyValue(nextQty);
 };
 
-const detectManualQtyPrecision = (value) => {
+const detectManualQtyPrecision = (value: any) => {
   const rawValue = String(value ?? '').trim();
 
   if (!rawValue || !rawValue.includes('.')) {
@@ -307,7 +307,7 @@ const detectManualQtyPrecision = (value) => {
   const fractionalPart = rawValue.split('.')[1].replace(/[^0-9]/g, '');
   return fractionalPart.length;
 };
-const getManualQtyPrecision = (item) => {
+const getManualQtyPrecision = (item: any) => {
   const storedPrecision = Number(item?.qty_precision);
   if (Number.isInteger(storedPrecision) && storedPrecision >= 0) {
     return storedPrecision;
@@ -315,14 +315,14 @@ const getManualQtyPrecision = (item) => {
 
   return detectManualQtyPrecision(item?.qty);
 };
-const getManualQtyStep = (item) => 1 / (10 ** getManualQtyPrecision(item));
-const getManualQtyMin = (item) => getManualQtyStep(item);
-const roundManualQtyByPrecision = (value, precision) => {
+const getManualQtyStep = (item: any) => 1 / (10 ** getManualQtyPrecision(item));
+const getManualQtyMin = (item: any) => getManualQtyStep(item);
+const roundManualQtyByPrecision = (value: any, precision: any) => {
   const factor = 10 ** precision;
   return Math.round(Number(value || 0) * factor) / factor;
 };
-const formatManualQtyValue = (value, precision = 4) => Number(value || 0).toFixed(precision).replace(/\.?0+$/, '');
-const normalizeManualQty = (item) => {
+const formatManualQtyValue = (value: any, precision = 4) => Number(value || 0).toFixed(precision).replace(/\.?0+$/, '');
+const normalizeManualQty = (item: any) => {
   const typedPrecision = detectManualQtyPrecision(item.qty);
   item.qty_precision = typedPrecision;
 
@@ -340,13 +340,13 @@ const normalizeManualQty = (item) => {
   const normalizedQty = Math.max(minQty, roundManualQtyByPrecision(Math.round(currentQty / step) * step, precision));
   item.qty = formatManualQtyValue(normalizedQty, Math.max(precision, 0));
 };
-const increaseManualQty = (item) => {
+const increaseManualQty = (item: any) => {
   const precision = getManualQtyPrecision(item);
   const step = getManualQtyStep(item);
   const nextQty = roundManualQtyByPrecision(Number(item.qty || 0) + step, precision);
   item.qty = formatManualQtyValue(nextQty, Math.max(precision, 0));
 };
-const decreaseManualQty = (item) => {
+const decreaseManualQty = (item: any) => {
   const precision = getManualQtyPrecision(item);
   const step = getManualQtyStep(item);
   const minQty = getManualQtyMin(item);
@@ -354,9 +354,9 @@ const decreaseManualQty = (item) => {
   item.qty = formatManualQtyValue(nextQty, Math.max(precision, 0));
 };
 
-const isProductSelected = (productId) => selectedProductIds.value.includes(Number(productId));
-const isPendingCustomer = (customerId) => String(pendingCustomerId.value) === String(customerId);
-const getDefaultUnit = (productId) => getUnits(productId)[0] || null;
+const isProductSelected = (productId: any) => selectedProductIds.value.includes(Number(productId));
+const isPendingCustomer = (customerId: any) => String(pendingCustomerId.value) === String(customerId);
+const getDefaultUnit = (productId: any) => getUnits(productId)[0] || null;
 const editingPriceItem = computed(() => cartItems.value.find((item) => String(item.id) === String(editingPriceItemId.value)) || null);
 const editingPriceProductLabel = computed(() => {
   if (!editingPriceItem.value) {
@@ -388,7 +388,7 @@ const closeProductSelector = () => {
   selectedProductIds.value = [];
 };
 
-const toggleProductSelection = (productId) => {
+const toggleProductSelection = (productId: any) => {
   const nextId = Number(productId);
   if (isProductSelected(nextId)) {
     selectedProductIds.value = selectedProductIds.value.filter((id) => id !== nextId);
@@ -465,7 +465,7 @@ const onDiscountDraftValueInput = () => {
   discountDraftValue.value = '';
 };
 
-const openPriceModal = (item) => {
+const openPriceModal = (item: any) => {
   editingPriceItemId.value = String(item.id);
   priceDraftValue.value = formatMoneyInput(Math.max(0, Number(item.price || 0)), false);
   showPriceModal.value = true;
@@ -531,7 +531,7 @@ const applySurcharge = () => {
   closeSurchargeModal();
 };
 
-const openManualItemModal = (index = null) => {
+const openManualItemModal = (index: number | null = null) => {
   editingManualIndex.value = index;
   if (index === null || index < 0 || index >= manualItems.value.length) {
     resetManualDraft();
@@ -646,7 +646,7 @@ const createPosOrder = async () => {
     if (nextId > 0) {
       await router.push({ name: 'orders.detail', params: { id: nextId } });
     }
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(submitError.value || 'Không thể lưu đơn hàng.');
   }
 };

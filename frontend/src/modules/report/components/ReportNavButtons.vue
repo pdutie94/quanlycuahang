@@ -1,10 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { BarChart2, Package, User, Truck, Tag, DollarSign } from '@lucide/vue';
 import { RouterLink } from 'vue-router';
 
-defineProps({
-  active: String // route path đang active (nếu cần highlight)
-});
+defineProps<{
+  active?: string; // route path đang active (nếu cần highlight)
+}>();
 
 const navs = [
   {

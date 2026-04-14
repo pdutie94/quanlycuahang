@@ -1,17 +1,18 @@
-<script setup>
+<script setup lang="ts">
 import ReportNavButtons from '../components/ReportNavButtons.vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
 import { onMounted, reactive } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { useInventoryReport } from '../composables/useInventoryReport';
+import type { InventoryReportItem } from '../types';
 
 const toast = useToast();
 const { items, loading, error, load, refresh, adjust, adjustLoading, adjustError } = useInventoryReport();
-const qtyMap = reactive({});
+const qtyMap = reactive<Record<string, any>>({});
 
 
-function formatQty(val, minStep) {
+function formatQty(val: string | number, minStep: string | number) {
   const step = Number(minStep) || 1;
   if (step >= 1) {
     return String(Math.round(Number(val)));
@@ -31,7 +32,7 @@ const loadPage = async () => {
   try {
     await load();
     syncQtyMap();
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(error.value || 'Không thể tải báo cáo tồn kho.');
   }
 };
@@ -40,12 +41,12 @@ const refreshPage = async () => {
   try {
     await refresh();
     syncQtyMap();
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(error.value || 'Không thể tải báo cáo tồn kho.');
   }
 };
 
-const submitAdjust = async (item) => {
+const submitAdjust = async (item: InventoryReportItem) => {
   try {
     const payload = { product_id: item.id, qty_base: qtyMap[item.id] ?? '' };
     const result = await adjust(payload);
@@ -55,7 +56,7 @@ const submitAdjust = async (item) => {
       return;
     }
     toast.error(result?.message || adjustError.value || 'Không thể cập nhật tồn kho.');
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(adjustError.value || 'Không thể cập nhật tồn kho.');
   }
 };

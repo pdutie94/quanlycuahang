@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCustomerForm } from '../composables/useCustomerForm';
@@ -23,7 +23,7 @@ const submit = async () => {
       return;
     }
     await router.push('/customers');
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error((isEdit.value ? updateError.value : createError.value) || 'Không thể lưu khách hàng.');
   }
 };
@@ -32,7 +32,7 @@ onMounted(async () => {
   if (!isEdit.value) return;
   try {
     await loadEdit(Number(route.params.id));
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(error.value || 'Không thể tải thông tin khách hàng.');
   }
 });

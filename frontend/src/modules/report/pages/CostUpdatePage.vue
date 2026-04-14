@@ -1,26 +1,26 @@
-
-<script setup>
+<script setup lang="ts">
 import ReportNavButtons from '../components/ReportNavButtons.vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 import { ref, computed, onMounted, reactive, watch } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { useCostUpdate } from '../composables/useCostUpdate';
+import type { CostUpdateItem } from '../types';
 import { nextTick } from 'vue';
 
 const toast = useToast();
 const { formatMoneyInput } = useFormat();
 const { items, loading, error, load, refresh, update, updateLoading, updateError } = useCostUpdate();
-const priceMap = reactive({});
-const rowLoading = reactive({});
+const priceMap = reactive<Record<string, any>>({});
+const rowLoading = reactive<Record<string, any>>({});
 
 const keyword = ref('');
 const search = ref('');
-const searchTimeout = ref(null);
+const searchTimeout = ref<any>(null);
 
 // For focusing input on row click
-const inputRefs = ref([]);
+const inputRefs = ref<any[]>([]);
 
-const focusInput = (idx) => {
+const focusInput = (idx: number) => {
   nextTick(() => {
     // Defensive: inputRefs.value may be sparse if v-for changes
     const input = Array.isArray(inputRefs.value) ? inputRefs.value[idx] : null;
@@ -33,7 +33,7 @@ const focusInput = (idx) => {
 const filteredItems = computed(() => {
   if (!search.value) return items.value;
   const kw = search.value.trim().toLowerCase();
-  return items.value.filter(item =>
+  return items.value.filter((item: CostUpdateItem) =>
     (item.name && item.name.toLowerCase().includes(kw)) ||
     (item.code && item.code.toLowerCase().includes(kw))
   );
@@ -49,7 +49,7 @@ const loadPage = async () => {
   try {
     await load();
     syncPriceMap();
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(error.value || 'Không thể tải danh sách sản phẩm.');
   }
 };
@@ -58,17 +58,17 @@ const refreshPage = async () => {
   try {
     await refresh();
     syncPriceMap();
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(error.value || 'Không thể tải danh sách sản phẩm.');
   }
 };
 
-const parseMoneyInput = (val) => {
+const parseMoneyInput = (val: any) => {
   if (typeof val !== 'string') return val;
   return parseFloat(val.replaceAll('.', '').replace(',', '.'));
 };
 
-const submitUpdate = async (item) => {
+const submitUpdate = async (item: CostUpdateItem) => {
   try {
     rowLoading[item.id] = true;
     const raw = priceMap[item.id] ?? '';
@@ -82,14 +82,14 @@ const submitUpdate = async (item) => {
       return;
     }
     toast.error(result?.message || updateError.value || 'Không thể cập nhật giá vốn.');
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(updateError.value || 'Không thể cập nhật giá vốn.');
   } finally {
     rowLoading[item.id] = false;
   }
 };
 
-const onSearchInput = (e) => {
+const onSearchInput = (e: Event) => {
   if (searchTimeout.value) clearTimeout(searchTimeout.value);
   searchTimeout.value = setTimeout(() => {
     search.value = keyword.value;

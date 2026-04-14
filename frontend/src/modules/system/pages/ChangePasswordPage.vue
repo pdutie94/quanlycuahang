@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { reactive } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { changePassword } from '../../auth/services/auth.api';
@@ -20,7 +20,7 @@ const submit = async () => {
       return;
     }
     toast.error(result?.message || 'Không thể đổi mật khẩu.');
-  } catch (err) {
+  } catch (err: any) {
     toast.error(err?.response?.data?.message || 'Không thể đổi mật khẩu.');
   } finally {
     state.loading = false;

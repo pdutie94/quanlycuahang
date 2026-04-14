@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import SupplierItemCard from '../../../shared/components/SupplierItemCard.vue';
 import { ref } from 'vue';
 import { useSupplierList } from '../composables/useSupplierList';
@@ -21,7 +21,7 @@ const {
   itemsRef: suppliers,
   metaRef: meta,
   loadingRef: loading,
-  fetchPage: (page) => load(page, keyword.value),
+  fetchPage: (page: number) => load(page, keyword.value),
   onError: () => {
     toast.error(error.value || 'Không thể tải danh sách nhà cung cấp.');
   }

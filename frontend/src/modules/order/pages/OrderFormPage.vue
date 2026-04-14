@@ -1,10 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { CirclePlus, ClipboardList, Minus, Pencil, Plus, RefreshCw, Tag, Users, X } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useOrderForm } from '../composables/useOrderForm';
 import { useToast } from '../../../shared/composables/useToast';
 import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
+import type { OrderItem, ManualOrderItem } from '../types';
 
 const route = useRoute();
 const router = useRouter();
@@ -47,10 +48,10 @@ const showDiscountModal = ref(false);
 const showSurchargeModal = ref(false);
 const productKeyword = ref('');
 const customerKeyword = ref('');
-const activeRowIndex = ref(null);
-const editingPriceRowIndex = ref(null);
+const activeRowIndex = ref<number | null>(null);
+const editingPriceRowIndex = ref<number | null>(null);
 const priceDraftValue = ref('');
-const editingManualIndex = ref(null);
+const editingManualIndex = ref<number | null>(null);
 const manualItemDraft = ref({
   item_name: '',
   unit_name: '',
@@ -60,8 +61,8 @@ const manualItemDraft = ref({
 });
 const pendingCustomerId = ref('');
 const customerMode = ref('guest');
-const customerNameInput = ref(null);
-const discountDraftType = ref('none');
+const customerNameInput = ref<HTMLInputElement | null>(null);
+const discountDraftType = ref<'none' | 'fixed' | 'percent'>('none');
 const discountDraftValue = ref('');
 const surchargeDraftValue = ref('');
 
@@ -76,7 +77,7 @@ const saving = computed(() => createLoading.value || updateLoading.value);
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney, parseAmount } = useFormat();
 
-const formatMoneyInput = (value, allowEmpty = true) => {
+const formatMoneyInput = (value: string | number, allowEmpty = true) => {
   const amount = parseAmount(value);
   if (amount <= 0) {
     return allowEmpty ? '' : '0';
@@ -85,7 +86,7 @@ const formatMoneyInput = (value, allowEmpty = true) => {
   return formatter.format(amount);
 };
 
-const formatPriceInput = (value, allowEmpty = true) => {
+const formatPriceInput = (value: string | number, allowEmpty = true) => {
   const amount = parsePriceShorthand(value);
   if (amount <= 0) {
     return allowEmpty ? '' : '0';
@@ -94,7 +95,7 @@ const formatPriceInput = (value, allowEmpty = true) => {
   return formatter.format(amount);
 };
 
-const parsePriceShorthand = (raw) => {
+const parsePriceShorthand = (raw: string | number) => {
   const str = String(raw ?? '').trim();
   if (!str) return 0;
 
@@ -119,7 +120,7 @@ const parsePriceShorthand = (raw) => {
   return num > 0 && num < 1000 ? num * 1000 : num;
 };
 
-const sanitizePercentInput = (value) => {
+const sanitizePercentInput = (value: string | number) => {
   let result = '';
   let hasDot = false;
 
@@ -138,7 +139,7 @@ const sanitizePercentInput = (value) => {
   return result;
 };
 
-const parsePercentValue = (value) => {
+const parsePercentValue = (value: string | number) => {
   const sanitized = sanitizePercentInput(value).replace(/^\./, '');
   if (!sanitized) {
     return 0;
@@ -152,12 +153,12 @@ const parsePercentValue = (value) => {
   return Math.min(parsed, 100);
 };
 
-const formatNumber = (value, maximumFractionDigits = 3) => Number(value || 0).toLocaleString('vi-VN', {
+const formatNumber = (value: string | number, maximumFractionDigits = 3) => Number(value || 0).toLocaleString('vi-VN', {
   minimumFractionDigits: 0,
   maximumFractionDigits
 });
 
-const normalizeDecimalDisplay = (value) => {
+const normalizeDecimalDisplay = (value: string | number) => {
   const raw = String(value ?? '').trim();
   if (!raw) {
     return '';
@@ -170,7 +171,7 @@ const normalizeDecimalDisplay = (value) => {
   return raw.replace(/\.0+$/, '').replace(/(\.\d*?[1-9])0+$/, '$1');
 };
 
-const roundDownThousand = (value) => {
+const roundDownThousand = (value: string | number) => {
   const amount = typeof value === 'number' ? value : parseAmount(value);
   if (amount <= 0) return 0;
   const normalizedAmount = Math.round(amount);
@@ -294,9 +295,9 @@ const editingPriceLabel = computed(() => {
 
 const hasAnyItems = computed(() => rows.value.length > 0 || manualItems.value.length > 0);
 
-const getUnitDisplay = (row) => rowDisplayMap.value.get(String(row.product_unit_id)) || null;
+const getUnitDisplay = (row: OrderItem) => rowDisplayMap.value.get(String(row.product_unit_id)) || null;
 
-const getRowStep = (row) => {
+const getRowStep = (row: OrderItem) => {
   const unit = getUnitDisplay(row);
   const allowFraction = Number(unit?.allow_fraction || 0) === 1;
   const minStep = Number(unit?.min_step || 1);
@@ -312,13 +313,13 @@ const getRowStep = (row) => {
   return minStep;
 };
 
-const formatQtyValue = (value) => Number(value || 0).toFixed(4).replace(/\.?0+$/, '');
-const getRowPriceClass = (row) => {
+const formatQtyValue = (value: string | number) => Number(value || 0).toFixed(4).replace(/\.?0+$/, '');
+const getRowPriceClass = (row: OrderItem) => {
   const basePrice = Number(getUnitDisplay(row)?.price_sell || 0);
   return parseAmount(row?.price || 0) < basePrice ? 'text-amber-700' : 'text-slate-900';
 };
 
-const normalizeRowQty = (row) => {
+const normalizeRowQty = (row: OrderItem) => {
   const step = getRowStep(row);
   const currentQty = Number(row.qty || 0);
 
@@ -336,17 +337,17 @@ const normalizeRowQty = (row) => {
   row.qty = formatQtyValue(normalizedQty);
 };
 
-const increaseRowQty = (row) => {
+const increaseRowQty = (row: OrderItem) => {
   const step = getRowStep(row);
   row.qty = formatQtyValue(Number(row.qty || 0) + step);
 };
 
-const decreaseRowQty = (row) => {
+const decreaseRowQty = (row: OrderItem) => {
   const step = getRowStep(row);
   row.qty = formatQtyValue(Math.max(step, Number(row.qty || 0) - step));
 };
 
-const detectManualQtyPrecision = (value) => {
+const detectManualQtyPrecision = (value: string | number) => {
   const rawValue = String(value ?? '').trim();
 
   if (!rawValue || !rawValue.includes('.')) {
@@ -357,7 +358,7 @@ const detectManualQtyPrecision = (value) => {
   return fractionalPart.length;
 };
 
-const getManualQtyPrecision = (item) => {
+const getManualQtyPrecision = (item: ManualOrderItem | any) => {
   const storedPrecision = Number(item?.qty_precision);
   if (Number.isInteger(storedPrecision) && storedPrecision >= 0) {
     return storedPrecision;
@@ -366,17 +367,17 @@ const getManualQtyPrecision = (item) => {
   return detectManualQtyPrecision(item?.qty);
 };
 
-const getManualQtyStep = (item) => 1 / (10 ** getManualQtyPrecision(item));
-const getManualQtyMin = (item) => getManualQtyStep(item);
+const getManualQtyStep = (item: ManualOrderItem | any) => 1 / (10 ** getManualQtyPrecision(item));
+const getManualQtyMin = (item: ManualOrderItem | any) => getManualQtyStep(item);
 
-const roundManualQtyByPrecision = (value, precision) => {
+const roundManualQtyByPrecision = (value: string | number, precision: number) => {
   const factor = 10 ** precision;
   return Math.round(Number(value || 0) * factor) / factor;
 };
 
-const formatManualQtyValue = (value, precision = 4) => Number(value || 0).toFixed(precision).replace(/\.?0+$/, '');
+const formatManualQtyValue = (value: string | number, precision = 4) => Number(value || 0).toFixed(precision).replace(/\.?0+$/, '');
 
-const normalizeManualQty = (item) => {
+const normalizeManualQty = (item: ManualOrderItem | any) => {
   const typedPrecision = detectManualQtyPrecision(item.qty);
   item.qty_precision = typedPrecision;
 
@@ -395,14 +396,14 @@ const normalizeManualQty = (item) => {
   item.qty = formatManualQtyValue(normalizedQty, Math.max(precision, 0));
 };
 
-const increaseManualQty = (item) => {
+const increaseManualQty = (item: ManualOrderItem) => {
   const precision = getManualQtyPrecision(item);
   const step = getManualQtyStep(item);
   const nextQty = roundManualQtyByPrecision(Number(item.qty || 0) + step, precision);
   item.qty = formatManualQtyValue(nextQty, Math.max(precision, 0));
 };
 
-const decreaseManualQty = (item) => {
+const decreaseManualQty = (item: ManualOrderItem) => {
   const precision = getManualQtyPrecision(item);
   const step = getManualQtyStep(item);
   const minQty = getManualQtyMin(item);
@@ -410,17 +411,17 @@ const decreaseManualQty = (item) => {
   item.qty = formatManualQtyValue(nextQty, Math.max(precision, 0));
 };
 
-const formatMoneyField = (obj, field) => {
+const formatMoneyField = (obj: any, field: string) => {
   obj[field] = formatMoneyInput(obj[field]);
 };
 
-const formatPriceField = (obj, field, allowEmpty = true) => {
+const formatPriceField = (obj: any, field: string, allowEmpty = true) => {
   obj[field] = formatPriceInput(obj[field], allowEmpty);
 };
 
-const hasValue = (value) => value !== null && value !== undefined && String(value) !== '';
+const hasValue = (value: string | number | null | undefined) => value !== null && value !== undefined && String(value) !== '';
 
-const parseRowPrice = (value) => parsePriceShorthand(value);
+const parseRowPrice = (value: string | number) => parsePriceShorthand(value);
 
 const resetManualDraft = () => {
   manualItemDraft.value = {
@@ -485,7 +486,7 @@ watch([() => form.value.payment_status, finalTotal], () => {
   syncPaymentAmount();
 }, { immediate: true });
 
-const openProductSelector = (rowIndex = null) => {
+const openProductSelector = (rowIndex: number | null = null) => {
   activeRowIndex.value = rowIndex;
   productKeyword.value = '';
   showProductSelector.value = true;
@@ -496,19 +497,19 @@ const closeProductSelector = () => {
   activeRowIndex.value = null;
 };
 
-const selectProductUnit = (unit) => {
+const selectProductUnit = (unit: any) => {
   const nextUnitId = String(unit.id);
   const nextPrice = String(Math.round(Number(unit.price_sell || 0)));
   const nextQty = Number(unit.allow_fraction || 0) === 1 ? String(Number(unit.min_step || 1) || 1) : '1';
 
-  if (activeRowIndex.value === null || activeRowIndex.value < 0 || activeRowIndex.value >= rows.value.length) {
+  if (activeRowIndex.value === null || (activeRowIndex.value as number) < 0 || (activeRowIndex.value as number) >= rows.value.length) {
     addRow({
       product_unit_id: nextUnitId,
       qty: nextQty,
       price: nextPrice
     });
   } else {
-    const row = rows.value[activeRowIndex.value];
+    const row = rows.value[activeRowIndex.value as number];
     row.product_unit_id = nextUnitId;
     row.qty = row.qty || nextQty;
     row.price = nextPrice;
@@ -539,7 +540,7 @@ const applySelectedCustomer = () => {
   closeCustomerModal();
 };
 
-const openPriceModal = (index) => {
+const openPriceModal = (index: number) => {
   const row = rows.value[index];
   if (!row) {
     return;
@@ -572,7 +573,7 @@ const applyPrice = () => {
   closePriceModal();
 };
 
-const openManualItemModal = (index = null) => {
+const openManualItemModal = (index: number | null = null) => {
   editingManualIndex.value = index;
 
   if (index === null || index < 0 || index >= manualItems.value.length) {
@@ -618,7 +619,7 @@ const saveManualItem = () => {
   if (editingManualIndex.value === null) {
     addManualItem(normalizedItem);
   } else {
-    manualItems.value[editingManualIndex.value] = normalizedItem;
+    manualItems.value[editingManualIndex.value as number] = normalizedItem;
   }
 
   closeManualItemModal();
@@ -744,7 +745,7 @@ const submit = async () => {
     }
 
     await router.push('/orders');
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error((isEdit.value ? updateError.value : createError.value) || 'Không thể lưu đơn hàng.');
   }
 };
@@ -768,14 +769,14 @@ const initializePage = async () => {
     if (!isEdit.value && !rows.value.length) {
       openProductSelector();
     }
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(bootstrapError.value || detailError.value || 'Không thể tải dữ liệu đơn hàng.');
   }
 };
 
 watch(
-  () => `${route.name || ''}:${route.params.id || ''}`,
-  async (_next, prev) => {
+  () => `${String(route.name || '')}:${String(route.params.id || '')}`,
+  async (_next: string, prev: string | undefined) => {
     if (prev === undefined) {
       return;
     }

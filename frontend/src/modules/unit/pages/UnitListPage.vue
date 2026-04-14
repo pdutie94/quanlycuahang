@@ -1,5 +1,5 @@
-<script setup>
-import { ref, onMounted } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { Pencil, Trash2, Check, X as IconX, Plus } from '@lucide/vue';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
@@ -9,12 +9,18 @@ import { useUnitList } from '../composables/useUnitList';
 const toast = useToast();
 const { items, meta, page, load, loadMore, loading, submitCreate, createLoading, submitUpdate, updateLoading, submitDelete, deleteLoading } = useUnitList();
 
+interface Unit {
+  id: number | string;
+  name: string;
+}
+
 const newName = ref('');
 const addLoading = ref(false);
-const editingId = ref(null);
+const editingId = ref<number | string | null>(null);
 const editingName = ref('');
 const showDeleteModal = ref(false);
-const deletingItem = ref(null);
+const deletingItem = ref<Unit | null>(null);
+const itemsTyped = computed(() => items.value as Unit[]);
 
 const handleAdd = async () => {
   if (!newName.value.trim()) {
@@ -37,7 +43,7 @@ const handleAdd = async () => {
   }
 };
 
-const startEdit = (item) => {
+const startEdit = (item: Unit) => {
   editingId.value = item.id;
   editingName.value = item.name;
 };
@@ -45,7 +51,7 @@ const cancelEdit = () => {
   editingId.value = null;
   editingName.value = '';
 };
-const handleEdit = async (item) => {
+const handleEdit = async (item: Unit) => {
   if (!editingName.value.trim()) {
     toast.error('Vui lòng nhập tên đơn vị.');
     return;
@@ -67,7 +73,7 @@ const handleEdit = async (item) => {
   }
 };
 
-const handleDelete = (item) => {
+const handleDelete = (item: Unit) => {
   deletingItem.value = item;
   showDeleteModal.value = true;
 };
@@ -78,7 +84,7 @@ const confirmDelete = async () => {
     const res = await submitDelete(deletingItem.value.id);
     if (res?.success) {
       toast.success('Đã xóa đơn vị tính.');
-      items.value = items.value.filter(i => i.id !== deletingItem.value.id);
+      items.value = items.value.filter(i => i.id !== deletingItem.value?.id);
       showDeleteModal.value = false;
       deletingItem.value = null;
     } else {
@@ -89,8 +95,8 @@ const confirmDelete = async () => {
   }
 };
 
-const onScroll = (e) => {
-  const el = e.target;
+const onScroll = (e: Event) => {
+  const el = e.target as HTMLElement;
   if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
     loadMore();
   }
@@ -113,8 +119,8 @@ onMounted(async () => {
     <div class="space-y-3" @scroll="onScroll">
       <div v-if="loading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>
       <div v-else-if="!items.length" class="app-empty-state">Chưa có đơn vị tính nào.</div>
-      <div v-else class="space-y-3">
-        <div v-for="item in items" :key="item.id" class="app-list-card flex items-center justify-between gap-2">
+      <div v-else class="space-y-3" @scroll="onScroll">
+        <div v-for="item in itemsTyped" :key="item.id" class="app-list-card flex items-center justify-between gap-2">
           <div class="flex-1">
             <template v-if="editingId === item.id">
               <input v-model="editingName" type="text" class="rounded-lg border border-slate-300 px-2 py-1 text-sm outline-none focus:border-brand-500 w-48" :disabled="updateLoading" />

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import CustomerItemCard from '../../../shared/components/CustomerItemCard.vue';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
@@ -23,7 +23,7 @@ const {
   itemsRef: rows,
   metaRef: meta,
   loadingRef: loading,
-  fetchPage: (page) => load({
+  fetchPage: (page: number) => load({
     start_date: form.start_date,
     end_date: form.end_date,
     q: form.q,
@@ -46,7 +46,7 @@ const loadPage = async () => {
       show_all: form.show_all ? '1' : '0'
     });
     hasLoadedOnce.value = true;
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(error.value || 'Không thể tải báo cáo công nợ khách hàng.');
   }
 };

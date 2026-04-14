@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, useSlots } from 'vue';
 import { RouterLink } from 'vue-router';
 import { ChevronLeft } from '@lucide/vue';
@@ -23,8 +23,8 @@ const props = defineProps({
 });
 
 const slots = useSlots();
-const formRef = ref(null);
-const menuRef = ref(null);
+const formRef = ref<HTMLElement | null>(null);
+const menuRef = ref<HTMLElement | null>(null);
 const showMenu = ref(false);
 const isStuck = ref(false);
 const FORM_HOST_ID = 'app-list-header-form-host';
@@ -50,17 +50,17 @@ const checkStickState = () => {
   formHost.classList.toggle('is-stuck', nextState);
 };
 
-const onDocumentClick = (event) => {
+const onDocumentClick = (event: Event) => {
   if (!showMenu.value || !menuRef.value) {
     return;
   }
 
-  if (!menuRef.value.contains(event.target)) {
+  if (!menuRef.value.contains(event.target as Node)) {
     closeMenu();
   }
 };
 
-const onDocumentKeydown = (event) => {
+const onDocumentKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
     closeMenu();
   }

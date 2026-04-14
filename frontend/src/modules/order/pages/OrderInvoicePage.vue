@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import { useOrderInvoice } from '../composables/useOrderInvoice';
@@ -12,7 +12,7 @@ const { order, items, loading, error, load } = useOrderInvoice();
 const orderId = computed(() => Number(route.params.id || 0));
 
 import { useFormat } from '../../../shared/composables/useFormat';
-const { formatMoney, formatDateTime, parseAmount } = useFormat();
+const { formatMoney, formatDateTime, parseAmount, formatNumber } = useFormat();
 // formatQty giữ nguyên nếu không liên quan
 
 const remaining = computed(() => {
@@ -33,7 +33,7 @@ onMounted(async () => {
 
   try {
     await load(orderId.value);
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(error.value || 'Không thể tải dữ liệu hóa đơn.');
   }
 });
@@ -84,7 +84,7 @@ onMounted(async () => {
               <td class="border-b border-slate-100 px-3 py-2">{{ index + 1 }}</td>
               <td class="border-b border-slate-100 px-3 py-2">{{ row.product_name }}</td>
               <td class="border-b border-slate-100 px-3 py-2">{{ row.unit_name || '-' }}</td>
-              <td class="border-b border-slate-100 px-3 py-2 text-right">{{ formatQty(row.qty) }}</td>
+              <td class="border-b border-slate-100 px-3 py-2 text-right">{{ formatNumber(row.qty) }}</td>
               <td class="border-b border-slate-100 px-3 py-2 text-right">{{ formatMoney(row.price_sell) }}</td>
               <td class="border-b border-slate-100 px-3 py-2 text-right">{{ formatMoney(row.amount) }}</td>
             </tr>

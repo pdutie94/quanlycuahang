@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCustomerPayment } from '../composables/useCustomerPayment';
@@ -20,7 +20,7 @@ const loadPage = async () => {
   try {
     await load(Number(route.params.orderId || 0));
     amount.value = String(Math.round(Number(remaining.value || 0)));
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(error.value || 'Không thể tải thông tin thu tiền.');
   }
 };
@@ -34,7 +34,7 @@ const save = async () => {
       return;
     }
     await router.push('/customers');
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(submitError.value || 'Không thể ghi nhận thanh toán.');
   }
 };

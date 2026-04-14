@@ -55,13 +55,19 @@
   </div>
 </template>
 
-<script setup>
-const props = defineProps({
-  purchase: { type: Object, required: true },
-  supplierNameFallback: { type: String, default: 'Chưa có nhà cung cấp' },
-  formatMoney: { type: Function, required: true },
-  formatDateTime: { type: Function, required: true },
-  showSupplierName: { type: Boolean, default: true },
-  showCodeOnTop: { type: Boolean, default: false },
+<script setup lang="ts">
+interface Props {
+  purchase: any;
+  supplierNameFallback?: string;
+  formatMoney: (value: any) => string;
+  formatDateTime: (value: any) => string;
+  showSupplierName?: boolean;
+  showCodeOnTop?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  supplierNameFallback: 'Chưa có nhà cung cấp',
+  showSupplierName: true,
+  showCodeOnTop: false,
 });
 </script>

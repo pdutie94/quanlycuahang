@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { useCategoryList } from '../composables/useCategoryList';
@@ -7,12 +7,20 @@ import { Pencil, Trash2, Check, X as IconX, Plus } from '@lucide/vue';
 import ActionConfirmSheet from '../../../shared/components/ActionConfirmSheet.vue';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 
+interface Category {
+  id: number | string;
+  name: string;
+  created_at?: string;
+}
+
 const { items, meta, loading, error, load } = useCategoryList();
+const selectedIds = ref<number[]>([]);
 const toast = useToast();
 const hasLoadedOnce = ref(false);
 
 const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value);
 const isRefreshing = computed(() => loading.value && hasLoadedOnce.value);
+const itemsTyped = computed(() => items.value as Category[]);
 
 // Infinite scroll state
 const page = ref(1);
@@ -35,8 +43,8 @@ const loadMore = async () => {
   }
 };
 
-const onScroll = (e) => {
-  const el = e.target;
+const onScroll = (e: Event) => {
+  const el = e.target as HTMLElement;
   if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
     loadMore();
   }
@@ -68,10 +76,10 @@ const handleAdd = async () => {
 };
 
 // Sửa inline
-const editingId = ref(null);
+const editingId = ref<number | string | null>(null);
 const editingName = ref('');
 const editLoading = ref(false);
-const startEdit = (item) => {
+const startEdit = (item: Category) => {
   editingId.value = item.id;
   editingName.value = item.name;
 };
@@ -79,7 +87,7 @@ const cancelEdit = () => {
   editingId.value = null;
   editingName.value = '';
 };
-const handleEdit = async (item) => {
+const handleEdit = async (item: Category) => {
   if (!editingName.value.trim()) {
     toast.error('Vui lòng nhập tên danh mục.');
     return;
@@ -103,11 +111,11 @@ const handleEdit = async (item) => {
 };
 
 // Xóa
-const pendingDeleteId = ref(null);
-const deleteLoading = ref(false);
 const showDeleteModal = ref(false);
-const deletingItem = ref(null);
-const handleDelete = (item) => {
+const deletingItem = ref<Category | null>(null);
+const deleteLoading = ref(false);
+
+const handleDelete = (item: Category) => {
   if (item.id === 1) {
     toast.error('Không thể xóa danh mục mặc định.');
     return;
@@ -115,6 +123,7 @@ const handleDelete = (item) => {
   deletingItem.value = item;
   showDeleteModal.value = true;
 };
+
 const confirmDelete = async () => {
   if (!deletingItem.value) return;
   deleteLoading.value = true;
@@ -122,7 +131,7 @@ const confirmDelete = async () => {
     const res = await deleteCategory(deletingItem.value.id);
     if (res?.success) {
       toast.success(res?.message || 'Đã xóa danh mục.');
-      items.value = items.value.filter(i => i.id !== deletingItem.value.id);
+      items.value = items.value.filter(i => i.id !== deletingItem.value?.id);
       showDeleteModal.value = false;
       deletingItem.value = null;
     } else {
@@ -160,7 +169,7 @@ onMounted(async () => {
       <div v-if="isInitialLoading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>
       <div v-else-if="!items.length" class="app-empty-state">Chưa có danh mục nào.</div>
       <div v-else class="space-y-3" @scroll="onScroll" :class="isRefreshing ? 'opacity-70 transition-opacity' : 'transition-opacity'">
-        <div v-for="item in items" :key="item.id" class="app-list-card flex items-center justify-between gap-2">
+        <div v-for="item in itemsTyped" :key="item.id" class="app-list-card flex items-center justify-between gap-2">
           <div class="flex-1">
             <template v-if="editingId === item.id">
               <input v-model="editingName" type="text" class="rounded-lg border border-slate-300 px-2 py-1 text-sm outline-none focus:border-brand-500 w-48" :disabled="editLoading" />

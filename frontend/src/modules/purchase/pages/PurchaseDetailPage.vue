@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney, formatDateTime } = useFormat();
 import { computed, onMounted, ref, watch } from 'vue';
@@ -33,7 +33,7 @@ const showDeleteModal = ref(false);
 
 // Đã thay thế bằng useFormat
 const numberFormatter = new Intl.NumberFormat('vi-VN');
-const formatNumber = (value) => {
+const formatNumber = (value: any) => {
   const nextValue = Number(value || 0);
   if (Number.isInteger(nextValue)) {
     return numberFormatter.format(nextValue);
@@ -66,7 +66,7 @@ const historyDateFormatter = new Intl.DateTimeFormat('vi-VN', {
   year: 'numeric'
 });
 
-const formatHistoryDate = (value) => {
+const formatHistoryDate = (value: any) => {
   if (!value) return '';
   const date = new Date(String(value).replace(' ', 'T'));
   if (Number.isNaN(date.getTime())) return String(value);
@@ -76,7 +76,7 @@ const formatHistoryDate = (value) => {
 const loadPage = async () => {
   try {
     await load(Number(route.params.id || 0));
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(error.value || 'Không thể tải chi tiết phiếu nhập.');
   }
 };
@@ -84,7 +84,7 @@ const loadPage = async () => {
 const refreshPage = async () => {
   try {
     await refresh(Number(route.params.id || 0));
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(error.value || 'Không thể tải chi tiết phiếu nhập.');
   }
 };
@@ -98,7 +98,7 @@ const pay = async () => {
     paymentMethod.value = 'cash';
     showPayment.value = false;
     await refreshPage();
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(paymentError.value || 'Không thể ghi nhận thanh toán.');
   }
 };
@@ -113,12 +113,12 @@ const deleteCurrentPurchase = async () => {
     showDeleteModal.value = false;
     toast.success(payload?.message || 'Đã xóa phiếu nhập hàng.');
     router.push('/purchases');
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(deleteError.value || 'Không thể xóa phiếu nhập.');
   }
 };
 
-const parseLogText = (detailRaw) => {
+const parseLogText = (detailRaw: any) => {
   try {
     const detail = JSON.parse(detailRaw || '{}');
     if (detail.type === 'create') {
@@ -139,13 +139,13 @@ const parseLogText = (detailRaw) => {
         tone: 'text-brand-700'
       };
     }
-  } catch (_err) {
+  } catch (_err: any) {
     return { text: detailRaw || '-', tone: 'text-slate-700' };
   }
   return { text: detailRaw || '-', tone: 'text-slate-700' };
 };
 
-const getHistoryTone = (tone) => {
+const getHistoryTone = (tone: string | null | undefined) => {
   const nextTone = String(tone || 'text-slate-700');
 
   if (nextTone.includes('emerald') || nextTone.includes('brand')) {
@@ -179,14 +179,26 @@ const getHistoryTone = (tone) => {
   };
 };
 
-const groupedLogs = computed(() => {
-  const groups = [];
-  const groupMap = new Map();
+interface LogEntry extends Record<string, any> {
+  id: number | string;
+  created_at: string;
+  detail: string;
+}
 
-  for (const log of logs.value) {
+interface LogGroup {
+  key: string;
+  timeText: string;
+  entries: (LogEntry & { parsed: any; tone: any })[];
+}
+
+const groupedLogs = computed(() => {
+  const groups: LogGroup[] = [];
+  const groupMap = new Map<string, LogGroup>();
+
+  for (const log of (logs.value as LogEntry[])) {
     const timeText = formatHistoryDate(log?.created_at) || '-';
     if (!groupMap.has(timeText)) {
-      const group = {
+      const group: LogGroup = {
         key: `${timeText}-${log?.id || groups.length}`,
         timeText,
         entries: []
@@ -195,12 +207,15 @@ const groupedLogs = computed(() => {
       groups.push(group);
     }
 
-    const parsed = parseLogText(log?.detail);
-    groupMap.get(timeText).entries.push({
-      ...log,
-      parsed,
-      tone: getHistoryTone(parsed.tone)
-    });
+    const group = groupMap.get(timeText);
+    if (group) {
+      const parsed = parseLogText(log?.detail);
+      group.entries.push({
+        ...log,
+        parsed,
+        tone: getHistoryTone(parsed.tone)
+      });
+    }
   }
 
   return groups;

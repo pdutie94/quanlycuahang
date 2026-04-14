@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useToast } from '../../../shared/composables/useToast';
@@ -11,7 +11,7 @@ const toast = useToast();
 const { form, loading, loadEdit, submitCreate, createLoading, createError, submitUpdate, updateLoading, updateError, submitDelete, deleteLoading, deleteError } = useCategoryForm();
 
 const pendingDelete = ref(false);
-let pendingDeleteTimer = null;
+let pendingDeleteTimer: number | null = null;
 
 const isEdit = computed(() => !!route.params.id);
 const isFormDisabled = computed(() => loading.value || createLoading.value || updateLoading.value || deleteLoading.value);
@@ -23,7 +23,7 @@ const loadPage = async () => {
 
   try {
     await loadEdit(Number(route.params.id || 0));
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error('Không thể tải danh mục.');
   }
 };
@@ -38,7 +38,7 @@ const handleSubmit = async () => {
     } else {
       toast.error(result?.message || createError.value || updateError.value || 'Không thể lưu danh mục.');
     }
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(createError.value || updateError.value || 'Không thể lưu danh mục.');
   }
 };
@@ -79,7 +79,7 @@ const handleDelete = async () => {
       return;
     }
     toast.error(result?.message || deleteError.value || 'Không thể xóa danh mục.');
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(deleteError.value || 'Không thể xóa danh mục.');
   }
 };

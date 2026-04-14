@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useFormat } from '../composables/useFormat';
@@ -55,7 +55,7 @@ const rootTo = computed(() => {
       </div>
       <div class="text-sm text-slate-500 mt-0.5">
         Nợ:
-        <span class="font-medium" :class="debtAmount > 0 ? 'text-rose-600' : 'text-slate-700'">
+        <span class="font-medium" :class="(debtAmount ?? 0) > 0 ? 'text-rose-600' : 'text-slate-700'">
           {{ debtAmount !== null ? formatMoney(debtAmount) : '—' }}
         </span>
         <span class="ml-2">

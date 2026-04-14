@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
 import { ChartPie, ClipboardList, Plus, ShoppingCart } from '@lucide/vue';
@@ -33,7 +33,7 @@ const lowStockPreview = computed(() => (overview.value?.low_stock_items || []).s
 onMounted(async () => {
   try {
     await load();
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(error.value || 'Không thể tải dashboard.');
   }
 });

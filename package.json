@@ -10,15 +10,19 @@
     "watch": "concurrently \"npm:watch:spa\" \"npm:watch:css\"",
     "build": "npm run build:css && npm run build:spa",
     "build-package": "bash build-package.sh",
-    "build-full-package": "bash build-full-package.sh"
+    "build-full-package": "bash build-full-package.sh",
+    "type-check": "vue-tsc --noEmit"
   },
   "devDependencies": {
+    "@types/node": "^25.6.0",
     "@vitejs/plugin-vue": "^6.0.5",
     "chokidar-cli": "^3.0.0",
     "concurrently": "^9.2.1",
     "lucide-static": "^0.577.0",
     "tailwindcss": "^3.4.0",
-    "vite": "^8.0.3"
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vue-tsc": "^3.2.6"
   },
   "dependencies": {
     "@lucide/vue": "^1.7.0",

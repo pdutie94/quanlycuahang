@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useOrderReturn } from '../composables/useOrderReturn';
@@ -16,15 +16,8 @@ const returnAll = ref(false);
 const quantities = ref({});
 
 import { useFormat } from '../../../shared/composables/useFormat';
-const { formatMoney, formatDateTime, parseAmount } = useFormat();
-// formatQty giữ nguyên nếu không liên quan
-const formatQty = (qty) => {
-  const value = Number(qty || 0);
-  if (Number.isInteger(value)) {
-    return formatter.format(value);
-  }
-  return value.toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-};
+const { formatMoney, formatDateTime, parseAmount, formatNumber } = useFormat();
+// formatQty dùng formatNumber từ useFormat
 const total = computed(() => Number(order.value?.total_amount || 0));
 const paid = computed(() => Number(order.value?.paid_amount || 0));
 const debt = computed(() => Math.max(total.value - paid.value, 0));
@@ -42,7 +35,7 @@ const submitReturn = async () => {
     const result = await submit(orderId.value, payload);
     toast.success(result?.message || 'Đã ghi nhận trả hàng.');
     await router.push({ name: 'orders.detail', params: { id: orderId.value } });
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(submitError.value || 'Không thể ghi nhận trả hàng.');
   }
 };
@@ -55,7 +48,7 @@ onMounted(async () => {
 
   try {
     await load(orderId.value);
-    const next = {};
+    const next: Record<number, string> = {};
     for (const item of items.value) {
       const id = Number(item.id || 0);
       if (id > 0) {
@@ -63,7 +56,7 @@ onMounted(async () => {
       }
     }
     quantities.value = next;
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(error.value || 'Không thể tải thông tin trả hàng.');
   }
 });
@@ -97,13 +90,13 @@ onMounted(async () => {
             <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
                 <div class="font-medium text-slate-900">{{ item.product_name }}</div>
-                <div class="mt-1 text-sm text-slate-600">Đã bán: <span class="font-medium text-slate-900">{{ formatQty(item.qty) }}</span> {{ item.unit_name }}</div>
+                <div class="mt-1 text-sm text-slate-600">Đã bán: <span class="font-medium text-slate-900">{{ formatNumber(item.qty) }}</span> {{ item.unit_name }}</div>
                 <div class="mt-1 text-sm text-slate-500">Đơn giá: <span class="font-medium text-slate-700">{{ formatMoney(item.price_sell) }}</span></div>
               </div>
               <div class="w-full max-w-36">
                 <label class="mb-1 block text-sm text-slate-600">Số lượng trả</label>
                 <input
-                  v-model="quantities[item.id]"
+                  v-model="(quantities as any)[item.id]"
                   :disabled="returnAll"
                   type="number"
                   min="0"

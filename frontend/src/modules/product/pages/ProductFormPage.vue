@@ -1,9 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { ClipboardList, History, Package, Tags, Trash2, X } from '@lucide/vue';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductForm } from '../composables/useProductForm';
 import { useToast } from '../../../shared/composables/useToast';
+import type { ProductLog } from '../types';
 import ActionConfirmSheet from '../../../shared/components/ActionConfirmSheet.vue';
 import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 import { useFormat } from '../../../shared/composables/useFormat';
@@ -42,6 +43,7 @@ const isEdit = computed(() => Boolean(route.params.id));
 const pageTitle = computed(() => (isEdit.value ? 'Sửa sản phẩm' : 'Thêm sản phẩm'));
 const loading = computed(() => bootstrapLoading.value || (isEdit.value && editLoading.value));
 const saving = computed(() => createLoading.value || updateLoading.value);
+const showDeleteModal = ref(false);
 
 let lastManualPrice = '';
 
@@ -79,7 +81,7 @@ const historyDateFormatter = new Intl.DateTimeFormat('vi-VN', {
   year: 'numeric'
 });
 
-const formatHistoryDate = (value) => {
+const formatHistoryDate = (value: string | number | null | undefined): string => {
   if (!value) {
     return '';
   }
@@ -92,7 +94,7 @@ const formatHistoryDate = (value) => {
   return historyDateFormatter.format(date).replace(/^([^,]+),\s*/, '$1, ');
 };
 
-const getHistoryTone = (log) => {
+const getHistoryTone = (log: ProductLog) => {
   const detail = String(log?.detail || '').toLowerCase();
   const action = String(log?.action || '').toLowerCase();
 
@@ -122,8 +124,8 @@ const getHistoryTone = (log) => {
   };
 };
 
-const submit = async (redirectMode) => {
-  form.value.redirect = redirectMode;
+const submit = async (redirectMode: string) => {
+  form.value.redirect = redirectMode as 'stay' | 'list' | 'detail';
 
   try {
     const payload = isEdit.value
@@ -147,7 +149,7 @@ const submit = async (redirectMode) => {
     if (isEdit.value && nextId > 0) {
       await refreshEdit(nextId);
     }
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error((isEdit.value ? updateError.value : createError.value) || 'Không thể lưu sản phẩm.');
   }
 };
@@ -163,7 +165,7 @@ const deleteCurrentProduct = async () => {
     showDeleteModal.value = false;
     toast.success(payload?.message || 'Đã xóa sản phẩm.');
     await router.push('/products');
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(deleteError.value || 'Không thể xóa sản phẩm vì đã có đơn hàng sử dụng.');
   }
 };
@@ -175,7 +177,7 @@ onMounted(async () => {
     if (isEdit.value) {
       await loadEdit(Number(route.params.id));
     }
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(bootstrapError.value || editError.value || 'Không thể tải form sản phẩm.');
   }
 });
@@ -267,8 +269,8 @@ onMounted(async () => {
                   type="text"
                   v-money-input
                   class="h-10 w-full rounded-xl border px-3 pr-8 text-sm outline-none focus:border-brand-500"
-                  :class="form.auto_price_enabled ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-slate-900 border-slate-300'"
-                  :disabled="form.auto_price_enabled"
+                  :class="!!form.auto_price_enabled ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-slate-900 border-slate-300'"
+                  :disabled="!!form.auto_price_enabled"
                 />
                 <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">đ</span>
               </div>

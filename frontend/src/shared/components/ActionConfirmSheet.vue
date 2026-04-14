@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 const props = defineProps({
@@ -29,12 +29,12 @@ const props = defineProps({
   tone: {
     type: String,
     default: 'danger',
-    validator: (value) => ['danger', 'warning'].includes(value)
+    validator: (value: any) => ['danger', 'warning'].includes(value)
   }
 });
 
 const emit = defineEmits(['cancel', 'confirm']);
-const popupRef = ref(null);
+const popupRef = ref<HTMLElement | null>(null);
 const ignoreOutsideClick = ref(false);
 
 watch(
@@ -52,17 +52,17 @@ watch(
   }
 );
 
-const onDocumentClick = (event) => {
+const onDocumentClick = (event: Event) => {
   if (!props.open || !popupRef.value || ignoreOutsideClick.value) {
     return;
   }
 
-  if (!popupRef.value.contains(event.target)) {
+  if (!popupRef.value.contains(event.target as Node)) {
     emit('cancel');
   }
 };
 
-const onDocumentKeydown = (event) => {
+const onDocumentKeydown = (event: KeyboardEvent) => {
   if (!props.open) {
     return;
   }

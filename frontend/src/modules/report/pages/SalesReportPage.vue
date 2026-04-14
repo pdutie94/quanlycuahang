@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { BarChart2, Package, User, Truck, Tag } from '@lucide/vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
@@ -17,7 +17,7 @@ const { rows, summary, meta, loading, error, load } = useSalesReport();
 const today = new Date().toISOString().slice(0, 10);
 const thisMonth = today.slice(0, 7);
 const form = reactive({
-  filter_mode: 'day',
+  filter_mode: 'day' as 'day' | 'month' | 'quarter' | 'year',
   day: today,
   month: thisMonth,
   quarter: '',
@@ -28,7 +28,7 @@ const form = reactive({
 // Đã thay thế bằng useFormat
 
 const buildParams = () => {
-  const params = { filter_mode: form.filter_mode };
+  const params: Record<string, any> = { filter_mode: form.filter_mode };
   if (form.filter_mode === 'day' && form.day) params.day = form.day;
   if (form.filter_mode === 'month' && form.month) params.month = form.month;
   if (form.filter_mode === 'quarter' && form.quarter && form.quarter_year) {
@@ -49,7 +49,7 @@ const {
   itemsRef: rows,
   metaRef: meta,
   loadingRef: loading,
-  fetchPage: (page) => load({ ...buildParams(), page }),
+  fetchPage: (page: number) => load({ ...buildParams(), page }),
   onError: () => {
     toast.error(error.value || 'Không thể tải danh sách đơn hàng.');
   }
@@ -118,7 +118,7 @@ const applyFilter = async () => {
       <div class="rounded-xl border border-rose-100 bg-white p-3 text-sm"><div class="text-rose-700">Còn nợ</div><div class="mt-1 font-semibold text-slate-900">{{ formatMoney(summary.debt_amount) }}</div></div>
     </section>
 
-    <div v-if="isRefreshing" class="px-1 text-xs font-medium text-slate-500">Đang cập nhật báo cáo...</div>
+
     <div v-if="isInitialLoading" class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">Đang tải...</div>
     <div v-else-if="!rows.length" class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">Không có dữ liệu doanh thu.</div>
 

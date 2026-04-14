@@ -1,12 +1,18 @@
-<script setup>
+<script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
-const toasts = ref([]);
+interface ToastMessage {
+  id: number;
+  type: string;
+  message: string;
+}
+
+const toasts = ref<ToastMessage[]>([]);
 let nextId = 0;
 
 const DURATION = 3500;
 
-function addToast(type, message) {
+function addToast(type: string, message: string) {
   const id = ++nextId;
   toasts.value.push({ id, type, message });
   window.setTimeout(() => {
@@ -14,20 +20,20 @@ function addToast(type, message) {
   }, DURATION);
 }
 
-function removeToast(id) {
-  const idx = toasts.value.findIndex((t) => t.id === id);
+function removeToast(id: number) {
+  const idx = toasts.value.findIndex((t: ToastMessage) => t.id === id);
   if (idx !== -1) {
     toasts.value.splice(idx, 1);
   }
 }
 
 onMounted(() => {
-  window.showToast = addToast;
+  (window as any).showToast = addToast;
 });
 
 onBeforeUnmount(() => {
-  if (window.showToast === addToast) {
-    window.showToast = undefined;
+  if ((window as any).showToast === addToast) {
+    (window as any).showToast = undefined;
   }
 });
 </script>

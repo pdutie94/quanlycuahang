@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { ClipboardList, Clock, Eye, X } from '@lucide/vue';
@@ -33,9 +33,9 @@ const props = defineProps({
 
 const numberFormatter = new Intl.NumberFormat('vi-VN');
 
-const formatMoney = (amount) => `${numberFormatter.format(Number(amount || 0))} đ`;
+const formatMoney = (amount: string | number | null | undefined) => `${numberFormatter.format(Number(amount || 0))} đ`;
 
-const formatDateTime = (value) => {
+const formatDateTime = (value: string | Date | null | undefined) => {
   if (!value) {
     return '';
   }
@@ -95,9 +95,9 @@ const rootTo = computed(() => {
 const previewVisible = ref(false);
 const previewLoading = ref(false);
 const previewError = ref('');
-const previewOrder = ref(null);
-const previewItems = ref([]);
-const previewManualItems = ref([]);
+const previewOrder = ref<Record<string, any> | null>(null);
+const previewItems = ref<Record<string, any>[]>([]);
+const previewManualItems = ref<Record<string, any>[]>([]);
 let activeRequestId = 0;
 
 const previewPaymentStatusLabel = computed(() => {
@@ -177,7 +177,7 @@ const previewNote = computed(() => {
   return trimmed;
 });
 
-const toQtyText = (value) => {
+const toQtyText = (value: string | number | null | undefined) => {
   const n = Number(value || 0);
   const text = n.toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
   return text.replace(/,00$/, '');
@@ -224,7 +224,7 @@ const openPreview = async () => {
       if (requestId !== activeRequestId) {
         return;
       }
-      previewError.value = error?.response?.data?.message || 'Không thể hiển thị dữ liệu đơn hàng.';
+      previewError.value = (error as any)?.response?.data?.message || 'Không thể hiển thị dữ liệu đơn hàng.';
       previewLoading.value = false;
     };
 

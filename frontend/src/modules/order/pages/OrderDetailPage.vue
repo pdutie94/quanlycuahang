@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 import { Archive, BanknoteArrowDown, ClipboardList, FileText, History, Package, Pencil, RotateCcw, Trash2, Undo2, Users } from '@lucide/vue';
@@ -48,8 +48,7 @@ const orderId = computed(() => Number(route.params.id || 0));
 
 const numberFormatter = new Intl.NumberFormat('vi-VN');
 const { formatMoney, formatDateTime, parseAmount } = useFormat();
-
-const formatMoneyInput = (value, allowEmpty = true) => {
+const formatMoneyInput = (value: any, allowEmpty = true) => {
   const amount = parseAmount(value);
   if (amount <= 0) {
     return allowEmpty ? '' : '0';
@@ -58,7 +57,7 @@ const formatMoneyInput = (value, allowEmpty = true) => {
   return numberFormatter.format(amount);
 };
 
-const formatMoneyInputValue = (rawValue) => {
+const formatMoneyInputValue = (rawValue: any) => {
   const digits = String(rawValue ?? '').replace(/[^0-9]/g, '');
   if (!digits) {
     return '';
@@ -67,7 +66,7 @@ const formatMoneyInputValue = (rawValue) => {
   return numberFormatter.format(Number(digits));
 };
 
-const isDecimalShorthand = (value) => {
+const isDecimalShorthand = (value: any) => {
   const str = String(value ?? '').trim();
   const dotIdx = str.indexOf('.');
   if (dotIdx === -1) return false;
@@ -76,7 +75,7 @@ const isDecimalShorthand = (value) => {
   return afterDot.length < 3;
 };
 
-const sanitizeDecimalInput = (value) => {
+const sanitizeDecimalInput = (value: any) => {
   let result = '';
   let hasDot = false;
 
@@ -92,7 +91,7 @@ const sanitizeDecimalInput = (value) => {
   return result;
 };
 
-const onPaymentAmountInput = (event) => {
+const onPaymentAmountInput = (event: Event) => {
   const target = event?.target;
   const rawValue = target instanceof HTMLInputElement ? target.value : paymentAmount.value;
 
@@ -104,7 +103,7 @@ const onPaymentAmountInput = (event) => {
   paymentAmount.value = formatMoneyInputValue(rawValue);
 };
 
-const onPaymentAmountBlur = (event) => {
+const onPaymentAmountBlur = (event: Event) => {
   const target = event?.target;
   const rawValue = String(target instanceof HTMLInputElement ? target.value : paymentAmount.value).trim();
 
@@ -134,7 +133,7 @@ const onPaymentAmountBlur = (event) => {
   }
 };
 
-const formatNumber = (value) => {
+const formatNumber = (value: any) => {
   const nextValue = Number(value || 0);
   if (Number.isInteger(nextValue)) {
     return numberFormatter.format(nextValue);
@@ -194,7 +193,7 @@ const historyDateFormatter = new Intl.DateTimeFormat('vi-VN', {
   year: 'numeric'
 });
 
-const formatHistoryDate = (value) => {
+const formatHistoryDate = (value: any) => {
   if (!value) {
     return '';
   }
@@ -215,7 +214,7 @@ const loadOrder = async () => {
 
   try {
     await load(orderId.value);
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(error.value || 'Không thể tải chi tiết đơn hàng.');
   }
 };
@@ -227,7 +226,7 @@ const refreshOrder = async () => {
 
   try {
     await refresh(orderId.value);
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(error.value || 'Không thể tải chi tiết đơn hàng.');
   }
 };
@@ -268,12 +267,12 @@ const submitStatusForm = async () => {
     });
     toast.success(payload?.message || 'Đã cập nhật trạng thái đơn hàng.');
     await refreshOrder();
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(statusError.value || 'Không thể cập nhật trạng thái đơn hàng.');
   }
 };
 
-const parseLogLine = (detailRaw) => {
+const parseLogLine = (detailRaw: any) => {
   if (!detailRaw) {
     return { text: '-', tone: 'text-slate-700' };
   }
@@ -335,12 +334,12 @@ const parseLogLine = (detailRaw) => {
     }
 
     return { text: detailRaw, tone: 'text-slate-700' };
-  } catch (_err) {
+  } catch (_err: any) {
     return { text: String(detailRaw), tone: 'text-slate-700' };
   }
 };
 
-const getHistoryTone = (log) => {
+const getHistoryTone = (log: any) => {
   const parsed = parseLogLine(log?.detail);
   const tone = String(parsed?.tone || 'text-slate-700');
 
@@ -379,14 +378,26 @@ const getHistoryTone = (log) => {
   };
 };
 
-const groupedLogs = computed(() => {
-  const groups = [];
-  const groupMap = new Map();
+interface LogEntry extends Record<string, any> {
+  id: number | string;
+  created_at: string;
+  detail: string;
+}
 
-  for (const log of logs.value) {
+interface LogGroup {
+  key: string;
+  timeText: string;
+  entries: (LogEntry & { parsed: any; tone: any })[];
+}
+
+const groupedLogs = computed(() => {
+  const groups: LogGroup[] = [];
+  const groupMap = new Map<string, LogGroup>();
+
+  for (const log of (logs.value as LogEntry[])) {
     const timeText = formatHistoryDate(log?.created_at) || '-';
     if (!groupMap.has(timeText)) {
-      const group = {
+      const group: LogGroup = {
         key: `${timeText}-${log?.id || groups.length}`,
         timeText,
         entries: []
@@ -396,11 +407,13 @@ const groupedLogs = computed(() => {
     }
 
     const group = groupMap.get(timeText);
-    group.entries.push({
-      ...log,
-      parsed: parseLogLine(log?.detail),
-      tone: getHistoryTone(log)
-    });
+    if (group) {
+      group.entries.push({
+        ...log,
+        parsed: parseLogLine(log?.detail),
+        tone: getHistoryTone(log)
+      });
+    }
   }
 
   return groups;
@@ -423,7 +436,7 @@ const submitPaymentForm = async () => {
     paymentMethod.value = 'cash';
     showPaymentModal.value = false;
     await refreshOrder();
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(paymentError.value || 'Không thể ghi nhận thanh toán.');
   }
 };
@@ -439,7 +452,7 @@ const resetPaymentState = async () => {
     showPaymentModal.value = false;
     toast.success(payload?.message || 'Đã đặt lại thanh toán.');
     await refreshOrder();
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(resetError.value || 'Không thể đặt lại thanh toán.');
   }
 };
@@ -454,7 +467,7 @@ const deleteCurrentOrder = async () => {
     showDeleteOrderModal.value = false;
     toast.success(payload?.message || 'Đã xóa tạm đơn hàng.');
     router.push('/orders');
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(deleteError.value || 'Không thể xóa đơn hàng.');
   }
 };

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { Pencil, ReceiptText, Trash2 } from '@lucide/vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
@@ -20,7 +20,7 @@ const { formatMoney } = useFormat();
 const loadPage = async () => {
   try {
     await load(Number(route.params.id || 0));
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(error.value || 'Không thể tải chi tiết khách hàng.');
   }
 };
@@ -35,7 +35,7 @@ const deleteCurrentCustomer = async () => {
     showDeleteModal.value = false;
     toast.success(payload?.message || 'Đã xóa khách hàng.');
     router.push('/customers');
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(deleteError.value || 'Không thể xóa khách hàng.');
   }
 };

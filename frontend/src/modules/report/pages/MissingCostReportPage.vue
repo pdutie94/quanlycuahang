@@ -1,15 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import ReportNavButtons from '../components/ReportNavButtons.vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { useMissingCostReport } from '../composables/useMissingCostReport';
+import type { MissingCostItem } from '../types';
 
 const toast = useToast();
 const { items, summary, loading, error, load, refresh, submit, submitLoading, submitError } = useMissingCostReport();
 const form = reactive({ q: '', start_date: '', end_date: '' });
-const selectedIds = ref([]);
+const selectedIds = ref<number[]>([]);
 const hasLoadedOnce = ref(false);
 
 // Đã thay thế bằng useFormat
@@ -20,8 +21,8 @@ const allSelected = computed({
   get() {
     return items.value.length > 0 && selectedIds.value.length === items.value.length;
   },
-  set(val) {
-    selectedIds.value = val ? items.value.map((row) => Number(row.item_id)) : [];
+  set(val: boolean) {
+    selectedIds.value = val ? items.value.map((row: MissingCostItem) => Number(row.item_id)) : [];
   }
 });
 
@@ -30,7 +31,7 @@ const loadPage = async () => {
     await load({ q: form.q, start_date: form.start_date, end_date: form.end_date });
     selectedIds.value = [];
     hasLoadedOnce.value = true;
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(error.value || 'Không thể tải báo cáo giá vốn thiếu.');
   }
 };
@@ -39,7 +40,7 @@ const refreshPage = async () => {
   try {
     await refresh({ q: form.q, start_date: form.start_date, end_date: form.end_date });
     selectedIds.value = [];
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(error.value || 'Không thể tải báo cáo giá vốn thiếu.');
   }
 };
@@ -53,7 +54,7 @@ const updateSelected = async () => {
       return;
     }
     toast.error(result?.message || submitError.value || 'Không thể cập nhật giá vốn.');
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(submitError.value || 'Không thể cập nhật giá vốn.');
   }
 };
@@ -67,7 +68,7 @@ const updateAll = async () => {
       return;
     }
     toast.error(result?.message || submitError.value || 'Không thể cập nhật giá vốn.');
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(submitError.value || 'Không thể cập nhật giá vốn.');
   }
 };

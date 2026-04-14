@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, useSlots } from 'vue';
 import { RouterLink } from 'vue-router';
 import { Plus, CirclePlus, LayoutGrid, Search, SlidersHorizontal, X } from '@lucide/vue';
@@ -31,7 +31,7 @@ const props = defineProps({
   filterType: {
     type: String,
     default: '',
-    validator: (value) => ['', 'filter', 'grid'].includes(value)
+    validator: (value: any) => ['', 'filter', 'grid'].includes(value)
   },
   chipsClass: {
     type: String,
@@ -42,12 +42,12 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'search', 'filter-click']);
 const slots = useSlots();
 
-const formRef = ref(null);
-const inputRef = ref(null);
+const formRef = ref<HTMLElement | null>(null);
+const inputRef = ref<HTMLInputElement | null>(null);
 const isStuck = ref(false);
 const hasChips = computed(() => Boolean(slots.chips));
 const FORM_HOST_ID = 'app-list-header-form-host';
-let debounceTimer = null;
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 const checkStickState = () => {
   const formHost = document.getElementById(FORM_HOST_ID);
@@ -81,8 +81,8 @@ const onSubmit = () => {
   emit('search');
 };
 
-const onInput = (event) => {
-  emit('update:modelValue', event?.target?.value || '');
+const onInput = (event: Event) => {
+  emit('update:modelValue', (event.target as HTMLInputElement)?.value || '');
   if (debounceTimer) {
     clearTimeout(debounceTimer);
   }

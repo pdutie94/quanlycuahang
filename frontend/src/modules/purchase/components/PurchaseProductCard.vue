@@ -31,17 +31,23 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
-function formatMoney(val) {
+
+function formatMoney(val: any) {
   if (val === '' || val === null || val === undefined) return '';
   const num = Number(val) || 0;
   return num > 0 ? num.toLocaleString('vi-VN') : '';
 }
-const props = defineProps({
-  item: { type: Object, required: true }
-});
-const emit = defineEmits(['update', 'remove']);
+
+const props = defineProps<{
+  item: any;
+}>();
+
+const emit = defineEmits<{
+  (e: 'update', item: any): void;
+  (e: 'remove'): void;
+}>();
 
 const localQty = ref(props.item.qty || 1);
 const localPrice = ref(props.item.price || 0);
@@ -53,7 +59,8 @@ function onQtyInput() {
   localTotal.value = localQty.value * localPrice.value;
   emitUpdate();
 }
-function onPriceInput(e) {
+
+function onPriceInput(e: any) {
   let val = Number(e.target.value.replace(/[^\d]/g, ''));
   if (val < 1000 && val !== 0) {
     // Không cho nhập giá nhỏ hơn 1000
@@ -64,7 +71,8 @@ function onPriceInput(e) {
   localTotal.value = localQty.value * localPrice.value;
   emitUpdate();
 }
-function onTotalInput(e) {
+
+function onTotalInput(e: any) {
   let val = Number(e.target.value.replace(/[^\d]/g, ''));
   if (val < 1000 && val !== 0) {
     localTotal.value = 1000;
@@ -76,6 +84,7 @@ function onTotalInput(e) {
     emitUpdate();
   }
 }
+
 function emitUpdate() {
   emit('update', {
     ...props.item,
@@ -84,8 +93,9 @@ function emitUpdate() {
     total: localTotal.value
   });
 }
+
 // Đồng bộ khi props thay đổi
-watch(() => props.item, (val) => {
+watch(() => props.item, (val: any) => {
   localQty.value = val.qty || 1;
   localPrice.value = val.price || 0;
   localTotal.value = (val.qty || 1) * (val.price || 0);

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
 import { computed, onMounted, reactive, ref } from 'vue';
@@ -18,7 +18,7 @@ const loadPage = async () => {
   try {
     await load({ filter_mode: form.filter_mode, day: form.day, page: form.page });
     hasLoadedOnce.value = true;
-  } catch (_err) {
+  } catch (_err: any) {
     toast.error(error.value || 'Không thể tải danh sách đơn hàng.');
   }
 };
@@ -48,7 +48,7 @@ onMounted(async () => {
 
     <section v-else class="space-y-2" :class="isRefreshing ? 'opacity-70 transition-opacity' : 'transition-opacity'">
       <OrderItemCard
-        v-for="row in rows"
+        v-for="row in (rows as any[])"
         :key="row.id"
         :order="{ ...row, order_code: row.order_code || row.code, order_date: row.order_date || row.doc_date }"
         :to="{ name: 'orders.detail', params: { id: row.id } }"

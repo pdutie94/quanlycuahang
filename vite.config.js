@@ -8,9 +8,9 @@ export default defineConfig({
   build: {
     outDir: resolve(__dirname, 'public/assets/spa'),
     emptyOutDir: false,
-    sourcemap: false,
+    sourcemap: true,
     rollupOptions: {
-      input: resolve(__dirname, 'frontend/src/main.js'),
+      input: resolve(__dirname, 'frontend/src/main.ts'),
       output: {
         entryFileNames: 'main.js',
         chunkFileNames: 'chunks/[name].js',

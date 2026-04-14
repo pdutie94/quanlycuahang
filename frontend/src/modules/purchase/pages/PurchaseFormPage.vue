@@ -1,10 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney, parseAmount, formatNumber, formatMoneyInput, formatPriceInput } = useFormat();
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { Package, Users, X, Plus } from '@lucide/vue';
 import { useRoute, useRouter } from 'vue-router';
 import { usePurchaseForm } from '../composables/usePurchaseForm';
+import type { PurchaseItem, ManualPurchaseItem } from '../types';
 import { useToast } from '../../../shared/composables/useToast';
 import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 
@@ -58,10 +59,12 @@ const supplierMode = ref('existing');
 const supplierKeyword = ref('');
 const productKeyword = ref('');
 const pendingSupplierId = ref('');
-const selectedProductIds = ref([]);
-const activeRowIndex = ref(null);
-const editingManualIndex = ref(null);
-const supplierNameInput = ref(null);
+const selectedProductIds = ref<number[]>([]);
+const selectedGiftProductIds = ref<number[]>([]);
+const activeRowIndex = ref<number | null>(null);
+const editingManualIndex = ref<number | null>(null);
+const supplierNameInput = ref<HTMLInputElement | null>(null);
+const customerNameInput = ref<HTMLInputElement | null>(null);
 const supplierDraft = ref({
   name: '',
   phone: '',
@@ -76,7 +79,7 @@ const manualItemDraft = ref({
 });
 
 // --- normalizeRowQty logic từ OrderFormPage ---
-const getRowStep = (row) => {
+const getRowStep = (row: PurchaseItem) => {
   const unit = getUnitDisplay(row);
   const allowFraction = Number(unit?.allow_fraction || 0) === 1;
   const minStep = Number(unit?.min_step || 1);
@@ -89,9 +92,9 @@ const getRowStep = (row) => {
   return minStep;
 };
 
-const formatQtyValue = (value) => Number(value || 0).toFixed(4).replace(/\.?0+$/, '');
+const formatQtyValue = (value: string | number) => Number(value || 0).toFixed(4).replace(/\.?0+$/, '');
 
-const normalizeRowQty = (row) => {
+const normalizeRowQty = (row: PurchaseItem) => {
   const step = getRowStep(row);
   const currentQty = Number(row.qty || 0);
   if (!Number.isFinite(currentQty) || currentQty <= 0) {
@@ -106,7 +109,7 @@ const normalizeRowQty = (row) => {
   }
 };
 
-function onRowQtyBlur(row) {
+function onRowQtyBlur(row: PurchaseItem) {
   normalizeRowQty(row);
   onRowQtyInput(row);
 }
@@ -165,12 +168,12 @@ const productCatalog = computed(() => {
 });
 
 // --- Đồng bộ giá nhập, tổng tiền, số lượng cho từng dòng sản phẩm ---
-function parseMoneyInput(val) {
+function parseMoneyInput(val: string | number) {
   return Number(String(val).replace(/\D/g, '')) || 0;
 }
 
 // --- Đồng bộ giá nhập, tổng tiền, số lượng cho sản phẩm khác (manualItems & manualItemDraft) ---
-function onManualQtyInput(item) {
+function onManualQtyInput(item: ManualPurchaseItem) {
   // 🔥 chỉ detect khi user gõ
   const precision = detectManualQtyPrecision(item.qty);
 
@@ -189,14 +192,14 @@ function onManualQtyInput(item) {
   }
 }
 
-function onManualPriceInput(item) {
+function onManualPriceInput(item: ManualPurchaseItem) {
   // Khi sửa giá nhập: tính lại tổng
   const qty = Number(item.qty) || 0;
   const price = parseMoneyInput(item.price_cost);
   item.amount = qty > 0 && price > 0 ? formatter.format(qty * price) : '';
 }
 
-function onManualAmountInput(item) {
+function onManualAmountInput(item: ManualPurchaseItem) {
   // Khi sửa tổng: tính lại giá nhập
   const qty = Number(item.qty) || 0;
   const amount = parseMoneyInput(item.amount);
@@ -207,7 +210,7 @@ function onManualAmountInput(item) {
   }
 }
 
-function onRowQtyInput(row) {
+function onRowQtyInput(row: PurchaseItem) {
   // Khi sửa số lượng: giữ tổng, tính lại giá nhập
   const qty = Number(row.qty) || 0;
   const amount = parseMoneyInput(row.amount);
@@ -218,14 +221,14 @@ function onRowQtyInput(row) {
   }
 }
 
-function onRowPriceInput(row) {
+function onRowPriceInput(row: PurchaseItem) {
   // Khi sửa giá nhập: tính lại tổng
   const qty = Number(row.qty) || 0;
   const price = parseMoneyInput(row.price_cost);
   row.amount = qty > 0 && price > 0 ? formatter.format(qty * price) : '';
 }
 
-function onRowAmountInput(row) {
+function onRowAmountInput(row: PurchaseItem) {
   // Khi sửa tổng: tính lại giá nhập
   const qty = Number(row.qty) || 0;
   const amount = parseMoneyInput(row.amount);
@@ -234,6 +237,12 @@ function onRowAmountInput(row) {
   } else {
     row.price_cost = '';
   }
+}
+
+function syncAmount(row: PurchaseItem) {
+  const qty = Number(row.qty) || 0;
+  const price = parseMoneyInput(row.price_cost);
+  row.amount = qty > 0 && price > 0 ? formatter.format(Math.round(qty * price)) : '';
 }
 
 const filteredProducts = computed(() => {
@@ -251,10 +260,10 @@ const filteredProducts = computed(() => {
   }).slice(0, 80);
 });
 
-const isProductSelected = (productId) => selectedProductIds.value.includes(Number(productId));
-const isPendingSupplier = (supplierId) => String(pendingSupplierId.value) === String(supplierId);
-const getDefaultUnit = (productId) => productUnits.value.find((unit) => Number(unit.product_id) === Number(productId)) || null;
-const getUnitDisplay = (row) => rowDisplayMap.value.get(String(row.product_unit_id)) || null;
+const isProductSelected = (productId: number) => selectedProductIds.value.includes(Number(productId));
+const isPendingSupplier = (supplierId: string | number) => String(pendingSupplierId.value) === String(supplierId);
+const getDefaultUnit = (productId: number) => productUnits.value.find((unit: any) => Number(unit.product_id) === Number(productId)) || null;
+const getUnitDisplay = (row: PurchaseItem) => rowDisplayMap.value.get(String(row.product_unit_id)) || null;
 
 const manualModalHeading = computed(() => {
   if (editingManualIndex.value === null) {
@@ -278,7 +287,7 @@ const normalizeManualDraft = () => ({
   amount: ''
 });
 
-const normalizeUnitName = (value) => String(value || '').trim().toLowerCase();
+const normalizeUnitName = (value: string | null | undefined) => String(value || '').trim().toLowerCase();
 
 
 
@@ -339,12 +348,12 @@ const saveNewSupplier = async () => {
     const payload = await createInlineSupplier({ ...supplierDraft.value });
     toast.success(payload?.message || 'Đã thêm nhà cung cấp.');
     closeSupplierModal();
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(createSupplierError.value || 'Không thể thêm nhà cung cấp.');
   }
 };
 
-const openProductSelector = (rowIndex = null) => {
+const openProductSelector = (rowIndex: number | null = null) => {
   const normalizedRowIndex = typeof rowIndex === 'number' && Number.isFinite(rowIndex)
     ? rowIndex
     : null;
@@ -366,7 +375,7 @@ const closeProductSelector = () => {
   activeRowIndex.value = null;
 };
 
-const toggleProductSelection = (productId) => {
+const toggleProductSelection = (productId: number) => {
   const nextId = Number(productId);
   if (isProductSelected(nextId)) {
     selectedProductIds.value = selectedProductIds.value.filter((id) => id !== nextId);
@@ -402,7 +411,7 @@ const applySelectedProducts = () => {
   let addedCount = 0;
   let invalidCount = 0;
 
-  selectedProductIds.value.forEach((productId) => {
+  selectedProductIds.value.forEach((productId: number) => {
     const unit = getDefaultUnit(productId);
     if (!unit?.id) {
       invalidCount += 1;
@@ -429,7 +438,7 @@ const applySelectedProducts = () => {
   }
 };
 
-const openManualItemModal = (index = null) => {
+const openManualItemModal = (index: number | null = null) => {
   editingManualIndex.value = index;
 
   if (index === null || index < 0 || index >= manualItems.value.length) {
@@ -491,8 +500,8 @@ const saveManualItem = async () => {
   if (editingManualIndex.value === null || editingManualIndex.value < 0 || editingManualIndex.value >= manualItems.value.length) {
     addManualItem(normalizedItem);
   } else {
-    manualItems.value[editingManualIndex.value] = {
-      ...manualItems.value[editingManualIndex.value],
+    manualItems.value[editingManualIndex.value as number] = {
+      ...manualItems.value[editingManualIndex.value as number],
       ...normalizedItem
     };
   }
@@ -501,7 +510,7 @@ const saveManualItem = async () => {
   toast.success('Đã lưu sản phẩm khác.');
 };
 
-const validateBeforeSubmit = () => {
+const validateBeforeSubmit = (): boolean => {
   if (!Number(form.value.supplier_id || 0)) {
     toast.error('Vui lòng chọn nhà cung cấp.');
     openSupplierModal();
@@ -541,13 +550,13 @@ const submit = async () => {
 
     toast.success(payload?.message || (isEdit.value ? 'Đã cập nhật phiếu nhập hàng.' : 'Đã tạo phiếu nhập hàng.'));
     // Không chuyển hướng, giữ nguyên trang hiện tại sau khi cập nhật/tạo phiếu
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error((isEdit.value ? updateError.value : createError.value) || 'Không thể lưu phiếu nhập.');
   }
 };
 
 // --- normalizeManualQty logic từ OrderFormPage ---
-const detectManualQtyPrecision = (value) => {
+const detectManualQtyPrecision = (value: string | number | null | undefined) => {
   const rawValue = String(value ?? '').trim();
   if (!rawValue || !rawValue.includes('.')) {
     return 0;
@@ -556,25 +565,24 @@ const detectManualQtyPrecision = (value) => {
   return fractionalPart.length;
 };
 
-const getManualQtyPrecision = (item) => {
-  const storedPrecision = Number(item?.qty_precision);
-  if (Number.isInteger(item.qty_precision)) {
+const getManualQtyPrecision = (item: ManualPurchaseItem): number => {
+  if (typeof item.qty_precision === 'number' && Number.isInteger(item.qty_precision)) {
     return item.qty_precision;
   }
   return detectManualQtyPrecision(item?.qty);
 };
 
-const getManualQtyStep = (item) => 1 / (10 ** getManualQtyPrecision(item));
-const getManualQtyMin = (item) => getManualQtyStep(item);
+const getManualQtyStep = (item: ManualPurchaseItem) => 1 / (10 ** getManualQtyPrecision(item));
+const getManualQtyMin = (item: ManualPurchaseItem) => getManualQtyStep(item);
 
-const roundManualQtyByPrecision = (value, precision) => {
+const roundManualQtyByPrecision = (value: string | number, precision: number) => {
   const factor = 10 ** precision;
   return Math.round(Number(value || 0) * factor) / factor;
 };
 
-const formatManualQtyValue = (value, precision = 4) => Number(value || 0).toFixed(precision).replace(/\.?0+$/, '');
+const formatManualQtyValue = (value: string | number, precision = 4) => Number(value || 0).toFixed(precision).replace(/\.?0+$/, '');
 
-const normalizeManualQty = (item) => {
+const normalizeManualQty = (item: ManualPurchaseItem) => {
   const currentQty = Number(item.qty || 0);
   const precision = getManualQtyPrecision(item);
   const step = getManualQtyStep(item);
@@ -593,7 +601,7 @@ const normalizeManualQty = (item) => {
   item.qty = formatManualQtyValue(normalizedQty, precision);
 };
 
-function onManualQtyBlur(item) {
+function onManualQtyBlur(item: ManualPurchaseItem) {
   normalizeManualQty(item);
   onManualQtyInput(item);
 }
@@ -605,13 +613,13 @@ const initializePage = async () => {
   if (isEdit.value) {
     await loadEdit(Number(route.params.id || 0));
     // Normalize số lượng cho từng row khi load form edit
-    rows.value.forEach((row) => {
+    rows.value.forEach((row: PurchaseItem) => {
       normalizeRowQty(row);
       row.price_cost = formatMoneyInput(row.price_cost, false);
       row.amount = formatMoneyInput(row.amount, false);
     });
     // Normalize số lượng cho từng sản phẩm khác khi load form edit
-    manualItems.value.forEach((item) => {
+    manualItems.value.forEach((item: ManualPurchaseItem) => {
       normalizeManualQty(item);
       item.price_cost = formatMoneyInput(item.price_cost, false);
       item.amount = formatMoneyInput(item.amount, false);
@@ -658,7 +666,7 @@ watch(
   async () => {
     try {
       await initializePage();
-    } catch (_err) {
+    } catch (_err: unknown) {
       toast.error(bootstrapError.value || 'Không thể tải dữ liệu form phiếu nhập.');
     }
   }
@@ -668,7 +676,7 @@ onMounted(async () => {
   try {
     await initializePage();
     syncPaidAmountFromSummary();
-  } catch (_err) {
+  } catch (_err: unknown) {
     toast.error(bootstrapError.value || 'Không thể tải dữ liệu form phiếu nhập.');
   }
 });
@@ -995,21 +1003,21 @@ onMounted(async () => {
                   </label>
                   <label class="space-y-1">
                     <span class="app-label">Số lượng</span>
-                      <input v-model="manualItemDraft.qty" type="number" min="0" step="1" class="app-input text-right" @input="onManualQtyInput(manualItemDraft)" @blur="onManualQtyBlur" />
+                      <input v-model="manualItemDraft.qty" type="number" min="0" step="1" class="app-input text-right" @input="onManualQtyInput(manualItemDraft)" @blur="onManualQtyBlur(manualItemDraft)" />
                   </label>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <label class="space-y-1">
                     <span class="app-label">Giá nhập</span>
                     <div class="relative">
-                      <input v-model="manualItemDraft.price_cost" type="text" v-money-input class="app-input pr-8 text-right" @input="onManualPriceInput(manualItemDraft)" @blur="onManualPriceBlur" />
+                      <input v-model="manualItemDraft.price_cost" type="text" v-money-input class="app-input pr-8 text-right" @input="onManualPriceInput(manualItemDraft)" />
                       <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                     </div>
                   </label>
                   <label class="space-y-1">
                     <span class="app-label">Thành tiền</span>
                     <div class="relative">
-                      <input v-model="manualItemDraft.amount" type="text" v-money-input class="app-input pr-8 text-right" @input="onManualAmountInput(manualItemDraft)" @blur="onManualAmountBlur" />
+                      <input v-model="manualItemDraft.amount" type="text" v-money-input class="app-input pr-8 text-right" @input="onManualAmountInput(manualItemDraft)" />
                       <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
                     </div>
                   </label>
