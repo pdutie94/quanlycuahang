@@ -10,6 +10,11 @@ const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
   hour: '2-digit',
   minute: '2-digit'
 });
+const dateOnlyFormatter = new Intl.DateTimeFormat('vi-VN', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric'
+});
 
 export function useFormat() {
   function formatMoney(value: string | number | null | undefined): string {
@@ -21,6 +26,21 @@ export function useFormat() {
     const date = new Date(String(value).replace(' ', 'T'));
     if (Number.isNaN(date.getTime())) return '--';
     return dateFormatter.format(date);
+  }
+
+  function formatDate(value: string | Date | null | undefined): string {
+    if (!value) return '--';
+    const date = new Date(String(value).replace(' ', 'T'));
+    if (Number.isNaN(date.getTime())) return '--';
+    return dateOnlyFormatter.format(date);
+  }
+
+  function formatHistoryDateTime(value: string | Date | null | undefined): string {
+    const text = formatDateTime(value);
+    if (text === '--') {
+      return '';
+    }
+    return text.replace(/^([^,]+),\s*/, '$1, ');
   }
 
   function parseAmount(value: string | number | null | undefined): number {
@@ -93,5 +113,15 @@ export function useFormat() {
   };
 
 
-  return { formatMoney, formatDateTime, parseAmount, formatNumber, formatMoneyInput, formatMoneyInputValue, formatPriceInput };
+  return {
+    formatMoney,
+    formatDate,
+    formatDateTime,
+    formatHistoryDateTime,
+    parseAmount,
+    formatNumber,
+    formatMoneyInput,
+    formatMoneyInputValue,
+    formatPriceInput
+  };
 }

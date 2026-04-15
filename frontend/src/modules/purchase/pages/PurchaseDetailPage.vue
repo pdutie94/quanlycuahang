@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFormat } from '../../../shared/composables/useFormat';
-const { formatMoney, formatDateTime } = useFormat();
+const { formatMoney, formatDateTime, formatHistoryDateTime, formatNumber } = useFormat();
 import { computed, onMounted, ref, watch } from 'vue';
 import { Package, BanknoteArrowDown, ClipboardList, History, Pencil, Trash2, Users } from '@lucide/vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
@@ -31,19 +31,6 @@ watch(showPayment, (val) => {
 });
 const showDeleteModal = ref(false);
 
-// Đã thay thế bằng useFormat
-const numberFormatter = new Intl.NumberFormat('vi-VN');
-const formatNumber = (value: any) => {
-  const nextValue = Number(value || 0);
-  if (Number.isInteger(nextValue)) {
-    return numberFormatter.format(nextValue);
-  }
-
-  return nextValue.toLocaleString('vi-VN', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2
-  });
-};
 
 const totals = computed(() => {
   const total = Number(purchase.value?.total_amount || 0);
@@ -58,20 +45,7 @@ const noteMeta = computed(() => {
   return { note: raw, method: '' };
 });
 
-const historyDateFormatter = new Intl.DateTimeFormat('vi-VN', {
-  hour: '2-digit',
-  minute: '2-digit',
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric'
-});
-
-const formatHistoryDate = (value: any) => {
-  if (!value) return '';
-  const date = new Date(String(value).replace(' ', 'T'));
-  if (Number.isNaN(date.getTime())) return String(value);
-  return historyDateFormatter.format(date).replace(/^([^,]+),\s*/, '$1, ');
-};
+const formatHistoryDate = (value: any) => formatHistoryDateTime(value);
 
 const loadPage = async () => {
   try {

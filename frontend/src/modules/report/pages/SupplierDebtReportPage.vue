@@ -5,7 +5,7 @@ import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
 import ReportNavButtons from '../components/ReportNavButtons.vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
-import { computed, onMounted, reactive, ref } from 'vue';
+import { reactive } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { useSupplierDebtReport } from '../composables/useSupplierDebtReport';
 
@@ -13,23 +13,26 @@ const toast = useToast();
 
 const { rows, summary, loading, error, load, meta } = useSupplierDebtReport();
 const form = reactive({ start_date: '', end_date: '', q: '', show_all: false });
-const hasLoadedOnce = ref(false);
-const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value);
+
+const buildParams = (page: number) => ({
+  start_date: form.start_date,
+  end_date: form.end_date,
+  q: form.q,
+  show_all: form.show_all ? '1' : '0',
+  page
+});
 
 const {
   hasMore,
   loadingMore,
+  isInitialLoading,
+  infiniteSentinel,
+  refresh
 } = useInfiniteList({
   itemsRef: rows,
   metaRef: meta,
   loadingRef: loading,
-  fetchPage: (page: number) => load({
-    start_date: form.start_date,
-    end_date: form.end_date,
-    q: form.q,
-    show_all: form.show_all ? '1' : '0',
-    page
-  }),
+  fetchPage: (page: number) => load(buildParams(page)),
   onError: () => {
     toast.error(error.value || 'Không thể tải báo cáo công nợ nhà cung cấp.');
   }
@@ -38,13 +41,7 @@ const {
 
 const loadPage = async () => {
   try {
-    await load({
-      start_date: form.start_date,
-      end_date: form.end_date,
-      q: form.q,
-      show_all: form.show_all ? '1' : '0'
-    });
-    hasLoadedOnce.value = true;
+    await refresh();
   } catch (_err: unknown) {
     toast.error(error.value || 'Không thể tải báo cáo công nợ nhà cung cấp.');
   }
@@ -57,10 +54,6 @@ const resetFilter = async () => {
   form.show_all = false;
   await loadPage();
 };
-
-onMounted(async () => {
-  await loadPage();
-});
 </script>
 
 <template>

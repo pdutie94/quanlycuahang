@@ -37,7 +37,7 @@ const {
 });
 
 import { useFormat } from '../../../shared/composables/useFormat';
-const { formatMoney, formatDateTime, parseAmount } = useFormat();
+const { formatMoney, formatDate, formatDateTime, parseAmount } = useFormat();
 
 const formatPurgeDeadline = (value: any) => {
   if (!value) {
@@ -51,11 +51,7 @@ const formatPurgeDeadline = (value: any) => {
 
   date.setDate(date.getDate() + 7);
 
-  return new Intl.DateTimeFormat('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  }).format(date);
+  return formatDate(date);
 };
 
 const selectedSet = computed(() => new Set(selectedIds.value.map((id) => Number(id)).filter((id) => id > 0)));

@@ -46,25 +46,7 @@ const showDeleteOrderModal = ref(false);
 
 const orderId = computed(() => Number(route.params.id || 0));
 
-const numberFormatter = new Intl.NumberFormat('vi-VN');
-const { formatMoney, formatDateTime, parseAmount } = useFormat();
-const formatMoneyInput = (value: any, allowEmpty = true) => {
-  const amount = parseAmount(value);
-  if (amount <= 0) {
-    return allowEmpty ? '' : '0';
-  }
-
-  return numberFormatter.format(amount);
-};
-
-const formatMoneyInputValue = (rawValue: any) => {
-  const digits = String(rawValue ?? '').replace(/[^0-9]/g, '');
-  if (!digits) {
-    return '';
-  }
-
-  return numberFormatter.format(Number(digits));
-};
+const { formatMoney, formatDateTime, formatHistoryDateTime, parseAmount, formatNumber, formatMoneyInput, formatMoneyInputValue } = useFormat();
 
 const isDecimalShorthand = (value: any) => {
   const str = String(value ?? '').trim();
@@ -129,20 +111,8 @@ const onPaymentAmountBlur = (event: Event) => {
   }
 
   if (finalNum !== undefined) {
-    paymentAmount.value = numberFormatter.format(Math.round(finalNum));
+    paymentAmount.value = formatMoneyInput(Math.round(finalNum), false);
   }
-};
-
-const formatNumber = (value: any) => {
-  const nextValue = Number(value || 0);
-  if (Number.isInteger(nextValue)) {
-    return numberFormatter.format(nextValue);
-  }
-
-  return nextValue.toLocaleString('vi-VN', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2
-  });
 };
 
 // formatDateTime đã thay bằng useFormat
@@ -185,26 +155,7 @@ const noteMeta = computed(() => {
   };
 });
 
-const historyDateFormatter = new Intl.DateTimeFormat('vi-VN', {
-  hour: '2-digit',
-  minute: '2-digit',
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric'
-});
-
-const formatHistoryDate = (value: any) => {
-  if (!value) {
-    return '';
-  }
-
-  const date = new Date(String(value).replace(' ', 'T'));
-  if (Number.isNaN(date.getTime())) {
-    return String(value);
-  }
-
-  return historyDateFormatter.format(date).replace(/^([^,]+),\s*/, '$1, ');
-};
+const formatHistoryDate = (value: any) => formatHistoryDateTime(value);
 
 const loadOrder = async () => {
   if (orderId.value <= 0) {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFormat } from '../../../shared/composables/useFormat';
-const { formatMoney } = useFormat();
+const { formatMoney, formatNumber } = useFormat();
 import { computed, ref, watch } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import { Check } from '@lucide/vue';
@@ -66,8 +66,6 @@ const handleApplyCategory = (id: string | number) => {
   showCategoryModal.value = false;
 };
 
-const formatQty = (value: any) => Number(value || 0).toLocaleString('vi-VN');
-
 const hasSellPrice = (item: Record<string, any>) => {
   return Number(item.display_price_sell || 0) > 0;
 };
@@ -97,7 +95,7 @@ const displayItems = computed(() =>
       item,
       status,
       categoryName: getCategoryName(item),
-      inventoryText: formatQty(item.inventory_qty_base || item.qty_base),
+      inventoryText: formatNumber(item.inventory_qty_base || item.qty_base),
       hasSellPrice: hasSellPrice(item),
       primaryUnit
     };
