@@ -1,13 +1,12 @@
 <?php
 
-class PurchaseRepository
+class PurchaseRepository extends BaseRepository
 {
     public static function countFiltered(array $filters): int
     {
-        $pdo = Database::getInstance();
         $query = self::buildListQuery($filters);
 
-        $stmt = $pdo->prepare('SELECT COUNT(*) FROM purchases p JOIN suppliers s ON p.supplier_id = s.id ' . $query['whereSql']);
+        $stmt = self::db()->prepare('SELECT COUNT(*) FROM purchases p JOIN suppliers s ON p.supplier_id = s.id ' . $query['whereSql']);
         $stmt->execute($query['params']);
 
         return (int) $stmt->fetchColumn();
@@ -15,7 +14,6 @@ class PurchaseRepository
 
     public static function paginateFiltered(array $filters, int $limit, int $offset): array
     {
-        $pdo = Database::getInstance();
         $query = self::buildListQuery($filters);
 
         $sql = 'SELECT p.*, s.name AS supplier_name, s.phone AS supplier_phone
@@ -25,7 +23,7 @@ class PurchaseRepository
                 ORDER BY p.purchase_date DESC, p.id DESC
                 LIMIT ? OFFSET ?';
 
-        $stmt = $pdo->prepare($sql);
+        $stmt = self::db()->prepare($sql);
         foreach ($query['params'] as $index => $value) {
             $stmt->bindValue($index + 1, $value);
         }
@@ -40,24 +38,21 @@ class PurchaseRepository
 
     public static function findById($id)
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT * FROM purchases WHERE id = ? LIMIT 1');
+        $stmt = self::db()->prepare('SELECT * FROM purchases WHERE id = ? LIMIT 1');
         $stmt->execute([(int) $id]);
         return $stmt->fetch();
     }
 
     public static function findByIdForUpdate($id)
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT * FROM purchases WHERE id = ? FOR UPDATE');
+        $stmt = self::db()->prepare('SELECT * FROM purchases WHERE id = ? FOR UPDATE');
         $stmt->execute([(int) $id]);
         return $stmt->fetch();
     }
 
     public static function findWithSupplierById($id)
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT p.*, s.name AS supplier_name, s.phone AS supplier_phone, s.address AS supplier_address
+        $stmt = self::db()->prepare('SELECT p.*, s.name AS supplier_name, s.phone AS supplier_phone, s.address AS supplier_address
             FROM purchases p
             JOIN suppliers s ON p.supplier_id = s.id
             WHERE p.id = ? LIMIT 1');
@@ -67,8 +62,7 @@ class PurchaseRepository
 
     public static function findItemsByPurchaseId($purchaseId): array
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT pi.*, pr.name AS product_name, u.name AS unit_name
+        $stmt = self::db()->prepare('SELECT pi.*, pr.name AS product_name, u.name AS unit_name, pu.allow_fraction, pu.min_step
             FROM purchase_items pi
             JOIN products pr ON pi.product_id = pr.id
             JOIN product_units pu ON pi.product_unit_id = pu.id
@@ -90,16 +84,14 @@ class PurchaseRepository
 
     public static function findPaymentsByPurchaseId($purchaseId): array
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT * FROM payments WHERE type = \'supplier\' AND purchase_id = ? ORDER BY paid_at DESC, id DESC');
+        $stmt = self::db()->prepare('SELECT * FROM payments WHERE type = \'supplier\' AND purchase_id = ? ORDER BY paid_at DESC, id DESC');
         $stmt->execute([(int) $purchaseId]);
         return $stmt->fetchAll();
     }
 
     public static function findPurchaseUnitsForCreate(): array
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->query('SELECT pu.id, pu.product_id, pu.factor, pu.price_cost, pu.allow_fraction, pu.min_step, p.name AS product_name, p.code AS product_code, p.image_path AS product_image_path, u.name AS unit_name
+        $stmt = self::db()->query('SELECT pu.id, pu.product_id, pu.factor, pu.price_cost, pu.allow_fraction, pu.min_step, p.name AS product_name, p.code AS product_code, p.image_path AS product_image_path, u.name AS unit_name
             FROM product_units pu
             JOIN products p ON pu.product_id = p.id
             JOIN units u ON pu.unit_id = u.id
@@ -110,8 +102,7 @@ class PurchaseRepository
 
     public static function findPurchaseUnitsForEdit(): array
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->query('SELECT pu.id, pu.product_id, pu.factor, pu.price_cost, p.name AS product_name, p.code AS product_code, u.name AS unit_name
+        $stmt = self::db()->query('SELECT pu.id, pu.product_id, pu.factor, pu.price_cost, p.name AS product_name, p.code AS product_code, u.name AS unit_name
             FROM product_units pu
             JOIN products p ON pu.product_id = p.id
             JOIN units u ON pu.unit_id = u.id
@@ -122,21 +113,19 @@ class PurchaseRepository
 
     public static function findProductUnitForPurchase($productUnitId, bool $excludeDeletedProducts = true)
     {
-        $pdo = Database::getInstance();
         $sql = 'SELECT pu.*, p.id AS p_id FROM product_units pu JOIN products p ON pu.product_id = p.id WHERE pu.id = ?';
         if ($excludeDeletedProducts) {
             $sql .= ' AND p.deleted_at IS NULL';
         }
 
-        $stmt = $pdo->prepare($sql);
+        $stmt = self::db()->prepare($sql);
         $stmt->execute([(int) $productUnitId]);
         return $stmt->fetch();
     }
 
     public static function updatePurchaseById(int $id, array $data)
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('UPDATE purchases SET supplier_id = ?, purchase_date = ?, total_amount = ?, paid_amount = ?, status = ?, note = ? WHERE id = ?');
+        $stmt = self::db()->prepare('UPDATE purchases SET supplier_id = ?, purchase_date = ?, total_amount = ?, paid_amount = ?, status = ?, note = ? WHERE id = ?');
         $stmt->execute([
             $data['supplier_id'],
             $data['purchase_date'],
@@ -150,42 +139,37 @@ class PurchaseRepository
 
     public static function deleteItemsByPurchaseId(int $purchaseId)
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('DELETE FROM purchase_items WHERE purchase_id = ?');
+        $stmt = self::db()->prepare('DELETE FROM purchase_items WHERE purchase_id = ?');
         $stmt->execute([$purchaseId]);
     }
 
     public static function deleteManualItemsByPurchaseId(int $purchaseId)
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('DELETE FROM purchase_manual_items WHERE purchase_id = ?');
+        $stmt = self::db()->prepare('DELETE FROM purchase_manual_items WHERE purchase_id = ?');
         $stmt->execute([$purchaseId]);
     }
 
     public static function deletePaymentsByPurchaseId(int $purchaseId)
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('DELETE FROM payments WHERE type = ? AND purchase_id = ?');
+        $stmt = self::db()->prepare('DELETE FROM payments WHERE type = ? AND purchase_id = ?');
         $stmt->execute(['supplier', $purchaseId]);
     }
 
     public static function deleteLogsByPurchaseId(int $purchaseId)
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('DELETE FROM purchase_logs WHERE purchase_id = ?');
+        $stmt = self::db()->prepare('DELETE FROM purchase_logs WHERE purchase_id = ?');
         $stmt->execute([$purchaseId]);
     }
 
     public static function deletePurchaseById(int $purchaseId)
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('DELETE FROM purchases WHERE id = ?');
+        $stmt = self::db()->prepare('DELETE FROM purchases WHERE id = ?');
         $stmt->execute([$purchaseId]);
     }
 
     public static function updateProductUnitCost(int $unitId, float $priceCost)
     {
-        $pdo = Database::getInstance();
+        $pdo = self::db();
         // Update price_cost
         $stmt = $pdo->prepare('UPDATE product_units SET price_cost = ? WHERE id = ?');
         $stmt->execute([$priceCost, $unitId]);

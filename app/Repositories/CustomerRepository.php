@@ -1,10 +1,9 @@
 <?php
 
-class CustomerRepository
+class CustomerRepository extends BaseRepository
 {
     public static function countFiltered(array $filters): int
     {
-        $pdo = Database::getInstance();
         $query = self::buildListQuery($filters);
 
         $sql = 'SELECT COUNT(*) FROM (
@@ -16,16 +15,14 @@ class CustomerRepository
                 ' . $query['havingSql'] . '
             ) t';
 
-        $stmt = $pdo->prepare($sql);
+        $stmt = self::db()->prepare($sql);
         $stmt->execute($query['params']);
         return (int) $stmt->fetchColumn();
     }
 
     public static function paginateFiltered(array $filters, int $limit, int $offset): array
     {
-        $pdo = Database::getInstance();
         $query = self::buildListQuery($filters);
-
 
         $sql = 'SELECT c.*,
             COALESCE(SUM(CASE WHEN o.deleted_at IS NULL AND (o.order_status IS NULL OR o.order_status <> "cancelled") THEN o.total_amount ELSE 0 END), 0) AS total_amount,
@@ -39,7 +36,7 @@ class CustomerRepository
             ORDER BY c.name
             LIMIT ? OFFSET ?';
 
-        $stmt = $pdo->prepare($sql);
+        $stmt = self::db()->prepare($sql);
         foreach ($query['params'] as $index => $value) {
             $stmt->bindValue($index + 1, $value);
         }
@@ -53,8 +50,7 @@ class CustomerRepository
 
     public static function findOrdersByCustomerId(int $customerId): array
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT o.*, (o.total_amount - o.paid_amount) AS debt_amount,
+        $stmt = self::db()->prepare('SELECT o.*, (o.total_amount - o.paid_amount) AS debt_amount,
             (
                 SELECT COALESCE(SUM(count_items), 0) FROM (
                     SELECT COUNT(*) AS count_items FROM order_items oi WHERE oi.order_id = o.id
@@ -73,8 +69,7 @@ class CustomerRepository
 
     public static function findDebtOrdersByCustomerId(int $customerId): array
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT o.*, (o.total_amount - o.paid_amount) AS debt_amount,
+        $stmt = self::db()->prepare('SELECT o.*, (o.total_amount - o.paid_amount) AS debt_amount,
             c.name AS customer_name,
             c.phone AS customer_phone,
             c.address AS customer_address
@@ -91,8 +86,7 @@ class CustomerRepository
 
     public static function updateById(int $id, array $data)
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('UPDATE customers SET name = ?, phone = ?, address = ? WHERE id = ? AND deleted_at IS NULL');
+        $stmt = self::db()->prepare('UPDATE customers SET name = ?, phone = ?, address = ? WHERE id = ? AND deleted_at IS NULL');
         $stmt->execute([
             $data['name'],
             $data['phone'],
@@ -103,8 +97,7 @@ class CustomerRepository
 
     public static function findOrderCustomerByOrderId(int $orderId)
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT id, customer_id FROM orders WHERE id = ? LIMIT 1');
+        $stmt = self::db()->prepare('SELECT id, customer_id FROM orders WHERE id = ? LIMIT 1');
         $stmt->execute([$orderId]);
         return $stmt->fetch();
     }

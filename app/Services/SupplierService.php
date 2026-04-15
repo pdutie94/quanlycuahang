@@ -5,37 +5,40 @@ class SupplierService
     public static function getSupplierListData(array $queryParams, int $perPage = 20): array
     {
         $keyword = isset($queryParams['q']) ? trim((string) $queryParams['q']) : '';
-        $page = isset($queryParams['page']) ? (int) $queryParams['page'] : 1;
-        if ($page < 1) {
-            $page = 1;
-        }
+        $page = ServiceHelper::normalizePage(isset($queryParams['page']) ? $queryParams['page'] : 1);
 
         $suppliers = [];
         $totalPages = 1;
 
         if (class_exists('Supplier')) {
             $totalCount = $keyword !== '' ? Supplier::countByKeyword($keyword) : Supplier::countAll();
-            $totalPages = (int) ceil($totalCount / $perPage);
-            if ($totalPages < 1) {
-                $totalPages = 1;
-            }
-            if ($page > $totalPages) {
-                $page = $totalPages;
-            }
-            $offset = ($page - 1) * $perPage;
+            $pagination = ServiceHelper::resolvePagination($page, $totalCount, $perPage);
+            $page = $pagination['page'];
+            $totalPages = $pagination['totalPages'];
+            $offset = $pagination['offset'];
             $suppliers = $keyword !== ''
                 ? Supplier::searchPaginate($keyword, $perPage, $offset)
                 : Supplier::paginate($perPage, $offset);
 
-            // Tổng hợp công nợ cho từng supplier
-            $pdo = Database::getInstance();
+            $supplierIds = [];
+            foreach ($suppliers as $supplier) {
+                $supplierId = isset($supplier['id']) ? (int) $supplier['id'] : 0;
+                if ($supplierId > 0) {
+                    $supplierIds[] = $supplierId;
+                }
+            }
+            $debtMap = SupplierRepository::getPurchaseTotalsBySupplierIds($supplierIds);
+
             foreach ($suppliers as &$supplier) {
-                $stmt = $pdo->prepare('SELECT COALESCE(SUM(total_amount),0) AS total_amount, COALESCE(SUM(paid_amount),0) AS paid_amount FROM purchases WHERE supplier_id = ?');
-                $stmt->execute([$supplier['id']]);
-                $row = $stmt->fetch();
-                $supplier['total_amount'] = isset($row['total_amount']) ? (float)$row['total_amount'] : 0.0;
-                $supplier['paid_amount'] = isset($row['paid_amount']) ? (float)$row['paid_amount'] : 0.0;
-                $supplier['debt_amount'] = $supplier['total_amount'] - $supplier['paid_amount'];
+                $supplierId = isset($supplier['id']) ? (int) $supplier['id'] : 0;
+                $debtMeta = isset($debtMap[$supplierId]) ? $debtMap[$supplierId] : [
+                    'total_amount' => 0.0,
+                    'paid_amount' => 0.0,
+                    'debt_amount' => 0.0,
+                ];
+                $supplier['total_amount'] = (float) $debtMeta['total_amount'];
+                $supplier['paid_amount'] = (float) $debtMeta['paid_amount'];
+                $supplier['debt_amount'] = (float) $debtMeta['debt_amount'];
             }
             unset($supplier);
         }
@@ -118,9 +121,10 @@ class SupplierService
 
     public static function createSupplier(array $payload): array
     {
-        $name = isset($payload['name']) ? trim((string) $payload['name']) : '';
-        $phone = isset($payload['phone']) ? trim((string) $payload['phone']) : '';
-        $address = isset($payload['address']) ? trim((string) $payload['address']) : '';
+        $contact = ServiceHelper::sanitizeContactFields($payload);
+        $name = $contact['name'];
+        $phone = $contact['phone'];
+        $address = $contact['address'];
 
         if ($name === '') {
             return [
@@ -153,9 +157,10 @@ class SupplierService
             return ['success' => false, 'redirect' => 'supplier'];
         }
 
-        $name = isset($payload['name']) ? trim((string) $payload['name']) : '';
-        $phone = isset($payload['phone']) ? trim((string) $payload['phone']) : '';
-        $address = isset($payload['address']) ? trim((string) $payload['address']) : '';
+        $contact = ServiceHelper::sanitizeContactFields($payload);
+        $name = $contact['name'];
+        $phone = $contact['phone'];
+        $address = $contact['address'];
 
         if ($name === '' || !class_exists('Supplier')) {
             return [

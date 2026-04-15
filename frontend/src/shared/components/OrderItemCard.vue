@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { ClipboardList, Clock, Eye, X } from '@lucide/vue';
 import { fetchOrderPreview } from '../../modules/order/services/order.api';
+import { useFormat } from '../composables/useFormat';
 
 const props = defineProps({
   order: {
@@ -32,26 +33,13 @@ const props = defineProps({
 });
 
 const numberFormatter = new Intl.NumberFormat('vi-VN');
+const { formatDateTime: sharedFormatDateTime } = useFormat();
 
 const formatMoney = (amount: string | number | null | undefined) => `${numberFormatter.format(Number(amount || 0))} đ`;
 
 const formatDateTime = (value: string | Date | null | undefined) => {
-  if (!value) {
-    return '';
-  }
-
-  const date = new Date(String(value).replace(' ', 'T'));
-  if (Number.isNaN(date.getTime())) {
-    return '';
-  }
-
-  return new Intl.DateTimeFormat('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  }).format(date);
+  const text = sharedFormatDateTime(value);
+  return text === '--' ? '' : text;
 };
 
 const totalAmount = computed(() => Number(props.order?.total_amount || 0));

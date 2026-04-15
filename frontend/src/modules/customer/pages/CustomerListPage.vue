@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import CustomerItemCard from '../../../shared/components/CustomerItemCard.vue';
-import { computed, ref } from 'vue';
+import { computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useCustomers } from '../composables/useCustomers';
 import { useToast } from '../../../shared/composables/useToast';
 import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
+import { useUrlFilters } from '../../../shared/composables/useUrlFilters';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 
-const keyword = ref('');
-const debtStatus = ref('');
+const route = useRoute();
+const toast = useToast();
+
+const { filters, applyFilters, clearFilters } = useUrlFilters({
+  q: { default: '' },
+  debt_status: { default: '' }
+});
 
 const { items, meta, loading, error, load } = useCustomers();
-const toast = useToast();
 
 const {
   hasMore,
@@ -24,10 +30,11 @@ const {
   itemsRef: items,
   metaRef: meta,
   loadingRef: loading,
+  autoLoad: false,
   fetchPage: (page: number) =>
     load({
-      q: keyword.value,
-      debt_status: debtStatus.value,
+      q: filters.value.q,
+      debt_status: filters.value.debt_status,
       page
     }),
   onError: () => {
@@ -35,51 +42,46 @@ const {
   }
 });
 
-const applySearch = async () => {
-  await refresh();
-};
+// Watch for URL changes to refresh list
+watch(
+  () => route.query,
+  async () => {
+    await refresh();
+  },
+  { immediate: true }
+);
 
-const applyDebtStatus = async (value: string) => {
-  debtStatus.value = value;
-  await refresh();
-};
-
-const hasAnyFilter = computed(() => debtStatus.value !== '');
-
-const clearFilters = async () => {
-  debtStatus.value = '';
-  await refresh();
-};
+const hasAnyFilter = computed(() => filters.value.debt_status !== '');
 </script>
 
 <template>
   <section class="space-y-3">
     <ListHeaderBar
-      v-model="keyword"
+      v-model="filters.q"
       title="Khách hàng"
       subtitle="Quản lý danh sách khách hàng và công nợ."
       :create-to="{ name: 'customers.create' }"
       create-label="Thêm khách hàng"
       search-placeholder="Tìm kiếm theo tên, SĐT, địa chỉ..."
       chips-class="mt-2 flex items-center gap-2 overflow-x-auto text-sm"
-      @search="applySearch"
+      @search="applyFilters({ q: filters.q })"
     >
       <template #chips>
         <button
           type="button"
           class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium"
-          :class="debtStatus === 'debt' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-200 bg-white text-slate-700'"
+          :class="filters.debt_status === 'debt' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-200 bg-white text-slate-700'"
           :disabled="loading"
-          @click="applyDebtStatus('debt')"
+          @click="applyFilters({ debt_status: 'debt' })"
         >
           Còn nợ
         </button>
         <button
           type="button"
           class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium"
-          :class="debtStatus === 'nodebt' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-200 bg-white text-slate-700'"
+          :class="filters.debt_status === 'nodebt' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-200 bg-white text-slate-700'"
           :disabled="loading"
-          @click="applyDebtStatus('nodebt')"
+          @click="applyFilters({ debt_status: 'nodebt' })"
         >
           Không nợ
         </button>

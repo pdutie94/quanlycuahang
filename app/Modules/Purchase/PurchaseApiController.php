@@ -65,7 +65,7 @@ class PurchaseApiController
             );
         }
 
-        $purchaseId = $this->extractIdFromMessage(isset($result['message']) ? (string) $result['message'] : '');
+        $purchaseId = isset($result['purchaseId']) ? (int) $result['purchaseId'] : 0;
         $purchase = $purchaseId > 0 ? \PurchaseRepository::findWithSupplierById($purchaseId) : null;
 
         return ApiResponse::success($response, [
@@ -166,18 +166,5 @@ class PurchaseApiController
         }
 
         return $body;
-    }
-
-    private function extractIdFromMessage(string $message): int
-    {
-        if ($message === '') {
-            return 0;
-        }
-
-        if (!preg_match('/#(\d+)/', $message, $matches)) {
-            return 0;
-        }
-
-        return isset($matches[1]) ? (int) $matches[1] : 0;
     }
 }

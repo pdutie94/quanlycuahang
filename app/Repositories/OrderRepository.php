@@ -1,14 +1,13 @@
 <?php
 
-class OrderRepository
+class OrderRepository extends BaseRepository
 {
     public static function countFiltered(array $filters): int
     {
         $query = self::buildListQuery($filters);
 
-        $pdo = Database::getInstance();
         $sql = 'SELECT COUNT(*) FROM orders o LEFT JOIN customers c ON o.customer_id = c.id ' . $query['whereSql'];
-        $stmt = $pdo->prepare($sql);
+        $stmt = self::db()->prepare($sql);
         $stmt->execute($query['params']);
 
         return (int) $stmt->fetchColumn();
@@ -16,41 +15,15 @@ class OrderRepository
 
     public static function paginateFiltered(array $filters, int $limit, int $offset): array
     {
-        $query = self::buildListQuery($filters);
-
-        $pdo = Database::getInstance();
-        $sql = 'SELECT o.*, c.name AS customer_name, c.phone AS customer_phone, COALESCE(ic.items_count, 0) AS items_count
-                FROM orders o
-                LEFT JOIN customers c ON o.customer_id = c.id
-                LEFT JOIN (
-                    SELECT order_id, SUM(count_items) AS items_count
-                    FROM (
-                        SELECT order_id, COUNT(*) AS count_items
-                        FROM order_items
-                        GROUP BY order_id
-                        UNION ALL
-                        SELECT order_id, COUNT(*) AS count_items
-                        FROM order_manual_items
-                        GROUP BY order_id
-                    ) t
-                    GROUP BY order_id
-                ) ic ON ic.order_id = o.id
-                ' . $query['whereSql'] . '
-                ORDER BY o.order_date DESC, o.id DESC
-                LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($query['params']);
-
-        return $stmt->fetchAll();
+        return self::paginateByFilters($filters, false, $limit, $offset);
     }
 
     public static function countDeletedFiltered(array $filters): int
     {
         $query = self::buildListQuery($filters, true);
 
-        $pdo = Database::getInstance();
         $sql = 'SELECT COUNT(*) FROM orders o LEFT JOIN customers c ON o.customer_id = c.id ' . $query['whereSql'];
-        $stmt = $pdo->prepare($sql);
+        $stmt = self::db()->prepare($sql);
         $stmt->execute($query['params']);
 
         return (int) $stmt->fetchColumn();
@@ -58,10 +31,23 @@ class OrderRepository
 
     public static function paginateDeletedFiltered(array $filters, int $limit, int $offset): array
     {
-        $query = self::buildListQuery($filters, true);
+        return self::paginateByFilters($filters, true, $limit, $offset);
+    }
 
-        $pdo = Database::getInstance();
-        $sql = 'SELECT o.*, c.name AS customer_name, c.phone AS customer_phone, COALESCE(ic.items_count, 0) AS items_count
+    private static function paginateByFilters(array $filters, bool $deletedOnly, int $limit, int $offset): array
+    {
+        $query = self::buildListQuery($filters, $deletedOnly);
+        $orderBy = $deletedOnly ? 'o.deleted_at DESC, o.id DESC' : 'o.order_date DESC, o.id DESC';
+        $sql = self::buildListSelectSql() . ' ' . $query['whereSql'] . ' ORDER BY ' . $orderBy . ' LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;
+        $stmt = self::db()->prepare($sql);
+        $stmt->execute($query['params']);
+
+        return $stmt->fetchAll();
+    }
+
+    private static function buildListSelectSql(): string
+    {
+        return 'SELECT o.*, c.name AS customer_name, c.phone AS customer_phone, COALESCE(ic.items_count, 0) AS items_count
                 FROM orders o
                 LEFT JOIN customers c ON o.customer_id = c.id
                 LEFT JOIN (
@@ -76,14 +62,7 @@ class OrderRepository
                         GROUP BY order_id
                     ) t
                     GROUP BY order_id
-                ) ic ON ic.order_id = o.id
-                ' . $query['whereSql'] . '
-                ORDER BY o.deleted_at DESC, o.id DESC
-                LIMIT ' . (int) $limit . ' OFFSET ' . (int) $offset;
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($query['params']);
-
-        return $stmt->fetchAll();
+                ) ic ON ic.order_id = o.id';
     }
 
     public static function findActiveById($id)
@@ -93,11 +72,7 @@ class OrderRepository
             return null;
         }
 
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT * FROM orders WHERE id = ? AND deleted_at IS NULL');
-        $stmt->execute([$id]);
-
-        return $stmt->fetch();
+        return parent::findActiveRecordById('orders', $id);
     }
 
     public static function findActiveWithCustomer($id)
@@ -107,8 +82,7 @@ class OrderRepository
             return null;
         }
 
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT o.*, c.name AS customer_name, c.phone AS customer_phone, c.address AS customer_address
+        $stmt = self::db()->prepare('SELECT o.*, c.name AS customer_name, c.phone AS customer_phone, c.address AS customer_address
             FROM orders o
             LEFT JOIN customers c ON o.customer_id = c.id
             WHERE o.id = ? AND o.deleted_at IS NULL');
@@ -124,8 +98,7 @@ class OrderRepository
             return [];
         }
 
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT oi.*, p.name AS product_name, u.name AS unit_name
+        $stmt = self::db()->prepare('SELECT oi.*, p.name AS product_name, u.name AS unit_name
             FROM order_items oi
             JOIN products p ON oi.product_id = p.id
             JOIN product_units pu ON oi.product_unit_id = pu.id
@@ -144,8 +117,7 @@ class OrderRepository
             return [];
         }
 
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare("
+        $stmt = self::db()->prepare("
             SELECT 'item' AS type, oi.id, oi.product_id, oi.product_unit_id, oi.qty, oi.qty_base, oi.real_weight, oi.price_sell, oi.price_cost, oi.amount,
                    p.name AS product_name, p.image_path AS product_image_path, u.name AS unit_name, pu.price_sell AS current_price_sell,
                    NULL AS paid_at, NULL AS paid_amount, NULL AS payment_note
@@ -169,8 +141,7 @@ class OrderRepository
 
     public static function findAvailableProductUnits()
     {
-        $pdo = Database::getInstance();
-        $stmt = $pdo->query('SELECT pu.id, pu.product_id, pu.factor, pu.price_sell, pu.price_cost, pu.allow_fraction, pu.min_step, p.name AS product_name, p.image_path AS product_image_path, u.name AS unit_name
+        $stmt = self::db()->query('SELECT pu.id, pu.product_id, pu.factor, pu.price_sell, pu.price_cost, pu.allow_fraction, pu.min_step, p.name AS product_name, p.image_path AS product_image_path, u.name AS unit_name
             FROM product_units pu
             JOIN products p ON pu.product_id = p.id
             JOIN units u ON pu.unit_id = u.id
@@ -180,20 +151,6 @@ class OrderRepository
         return $stmt->fetchAll();
     }
 
-    public static function findDeletedById($id)
-    {
-        $id = (int) $id;
-        if ($id <= 0) {
-            return null;
-        }
-
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT * FROM orders WHERE id = ? AND deleted_at IS NOT NULL');
-        $stmt->execute([$id]);
-
-        return $stmt->fetch();
-    }
-
     public static function findWithCustomer($id)
     {
         $id = (int) $id;
@@ -201,8 +158,7 @@ class OrderRepository
             return null;
         }
 
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT o.*, c.name AS customer_name, c.phone AS customer_phone, c.address AS customer_address
+        $stmt = self::db()->prepare('SELECT o.*, c.name AS customer_name, c.phone AS customer_phone, c.address AS customer_address
             FROM orders o
             LEFT JOIN customers c ON o.customer_id = c.id
             WHERE o.id = ?');
@@ -217,21 +173,7 @@ class OrderRepository
             return null;
         }
 
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT * FROM orders WHERE id = ?');
-        $stmt->execute([$id]);
-        return $stmt->fetch();
-    }
-
-    public static function findForPayment($id)
-    {
-        $id = (int) $id;
-        if ($id <= 0) {
-            return null;
-        }
-
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare('SELECT * FROM orders WHERE id = ?');
+        $stmt = self::db()->prepare('SELECT * FROM orders WHERE id = ?');
         $stmt->execute([$id]);
         return $stmt->fetch();
     }

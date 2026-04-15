@@ -97,9 +97,10 @@ class CustomerService
 
     public static function createCustomer(array $payload): array
     {
-        $name = isset($payload['name']) ? trim((string) $payload['name']) : '';
-        $phone = isset($payload['phone']) ? trim((string) $payload['phone']) : '';
-        $address = isset($payload['address']) ? trim((string) $payload['address']) : '';
+        $contact = ServiceHelper::sanitizeContactFields($payload);
+        $name = $contact['name'];
+        $phone = $contact['phone'];
+        $address = $contact['address'];
 
         if ($name === '') {
             return [
@@ -136,9 +137,10 @@ class CustomerService
             return ['success' => false, 'redirect' => 'customer'];
         }
 
-        $name = isset($payload['name']) ? trim((string) $payload['name']) : '';
-        $phone = isset($payload['phone']) ? trim((string) $payload['phone']) : '';
-        $address = isset($payload['address']) ? trim((string) $payload['address']) : '';
+        $contact = ServiceHelper::sanitizeContactFields($payload);
+        $name = $contact['name'];
+        $phone = $contact['phone'];
+        $address = $contact['address'];
 
         if ($name === '') {
             return [
@@ -332,10 +334,7 @@ class CustomerService
             $debtStatus = '';
         }
 
-        $page = isset($queryParams['page']) ? (int) $queryParams['page'] : 1;
-        if ($page < 1) {
-            $page = 1;
-        }
+        $page = ServiceHelper::normalizePage(isset($queryParams['page']) ? $queryParams['page'] : 1);
 
         return [
             'keyword' => $keyword,
@@ -346,19 +345,6 @@ class CustomerService
 
     private static function resolvePagination(int $page, int $totalCount, int $perPage): array
     {
-        $totalPages = (int) ceil($totalCount / $perPage);
-        if ($totalPages < 1) {
-            $totalPages = 1;
-        }
-        if ($page > $totalPages) {
-            $page = $totalPages;
-        }
-
-        return [
-            'page' => $page,
-            'perPage' => $perPage,
-            'totalPages' => $totalPages,
-            'offset' => ($page - 1) * $perPage,
-        ];
+        return ServiceHelper::resolvePagination($page, $totalCount, $perPage);
     }
 }

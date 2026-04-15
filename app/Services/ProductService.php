@@ -182,10 +182,7 @@ class ProductService
             $categoryId = null;
         }
 
-        $page = isset($queryParams['page']) ? (int) $queryParams['page'] : 1;
-        if ($page < 1) {
-            $page = 1;
-        }
+        $page = ServiceHelper::normalizePage(isset($queryParams['page']) ? $queryParams['page'] : 1);
 
         return [
             'keyword' => $keyword,
@@ -427,21 +424,7 @@ class ProductService
 
     private static function resolvePagination(int $page, int $totalCount, int $perPage): array
     {
-        $totalPages = (int) ceil($totalCount / $perPage);
-        if ($totalPages < 1) {
-            $totalPages = 1;
-        }
-
-        if ($page > $totalPages) {
-            $page = $totalPages;
-        }
-
-        return [
-            'page' => $page,
-            'perPage' => $perPage,
-            'totalPages' => $totalPages,
-            'offset' => ($page - 1) * $perPage,
-        ];
+        return ServiceHelper::resolvePagination($page, $totalCount, $perPage);
     }
 
     private static function loadProductUnitsByProduct(array $products): array

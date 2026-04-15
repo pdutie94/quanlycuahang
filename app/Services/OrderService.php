@@ -58,10 +58,7 @@ class OrderService
             $orderStatus = '';
         }
 
-        $page = isset($queryParams['page']) ? (int) $queryParams['page'] : 1;
-        if ($page < 1) {
-            $page = 1;
-        }
+        $page = ServiceHelper::normalizePage(isset($queryParams['page']) ? $queryParams['page'] : 1);
 
         return [
             'keyword' => $keyword,
@@ -1770,24 +1767,6 @@ class OrderService
 
     private static function resolvePagination(int $page, int $totalCount, int $perPage): array
     {
-        if ($perPage < 1) {
-            $perPage = 20;
-        }
-
-        $totalPages = (int) ceil($totalCount / $perPage);
-        if ($totalPages < 1) {
-            $totalPages = 1;
-        }
-
-        if ($page > $totalPages) {
-            $page = $totalPages;
-        }
-
-        return [
-            'page' => $page,
-            'perPage' => $perPage,
-            'totalPages' => $totalPages,
-            'offset' => ($page - 1) * $perPage,
-        ];
+        return ServiceHelper::resolvePagination($page, $totalCount, $perPage);
     }
 }

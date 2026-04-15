@@ -56,15 +56,7 @@ class PurchaseService
             ];
         }
 
-        // Lấy danh sách items
         $items = PurchaseRepository::findItemsByPurchaseId($id);
-        // Map thêm allow_fraction, min_step cho từng item
-        foreach ($items as &$item) {
-            $unit = PurchaseRepository::findProductUnitForPurchase($item['product_unit_id']);
-            $item['allow_fraction'] = isset($unit['allow_fraction']) ? (int)$unit['allow_fraction'] : 0;
-            $item['min_step'] = isset($unit['min_step']) ? (float)$unit['min_step'] : 1;
-        }
-        unset($item);
 
         return [
             'success' => true,
@@ -252,6 +244,7 @@ class PurchaseService
             return [
                 'success' => true,
                 'message' => 'Đã tạo phiếu nhập hàng #' . $purchaseId . '.',
+                'purchaseId' => $purchaseId,
                 'redirect' => 'purchase',
             ];
         } catch (Exception $e) {
@@ -409,15 +402,11 @@ class PurchaseService
         $fromDate = isset($queryParams['from_date']) ? trim((string) $queryParams['from_date']) : '';
         $toDate = isset($queryParams['to_date']) ? trim((string) $queryParams['to_date']) : '';
         $supplierId = isset($queryParams['supplier_id']) ? (int) $queryParams['supplier_id'] : 0;
-        $page = isset($queryParams['page']) ? (int) $queryParams['page'] : 1;
+        $page = ServiceHelper::normalizePage(isset($queryParams['page']) ? $queryParams['page'] : 1);
 
         if ($supplierId < 0) {
             $supplierId = 0;
         }
-        if ($page < 1) {
-            $page = 1;
-        }
-
         return [
             'keyword' => $keyword,
             'fromDate' => $fromDate,
@@ -480,21 +469,7 @@ class PurchaseService
 
     private static function resolvePagination(int $page, int $totalCount, int $perPage): array
     {
-        $totalPages = (int) ceil($totalCount / $perPage);
-        if ($totalPages < 1) {
-            $totalPages = 1;
-        }
-
-        if ($page > $totalPages) {
-            $page = $totalPages;
-        }
-
-        return [
-            'page' => $page,
-            'perPage' => $perPage,
-            'totalPages' => $totalPages,
-            'offset' => ($page - 1) * $perPage,
-        ];
+        return ServiceHelper::resolvePagination($page, $totalCount, $perPage);
     }
 
     private static function extractItemsPayload(array $payload): array
