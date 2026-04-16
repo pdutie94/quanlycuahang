@@ -90,6 +90,124 @@ class PaymentService
         }
     }
 
+    public static function recordSupplierDebtPayment($supplierId, $amount, $note, $paymentMethod)
+    {
+        $supplierId = (int) $supplierId;
+        $pdo = Database::getInstance();
+        $pdo->beginTransaction();
+
+        try {
+            if ($supplierId <= 0) {
+                throw new Exception('Nhà cung cấp không hợp lệ.');
+            }
+
+            if ($amount <= 0) {
+                throw new Exception('Số tiền thanh toán không hợp lệ.');
+            }
+
+            $supplierStmt = $pdo->prepare('SELECT id FROM suppliers WHERE id = ? AND deleted_at IS NULL LIMIT 1');
+            $supplierStmt->execute([$supplierId]);
+            $supplier = $supplierStmt->fetch();
+            if (!$supplier) {
+                throw new Exception('Không tìm thấy nhà cung cấp.');
+            }
+
+            $purchasesStmt = $pdo->prepare(
+                'SELECT * FROM purchases WHERE supplier_id = ? AND (total_amount - paid_amount) > 0 ORDER BY purchase_date ASC, id ASC FOR UPDATE'
+            );
+            $purchasesStmt->execute([$supplierId]);
+            $purchases = $purchasesStmt->fetchAll();
+
+            if (empty($purchases)) {
+                throw new Exception('Nhà cung cấp này không còn phiếu nhập nào cần thanh toán.');
+            }
+
+            $remainingToAllocate = (float) $amount;
+            $appliedAmount = 0.0;
+
+            foreach ($purchases as $purchase) {
+                if ($remainingToAllocate <= 0) {
+                    break;
+                }
+
+                $purchaseId = (int) $purchase['id'];
+                $totalAmount = (float) $purchase['total_amount'];
+                $paidOld = (float) $purchase['paid_amount'];
+                $purchaseRemaining = $totalAmount - $paidOld;
+
+                if ($purchaseRemaining <= 0) {
+                    continue;
+                }
+
+                $allocationAmount = min($remainingToAllocate, $purchaseRemaining);
+                if ($allocationAmount <= 0) {
+                    continue;
+                }
+
+                $methodText = $paymentMethod === 'bank' ? 'Chuyển khoản' : 'Tiền mặt';
+                $paymentNote = $note !== '' ? $note . ' (' . $methodText . ')' : $methodText;
+
+                if (class_exists('Payment')) {
+                    Payment::create([
+                        'type' => 'supplier',
+                        'customer_id' => null,
+                        'supplier_id' => $supplierId,
+                        'order_id' => null,
+                        'purchase_id' => $purchaseId,
+                        'amount' => $allocationAmount,
+                        'note' => $paymentNote,
+                    ]);
+                }
+
+                $newPaid = $paidOld + $allocationAmount;
+                if ($newPaid > $totalAmount) {
+                    $newPaid = $totalAmount;
+                }
+                $status = $newPaid >= $totalAmount ? 'paid' : 'debt';
+
+                $purchaseNote = isset($purchase['note']) ? (string) $purchase['note'] : '';
+                $purchaseNoteWithMethod = self::appendPaymentMethodTagToNote($purchaseNote, $paymentMethod);
+
+                $updateStmt = $pdo->prepare('UPDATE purchases SET paid_amount = ?, status = ?, note = ? WHERE id = ?');
+                $updateStmt->execute([$newPaid, $status, $purchaseNoteWithMethod, $purchaseId]);
+
+                if (class_exists('PurchaseLog')) {
+                    $remainingAfter = max(0, $totalAmount - $newPaid);
+                    PurchaseLog::create([
+                        'purchase_id' => $purchaseId,
+                        'action' => 'payment',
+                        'detail' => [
+                            'type' => 'payment',
+                            'amount' => $allocationAmount,
+                            'method' => $methodText,
+                            'payment_method' => $paymentMethod,
+                            'remaining_before' => $purchaseRemaining,
+                            'remaining_after' => $remainingAfter,
+                        ],
+                    ]);
+                }
+
+                $remainingToAllocate -= $allocationAmount;
+                $appliedAmount += $allocationAmount;
+            }
+
+            if ($appliedAmount <= 0) {
+                throw new Exception('Không có khoản nợ nào để ghi nhận thanh toán.');
+            }
+
+            $pdo->commit();
+            ReportService::clearReportCache();
+
+            return [
+                'applied_amount' => $appliedAmount,
+                'remaining_unapplied' => max(0, $remainingToAllocate),
+            ];
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
     public static function recordPurchasePayment($purchaseId, $amount, $note, $paymentMethod)
     {
         $pdo = Database::getInstance();
@@ -131,9 +249,9 @@ class PaymentService
                 $methodText = $paymentMethod === 'bank' ? 'Chuyển khoản' : 'Tiền mặt';
                 $paymentNote = $note;
                 if ($paymentNote === '') {
-                    $paymentNote = 'Thanh toán ' . $methodText;
+                    $paymentNote = $methodText;
                 } else {
-                    $paymentNote .= ' (Thanh toán ' . $methodText . ')';
+                    $paymentNote .= ' (' . $methodText . ')';
                 }
 
                 Payment::create([

@@ -52,4 +52,13 @@ class SupplierRepository extends BaseRepository
         $stmt->execute([$supplierId]);
         return $stmt->fetchAll();
     }
+
+    public static function findPaymentsBySupplierId(int $id): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT id, amount, paid_at, note FROM payments WHERE type = \'supplier\' AND supplier_id = ? ORDER BY paid_at DESC, id DESC'
+        );
+        $stmt->execute([$id]);
+        return $stmt->fetchAll();
+    }
 }

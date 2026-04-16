@@ -41,6 +41,7 @@ class SupplierApiController
         return ApiResponse::success($response, [
             'supplier' => $result['supplier'],
             'purchases' => $result['purchases'],
+            'payment_history' => isset($result['paymentHistory']) ? $result['paymentHistory'] : [],
             'total_debt' => $result['totalDebt'],
         ]);
     }
@@ -102,6 +103,33 @@ class SupplierApiController
         return ApiResponse::success($response, [
             'message' => isset($result['message']) ? (string) $result['message'] : 'Đã cập nhật nhà cung cấp.',
         ]);
+    }
+
+    public function paymentStore(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($id <= 0) {
+            return ApiResponse::error($response, 'Invalid supplier id', 422);
+        }
+
+        $payload = $this->normalizePayload($request);
+        $amount = \Money::parseAmount(isset($payload['amount']) ? $payload['amount'] : 0);
+        $note = isset($payload['note']) ? trim((string) $payload['note']) : '';
+        $paymentMethod = isset($payload['payment_method']) && (string) $payload['payment_method'] === 'bank' ? 'bank' : 'cash';
+
+        if ($amount <= 0) {
+            return ApiResponse::error($response, 'Dữ liệu thanh toán không hợp lệ.', 422);
+        }
+
+        $result = \SupplierService::recordSupplierBulkPayment($id, $amount, $note, $paymentMethod);
+        if (empty($result['success'])) {
+            return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Ghi nhận thanh toán thất bại.', 422);
+        }
+
+        return ApiResponse::success($response, [
+            'supplier_id' => $id,
+            'amount' => isset($result['appliedAmount']) ? (float) $result['appliedAmount'] : $amount,
+        ], isset($result['message']) ? (string) $result['message'] : 'Đã ghi nhận thanh toán công nợ nhà cung cấp.');
     }
 
     public function delete(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface

@@ -15,6 +15,7 @@ const toast = useToast();
 const { customer, orders, totalDebt, loading, error, load, submit, submitLoading, submitError } = useCustomerDebtPayment();
 const amount = ref('');
 const note = ref('');
+const paymentMethod = ref<'cash' | 'bank'>('cash');
 
 
 const { formatMoney, formatDateTime, parseAmount } = useFormat();
@@ -49,7 +50,7 @@ const loadPage = async () => {
 
 const save = async () => {
   try {
-    const payload = await submit(Number(route.params.id || 0), { amount: amount.value, note: note.value });
+    const payload = await submit(Number(route.params.id || 0), { amount: amount.value, note: note.value, payment_method: paymentMethod.value });
     const allocatedOrders = Array.isArray(payload?.data?.allocations) ? payload.data.allocations.length : 0;
     toast.success(allocatedOrders > 0 ? `Đã ghi nhận thanh toán cho ${allocatedOrders} đơn.` : (payload?.message || 'Đã ghi nhận thanh toán công nợ.'));
     await router.push({ name: 'customers.detail', params: { id: route.params.id } });
@@ -101,6 +102,14 @@ onMounted(async () => {
       </section>
 
       <section v-if="hasOutstandingDebt" class="app-card space-y-4">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Hình thức thanh toán</label>
+          <div class="app-segment">
+            <button type="button" class="app-segment-item" :class="paymentMethod === 'cash' ? 'app-segment-item-active' : ''" @click="paymentMethod = 'cash'">Tiền mặt</button>
+            <button type="button" class="app-segment-item" :class="paymentMethod === 'bank' ? 'app-segment-item-active' : ''" @click="paymentMethod = 'bank'">Chuyển khoản</button>
+          </div>
+        </div>
+
         <div>
           <label class="mb-1 block text-sm font-medium text-slate-700">Số tiền thu</label>
           <div class="relative">

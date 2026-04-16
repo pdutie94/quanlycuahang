@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Mar 20, 2026 at 06:00 PM
+-- Generation Time: Apr 16, 2026 at 02:24 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -20,8 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `quanlycuahang`
 --
-CREATE DATABASE IF NOT EXISTS `quanlycuahang` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `quanlycuahang`;
 
 -- --------------------------------------------------------
 
@@ -29,7 +27,6 @@ USE `quanlycuahang`;
 -- Table structure for table `customers`
 --
 
-DROP TABLE IF EXISTS `customers`;
 CREATE TABLE `customers` (
   `id` int UNSIGNED NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
@@ -45,7 +42,6 @@ CREATE TABLE `customers` (
 -- Table structure for table `inventory`
 --
 
-DROP TABLE IF EXISTS `inventory`;
 CREATE TABLE `inventory` (
   `id` int UNSIGNED NOT NULL,
   `product_id` int UNSIGNED NOT NULL,
@@ -59,7 +55,6 @@ CREATE TABLE `inventory` (
 -- Table structure for table `orders`
 --
 
-DROP TABLE IF EXISTS `orders`;
 CREATE TABLE `orders` (
   `id` int UNSIGNED NOT NULL,
   `order_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
@@ -84,7 +79,6 @@ CREATE TABLE `orders` (
 -- Table structure for table `order_items`
 --
 
-DROP TABLE IF EXISTS `order_items`;
 CREATE TABLE `order_items` (
   `id` int UNSIGNED NOT NULL,
   `order_id` int UNSIGNED NOT NULL,
@@ -104,7 +98,6 @@ CREATE TABLE `order_items` (
 -- Table structure for table `order_logs`
 --
 
-DROP TABLE IF EXISTS `order_logs`;
 CREATE TABLE `order_logs` (
   `id` int UNSIGNED NOT NULL,
   `order_id` int UNSIGNED NOT NULL,
@@ -119,7 +112,6 @@ CREATE TABLE `order_logs` (
 -- Table structure for table `order_manual_items`
 --
 
-DROP TABLE IF EXISTS `order_manual_items`;
 CREATE TABLE `order_manual_items` (
   `id` int UNSIGNED NOT NULL,
   `order_id` int UNSIGNED NOT NULL,
@@ -135,27 +127,9 @@ CREATE TABLE `order_manual_items` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `purchase_manual_items`
---
-
-DROP TABLE IF EXISTS `purchase_manual_items`;
-CREATE TABLE `purchase_manual_items` (
-  `id` int UNSIGNED NOT NULL,
-  `purchase_id` int UNSIGNED NOT NULL,
-  `item_name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `unit_name` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `qty` decimal(15,4) NOT NULL DEFAULT '0.0000',
-  `price_cost` bigint UNSIGNED NOT NULL DEFAULT '0',
-  `amount` bigint UNSIGNED NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `payments`
 --
 
-DROP TABLE IF EXISTS `payments`;
 CREATE TABLE `payments` (
   `id` int UNSIGNED NOT NULL,
   `type` enum('customer','supplier') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
@@ -174,7 +148,6 @@ CREATE TABLE `payments` (
 -- Table structure for table `products`
 --
 
-DROP TABLE IF EXISTS `products`;
 CREATE TABLE `products` (
   `id` int UNSIGNED NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
@@ -185,7 +158,9 @@ CREATE TABLE `products` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT NULL,
   `image_path` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `deleted_at` datetime DEFAULT NULL
+  `deleted_at` datetime DEFAULT NULL,
+  `auto_price_enabled` tinyint(1) NOT NULL DEFAULT '0',
+  `auto_price_value` bigint DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -194,7 +169,6 @@ CREATE TABLE `products` (
 -- Table structure for table `product_categories`
 --
 
-DROP TABLE IF EXISTS `product_categories`;
 CREATE TABLE `product_categories` (
   `id` int UNSIGNED NOT NULL,
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
@@ -207,7 +181,6 @@ CREATE TABLE `product_categories` (
 -- Table structure for table `product_logs`
 --
 
-DROP TABLE IF EXISTS `product_logs`;
 CREATE TABLE `product_logs` (
   `id` int UNSIGNED NOT NULL,
   `product_id` int UNSIGNED NOT NULL,
@@ -222,7 +195,6 @@ CREATE TABLE `product_logs` (
 -- Table structure for table `product_sales_summary`
 --
 
-DROP TABLE IF EXISTS `product_sales_summary`;
 CREATE TABLE `product_sales_summary` (
   `product_id` int NOT NULL,
   `sold_qty` decimal(16,4) NOT NULL DEFAULT '0.0000',
@@ -235,7 +207,6 @@ CREATE TABLE `product_sales_summary` (
 -- Table structure for table `product_units`
 --
 
-DROP TABLE IF EXISTS `product_units`;
 CREATE TABLE `product_units` (
   `id` int UNSIGNED NOT NULL,
   `product_id` int UNSIGNED NOT NULL,
@@ -253,7 +224,6 @@ CREATE TABLE `product_units` (
 -- Table structure for table `projects`
 --
 
-DROP TABLE IF EXISTS `projects`;
 CREATE TABLE `projects` (
   `id` int UNSIGNED NOT NULL,
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
@@ -274,7 +244,6 @@ CREATE TABLE `projects` (
 -- Table structure for table `project_issues`
 --
 
-DROP TABLE IF EXISTS `project_issues`;
 CREATE TABLE `project_issues` (
   `id` int UNSIGNED NOT NULL,
   `project_id` int UNSIGNED NOT NULL,
@@ -291,7 +260,6 @@ CREATE TABLE `project_issues` (
 -- Table structure for table `project_issue_items`
 --
 
-DROP TABLE IF EXISTS `project_issue_items`;
 CREATE TABLE `project_issue_items` (
   `id` int UNSIGNED NOT NULL,
   `project_issue_id` int UNSIGNED NOT NULL,
@@ -309,7 +277,6 @@ CREATE TABLE `project_issue_items` (
 -- Table structure for table `purchases`
 --
 
-DROP TABLE IF EXISTS `purchases`;
 CREATE TABLE `purchases` (
   `id` int UNSIGNED NOT NULL,
   `purchase_code` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
@@ -330,7 +297,6 @@ CREATE TABLE `purchases` (
 -- Table structure for table `purchase_items`
 --
 
-DROP TABLE IF EXISTS `purchase_items`;
 CREATE TABLE `purchase_items` (
   `id` int UNSIGNED NOT NULL,
   `purchase_id` int UNSIGNED NOT NULL,
@@ -348,7 +314,6 @@ CREATE TABLE `purchase_items` (
 -- Table structure for table `purchase_logs`
 --
 
-DROP TABLE IF EXISTS `purchase_logs`;
 CREATE TABLE `purchase_logs` (
   `id` int UNSIGNED NOT NULL,
   `purchase_id` int UNSIGNED NOT NULL,
@@ -360,10 +325,25 @@ CREATE TABLE `purchase_logs` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `purchase_manual_items`
+--
+
+CREATE TABLE `purchase_manual_items` (
+  `id` int UNSIGNED NOT NULL,
+  `purchase_id` int UNSIGNED NOT NULL,
+  `item_name` varchar(255) NOT NULL,
+  `unit_name` varchar(50) DEFAULT NULL,
+  `qty` decimal(15,4) NOT NULL DEFAULT '0.0000',
+  `price_cost` bigint UNSIGNED NOT NULL DEFAULT '0',
+  `amount` bigint UNSIGNED NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `schema_version`
 --
 
-DROP TABLE IF EXISTS `schema_version`;
 CREATE TABLE `schema_version` (
   `id` int NOT NULL,
   `version` varchar(50) NOT NULL,
@@ -376,7 +356,6 @@ CREATE TABLE `schema_version` (
 -- Table structure for table `suppliers`
 --
 
-DROP TABLE IF EXISTS `suppliers`;
 CREATE TABLE `suppliers` (
   `id` int UNSIGNED NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
@@ -392,7 +371,6 @@ CREATE TABLE `suppliers` (
 -- Table structure for table `units`
 --
 
-DROP TABLE IF EXISTS `units`;
 CREATE TABLE `units` (
   `id` int UNSIGNED NOT NULL,
   `name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL
@@ -404,7 +382,6 @@ CREATE TABLE `units` (
 -- Table structure for table `users`
 --
 
-DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id` int UNSIGNED NOT NULL,
   `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,

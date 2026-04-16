@@ -86,6 +86,7 @@ return function (App $app) {
         $group->put('/suppliers/{id}', [$supplierController, 'update']);
         $group->patch('/suppliers/{id}', [$supplierController, 'update']);
         $group->delete('/suppliers/{id}', [$supplierController, 'delete']);
+        $group->post('/suppliers/{id}/payment', [$supplierController, 'paymentStore']);
 
         $orderController = new OrderApiController();
         $group->get('/orders', [$orderController, 'list']);

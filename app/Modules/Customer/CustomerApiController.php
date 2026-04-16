@@ -41,6 +41,7 @@ class CustomerApiController
         return ApiResponse::success($response, [
             'customer' => $result['customer'],
             'orders' => $result['orders'],
+            'payment_history' => isset($result['paymentHistory']) ? $result['paymentHistory'] : [],
             'summary' => [
                 'total_amount' => isset($result['totalAmountSum']) ? (float) $result['totalAmountSum'] : 0,
                 'total_paid' => isset($result['totalPaidSum']) ? (float) $result['totalPaidSum'] : 0,
@@ -175,8 +176,9 @@ class CustomerApiController
         $amountRaw = isset($payload['amount']) ? $payload['amount'] : 0;
         $amount = \Money::parseAmount($amountRaw);
         $note = isset($payload['note']) ? trim((string) $payload['note']) : '';
+        $paymentMethod = isset($payload['payment_method']) && (string) $payload['payment_method'] === 'bank' ? 'bank' : 'cash';
 
-        $result = \CustomerService::recordCustomerBulkPayment($customerId, $amount, $note);
+        $result = \CustomerService::recordCustomerBulkPayment($customerId, $amount, $note, $paymentMethod);
         if (empty($result['success'])) {
             return ApiResponse::error($response, isset($result['message']) ? (string) $result['message'] : 'Record customer payment failed', 422);
         }

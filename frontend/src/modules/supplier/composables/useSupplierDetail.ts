@@ -5,6 +5,7 @@ import { useFetch } from '../../../shared/composables/useFetch';
 export function useSupplierDetail() {
   const supplier = ref<Record<string, any> | null>(null);
   const purchases = ref<Record<string, any>[]>([]);
+  const paymentHistory = ref<Record<string, any>[]>([]);
   const totalDebt = ref(0);
 
   const request = useFetch(fetchSupplierDetail);
@@ -14,6 +15,7 @@ export function useSupplierDetail() {
     const payload = await request.execute(id);
     supplier.value = payload?.data?.supplier || null;
     purchases.value = payload?.data?.purchases || [];
+    paymentHistory.value = payload?.data?.payment_history || [];
     totalDebt.value = payload?.data?.total_debt || 0;
     return payload;
   };
@@ -21,7 +23,7 @@ export function useSupplierDetail() {
   const remove = async (id: number | string) => deleteRequest.execute(id);
 
   return {
-    supplier, purchases, totalDebt, loading: request.loading, error: request.error,
+    supplier, purchases, totalDebt, paymentHistory, loading: request.loading, error: request.error,
     load, remove,
     deleteLoading: deleteRequest.loading, deleteError: deleteRequest.error
   };

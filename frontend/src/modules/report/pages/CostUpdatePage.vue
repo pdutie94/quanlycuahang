@@ -196,9 +196,6 @@ onMounted(async () => {
                                         - {{ item.base_unit_name }}</span
                                     >
                                 </div>
-                                <div class="text-xs text-slate-500 font-mono">
-                                    {{ item.code }}
-                                </div>
                             </td>
                             <td
                                 class="p-2 text-right align-top"

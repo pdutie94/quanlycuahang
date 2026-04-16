@@ -30,6 +30,7 @@ class CustomerService
         }
 
         $orders = CustomerRepository::findOrdersByCustomerId($id);
+        $paymentHistory = CustomerRepository::findPaymentsByCustomerId($id);
         $totalAmountSum = 0.0;
         $totalPaidSum = 0.0;
         $totalDebt = 0.0;
@@ -50,6 +51,7 @@ class CustomerService
             'success' => true,
             'customer' => $customer,
             'orders' => $orders,
+            'paymentHistory' => $paymentHistory,
             'totalAmountSum' => $totalAmountSum,
             'totalPaidSum' => $totalPaidSum,
             'totalDebt' => $totalDebt,
@@ -287,7 +289,7 @@ class CustomerService
         ];
     }
 
-    public static function recordCustomerBulkPayment(int $customerId, $amount, string $note): array
+    public static function recordCustomerBulkPayment(int $customerId, $amount, string $note, string $paymentMethod = 'cash'): array
     {
         $customerId = (int) $customerId;
         if ($customerId <= 0 || $amount <= 0) {
@@ -308,7 +310,7 @@ class CustomerService
         }
 
         try {
-            $result = PaymentService::recordCustomerDebtPayment($customerId, $amount, $note, 'cash');
+            $result = PaymentService::recordCustomerDebtPayment($customerId, $amount, $note, $paymentMethod);
         } catch (Exception $e) {
             return [
                 'success' => false,

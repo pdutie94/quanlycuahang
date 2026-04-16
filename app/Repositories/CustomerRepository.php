@@ -84,6 +84,15 @@ class CustomerRepository extends BaseRepository
         return $stmt->fetchAll();
     }
 
+    public static function findPaymentsByCustomerId(int $id): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT id, amount, paid_at, note FROM payments WHERE type = \'customer\' AND customer_id = ? ORDER BY paid_at DESC, id DESC'
+        );
+        $stmt->execute([$id]);
+        return $stmt->fetchAll();
+    }
+
     public static function updateById(int $id, array $data)
     {
         $stmt = self::db()->prepare('UPDATE customers SET name = ?, phone = ?, address = ? WHERE id = ? AND deleted_at IS NULL');

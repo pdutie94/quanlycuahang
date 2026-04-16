@@ -64,6 +64,7 @@ class SupplierService
         }
 
         $purchases = SupplierRepository::findPurchasesBySupplierId($id);
+        $paymentHistory = SupplierRepository::findPaymentsBySupplierId($id);
         $totalDebt = 0.0;
         foreach ($purchases as $purchase) {
             $debtAmount = isset($purchase['debt_amount']) ? (float) $purchase['debt_amount'] : 0.0;
@@ -76,6 +77,7 @@ class SupplierService
             'success' => true,
             'supplier' => $supplier,
             'purchases' => $purchases,
+            'paymentHistory' => $paymentHistory,
             'totalDebt' => $totalDebt,
         ];
     }
@@ -180,6 +182,29 @@ class SupplierService
             'success' => true,
             'message' => 'Đã cập nhật nhà cung cấp.',
             'redirect' => 'supplier',
+        ];
+    }
+
+    public static function recordSupplierBulkPayment(int $supplierId, $amount, string $note, string $paymentMethod = 'cash'): array
+    {
+        if ($supplierId <= 0 || $amount <= 0) {
+            return ['success' => false, 'message' => 'Dữ liệu thanh toán không hợp lệ.'];
+        }
+
+        if (!class_exists('Supplier') || !Supplier::find($supplierId)) {
+            return ['success' => false, 'message' => 'Không tìm thấy nhà cung cấp.'];
+        }
+
+        try {
+            $result = PaymentService::recordSupplierDebtPayment($supplierId, $amount, $note, $paymentMethod);
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Không thể ghi nhận thanh toán: ' . $e->getMessage()];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Đã ghi nhận thanh toán công nợ nhà cung cấp.',
+            'appliedAmount' => isset($result['applied_amount']) ? (float) $result['applied_amount'] : 0.0,
         ];
     }
 

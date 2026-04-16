@@ -32,6 +32,13 @@
       </section>
       <section v-if="hasOutstandingDebt" class="app-card space-y-4">
         <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Hình thức thanh toán</label>
+          <div class="app-segment">
+            <button type="button" class="app-segment-item" :class="paymentMethod === 'cash' ? 'app-segment-item-active' : ''" @click="paymentMethod = 'cash'">Tiền mặt</button>
+            <button type="button" class="app-segment-item" :class="paymentMethod === 'bank' ? 'app-segment-item-active' : ''" @click="paymentMethod = 'bank'">Chuyển khoản</button>
+          </div>
+        </div>
+        <div>
           <label class="mb-1 block text-sm font-medium text-slate-700">Số tiền thanh toán</label>
           <div class="relative">
             <input v-model="amount" type="text"  v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
@@ -43,6 +50,7 @@
           <label class="mb-1 block text-sm font-medium text-slate-700">Ghi chú</label>
           <textarea v-model="note" rows="3" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"></textarea>
         </div>
+
         <div class="space-y-2">
           <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
             <div class="font-medium text-slate-800">Xem trước phân bổ</div>
@@ -89,6 +97,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useSupplierDetail } from '../composables/useSupplierDetail';
 import { useToast } from '../../../shared/composables/useToast';
+import { paySupplierDebt } from '../services/supplier.api';
 
 const route = useRoute();
 const router = useRouter();
@@ -98,6 +107,7 @@ const { supplier, purchases, totalDebt, loading, load } = useSupplierDetail();
 const amount = ref('');
 const note = ref('');
 const submitting = ref(false);
+const paymentMethod = ref<'cash' | 'bank'>('cash');
 
 import { useFormat } from '../../../shared/composables/useFormat';
 import { useDebtAllocation } from '../../../shared/composables/useDebtAllocation';
@@ -123,13 +133,25 @@ const submitPayment = async () => {
     return;
   }
   submitting.value = true;
-  // TODO: Gọi API thanh toán công nợ nhà cung cấp, truyền amount, note, preview (phân bổ)
-  setTimeout(() => {
-    toast.success('Đã thanh toán công nợ!');
-    if (supplier.value) {
-      router.push({ name: 'suppliers.detail', params: { id: supplier.value.id } });
+  try {
+    const supplierId = supplier.value?.id;
+    if (!supplierId) {
+      toast.error('Không tìm thấy nhà cung cấp.');
+      return;
     }
-  }, 1000);
+    await paySupplierDebt(supplierId, {
+      amount: amountNumber.value,
+      note: note.value,
+      payment_method: paymentMethod.value,
+    });
+    toast.success('Đã ghi nhận thanh toán công nợ nhà cung cấp.');
+    router.push({ name: 'suppliers.detail', params: { id: supplierId } });
+  } catch (err: any) {
+    const msg = err?.response?.data?.message || 'Không thể ghi nhận thanh toán.';
+    toast.error(msg);
+  } finally {
+    submitting.value = false;
+  }
 };
 
 

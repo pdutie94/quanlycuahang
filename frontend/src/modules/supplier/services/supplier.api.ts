@@ -34,3 +34,8 @@ export async function deleteSupplier(id: number | string) {
   const response = await api.delete(`/suppliers/${id}`);
   return response.data;
 }
+
+export async function paySupplierDebt(id: number | string, payload: Record<string, any>) {
+  const response = await api.post(`/suppliers/${id}/payment`, payload);
+  return response.data;
+}
