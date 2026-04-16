@@ -1,95 +1,3 @@
-<template>
-  <section class="space-y-4">
-    <DetailHeaderBar
-      title="Thanh toán công nợ nhà cung cấp"
-      :back-to="{ name: 'suppliers.detail', params: { id: route.params.id } }"
-    />
-    <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải...</div>
-    <template v-else-if="supplier">
-      <section class="app-card space-y-3">
-        <div>
-          <div class="text-sm font-medium text-slate-900">{{ supplier.name }}</div>
-          <div class="mt-1 text-sm text-slate-600">
-            <span v-if="supplier.phone" class="mr-4">SĐT: {{ supplier.phone }}</span>
-            <span v-if="supplier.address">Địa chỉ: {{ supplier.address }}</span>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
-          <div class="rounded-xl bg-slate-50 px-3 py-2">
-            <div class="text-slate-500">Tổng công nợ</div>
-            <div class="mt-1 font-semibold" :class="hasOutstandingDebt ? 'text-rose-600' : 'text-slate-700'">{{ formatMoney(totalDebt) }}</div>
-          </div>
-          <div class="rounded-xl bg-brand-50 px-3 py-2">
-            <div class="text-brand-700">Số tiền nhập</div>
-            <div class="mt-1 font-semibold text-brand-700">{{ formatMoney(amountNumber) }}</div>
-          </div>
-          <div class="rounded-xl bg-slate-50 px-3 py-2">
-            <div class="text-slate-500">Sẽ phân bổ</div>
-            <div class="mt-1 font-semibold text-slate-900">{{ formatMoney(previewTotal) }}</div>
-          </div>
-        </div>
-        <div v-if="!hasOutstandingDebt" class="rounded-xl border border-dashed border-slate-300 px-3 py-3 text-sm text-slate-500">Nhà cung cấp này hiện không còn phiếu nhập nào cần thanh toán.</div>
-      </section>
-      <section v-if="hasOutstandingDebt" class="app-card space-y-4">
-        <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">Hình thức thanh toán</label>
-          <div class="app-segment">
-            <button type="button" class="app-segment-item" :class="paymentMethod === 'cash' ? 'app-segment-item-active' : ''" @click="paymentMethod = 'cash'">Tiền mặt</button>
-            <button type="button" class="app-segment-item" :class="paymentMethod === 'bank' ? 'app-segment-item-active' : ''" @click="paymentMethod = 'bank'">Chuyển khoản</button>
-          </div>
-        </div>
-        <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">Số tiền thanh toán</label>
-          <div class="relative">
-            <input v-model="amount" type="text"  v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
-            <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
-          </div>
-          <p class="mt-1 text-xs text-slate-500">Ví dụ nhập 5000000, hệ thống sẽ trừ lần lượt vào các phiếu nhập cũ nhất còn nợ.</p>
-        </div>
-        <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">Ghi chú</label>
-          <textarea v-model="note" rows="3" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"></textarea>
-        </div>
-
-        <div class="space-y-2">
-          <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
-            <div class="font-medium text-slate-800">Xem trước phân bổ</div>
-            <div class="text-right text-slate-500">
-              <div class="font-medium text-slate-800">Tổng: <span class="font-medium text-brand-700">{{ formatMoney(previewTotal) }}</span></div>
-              <div v-if="unappliedAmount > 0">Chưa dùng: <span class="font-medium text-amber-700">{{ formatMoney(unappliedAmount) }}</span></div>
-            </div>
-          </div>
-          <div v-if="!preview.length" class="rounded-xl border border-dashed border-slate-300 bg-white px-3 py-3 text-sm text-slate-500">
-            Nhập số tiền cần thanh toán để xem hệ thống sẽ phân bổ vào phiếu nào.
-          </div>
-          <div v-else class="space-y-2">
-            <article v-for="item in preview" :key="item.id" class="rounded-xl border border-slate-200 bg-white px-3 py-3">
-              <div class="text-sm">
-                <div class="flex items-start gap-2">
-                  <div class="font-semibold text-slate-900">{{ item.code }}</div>
-                  <div class="rounded-md bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700">Phân bổ {{ formatMoney(item.allocatedAmount) }}</div>
-                </div>
-                <div class="mt-1 text-slate-500">{{ formatDateTime(item.date) }}</div>
-              </div>
-              <div class="mt-1 grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <div class="text-slate-500">Nợ trước</div>
-                  <div class="font-medium text-rose-600">{{ formatMoney(item.debtBefore) }}</div>
-                </div>
-                <div>
-                  <div class="text-slate-500">Nợ còn lại</div>
-                  <div class="font-medium" :class="item.debtAfter > 0 ? 'text-rose-600' : 'text-slate-700'">{{ formatMoney(item.debtAfter) }}</div>
-                </div>
-              </div>
-            </article>
-          </div>
-        </div>
-        <button type="button" class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-brand-600 bg-brand-600 px-4 text-sm font-medium text-white disabled:opacity-50" :disabled="submitting || amountNumber <= 0 || !preview.length" @click="submitPayment">Ghi nhận thanh toán</button>
-      </section>
-    </template>
-    <div v-else class="app-empty-state">Không tìm thấy nhà cung cấp.</div>
-  </section>
-</template>
 
 <script setup lang="ts">
 import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
@@ -162,3 +70,95 @@ onMounted(async () => {
   amount.value = raw > 0 ? formatMoney(raw).replace(' đ', '') : '';
 });
 </script>
+<template>
+  <section class="space-y-4">
+    <DetailHeaderBar
+      title="Thanh toán công nợ nhà cung cấp"
+      :back-to="{ name: 'suppliers.detail', params: { id: route.params.id } }"
+    />
+    <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải...</div>
+    <template v-else-if="supplier">
+      <section class="app-card space-y-3">
+        <div>
+          <div class="text-sm font-medium text-slate-900">{{ supplier.name }}</div>
+          <div class="mt-1 text-sm text-slate-600">
+            <span v-if="supplier.phone" class="mr-4">SĐT: {{ supplier.phone }}</span>
+            <span v-if="supplier.address">Địa chỉ: {{ supplier.address }}</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
+          <div class="rounded-xl bg-slate-50 px-3 py-2">
+            <div class="text-slate-500">Tổng công nợ</div>
+            <div class="mt-1 font-semibold" :class="hasOutstandingDebt ? 'text-rose-600' : 'text-slate-700'">{{ formatMoney(totalDebt) }}</div>
+          </div>
+          <div class="rounded-xl bg-brand-50 px-3 py-2">
+            <div class="text-brand-700">Số tiền nhập</div>
+            <div class="mt-1 font-semibold text-brand-700">{{ formatMoney(amountNumber) }}</div>
+          </div>
+          <div class="rounded-xl bg-slate-50 px-3 py-2">
+            <div class="text-slate-500">Sẽ phân bổ</div>
+            <div class="mt-1 font-semibold text-slate-900">{{ formatMoney(previewTotal) }}</div>
+          </div>
+        </div>
+        <div v-if="!hasOutstandingDebt" class="rounded-xl border border-dashed border-slate-300 px-3 py-3 text-sm text-slate-500">Nhà cung cấp này hiện không còn phiếu nhập nào cần thanh toán.</div>
+      </section>
+      <section v-if="hasOutstandingDebt" class="app-card space-y-4">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Hình thức thanh toán</label>
+          <div class="app-segment">
+            <button type="button" class="app-segment-item" :class="paymentMethod === 'cash' ? 'app-segment-item-active' : ''" @click="paymentMethod = 'cash'">Tiền mặt</button>
+            <button type="button" class="app-segment-item" :class="paymentMethod === 'bank' ? 'app-segment-item-active' : ''" @click="paymentMethod = 'bank'">Chuyển khoản</button>
+          </div>
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Số tiền thanh toán</label>
+          <div class="relative">
+            <input v-model="amount" type="text"  v-money-input class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-8 text-sm outline-none focus:border-brand-500" />
+            <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">đ</span>
+          </div>
+          <p class="mt-1 text-xs text-slate-500">Ví dụ nhập 5000000, hệ thống sẽ trừ lần lượt vào các phiếu nhập cũ nhất còn nợ.</p>
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Ghi chú</label>
+          <textarea v-model="note" rows="3" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"></textarea>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
+            <div class="font-medium text-slate-800">Xem trước phân bổ</div>
+            <div class="text-right text-slate-500">
+              <div class="font-medium text-slate-800">Tổng: <span class="font-medium text-brand-700">{{ formatMoney(previewTotal) }}</span></div>
+              <div v-if="unappliedAmount > 0">Chưa dùng: <span class="font-medium text-amber-700">{{ formatMoney(unappliedAmount) }}</span></div>
+            </div>
+          </div>
+          <div v-if="!preview.length" class="rounded-xl border border-dashed border-slate-300 bg-white px-3 py-3 text-sm text-slate-500">
+            Nhập số tiền cần thanh toán để xem hệ thống sẽ phân bổ vào phiếu nào.
+          </div>
+          <div v-else class="space-y-2">
+            <article v-for="item in preview" :key="item.id" class="rounded-xl border border-slate-200 bg-white px-3 py-3">
+              <div class="text-sm">
+                <div class="flex items-start gap-2">
+                  <div class="font-semibold text-slate-900">{{ item.code }}</div>
+                  <div class="rounded-md bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700">Phân bổ {{ formatMoney(item.allocatedAmount) }}</div>
+                </div>
+                <div class="mt-1 text-xs text-slate-500">{{ formatDateTime(item.date) }}</div>
+              </div>
+              <div class="mt-1 grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <div class="text-slate-500">Nợ trước</div>
+                  <div class="font-medium text-rose-600">{{ formatMoney(item.debtBefore) }}</div>
+                </div>
+                <div>
+                  <div class="text-slate-500">Còn lại</div>
+                  <div class="font-medium" :class="item.debtAfter > 0 ? 'text-rose-600' : 'text-slate-700'">{{ formatMoney(item.debtAfter) }}</div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+        <button type="button" class="inline-flex h-11 w-full items-center justify-center rounded-xl border border-brand-600 bg-brand-600 px-4 text-sm font-medium text-white disabled:opacity-50" :disabled="submitting || amountNumber <= 0 || !preview.length" @click="submitPayment">Ghi nhận thanh toán</button>
+      </section>
+    </template>
+    <div v-else class="app-empty-state">Không tìm thấy nhà cung cấp.</div>
+  </section>
+</template>

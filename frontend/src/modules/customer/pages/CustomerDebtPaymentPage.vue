@@ -124,14 +124,11 @@ onMounted(async () => {
           <textarea v-model="note" rows="3" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"></textarea>
         </div>
 
-        <div class="space-y-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <div class="text-sm font-medium text-slate-800">Xem trước phân bổ</div>
-              <div class="text-xs text-slate-500">Theo thứ tự từ đơn cũ đến mới.</div>
-            </div>
-            <div class="text-right text-xs text-slate-500">
-              <div>Tổng phân bổ: <span class="font-medium text-slate-800">{{ formatMoney(previewTotal) }}</span></div>
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
+            <div class="font-medium text-slate-800">Xem trước phân bổ</div>
+            <div class="text-right text-slate-500">
+              <div>Tổng: <span class="font-medium text-slate-800">{{ formatMoney(previewTotal) }}</span></div>
               <div v-if="unappliedAmount > 0">Chưa dùng: <span class="font-medium text-amber-700">{{ formatMoney(unappliedAmount) }}</span></div>
             </div>
           </div>
@@ -142,24 +139,20 @@ onMounted(async () => {
 
           <div v-else class="space-y-2">
             <article v-for="item in preview" :key="item.id" class="rounded-xl border border-slate-200 bg-white px-3 py-3">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <div class="text-sm font-semibold text-slate-900">{{ item.code }}</div>
-                  <div class="mt-1 text-xs text-slate-500">{{ formatDateTime(item.date) }}</div>
+              <div class="text-sm">
+                <div class="flex items-start gap-2">
+                  <div class="font-semibold text-slate-900">{{ item.code }}</div>
+                  <div class="rounded-md bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700">Phân bổ {{ formatMoney(item.allocatedAmount) }}</div>
                 </div>
-                <div class="rounded-lg bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700">Phân bổ {{ formatMoney(item.allocatedAmount) }}</div>
+                <div class="mt-1 text-xs text-slate-500">{{ formatDateTime(item.date) }}</div>
               </div>
-              <div class="mt-2 grid grid-cols-1 gap-2 text-xs sm:grid-cols-3">
+              <div class="mt-1 grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <div class="text-slate-500">Nợ trước</div>
                   <div class="font-medium text-rose-600">{{ formatMoney(item.debtBefore) }}</div>
                 </div>
                 <div>
-                  <div class="text-slate-500">Số tiền trừ</div>
-                  <div class="font-medium text-brand-700">{{ formatMoney(item.allocatedAmount) }}</div>
-                </div>
-                <div>
-                  <div class="text-slate-500">Nợ còn lại</div>
+                  <div class="text-slate-500">Còn lại</div>
                   <div class="font-medium" :class="item.debtAfter > 0 ? 'text-rose-600' : 'text-slate-700'">{{ formatMoney(item.debtAfter) }}</div>
                 </div>
               </div>
