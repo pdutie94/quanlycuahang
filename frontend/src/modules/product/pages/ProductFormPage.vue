@@ -55,7 +55,17 @@ const showDeleteModal = ref(false);
 
 let lastManualPrice = '';
 
-// Tự động cập nhật giá bán: giá bán = giá vốn + giá tự động
+// Function làm tròn thông minh: dưới 500 làm tròn xuống, từ 500 làm tròn lên
+const roundToThousand = (amount: number): number => {
+  const remainder = amount % 1000;
+  if (remainder < 500) {
+    return amount - remainder; // làm tròn xuống
+  } else {
+    return amount + (1000 - remainder); // làm tròn lên
+  }
+};
+
+// Tự động cập nhật giá bán: giá bán = làm tròn(giá vốn) + giá tự động
 watch([
   () => form.value.auto_price_enabled,
   () => form.value.auto_price_value,
@@ -68,7 +78,8 @@ watch([
     const cost = parseAmount(costVal || '');
     const auto = parseAmount(autoVal || '');
     if (!isNaN(cost) && !isNaN(auto) && cost > 0 && auto > 0) {
-      form.value.price_sell_single = formatMoneyInput(cost + auto);
+      const roundedCost = roundToThousand(cost);
+      form.value.price_sell_single = formatMoneyInput(roundedCost + auto);
     } else {
       form.value.price_sell_single = lastManualPrice;
     }
