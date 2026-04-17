@@ -1,6 +1,5 @@
 // Composable: useFormat.js
 // Dùng chung cho format tiền, ngày, parseAmount
-import { ref } from 'vue';
 
 export const numberFormatter = new Intl.NumberFormat('vi-VN');
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
@@ -17,6 +16,14 @@ const dateOnlyFormatter = new Intl.DateTimeFormat('vi-VN', {
 });
 
 export function useFormat() {
+  const roundToThousand = (amount: number): number => {
+    const remainder = amount % 1000;
+    if (remainder < 500) {
+      return amount - remainder; // làm tròn xuống
+    } else {
+      return amount + (1000 - remainder); // làm tròn lên
+    }
+  };
   function formatMoney(value: string | number | null | undefined): string {
     return `${numberFormatter.format(Number(value || 0))} đ`;
   }
@@ -122,6 +129,7 @@ export function useFormat() {
     formatNumber,
     formatMoneyInput,
     formatMoneyInputValue,
-    formatPriceInput
+    formatPriceInput,
+    roundToThousand
   };
 }

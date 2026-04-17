@@ -33,3 +33,11 @@ export interface ProductUnit {
   allow_fraction: number; // 0 or 1
   min_step: number;
 }
+
+export interface MaterialPrice {
+  id: number;
+  material_type: string;
+  price_per_kg: number;
+  created_at?: string;
+  updated_at?: string;
+}

@@ -1,0 +1,1 @@
+import{t as e}from"./system.js";export{e as default};

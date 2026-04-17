@@ -12,6 +12,7 @@ use App\Modules\Unit\UnitApiController;
 use App\Modules\Supplier\SupplierApiController;
 use App\Modules\Report\ReportApiController;
 use App\Modules\System\MigrationApiController;
+use App\Modules\MaterialPrice\MaterialPriceApiController;
 use App\Shared\Middleware\ApiAuthMiddleware;
 use App\Shared\Response\ApiResponse;
 use Slim\App;
@@ -133,5 +134,14 @@ return function (App $app) {
         // Giá vốn
         $group->get('/reports/cost-update', [$reportController, 'costUpdate']);
         $group->post('/reports/cost-update', [$reportController, 'costUpdate']);
+
+        // Material Prices
+        $materialPriceController = new MaterialPriceApiController();
+        $group->get('/material-prices', [$materialPriceController, 'list']);
+        $group->get('/material-prices/{id}', [$materialPriceController, 'get']);
+        $group->post('/material-prices', [$materialPriceController, 'create']);
+        $group->put('/material-prices/{id}', [$materialPriceController, 'update']);
+        $group->patch('/material-prices/{id}', [$materialPriceController, 'update']);
+        $group->delete('/material-prices/{id}', [$materialPriceController, 'delete']);
     })->add(new ApiAuthMiddleware());
 };

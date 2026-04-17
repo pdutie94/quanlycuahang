@@ -1,0 +1,1 @@
+import{c as e}from"./customer.js";export{e as default};

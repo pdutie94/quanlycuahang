@@ -1,41 +1,44 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
-import LoginPage from '../modules/auth/pages/LoginPage.vue';
 import { clearAuthCache, me } from '../modules/auth/services/auth.api';
-import CategoryFormPage from '../modules/category/pages/CategoryFormPage.vue';
-import CategoryListPage from '../modules/category/pages/CategoryListPage.vue';
-import CustomerDebtPaymentPage from '../modules/customer/pages/CustomerDebtPaymentPage.vue';
-import CustomerDetailPage from '../modules/customer/pages/CustomerDetailPage.vue';
-import CustomerFormPage from '../modules/customer/pages/CustomerFormPage.vue';
-import CustomerListPage from '../modules/customer/pages/CustomerListPage.vue';
-import CustomerPaymentPage from '../modules/customer/pages/CustomerPaymentPage.vue';
-import DashboardPage from '../modules/dashboard/pages/DashboardPage.vue';
-import SupplierDetailPage from '../modules/supplier/pages/SupplierDetailPage.vue';
-import SupplierDebtPaymentPage from '../modules/supplier/pages/SupplierDebtPaymentPage.vue';
-import SupplierFormPage from '../modules/supplier/pages/SupplierFormPage.vue';
-import SupplierListPage from '../modules/supplier/pages/SupplierListPage.vue';
-import UnitListPage from '../modules/unit/pages/UnitListPage.vue';
-import OrderDetailPage from '../modules/order/pages/OrderDetailPage.vue';
-import OrderFormPage from '../modules/order/pages/OrderFormPage.vue';
-import OrderInvoicePage from '../modules/order/pages/OrderInvoicePage.vue';
-import OrderListPage from '../modules/order/pages/OrderListPage.vue';
-import OrderReturnPage from '../modules/order/pages/OrderReturnPage.vue';
-import OrderTrashPage from '../modules/order/pages/OrderTrashPage.vue';
-import PosPage from '../modules/pos/pages/PosPage.vue';
-import PurchaseDetailPage from '../modules/purchase/pages/PurchaseDetailPage.vue';
-import PurchaseFormPage from '../modules/purchase/pages/PurchaseFormPage.vue';
-import PurchaseListPage from '../modules/purchase/pages/PurchaseListPage.vue';
-import ProductFormPage from '../modules/product/pages/ProductFormPage.vue';
-import ProductListPage from '../modules/product/pages/ProductListPage.vue';
-import CustomerDebtReportPage from '../modules/report/pages/CustomerDebtReportPage.vue';
-import InventoryReportPage from '../modules/report/pages/InventoryReportPage.vue';
-import MissingCostReportPage from '../modules/report/pages/MissingCostReportPage.vue';
-import ReportIndexPage from '../modules/report/pages/ReportIndexPage.vue';
-import SalesOrdersListReportPage from '../modules/report/pages/SalesOrdersListReportPage.vue';
-import SalesReportPage from '../modules/report/pages/SalesReportPage.vue';
-import SupplierDebtReportPage from '../modules/report/pages/SupplierDebtReportPage.vue';
-import ChangePasswordPage from '../modules/system/pages/ChangePasswordPage.vue';
-import MigrationPage from '../modules/system/pages/MigrationPage.vue';
-import CostUpdatePage from '../modules/report/pages/CostUpdatePage.vue';
+
+const LoginPage = () => import('../modules/auth/pages/LoginPage.vue');
+const CategoryFormPage = () => import('../modules/category/pages/CategoryFormPage.vue');
+const CategoryListPage = () => import('../modules/category/pages/CategoryListPage.vue');
+const CustomerDebtPaymentPage = () => import('../modules/customer/pages/CustomerDebtPaymentPage.vue');
+const CustomerDetailPage = () => import('../modules/customer/pages/CustomerDetailPage.vue');
+const CustomerFormPage = () => import('../modules/customer/pages/CustomerFormPage.vue');
+const CustomerListPage = () => import('../modules/customer/pages/CustomerListPage.vue');
+const CustomerPaymentPage = () => import('../modules/customer/pages/CustomerPaymentPage.vue');
+const DashboardPage = () => import('../modules/dashboard/pages/DashboardPage.vue');
+const SupplierDetailPage = () => import('../modules/supplier/pages/SupplierDetailPage.vue');
+const SupplierDebtPaymentPage = () => import('../modules/supplier/pages/SupplierDebtPaymentPage.vue');
+const SupplierFormPage = () => import('../modules/supplier/pages/SupplierFormPage.vue');
+const SupplierListPage = () => import('../modules/supplier/pages/SupplierListPage.vue');
+const UnitListPage = () => import('../modules/unit/pages/UnitListPage.vue');
+const OrderDetailPage = () => import('../modules/order/pages/OrderDetailPage.vue');
+const OrderFormPage = () => import('../modules/order/pages/OrderFormPage.vue');
+const OrderInvoicePage = () => import('../modules/order/pages/OrderInvoicePage.vue');
+const OrderListPage = () => import('../modules/order/pages/OrderListPage.vue');
+const OrderReturnPage = () => import('../modules/order/pages/OrderReturnPage.vue');
+const OrderTrashPage = () => import('../modules/order/pages/OrderTrashPage.vue');
+const PosPage = () => import('../modules/pos/pages/PosPage.vue');
+const PurchaseDetailPage = () => import('../modules/purchase/pages/PurchaseDetailPage.vue');
+const PurchaseFormPage = () => import('../modules/purchase/pages/PurchaseFormPage.vue');
+const PurchaseListPage = () => import('../modules/purchase/pages/PurchaseListPage.vue');
+const ProductFormPage = () => import('../modules/product/pages/ProductFormPage.vue');
+const ProductListPage = () => import('../modules/product/pages/ProductListPage.vue');
+const MaterialPricePage = () => import('../modules/material-price/pages/MaterialPriceListPage.vue');
+const CustomerDebtReportPage = () => import('../modules/report/pages/CustomerDebtReportPage.vue');
+const InventoryReportPage = () => import('../modules/report/pages/InventoryReportPage.vue');
+const MissingCostReportPage = () => import('../modules/report/pages/MissingCostReportPage.vue');
+const ReportIndexPage = () => import('../modules/report/pages/ReportIndexPage.vue');
+const SalesOrdersListReportPage = () => import('../modules/report/pages/SalesOrdersListReportPage.vue');
+const SalesReportPage = () => import('../modules/report/pages/SalesReportPage.vue');
+const SupplierDebtReportPage = () => import('../modules/report/pages/SupplierDebtReportPage.vue');
+const ChangePasswordPage = () => import('../modules/system/pages/ChangePasswordPage.vue');
+const MigrationPage = () => import('../modules/system/pages/MigrationPage.vue');
+const CostUpdatePage = () => import('../modules/report/pages/CostUpdatePage.vue');
+
 const routerBase = (window as any).__BASE_PATH__ || '';
 
 const routes: RouteRecordRaw[] = [
@@ -78,6 +81,11 @@ const routes: RouteRecordRaw[] = [
     path: '/products/:id/edit',
     name: 'products.edit',
     component: ProductFormPage
+  },
+  {
+    path: '/material-prices',
+    name: 'material.prices',
+    component: MaterialPricePage
   },
   {
     path: '/categories',

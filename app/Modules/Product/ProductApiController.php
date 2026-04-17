@@ -15,6 +15,7 @@ class ProductApiController
         return ApiResponse::success($response, [
             'units' => isset($data['units']) ? $data['units'] : [],
             'categories' => isset($data['categories']) ? $data['categories'] : [],
+            'materialPrices' => isset($data['materialPrices']) ? $data['materialPrices'] : [],
         ]);
     }
 
@@ -32,8 +33,6 @@ class ProductApiController
 
         return ApiResponse::success($response, [
             'product' => isset($data['product']) ? $data['product'] : null,
-            'units' => isset($data['units']) ? $data['units'] : [],
-            'categories' => isset($data['categories']) ? $data['categories'] : [],
             'product_units' => isset($data['productUnits']) ? $data['productUnits'] : [],
             'inventory_qty_base' => isset($data['inventoryQtyBase']) ? $data['inventoryQtyBase'] : null,
             'product_logs' => isset($data['productLogs']) ? $data['productLogs'] : [],

@@ -240,7 +240,7 @@ protected static function useProductSalesSummary(): bool
             $code = self::generateUniqueCode(isset($data['name']) ? $data['name'] : '');
         }
 
-        $stmt = $pdo->prepare('INSERT INTO products (name, code, category_id, base_unit_id, min_stock_qty, auto_price_enabled, auto_price_value) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $pdo->prepare('INSERT INTO products (name, code, category_id, base_unit_id, min_stock_qty, auto_price_enabled, auto_price_value, weight_price_enabled, weight_value, material_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
             $data['name'],
             $code,
@@ -249,6 +249,9 @@ protected static function useProductSalesSummary(): bool
             isset($data['min_stock_qty']) ? $data['min_stock_qty'] : null,
             isset($data['auto_price_enabled']) ? (int)$data['auto_price_enabled'] : 0,
             isset($data['auto_price_value']) ? $data['auto_price_value'] : null,
+            isset($data['weight_price_enabled']) ? (int)$data['weight_price_enabled'] : 0,
+            isset($data['weight_value']) ? $data['weight_value'] : 0,
+            isset($data['material_type']) ? $data['material_type'] : null,
         ]);
         return $pdo->lastInsertId();
     }
@@ -262,7 +265,7 @@ protected static function useProductSalesSummary(): bool
             $code = self::generateUniqueCode(isset($data['name']) ? $data['name'] : '', $id);
         }
 
-        $stmt = $pdo->prepare('UPDATE products SET name = ?, code = ?, category_id = ?, base_unit_id = ?, min_stock_qty = ?, auto_price_enabled = ?, auto_price_value = ? WHERE id = ?');
+        $stmt = $pdo->prepare('UPDATE products SET name = ?, code = ?, category_id = ?, base_unit_id = ?, min_stock_qty = ?, auto_price_enabled = ?, auto_price_value = ?, weight_price_enabled = ?, weight_value = ?, material_type = ? WHERE id = ?');
         return $stmt->execute([
             $data['name'],
             $code,
@@ -271,6 +274,9 @@ protected static function useProductSalesSummary(): bool
             isset($data['min_stock_qty']) ? $data['min_stock_qty'] : null,
             isset($data['auto_price_enabled']) ? (int)$data['auto_price_enabled'] : 0,
             isset($data['auto_price_value']) ? $data['auto_price_value'] : null,
+            isset($data['weight_price_enabled']) ? (int)$data['weight_price_enabled'] : 0,
+            isset($data['weight_value']) ? $data['weight_value'] : 0,
+            isset($data['material_type']) ? $data['material_type'] : null,
             $id,
         ]);
     }

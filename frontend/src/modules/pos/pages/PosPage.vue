@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFormat } from "../../../shared/composables/useFormat";
-const { formatMoney, formatDateTime, parseAmount } = useFormat();
+const { formatMoney, parseAmount } = useFormat();
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import {

@@ -47,14 +47,16 @@ class ProductService
 
     public static function getCreateFormData(): array
     {
+        
         return array_merge(self::getFormMeta('Thêm sản phẩm'), [
             'success' => true,
             'units' => Unit::all(),
             'product' => null,
             'productUnits' => [],
-            'categories' => self::getCategories(),
+            'categories' => ProductCategory::all(),
             'inventoryQtyBase' => null,
             'productLogs' => [],
+            'materialPrices' => MaterialPriceRepository::getAll(),
         ]);
     }
 
@@ -75,13 +77,11 @@ class ProductService
                 'redirect' => 'product',
             ];
         }
-
+        
         return array_merge(self::getFormMeta('Sửa sản phẩm'), [
             'success' => true,
             'product' => $product,
-            'units' => Unit::all(),
             'productUnits' => class_exists('ProductUnit') ? ProductUnit::findByProduct($id) : [],
-            'categories' => self::getCategories(),
             'inventoryQtyBase' => class_exists('Inventory') ? Inventory::getQtyBase($id) : null,
             'productLogs' => class_exists('ProductLog') ? ProductLog::findByProduct($id) : [],
         ]);
@@ -231,7 +231,18 @@ class ProductService
             $data['auto_price_enabled'] = (int)$payload['auto_price_enabled'] ? 1 : 0;
         }
         if (array_key_exists('auto_price_value', $payload)) {
-            $data['auto_price_value'] = $payload['auto_price_value'] !== '' ? (int)$payload['auto_price_value'] : null;
+            $data['auto_price_value'] = $payload['auto_price_value'] !== '' ? Money::parsePrice($payload['auto_price_value']) : null;
+        }
+        
+        // Thêm weight_price_enabled, weight_value, material_type
+        if (array_key_exists('weight_price_enabled', $payload)) {
+            $data['weight_price_enabled'] = (int)$payload['weight_price_enabled'] ? 1 : 0;
+        }
+        if (array_key_exists('weight_value', $payload)) {
+            $data['weight_value'] = $payload['weight_value'] !== '' ? (float)$payload['weight_value'] : 0;
+        }
+        if (array_key_exists('material_type', $payload)) {
+            $data['material_type'] = !empty($payload['material_type']) ? trim((string)$payload['material_type']) : null;
         }
 
         return $data;

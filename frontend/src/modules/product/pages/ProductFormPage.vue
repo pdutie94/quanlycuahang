@@ -10,7 +10,7 @@ import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 import { useEntityForm } from '../../../shared/composables/useEntityForm';
 
-const { parseAmount, formatMoneyInput } = useFormat();
+const { parseAmount, formatMoneyInput, formatMoney, roundToThousand } = useFormat();
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
@@ -22,6 +22,7 @@ const {
   categories,
   units,
   baseUnitName,
+  materialPrices,
   loadBootstrap,
   loadEdit,
   refreshEdit,
@@ -55,26 +56,30 @@ const showDeleteModal = ref(false);
 
 let lastManualPrice = '';
 
-// Function làm tròn thông minh: dưới 500 làm tròn xuống, từ 500 làm tròn lên
-const roundToThousand = (amount: number): number => {
-  const remainder = amount % 1000;
-  if (remainder < 500) {
-    return amount - remainder; // làm tròn xuống
-  } else {
-    return amount + (1000 - remainder); // làm tròn lên
-  }
-};
-
-// Tự động cập nhật giá bán: giá bán = làm tròn(giá vốn) + giá tự động
+// Tự động cập nhật giá bán theo 3 mode: manual, auto_price, weight_price
 watch([
   () => form.value.auto_price_enabled,
   () => form.value.auto_price_value,
-  () => form.value.price_cost_single
-], ([enabled, autoVal, costVal], [prevEnabled]) => {
-  if (enabled && !prevEnabled) {
+  () => form.value.price_cost_single,
+  () => form.value.weight_price_enabled,
+  () => form.value.weight_value,
+  () => form.value.material_type
+], ([autoEnabled, autoVal, costVal, weightEnabled, weightVal, materialType], [prevAutoEnabled, prevWeightEnabled]) => {
+  // Lưu giá manual khi chuyển từ mode khác
+  if ((autoEnabled && !prevAutoEnabled) || (weightEnabled && !prevWeightEnabled)) {
     lastManualPrice = form.value.price_sell_single;
   }
-  if (enabled) {
+
+  // Reset các mode khi bật mode khác
+  if (autoEnabled && !prevAutoEnabled) {
+    form.value.weight_price_enabled = 0;
+  }
+  if (weightEnabled && !prevWeightEnabled) {
+    form.value.auto_price_enabled = 0;
+  }
+
+  // Auto Price Mode
+  if (autoEnabled) {
     const cost = parseAmount(costVal || '');
     const auto = parseAmount(autoVal || '');
     if (!isNaN(cost) && !isNaN(auto) && cost > 0 && auto > 0) {
@@ -84,9 +89,32 @@ watch([
       form.value.price_sell_single = lastManualPrice;
     }
   }
-  if (!enabled && prevEnabled) {
-    form.value.price_sell_single = lastManualPrice;
+  
+  // Weight Price Mode
+  else if (weightEnabled) {
+    const weight = parseFloat(weightVal || '') || 0;
+    const materialPrice = materialPrices.value.find(mp => mp.material_type === materialType);
+    const pricePerKg = materialPrice?.price_per_kg || 0;
+    
+    if (weight > 0 && pricePerKg > 0) {
+      const totalPrice = weight * pricePerKg;
+      const roundedPrice = roundToThousand(totalPrice);
+      form.value.price_sell_single = formatMoneyInput(roundedPrice);
+    } else {
+      form.value.price_sell_single = lastManualPrice;
+    }
   }
+  
+  // Manual Mode
+  else if (!autoEnabled && !weightEnabled) {
+    if (prevAutoEnabled || prevWeightEnabled) {
+      form.value.price_sell_single = lastManualPrice;
+    }
+  }
+
+  form.value.price_sell_single = formatMoneyInput(form.value.price_sell_single);
+  form.value.price_cost_single = formatMoneyInput(form.value.price_cost_single);
+  form.value.auto_price_value = formatMoneyInput(form.value.auto_price_value);
 });
 
 const historyDateFormatter = new Intl.DateTimeFormat('vi-VN', {
@@ -135,6 +163,7 @@ const deleteCurrentProduct = async () => {
     toast.error(deleteError.value || 'Không thể xóa sản phẩm vì đã có đơn hàng sử dụng.');
   }
 };
+console.log( materialPrices)
 </script>
 
 <template>
@@ -223,8 +252,8 @@ const deleteCurrentProduct = async () => {
                   type="text"
                   v-money-input
                   class="h-10 w-full rounded-xl border px-3 pr-8 text-sm outline-none focus:border-brand-500"
-                  :class="!!form.auto_price_enabled ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-slate-900 border-slate-300'"
-                  :disabled="!!form.auto_price_enabled"
+                  :class="(!!form.auto_price_enabled || !!form.weight_price_enabled) ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-slate-900 border-slate-300'"
+                  :disabled="!!form.auto_price_enabled || !!form.weight_price_enabled"
                 />
                 <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">đ</span>
               </div>
@@ -240,8 +269,15 @@ const deleteCurrentProduct = async () => {
           </div>
 
           <label class="flex items-center gap-2 text-sm text-slate-700 mt-2">
-            <input v-model="form.auto_price_enabled" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600" :true-value="1" :false-value="0" />
-            <span>Thiết lập giá bán tự động</span>
+            <input 
+              v-model="form.auto_price_enabled" 
+              type="checkbox" 
+              class="h-4 w-4 rounded border-slate-300 text-brand-600" 
+              :true-value="1" 
+              :false-value="0"
+              :disabled="!!form.weight_price_enabled"
+            />
+            <span :class="form.weight_price_enabled ? 'text-slate-400' : ''">Thiết lập giá bán tự động</span>
           </label>
 
           <div v-if="form.auto_price_enabled" class="flex flex-col gap-1 mt-1">
@@ -251,6 +287,46 @@ const deleteCurrentProduct = async () => {
               <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">đ</span>
             </div>
             <p class="text-xs text-slate-400">Giá bán sẽ được tự động thiết lập theo số tiền này. Bạn sẽ không chỉnh sửa được giá bán thủ công.</p>
+          </div>
+
+          <label class="flex items-center gap-2 text-sm text-slate-700 mt-2">
+            <input 
+              v-model="form.weight_price_enabled" 
+              type="checkbox" 
+              class="h-4 w-4 rounded border-slate-300 text-brand-600" 
+              :true-value="1" 
+              :false-value="0"
+              :disabled="!!form.auto_price_enabled"
+            />
+            <span :class="form.auto_price_enabled ? 'text-slate-400' : ''">Tính giá theo cân nặng</span>
+          </label>
+
+          <div v-if="form.weight_price_enabled" class="flex flex-col gap-1 mt-1">
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-slate-700">Cân nặng</label>
+                <div class="relative">
+                  <input v-model="form.weight_value" type="text" class="h-10 w-full rounded-xl border border-slate-300 px-3 pr-12 text-sm outline-none focus:border-brand-500" placeholder="Nhập cân nặng" />
+                  <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">kg</span>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-slate-700">Loại vật liệu</label>
+                <div class="relative grid">
+                  <select v-model="form.material_type" class="col-start-1 row-start-1 h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm outline-none focus:border-brand-500">
+                    <option value="">Chọn loại vật liệu</option>
+                    <option v-for="material in materialPrices" :key="material.material_type" :value="material.material_type">
+                      {{ material.material_type + ' (' + formatMoney(material.price_per_kg) + '/kg)' }}
+                    </option>
+                  </select>
+                  <span class="pointer-events-none col-start-1 row-start-1 mr-3 flex items-center justify-end text-slate-400">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <p class="text-xs text-slate-400">Giá bán sẽ được tính tự động dựa trên cân nặng và giá vật liệu tương ứng.</p>
           </div>
 
           <label class="flex items-center gap-2 text-sm text-slate-700 mt-2">

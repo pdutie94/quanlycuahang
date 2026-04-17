@@ -20,6 +20,7 @@ import { useToast } from "../../../shared/composables/useToast";
 import ActionConfirmSheet from "../../../shared/components/ActionConfirmSheet.vue";
 import DetailHeaderBar from "../../../shared/components/DetailHeaderBar.vue";
 import PaymentModal from "../../../shared/components/PaymentModal.vue";
+import { getConfigFileParsingDiagnostics } from "typescript";
 
 const route = useRoute();
 const router = useRouter();
@@ -63,10 +64,10 @@ const {
     formatMoney,
     formatDateTime,
     formatHistoryDateTime,
-    parseAmount,
     formatNumber,
     formatMoneyInput,
     formatMoneyInputValue,
+    roundToThousand,
 } = useFormat();
 
 const isDecimalShorthand = (value: any) => {
@@ -149,12 +150,12 @@ const discountAmount = computed(() =>
 const surchargeAmount = computed(() =>
     Math.max(Number(order.value?.surcharge_amount || 0), 0),
 );
-const grossAmount = computed(() =>
-    Math.max(
+const grossAmount = computed(() => {
+    return Math.max(
         totalAmount.value + discountAmount.value - surchargeAmount.value,
         0,
-    ),
-);
+    );
+});
 const profitAmount = computed(() => totalAmount.value - totalCost.value);
 const remainingAmount = computed(() =>
     Math.max(totalAmount.value - Number(order.value?.paid_amount || 0), 0),
@@ -491,8 +492,6 @@ watch(order, () => {
 onMounted(async () => {
     await loadOrder();
 });
-
-console.log(canEditOrder.value);
 </script>
 
 <template>
@@ -687,7 +686,7 @@ console.log(canEditOrder.value);
                                         >Tổng bán (gốc)</span
                                     >
                                     <span class="font-medium text-slate-900">{{
-                                        formatMoney(grossAmount)
+                                        formatMoney(roundToThousand(grossAmount))
                                     }}</span>
                                 </div>
                                 <div

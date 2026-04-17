@@ -4,6 +4,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router';
 import {
   ArrowRight,
   ChartPie,
+  DollarSign,
   House,
   LayoutGrid,
   Menu,
@@ -110,6 +111,7 @@ watch(
             <RouterLink to="/reports/inventory" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50"><ChartPie class="h-4 w-4 text-slate-500" />Báo cáo tồn kho</RouterLink>
             <RouterLink to="/categories" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50"><LayoutGrid class="h-4 w-4 text-slate-500" />Danh mục</RouterLink>
             <RouterLink to="/units" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50"><Ruler class="h-4 w-4 text-slate-500" />Đơn vị tính</RouterLink>
+            <RouterLink to="/material-prices" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50"><DollarSign class="h-4 w-4 text-slate-500" />Giá vật liệu</RouterLink>
             <RouterLink to="/change-password" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50"><User class="h-4 w-4 text-slate-500" />Tài khoản</RouterLink>
             <RouterLink to="/migrations" class="flex min-h-10 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:bg-slate-50"><ArrowRight class="h-4 w-4 text-slate-500" />Migration</RouterLink>
           </div>

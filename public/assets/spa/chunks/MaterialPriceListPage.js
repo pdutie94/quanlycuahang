@@ -1,0 +1,1 @@
+import{t as e}from"./material-price.js";export{e as default};

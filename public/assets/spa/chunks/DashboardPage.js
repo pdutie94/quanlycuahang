@@ -1,0 +1,1 @@
+import{t as e}from"./dashboard.js";export{e as default};

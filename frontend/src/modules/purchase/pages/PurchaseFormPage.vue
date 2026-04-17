@@ -703,7 +703,6 @@ const initializePage = async () => {
             normalizeManualQty(item);
             item.price_cost = formatMoneyInput(item.price_cost, false);
             item.amount = formatMoneyInput(item.amount, false);
-            console.log(item.qty);
         });
     }
 };

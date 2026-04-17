@@ -31,15 +31,27 @@ export interface ProductFormData {
   categories: Category[];
 }
 
+export interface MaterialPrice {
+  id: number;
+  material_type: string;
+  price_per_kg: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface ProductEditData {
   product: Product & { 
     auto_price_enabled: boolean | number;
     auto_price_value: string | number;
     min_stock_qty: number | string;
+    weight_price_enabled: boolean | number;
+    weight_value: number;
+    material_type: string;
   };
   product_units: ProductUnitDetailed[];
   product_logs: ProductLog[];
   inventory_qty_base: number | string;
+  material_prices: MaterialPrice[];
 }
 
 export interface ProductFormState {
@@ -53,7 +65,10 @@ export interface ProductFormState {
   min_step: string;
   inventory_qty_base: string;
   min_stock_qty: string;
-  redirect: 'stay' | 'list' | 'detail';
+  redirect: string;
   auto_price_enabled: number; // 0 or 1
   auto_price_value: string;
+  weight_price_enabled: number; // 0 or 1
+  weight_value: string;
+  material_type: string;
 }
