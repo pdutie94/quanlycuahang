@@ -27,6 +27,10 @@ done
 
 
 # 3. Copy public/assets nếu có
+# Xóa assets cũ trong full-package trước để tránh cache file cũ
+if [ -d "$PKG_DIR/public/assets" ]; then
+  rm -rf "$PKG_DIR/public/assets"
+fi
 if [ -d "public/assets" ]; then
   mkdir -p "$PKG_DIR/public/assets"
   cp -r public/assets/. "$PKG_DIR/public/assets/"

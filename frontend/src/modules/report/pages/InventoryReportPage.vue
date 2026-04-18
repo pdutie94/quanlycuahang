@@ -179,29 +179,10 @@ onMounted(async () => {
                                         : ''
                                 "
                             >
-                                <div class="flex items-center gap-2">
-                                    <div>
-                                        <div
-                                            class="text-sm font-medium text-slate-900"
-                                        >
-                                            {{ item.name }}
-                                            <span class="text-slate-500"
-                                                >-
-                                                {{ item.base_unit_name }}</span
-                                            >
-                                        </div>
-                                        <div
-                                            v-if="item.product_code"
-                                            class="font-mono text-xs text-slate-400"
-                                        >
-                                            {{ item.product_code }}
-                                        </div>
-                                    </div>
-                                    <span
-                                        v-if="item.status === 'low'"
-                                        class="inline-flex shrink-0 items-center rounded-md border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700"
-                                    >
-                                        Sắp hết
+                                <div class="text-sm font-medium text-slate-900">
+                                    <span>{{ item.name }}</span>
+                                    <span class="text-slate-500">
+                                        - {{ item.base_unit_name }}
                                     </span>
                                 </div>
                             </td>

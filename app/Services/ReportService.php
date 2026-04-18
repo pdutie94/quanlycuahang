@@ -344,36 +344,46 @@ class ReportService
         }
 
         $offset = ($page - 1) * $perPage;
-        $sql = 'SELECT
-                    \'order\' AS doc_type,
-                    o.id,
-                    o.order_code AS code,
-                    o.order_date AS doc_date,
-                    o.total_amount,
-                    o.total_cost,
-                    o.paid_amount,
-                    o.status,
-                    o.order_status,
+        $sql = 'SELECT o.*,
                     c.name AS customer_name,
-                    c.phone AS customer_phone
+                    c.phone AS customer_phone,
+                    COALESCE(ic.items_count, 0) AS items_count
                 FROM orders o
                 LEFT JOIN customers c ON o.customer_id = c.id
+                LEFT JOIN (
+                    SELECT order_id, SUM(count_items) AS items_count
+                    FROM (
+                        SELECT order_id, COUNT(*) AS count_items
+                        FROM order_items
+                        GROUP BY order_id
+                        UNION ALL
+                        SELECT order_id, COUNT(*) AS count_items
+                        FROM order_manual_items
+                        GROUP BY order_id
+                    ) t
+                    GROUP BY order_id
+                ) ic ON ic.order_id = o.id
                 ' . $whereSql . '
-                ORDER BY doc_date DESC, id DESC
+                ORDER BY o.order_date DESC, o.id DESC
                 LIMIT ' . (int) $perPage . ' OFFSET ' . (int) $offset;
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
 
         return [
-            'rows' => $stmt->fetchAll(),
+            'items' => $stmt->fetchAll(),
             'summary' => $summary,
-            'startDate' => $dateRange['startDate'],
-            'endDate' => $dateRange['endDate'],
-            'rangeMode' => $dateRange['filterMode'] !== '' ? $dateRange['filterMode'] : 'day',
-            'page' => $page,
-            'totalPages' => $totalPages,
-            'hasDateFilter' => $dateRange['hasDateFilter'],
+            'meta' => [
+                'page' => $page,
+                'per_page' => $perPage,
+                'total_pages' => $totalPages,
+                'total_count' => $summary['order_count'],
+            ],
+            'filters' => [
+                'start_date' => $dateRange['startDate'],
+                'end_date' => $dateRange['endDate'],
+                'range_mode' => $dateRange['filterMode'] !== '' ? $dateRange['filterMode'] : 'day',
+            ],
             'dailyStats' => $dailyStats,
         ];
     }

@@ -148,8 +148,11 @@ onMounted(async () => {
       <h1 class="font-display text-xl font-bold text-slate-900 md:text-2xl">Giá nguyên vật liệu</h1>
     </div>
     <form class="mt-0 flex gap-2 mb-2" @submit.prevent="handleAdd">
-      <input v-model="newMaterialName" type="text" class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500" placeholder="VD: Sắt, Inox, Nhôm..." :disabled="addLoading" />
-      <input v-model="newUnitPrice" type="text" v-money-input class="w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500" placeholder="Giá" :disabled="addLoading" />
+      <input v-model="newMaterialName" type="text" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500" placeholder="VD: Sắt, Inox, Nhôm..." :disabled="addLoading" />
+      <div class="relative">
+        <input v-model="newUnitPrice" type="text" v-money-input class="w-[8rem] rounded-lg border border-slate-300 px-3 py-2 pr-8 text-sm outline-none focus:border-brand-500" placeholder="Giá" :disabled="addLoading" />
+        <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">đ</span>
+      </div>
       <button type="submit" class="rounded-lg bg-brand-600 px-3 py-2 text-white disabled:opacity-50" :disabled="addLoading" title="Thêm mới"><Plus class="w-4 h-4" /></button>
     </form>
     <div class="space-y-3" @scroll="onScroll">
@@ -160,8 +163,11 @@ onMounted(async () => {
           <div class="flex-1">
             <template v-if="editingId === item.id">
               <div class="flex gap-2">
-                <input v-model="editingMaterialName" type="text" class="flex-1 rounded-lg border border-slate-300 px-2 py-1 text-sm outline-none focus:border-brand-500" :disabled="updateLoading" />
-                <input v-model="editingUnitPrice" type="text" v-money-input class="w-24 rounded-lg border border-slate-300 px-2 py-1 text-sm outline-none focus:border-brand-500" :disabled="updateLoading" />
+                <input v-model="editingMaterialName" type="text" class="w-full rounded-lg border border-slate-300 px-2 py-1 text-sm outline-none focus:border-brand-500" :disabled="updateLoading" />
+                <div class="relative">
+                  <input v-model="editingUnitPrice" type="text" v-money-input class="w-24 rounded-lg border border-slate-300 px-2 py-1 pr-7 text-sm outline-none focus:border-brand-500" :disabled="updateLoading" />
+                  <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-400">đ</span>
+                </div>
               </div>
             </template>
             <template v-else>

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { BarChart2, Package, User, Truck, Tag } from '@lucide/vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney } = useFormat();
-import { onMounted, reactive, ref } from 'vue';
-import { RouterLink } from 'vue-router';
+import { reactive } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { useSalesReport } from '../composables/useSalesReport';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
@@ -12,15 +10,16 @@ import OrderItemCard from '../../../shared/components/OrderItemCard.vue';
 import ReportNavButtons from '../components/ReportNavButtons.vue';
 
 const toast = useToast();
-const { rows, summary, meta, loading, error, load } = useSalesReport();
+const { items, summary, meta, loading, error, load } = useSalesReport();
 
 const today = new Date().toISOString().slice(0, 10);
 const thisMonth = today.slice(0, 7);
+const currentQuarter = String(Math.floor(new Date().getMonth() / 3) + 1);
 const form = reactive({
   filter_mode: 'day' as 'day' | 'month' | 'quarter' | 'year',
   day: today,
   month: thisMonth,
-  quarter: '',
+  quarter: currentQuarter,
   quarter_year: String(new Date().getFullYear()),
   year: String(new Date().getFullYear())
 });
@@ -46,7 +45,7 @@ const {
   infiniteSentinel: infiniteListSentinel,
   refresh
 } = useInfiniteList({
-  itemsRef: rows,
+  itemsRef: items,
   metaRef: meta,
   loadingRef: loading,
   fetchPage: (page: number) => load({ ...buildParams(), page }),
@@ -55,6 +54,7 @@ const {
   }
 });
 
+console.log(items);
 
 const applyFilter = async () => {
   await refresh();
@@ -88,8 +88,7 @@ const applyFilter = async () => {
           <div v-if="form.filter_mode === 'quarter'" class="flex gap-2">
             <div>
               <label class="app-label">Quý</label>
-              <select v-model="form.quarter" class="h-10 min-w-[10rem] rounded-xl border border-slate-300 px-3 text-sm">
-                <option value="">Quý</option>
+              <select v-model="form.quarter" class="h-10 min-w-[9rem] md:min-w-[10rem] rounded-xl border border-slate-300 px-3 text-sm">
                 <option value="1">Quý 1</option>
                 <option value="2">Quý 2</option>
                 <option value="3">Quý 3</option>
@@ -98,12 +97,12 @@ const applyFilter = async () => {
             </div>
             <div>
               <label class="app-label">Năm</label>
-              <input v-model="form.quarter_year" type="number" min="2000" max="2100" class="h-10 min-w-[10rem] rounded-xl border border-slate-300 px-3 text-sm" />
+              <input v-model="form.quarter_year" type="number" min="2000" max="2100" class="h-10 min-w-[9rem] md:min-w-[10rem] rounded-xl border border-slate-300 px-3 text-sm" />
             </div>
           </div>
           <div v-if="form.filter_mode === 'year'" class="relative">
             <label class="app-label">Chọn năm</label>
-            <input v-model="form.year" type="number" min="2000" max="2100" class="h-10 min-w-[10rem] rounded-xl border border-slate-300 px-3 text-sm" />
+            <input v-model="form.year" type="number" min="2000" max="2100" class="h-10 min-w-[9rem] md:min-w-[10rem] rounded-xl border border-slate-300 px-3 text-sm" />
           </div>
           <button type="submit" class="h-10 rounded-xl bg-brand-600 px-4 text-sm font-medium text-white" :disabled="loading">Lọc</button>
         </div>
@@ -120,12 +119,12 @@ const applyFilter = async () => {
 
 
     <div v-if="isInitialLoading" class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">Đang tải...</div>
-    <div v-else-if="!rows.length" class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">Không có dữ liệu doanh thu.</div>
+    <div v-else-if="!items.length" class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">Không có dữ liệu doanh thu.</div>
 
     <section v-else class="space-y-3">
-      <OrderItemCard v-for="row in rows" :key="row.id" :order="row" :link-enabled="true" :show-view-icon="true" />
-      <InfiniteListStatus :visible="rows.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
-      <div v-if="rows.length && hasMore" ref="infiniteListSentinel" class="h-1 w-full"></div>
+      <OrderItemCard v-for="item in items" :key="item.id" :order="item" :link-enabled="true" :show-view-icon="true" />
+      <InfiniteListStatus :visible="items.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
+      <div v-if="items.length && hasMore" ref="infiniteListSentinel" class="h-1 w-full"></div>
     </section>
   </section>
 </template>

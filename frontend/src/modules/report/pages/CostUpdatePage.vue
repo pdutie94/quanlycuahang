@@ -189,12 +189,10 @@ onMounted(async () => {
                                 "
                             >
                                 <div class="font-medium text-slate-900 text-sm">
-                                    <span class="truncate max-w-[180px]">{{
-                                        item.name
-                                    }}</span>
-                                    <span class="text-xs text-slate-500">
-                                        - {{ item.base_unit_name }}</span
-                                    >
+                                    <span>{{ item.name }}</span>
+                                    <span class="text-slate-500">
+                                        - {{ item.base_unit_name }}
+                                    </span>
                                 </div>
                             </td>
                             <td

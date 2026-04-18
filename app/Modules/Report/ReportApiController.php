@@ -39,16 +39,18 @@ class ReportApiController
         $data = \ReportService::getSalesData($query);
 
         return ApiResponse::success($response, [
-            'rows' => isset($data['rows']) ? $data['rows'] : [],
+            'items' => isset($data['items']) ? $data['items'] : [],
             'summary' => isset($data['summary']) ? $data['summary'] : [],
-            'meta' => [
-                'page' => isset($data['page']) ? (int) $data['page'] : 1,
-                'total_pages' => isset($data['totalPages']) ? (int) $data['totalPages'] : 1,
+            'meta' => isset($data['meta']) ? $data['meta'] : [
+                'page' => 1,
+                'per_page' => 30,
+                'total_pages' => 1,
+                'total_count' => 0,
             ],
-            'filters' => [
-                'start_date' => isset($data['startDate']) ? $data['startDate'] : '',
-                'end_date' => isset($data['endDate']) ? $data['endDate'] : '',
-                'range_mode' => isset($data['rangeMode']) ? $data['rangeMode'] : 'day',
+            'filters' => isset($data['filters']) ? $data['filters'] : [
+                'start_date' => '',
+                'end_date' => '',
+                'range_mode' => 'day',
             ],
             'daily_stats' => isset($data['dailyStats']) ? $data['dailyStats'] : [],
         ]);
@@ -86,8 +88,13 @@ class ReportApiController
         $data = \ReportService::getCustomerDebtData($query);
 
         return ApiResponse::success($response, [
-            'rows' => isset($data['rows']) ? $data['rows'] : [],
+            'items' => isset($data['rows']) ? $data['rows'] : [],
             'summary' => isset($data['summary']) ? $data['summary'] : [],
+            'meta' => isset($data['meta']) ? $data['meta'] : [
+                'page' => isset($data['page']) ? (int) $data['page'] : 1,
+                'total_pages' => isset($data['totalPages']) ? (int) $data['totalPages'] : 1,
+                'total_count' => isset($data['totalCount']) ? (int) $data['totalCount'] : 0,
+            ],
             'filters' => [
                 'start_date' => isset($data['startDate']) ? $data['startDate'] : '',
                 'end_date' => isset($data['endDate']) ? $data['endDate'] : '',
@@ -103,8 +110,13 @@ class ReportApiController
         $data = \ReportService::getSupplierDebtData($query);
 
         return ApiResponse::success($response, [
-            'rows' => isset($data['rows']) ? $data['rows'] : [],
+            'items' => isset($data['rows']) ? $data['rows'] : [],
             'summary' => isset($data['summary']) ? $data['summary'] : [],
+            'meta' => isset($data['meta']) ? $data['meta'] : [
+                'page' => isset($data['page']) ? (int) $data['page'] : 1,
+                'total_pages' => isset($data['totalPages']) ? (int) $data['totalPages'] : 1,
+                'total_count' => isset($data['totalCount']) ? (int) $data['totalCount'] : 0,
+            ],
             'filters' => [
                 'start_date' => isset($data['startDate']) ? $data['startDate'] : '',
                 'end_date' => isset($data['endDate']) ? $data['endDate'] : '',

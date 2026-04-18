@@ -5,7 +5,7 @@ import type { Order } from '../../order/types';
 import type { SalesReportSummary, SalesReportItem } from '../types';
 
 export function useSalesReport() {
-  const rows = ref<Order[]>([]);
+  const items = ref<Order[]>([]);
   const summary = ref<SalesReportSummary>({ order_count: 0, total_amount: 0, total_cost: 0, profit: 0, paid_amount: 0, debt_amount: 0 });
   const meta = ref({ page: 1, total_pages: 1 });
   const filters = ref({ start_date: '', end_date: '', range_mode: 'day' });
@@ -15,7 +15,7 @@ export function useSalesReport() {
 
   const load = async (params: Record<string, any> = {}) => {
     const payload = await request.execute(params);
-    rows.value = payload?.data?.rows || [];
+    items.value = payload?.data?.items || [];
     summary.value = payload?.data?.summary || { order_count: 0, total_amount: 0, total_cost: 0, profit: 0, paid_amount: 0, debt_amount: 0 };
     meta.value = payload?.data?.meta || { page: 1, total_pages: 1 };
     filters.value = payload?.data?.filters || { start_date: '', end_date: '', range_mode: 'day' };
@@ -24,7 +24,7 @@ export function useSalesReport() {
   };
 
   return {
-    rows,
+    items,
     summary,
     meta,
     filters,

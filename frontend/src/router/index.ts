@@ -32,7 +32,6 @@ const CustomerDebtReportPage = () => import('../modules/report/pages/CustomerDeb
 const InventoryReportPage = () => import('../modules/report/pages/InventoryReportPage.vue');
 const MissingCostReportPage = () => import('../modules/report/pages/MissingCostReportPage.vue');
 const ReportIndexPage = () => import('../modules/report/pages/ReportIndexPage.vue');
-const SalesOrdersListReportPage = () => import('../modules/report/pages/SalesOrdersListReportPage.vue');
 const SalesReportPage = () => import('../modules/report/pages/SalesReportPage.vue');
 const SupplierDebtReportPage = () => import('../modules/report/pages/SupplierDebtReportPage.vue');
 const ChangePasswordPage = () => import('../modules/system/pages/ChangePasswordPage.vue');
@@ -126,11 +125,6 @@ const routes: RouteRecordRaw[] = [
     path: '/reports/sales',
     name: 'reports.sales',
     component: SalesReportPage
-  },
-  {
-    path: '/reports/sales-orders',
-    name: 'reports.salesOrders',
-    component: SalesOrdersListReportPage
   },
   {
     path: '/reports/missing-cost',

@@ -13,7 +13,7 @@ export function useSupplierDebtReport() {
 
   const load = async (params: Record<string, any> = {}) => {
     const payload = await request.execute(params);
-    rows.value = payload?.data?.rows || [];
+    rows.value = payload?.data?.items || [];
     summary.value = payload?.data?.summary || { total_amount: 0, paid_amount: 0, debt_amount: 0 };
     filters.value = payload?.data?.filters || { start_date: '', end_date: '', q: '', show_all: '0' };
     meta.value = payload?.data?.meta || { page: 1, total_pages: 1, total_count: 0, per_page: 30 };

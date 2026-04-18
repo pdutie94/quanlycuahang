@@ -5,19 +5,18 @@ import { useInfiniteList } from "../../../shared/composables/useInfiniteList";
 import ReportNavButtons from "../components/ReportNavButtons.vue";
 import { useFormat } from "../../../shared/composables/useFormat";
 const { formatMoney } = useFormat();
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useToast } from "../../../shared/composables/useToast";
 import { useCustomerDebtReport } from "../composables/useCustomerDebtReport";
 
 const toast = useToast();
-const { rows, summary, loading, error, load } = useCustomerDebtReport();
+const { items, summary, meta, loading, error, load } = useCustomerDebtReport();
 const form = reactive({ start_date: "", end_date: "", q: "", show_all: false });
-const meta = ref({ page: 1, total_pages: 1, total_count: 0, per_page: 30 });
 const hasLoadedOnce = ref(false);
 const isInitialLoading = computed(() => loading.value && !hasLoadedOnce.value);
 
 const { hasMore, loadingMore } = useInfiniteList({
-    itemsRef: rows,
+    itemsRef: items,
     metaRef: meta,
     loadingRef: loading,
     fetchPage: (page: number) =>
@@ -56,10 +55,6 @@ const resetFilter = async () => {
     form.show_all = false;
     await loadPage();
 };
-
-onMounted(async () => {
-    await loadPage();
-});
 </script>
 
 <template>
@@ -75,7 +70,7 @@ onMounted(async () => {
                 @submit.prevent="loadPage"
             >
                 <div class="flex flex-wrap items-end gap-3">
-                    <div class="flex flex-1 flex-col gap-1 min-w-[130px]">
+                    <div class="flex flex-1 flex-col min-w-[130px]">
                         <label class="app-label">Từ ngày</label>
                         <input
                             v-model="form.start_date"
@@ -83,7 +78,7 @@ onMounted(async () => {
                             class="app-input"
                         />
                     </div>
-                    <div class="flex flex-1 flex-col gap-1 min-w-[130px]">
+                    <div class="flex flex-1 flex-col min-w-[130px]">
                         <label class="app-label">Đến ngày</label>
                         <input
                             v-model="form.end_date"
@@ -91,7 +86,7 @@ onMounted(async () => {
                             class="app-input"
                         />
                     </div>
-                    <div class="flex flex-1 flex-col gap-1 min-w-[180px]">
+                    <div class="flex flex-1 flex-col min-w-[180px]">
                         <label class="app-label">Từ khóa</label>
                         <input
                             v-model="form.q"
@@ -162,7 +157,7 @@ onMounted(async () => {
                 Đang tải...
             </div>
 
-            <div v-else-if="!rows.length" class="app-empty-state">
+            <div v-else-if="!items.length" class="app-empty-state">
                 Chưa có khách hàng nào.
             </div>
 
@@ -174,12 +169,12 @@ onMounted(async () => {
                     appear
                 >
                     <CustomerItemCard
-                        v-for="row in rows"
-                        :key="row.id"
-                        :customer="row"
+                        v-for="item in items"
+                        :key="item.id"
+                        :customer="item"
                         :to="{
                             name: 'customers.detail',
-                            params: { id: row.id },
+                            params: { id: item.id },
                         }"
                     />
                 </transition-group>
@@ -187,12 +182,12 @@ onMounted(async () => {
         </div>
 
         <InfiniteListStatus
-            :visible="rows.length > 0"
+            :visible="items.length > 0"
             :loading-more="loadingMore"
             :has-more="hasMore"
         />
         <div
-            v-if="rows.length && hasMore"
+            v-if="items.length && hasMore"
             ref="infiniteSentinel"
             class="h-1 w-full"
         ></div>
