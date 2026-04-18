@@ -5,6 +5,7 @@ import { ChartPie, ClipboardList, Plus, ShoppingCart } from '@lucide/vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { useReportOverview } from '../../report/composables/useReportOverview';
 import OrderItemCard from '../../../shared/components/OrderItemCard.vue';
+import DashboardSkeleton from '../components/DashboardSkeleton.vue';
 
 const toast = useToast();
 const { overview, loading, error, load } = useReportOverview();
@@ -46,7 +47,7 @@ onMounted(async () => {
       <span class="inline-flex rounded-chip border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700">{{ todayText }}</span>
     </div>
 
-    <div v-if="loading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>
+    <DashboardSkeleton v-if="loading" />
 
     <template v-else>
       <section class="grid grid-cols-2 gap-3 text-sm xl:grid-cols-4">
