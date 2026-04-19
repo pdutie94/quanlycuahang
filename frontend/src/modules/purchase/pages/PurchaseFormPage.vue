@@ -61,6 +61,7 @@ const pageTitle = computed(() =>
 );
 const loading = computed(() => bootstrapLoading.value);
 const saving = computed(() => createLoading.value || updateLoading.value);
+const isPayNow = computed(() => form.value.payment_status === "pay");
 
 const showSupplierModal = ref(false);
 const showProductSelector = ref(false);
@@ -1177,7 +1178,7 @@ onMounted(async () => {
                                 </div>
                             </div>
 
-                            <div>
+                            <div v-if="isPayNow">
                                 <label
                                     class="mb-1 block text-sm font-medium text-slate-700"
                                     >Hình thức thanh toán</label
@@ -1210,7 +1211,7 @@ onMounted(async () => {
                                 </div>
                             </div>
 
-                            <div>
+                            <div v-if="isPayNow">
                                 <label
                                     class="mb-1 block text-sm font-medium text-slate-700"
                                     >Số tiền thanh toán</label
