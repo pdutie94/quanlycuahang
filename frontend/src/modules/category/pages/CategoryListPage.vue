@@ -6,6 +6,7 @@ import { createCategory, updateCategory, deleteCategory, fetchCategoryDetail } f
 import { Pencil, Trash2, Check, X as IconX, Plus } from '@lucide/vue';
 import ActionConfirmSheet from '../../../shared/components/ActionConfirmSheet.vue';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
+import CategoryListSkeleton from '../components/CategoryListSkeleton.vue';
 
 interface Category {
   id: number | string;
@@ -166,8 +167,11 @@ onMounted(async () => {
     </form>
     <div class="space-y-3">
       <div v-if="isRefreshing" class="px-1 text-xs font-medium text-slate-500">Đang cập nhật danh mục...</div>
-      <div v-if="isInitialLoading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>
+
+      <CategoryListSkeleton v-if="isInitialLoading" />
+
       <div v-else-if="!items.length" class="app-empty-state">Chưa có danh mục nào.</div>
+
       <div v-else class="space-y-3" @scroll="onScroll" :class="isRefreshing ? 'opacity-70 transition-opacity' : 'transition-opacity'">
         <div v-for="item in itemsTyped" :key="item.id" class="app-list-card flex items-center justify-between gap-2">
           <div class="flex-1">

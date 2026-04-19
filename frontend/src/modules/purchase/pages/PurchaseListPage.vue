@@ -10,8 +10,8 @@ import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 import AppModalSheet from '../../../shared/components/AppModalSheet.vue';
-import EntityListState from '../../../shared/components/EntityListState.vue';
 import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
+import PurchaseListSkeleton from '../components/PurchaseListSkeleton.vue';
 import { useUrlFilters } from '../../../shared/composables/useUrlFilters';
 
 const route = useRoute();
@@ -163,20 +163,22 @@ watch(
       </div>
     </AppModalSheet>
 
-    <EntityListState :loading="isInitialLoading" :has-items="items.length > 0" empty-text="Chưa có phiếu nhập hàng nào.">
-      <template #default>
-        <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
-            <RouterLink
-              v-for="item in items"
-              :key="item.id"
-              :to="{ name: 'purchases.detail', params: { id: item.id } }"
-              class="block"
-            >
-              <PurchaseListItemCard :purchase="item" :format-money="formatMoney" :format-date-time="formatDateTime" />
-            </RouterLink>
-        </transition-group>
-      </template>
-    </EntityListState>
+    <PurchaseListSkeleton v-if="isInitialLoading" />
+
+    <div v-else-if="items.length === 0" class="app-empty-state">Chưa có phiếu nhập hàng nào.</div>
+
+    <div v-else class="space-y-3">
+      <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
+          <RouterLink
+            v-for="item in items"
+            :key="item.id"
+            :to="{ name: 'purchases.detail', params: { id: item.id } }"
+            class="block"
+          >
+            <PurchaseListItemCard :purchase="item" :format-money="formatMoney" :format-date-time="formatDateTime" />
+          </RouterLink>
+      </transition-group>
+    </div>
 
     <InfiniteListStatus :visible="items.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
     <div v-if="items.length && hasMore" ref="infiniteSentinel" class="h-1 w-full"></div>

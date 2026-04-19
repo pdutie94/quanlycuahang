@@ -5,6 +5,7 @@ import { Pencil, Trash2, Check, X as IconX, Plus } from '@lucide/vue';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ActionConfirmSheet from '../../../shared/components/ActionConfirmSheet.vue';
 import { useUnitList } from '../composables/useUnitList';
+import UnitListSkeleton from '../components/UnitListSkeleton.vue';
 
 const toast = useToast();
 const { items, meta, page, load, loadMore, loading, submitCreate, createLoading, submitUpdate, updateLoading, submitDelete, deleteLoading } = useUnitList();
@@ -117,8 +118,10 @@ onMounted(async () => {
       <button type="submit" class="rounded-lg bg-brand-600 px-3 py-2 text-white disabled:opacity-50" :disabled="addLoading" title="Thêm mới"><Plus class="w-4 h-4" /></button>
     </form>
     <div class="space-y-3" @scroll="onScroll">
-      <div v-if="loading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>
+      <UnitListSkeleton v-if="loading" />
+
       <div v-else-if="!items.length" class="app-empty-state">Chưa có đơn vị tính nào.</div>
+
       <div v-else class="space-y-3" @scroll="onScroll">
         <div v-for="item in itemsTyped" :key="item.id" class="app-list-card flex items-center justify-between gap-2">
           <div class="flex-1">

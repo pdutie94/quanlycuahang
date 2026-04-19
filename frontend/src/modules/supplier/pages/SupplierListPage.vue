@@ -9,6 +9,7 @@ import { useUrlFilters } from '../../../shared/composables/useUrlFilters';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
+import SupplierListSkeleton from '../components/SupplierListSkeleton.vue';
 
 const route = useRoute();
 const toast = useToast();
@@ -90,9 +91,11 @@ const hasAnyFilter = computed(() => filters.value.debt_status !== '');
     </ListHeaderBar>
 
     <div class="space-y-3">
-      <div v-if="isInitialLoading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>
+      <SupplierListSkeleton v-if="isInitialLoading" />
+
       <div v-else-if="!suppliers.length" class="app-empty-state">Chưa có nhà cung cấp nào.</div>
-      <template v-else>
+
+      <div v-else>
         <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
           <SupplierItemCard
             v-for="supplier in suppliers"
@@ -101,7 +104,7 @@ const hasAnyFilter = computed(() => filters.value.debt_status !== '');
             :to="{ name: 'suppliers.detail', params: { id: supplier.id } }"
           />
         </transition-group>
-      </template>
+      </div>
     </div>
 
     <InfiniteListStatus :visible="suppliers.length > 0" :loading-more="loadingMore" :has-more="hasMore" />

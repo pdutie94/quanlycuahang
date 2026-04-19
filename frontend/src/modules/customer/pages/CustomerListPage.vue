@@ -9,6 +9,7 @@ import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
 import { useUrlFilters } from '../../../shared/composables/useUrlFilters';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
+import CustomerListSkeleton from '../components/CustomerListSkeleton.vue';
 
 const route = useRoute();
 const toast = useToast();
@@ -91,15 +92,13 @@ const hasAnyFilter = computed(() => filters.value.debt_status !== '');
 
 
     <div class="space-y-3">
-      <div v-if="isInitialLoading" class="app-card text-center text-sm text-slate-500">
-        Đang tải...
-      </div>
+      <CustomerListSkeleton v-if="isInitialLoading" />
 
       <div v-else-if="!items.length" class="app-empty-state">
         Chưa có khách hàng nào.
       </div>
 
-      <template v-else>
+      <div v-else>
         <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
           <CustomerItemCard
             v-for="item in items"
@@ -108,7 +107,7 @@ const hasAnyFilter = computed(() => filters.value.debt_status !== '');
             :to="{ name: 'customers.detail', params: { id: item.id } }"
           />
         </transition-group>
-      </template>
+      </div>
     </div>
 
     <InfiniteListStatus :visible="items.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
