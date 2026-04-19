@@ -85,7 +85,7 @@ class ReportService
             $autoPriceValue = isset($productRow['auto_price_value']) ? (float)$productRow['auto_price_value'] : 0;
             if ($autoPriceValue > 0) {
                 // Calculate new price_sell: round to thousands
-                $newPriceSell = round($priceCost + $autoPriceValue);
+                $newPriceSell = round(($priceCost + $autoPriceValue) / 1000) * 1000;
                 // Update price_sell for base unit
                 $updateSellStmt = $pdo->prepare('UPDATE product_units SET price_sell = ? WHERE product_id = ? AND unit_id = ?');
                 $updateSellStmt->execute([$newPriceSell, $productId, $baseUnitId]);

@@ -21,6 +21,7 @@ import PriceEditModal from "../../../shared/components/PriceEditModal.vue";
 import ManualItemModal from "../../../shared/components/ManualItemModal.vue";
 import DiscountModal from "../../../shared/components/DiscountModal.vue";
 import SurchargeModal from "../../../shared/components/SurchargeModal.vue";
+import PosSkeleton from "../components/PosSkeleton.vue";
 
 const router = useRouter();
 const toast = useToast();
@@ -749,9 +750,7 @@ onMounted(async () => {
             </h1>
         </header>
 
-        <div v-if="loading" class="app-card text-center text-sm text-slate-500">
-            Đang tải dữ liệu POS...
-        </div>
+        <PosSkeleton v-if="loading" />
 
         <form v-else class="space-y-4" @submit.prevent="createPosOrder">
             <section class="app-card">

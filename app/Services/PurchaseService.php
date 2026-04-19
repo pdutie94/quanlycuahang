@@ -24,13 +24,34 @@ class PurchaseService
         $totalCount = PurchaseRepository::countFiltered($filters);
         $pagination = self::resolvePagination($filters['page'], $totalCount, $perPage);
 
+        $purchases = PurchaseRepository::paginateFiltered($filters, $pagination['perPage'], $pagination['offset']);
+
+        // Filter by payment status
+        $paymentStatus = $filters['paymentStatus'];
+        if ($paymentStatus === 'paid') {
+            $purchases = array_filter($purchases, function ($purchase) {
+                $total = (float) ($purchase['total_amount'] ?? 0);
+                $paid = (float) ($purchase['paid_amount'] ?? 0);
+                return $paid >= $total;
+            });
+            $purchases = array_values($purchases);
+        } elseif ($paymentStatus === 'debt') {
+            $purchases = array_filter($purchases, function ($purchase) {
+                $total = (float) ($purchase['total_amount'] ?? 0);
+                $paid = (float) ($purchase['paid_amount'] ?? 0);
+                return $paid < $total;
+            });
+            $purchases = array_values($purchases);
+        }
+
         return [
-            'purchases' => PurchaseRepository::paginateFiltered($filters, $pagination['perPage'], $pagination['offset']),
+            'purchases' => $purchases,
             'suppliers' => class_exists('Supplier') ? Supplier::all() : [],
             'keyword' => $filters['keyword'],
             'fromDate' => $filters['fromDate'],
             'toDate' => $filters['toDate'],
             'supplierId' => $filters['supplierId'],
+            'paymentStatus' => $paymentStatus,
             'page' => $pagination['page'],
             'totalPages' => $pagination['totalPages'],
             'totalCount' => $totalCount,
@@ -402,6 +423,7 @@ class PurchaseService
         $fromDate = isset($queryParams['from_date']) ? trim((string) $queryParams['from_date']) : '';
         $toDate = isset($queryParams['to_date']) ? trim((string) $queryParams['to_date']) : '';
         $supplierId = isset($queryParams['supplier_id']) ? (int) $queryParams['supplier_id'] : 0;
+        $paymentStatus = isset($queryParams['payment_status']) ? trim((string) $queryParams['payment_status']) : '';
         $page = ServiceHelper::normalizePage(isset($queryParams['page']) ? $queryParams['page'] : 1);
 
         if ($supplierId < 0) {
@@ -412,6 +434,7 @@ class PurchaseService
             'fromDate' => $fromDate,
             'toDate' => $toDate,
             'supplierId' => $supplierId,
+            'paymentStatus' => $paymentStatus,
             'page' => $page,
         ];
     }

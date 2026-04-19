@@ -27,6 +27,7 @@ class PurchaseApiController
                 'from_date' => isset($data['fromDate']) ? $data['fromDate'] : '',
                 'to_date' => isset($data['toDate']) ? $data['toDate'] : '',
                 'supplier_id' => isset($data['supplierId']) ? (int) $data['supplierId'] : 0,
+                'payment_status' => isset($data['paymentStatus']) ? $data['paymentStatus'] : '',
             ],
         ]);
     }

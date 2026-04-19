@@ -6,6 +6,7 @@ class SupplierService
     {
         $keyword = isset($queryParams['q']) ? trim((string) $queryParams['q']) : '';
         $page = ServiceHelper::normalizePage(isset($queryParams['page']) ? $queryParams['page'] : 1);
+        $debtStatus = isset($queryParams['debt_status']) ? trim((string) $queryParams['debt_status']) : '';
 
         $suppliers = [];
         $totalPages = 1;
@@ -41,11 +42,25 @@ class SupplierService
                 $supplier['debt_amount'] = (float) $debtMeta['debt_amount'];
             }
             unset($supplier);
+
+            // Filter by debt_status
+            if ($debtStatus === 'debt') {
+                $suppliers = array_filter($suppliers, function ($supplier) {
+                    return ($supplier['debt_amount'] ?? 0) > 0;
+                });
+                $suppliers = array_values($suppliers);
+            } elseif ($debtStatus === 'nodebt') {
+                $suppliers = array_filter($suppliers, function ($supplier) {
+                    return ($supplier['debt_amount'] ?? 0) <= 0;
+                });
+                $suppliers = array_values($suppliers);
+            }
         }
 
         return [
             'suppliers' => $suppliers,
             'keyword' => $keyword,
+            'debtStatus' => $debtStatus,
             'page' => $page,
             'totalPages' => $totalPages,
         ];

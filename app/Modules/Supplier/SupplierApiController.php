@@ -22,6 +22,7 @@ class SupplierApiController
             ],
             'filters' => [
                 'q' => isset($data['keyword']) ? $data['keyword'] : '',
+                'debt_status' => isset($data['debtStatus']) ? $data['debtStatus'] : '',
             ],
         ]);
     }

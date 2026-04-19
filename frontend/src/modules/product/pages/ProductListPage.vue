@@ -12,7 +12,7 @@ import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 import AppModalSheet from '../../../shared/components/AppModalSheet.vue';
-import EntityListState from '../../../shared/components/EntityListState.vue';
+import ProductListSkeleton from '../components/ProductListSkeleton.vue';
 
 const route = useRoute();
 const toast = useToast();
@@ -148,40 +148,42 @@ const displayItems = computed(() =>
       </div>
     </AppModalSheet>
 
-    <EntityListState :loading="isInitialLoading" :has-items="displayItems.length > 0" empty-text="Chưa có sản phẩm nào.">
-      <template #default>
-        <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
-          <RouterLink
-            v-for="entry in displayItems"
-            :key="entry.item.id"
-            :to="{ name: 'products.edit', params: { id: entry.item.id } }"
-            class="app-list-card relative cursor-pointer"
-          >
-            <div class="flex items-center">
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center justify-between gap-x-2">
-                  <div class="truncate text-sm font-medium text-slate-900">{{ entry.item.name }}</div>
-                  <span class="flex-none text-xs font-medium" :class="entry.status.className">{{ entry.status.label }}</span>
-                </div>
+    <ProductListSkeleton v-if="isInitialLoading" />
 
-                <div class="mt-1 flex items-center gap-1 truncate text-sm text-slate-500 leading-none">
-                  <span>{{ entry.item.code || '-' }}</span>
-                  <span class="text-slate-300">·</span>
-                  <span class="truncate">{{ entry.categoryName }}</span>
-                  <span class="text-slate-300">·</span>
-                  <span>Kho: {{ entry.inventoryText }} {{ entry.item.base_unit_name || '' }}</span>
-                </div>
+    <div v-else-if="displayItems.length === 0" class="app-empty-state">Chưa có sản phẩm nào.</div>
 
-                <div class="mt-0.5 flex items-center gap-x-2 text-sm">
-                  <span v-if="entry.hasSellPrice" class="font-medium text-brand-600">{{ formatMoney(entry.item.display_price_sell) }}<span v-if="entry.item.display_price_unit_name || entry.primaryUnit">/{{ entry.item.display_price_unit_name || entry.primaryUnit }}</span></span>
-                  <span v-else class="font-medium text-slate-500">Chưa có giá</span>
-                </div>
+    <div v-else class="space-y-3">
+      <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
+        <RouterLink
+          v-for="entry in displayItems"
+          :key="entry.item.id"
+          :to="{ name: 'products.edit', params: { id: entry.item.id } }"
+          class="app-list-card relative cursor-pointer"
+        >
+          <div class="flex items-center">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between gap-x-2">
+                <div class="truncate text-sm font-medium text-slate-900">{{ entry.item.name }}</div>
+                <span class="flex-none text-xs font-medium" :class="entry.status.className">{{ entry.status.label }}</span>
+              </div>
+
+              <div class="mt-1 flex items-center gap-1 truncate text-sm text-slate-500 leading-none">
+                <span>{{ entry.item.code || '-' }}</span>
+                <span class="text-slate-300">·</span>
+                <span class="truncate">{{ entry.categoryName }}</span>
+                <span class="text-slate-300">·</span>
+                <span>Kho: {{ entry.inventoryText }} {{ entry.item.base_unit_name || '' }}</span>
+              </div>
+
+              <div class="mt-0.5 flex items-center gap-x-2 text-sm">
+                <span v-if="entry.hasSellPrice" class="font-medium text-brand-600">{{ formatMoney(entry.item.display_price_sell) }}<span v-if="entry.item.display_price_unit_name || entry.primaryUnit">/{{ entry.item.display_price_unit_name || entry.primaryUnit }}</span></span>
+                <span v-else class="font-medium text-slate-500">Chưa có giá</span>
               </div>
             </div>
-          </RouterLink>
-        </transition-group>
-      </template>
-    </EntityListState>
+          </div>
+        </RouterLink>
+      </transition-group>
+    </div>
 
     <InfiniteListStatus :visible="items.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
     <div v-if="items.length && hasMore" ref="infiniteSentinel" class="h-1 w-full"></div>

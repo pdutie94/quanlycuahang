@@ -195,8 +195,8 @@ class PurchaseRepository extends BaseRepository
             return;
         }
 
-        // Calculate new price_sell
-        $newPriceSell = round($priceCost + $autoPriceValue);
+        // Calculate new price_sell: round to thousands
+        $newPriceSell = round(($priceCost + $autoPriceValue) / 1000) * 1000;
         // Update price_sell for this unit
         $updateSellStmt = $pdo->prepare('UPDATE product_units SET price_sell = ? WHERE id = ?');
         $updateSellStmt->execute([$newPriceSell, $unitId]);

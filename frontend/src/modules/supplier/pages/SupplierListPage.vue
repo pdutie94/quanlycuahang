@@ -1,15 +1,24 @@
 <script setup lang="ts">
 import SupplierItemCard from '../../../shared/components/SupplierItemCard.vue';
-import { ref } from 'vue';
+import { computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useSupplierList } from '../composables/useSupplierList';
 import { useToast } from '../../../shared/composables/useToast';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
+import { useUrlFilters } from '../../../shared/composables/useUrlFilters';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
+import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
 
-const keyword = ref('');
-const { suppliers, meta, loading, error, load } = useSupplierList();
+const route = useRoute();
 const toast = useToast();
+
+const { filters, applyFilters, clearFilters } = useUrlFilters({
+  q: { default: '' },
+  debt_status: { default: '' }
+});
+
+const { suppliers, meta, loading, error, load } = useSupplierList();
 
 const {
   hasMore,
@@ -21,28 +30,64 @@ const {
   itemsRef: suppliers,
   metaRef: meta,
   loadingRef: loading,
-  fetchPage: (page: number) => load(page, keyword.value),
+  autoLoad: false,
+  fetchPage: (page: number) =>
+    load({
+      q: filters.value.q,
+      debt_status: filters.value.debt_status,
+      page
+    }),
   onError: () => {
     toast.error(error.value || 'Không thể tải danh sách nhà cung cấp.');
   }
 });
 
-const applySearch = async () => {
-  await refresh();
-};
+// Watch for URL changes to refresh list
+watch(
+  () => route.query,
+  async () => {
+    await refresh();
+  },
+  { immediate: true }
+);
+
+const hasAnyFilter = computed(() => filters.value.debt_status !== '');
 </script>
 
 <template>
   <section class="space-y-3">
     <ListHeaderBar
-      v-model="keyword"
+      v-model="filters.q"
       title="Nhà cung cấp"
       subtitle="Quản lý danh sách nhà cung cấp và công nợ nhập hàng."
       :create-to="{ name: 'suppliers.create' }"
       create-label="Thêm nhà cung cấp"
       search-placeholder="Tìm kiếm theo tên, SĐT, địa chỉ..."
-      @search="applySearch"
-    />
+      chips-class="mt-2 flex items-center gap-2 overflow-x-auto text-sm"
+      @search="applyFilters({ q: filters.q })"
+    >
+      <template #chips>
+        <button
+          type="button"
+          class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium"
+          :class="filters.debt_status === 'debt' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-200 bg-white text-slate-700'"
+          :disabled="loading"
+          @click="applyFilters({ debt_status: 'debt' })"
+        >
+          Còn nợ
+        </button>
+        <button
+          type="button"
+          class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium"
+          :class="filters.debt_status === 'nodebt' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-200 bg-white text-slate-700'"
+          :disabled="loading"
+          @click="applyFilters({ debt_status: 'nodebt' })"
+        >
+          Không nợ
+        </button>
+        <FilterClearChip :active="hasAnyFilter" @clear="clearFilters" />
+      </template>
+    </ListHeaderBar>
 
     <div class="space-y-3">
       <div v-if="isInitialLoading" class="app-card text-center text-sm text-slate-500">Đang tải...</div>

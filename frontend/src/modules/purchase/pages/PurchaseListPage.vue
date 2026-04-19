@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFormat } from '../../../shared/composables/useFormat';
 const { formatMoney, formatDateTime } = useFormat();
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import PurchaseListItemCard from '../components/PurchaseListItemCard.vue';
 import { usePurchases } from '../composables/usePurchases';
@@ -11,6 +11,7 @@ import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vu
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 import AppModalSheet from '../../../shared/components/AppModalSheet.vue';
 import EntityListState from '../../../shared/components/EntityListState.vue';
+import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
 import { useUrlFilters } from '../../../shared/composables/useUrlFilters';
 
 const route = useRoute();
@@ -20,7 +21,8 @@ const { filters, applyFilters, clearFilters: resetFilters } = useUrlFilters({
   q: { default: '' },
   supplier_id: { default: '' },
   from_date: { default: '' },
-  to_date: { default: '' }
+  to_date: { default: '' },
+  payment_status: { default: '' }
 });
 
 const showFilters = ref(false);
@@ -57,6 +59,13 @@ const applyAdvancedFilters = () => {
   });
 };
 
+const hasAnyFilter = computed(() =>
+  filters.value.payment_status !== '' ||
+  filters.value.supplier_id !== '' ||
+  filters.value.from_date !== '' ||
+  filters.value.to_date !== ''
+);
+
 watch(
   () => route.query,
   async () => {
@@ -76,9 +85,32 @@ watch(
       create-label="Tạo phiếu"
       search-placeholder="Tìm theo mã phiếu, nhà cung cấp, SĐT..."
       filter-type="filter"
+      chips-class="mt-2 flex items-center gap-2 overflow-x-auto text-sm"
       @search="applySearch"
       @filter-click="showFilters = true"
-    />
+    >
+      <template #chips>
+        <button
+          type="button"
+          class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium"
+          :class="filters.payment_status === 'paid' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-200 bg-white text-slate-700'"
+          :disabled="loading"
+          @click="applyFilters({ payment_status: 'paid' })"
+        >
+          Đã thanh toán
+        </button>
+        <button
+          type="button"
+          class="border inline-flex items-center rounded-lg px-3 py-1 text-sm font-medium"
+          :class="filters.payment_status === 'debt' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-200 bg-white text-slate-700'"
+          :disabled="loading"
+          @click="applyFilters({ payment_status: 'debt' })"
+        >
+          Còn nợ
+        </button>
+        <FilterClearChip :active="hasAnyFilter" @clear="resetFilters" />
+      </template>
+    </ListHeaderBar>
 
     <AppModalSheet
       :open="showFilters"
@@ -122,17 +154,10 @@ watch(
           </label>
         </div>
 
-        <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 pt-4">
-          <button
-            type="button"
-            class="text-sm font-medium text-slate-500 hover:text-rose-600 transition-colors"
-            @click="resetFilters"
-          >
-            Xóa lọc
-          </button>
-          <div class="flex gap-2">
-            <button type="button" class="app-btn-secondary h-10 px-4" @click="showFilters = false">Đóng</button>
-            <button type="button" class="app-btn-primary h-10 px-6" @click="applyAdvancedFilters">Áp dụng</button>
+        <div class="border-t border-slate-100 pt-4">
+          <div class="flex w-full gap-2">
+            <button type="button" class="app-btn-secondary h-10 px-4 flex-1" @click="showFilters = false">Đóng</button>
+            <button type="button" class="app-btn-primary h-10 px-6 flex-1" @click="applyAdvancedFilters">Áp dụng</button>
           </div>
         </div>
       </div>

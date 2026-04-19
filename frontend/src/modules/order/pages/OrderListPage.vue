@@ -9,8 +9,8 @@ import OrderItemCard from '../../../shared/components/OrderItemCard.vue';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 import AppModalSheet from '../../../shared/components/AppModalSheet.vue';
-import EntityListState from '../../../shared/components/EntityListState.vue';
 import { useUrlFilters } from '../../../shared/composables/useUrlFilters';
+import OrderListSkeleton from '../components/OrderListSkeleton.vue';
 
 const route = useRoute();
 const toast = useToast();
@@ -169,26 +169,18 @@ watch(
           </label>
         </div>
 
-        <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 pt-4">
-          <button
-            type="button"
-            class="text-sm font-medium text-slate-500 disabled:opacity-50 hover:text-rose-600 transition-colors"
-            :disabled="!hasAdvancedFilter || loading"
-            @click="clearAdvancedFilter"
-          >
-            Xóa lọc
-          </button>
-          <div class="flex gap-2">
+        <div class="border-t border-slate-100 pt-4">
+          <div class="flex w-full gap-2">
             <button
               type="button"
-              class="app-btn-secondary h-10 px-4"
+              class="app-btn-secondary h-10 px-4 flex-1"
               @click="showAdvancedFilter = false"
             >
               Đóng
             </button>
             <button
               type="button"
-              class="app-btn-primary h-10 px-6"
+              class="app-btn-primary h-10 px-6 flex-1"
               :disabled="loading"
               @click="applyAdvancedFilter"
             >
@@ -199,19 +191,21 @@ watch(
       </div>
     </AppModalSheet>
 
-    <EntityListState :loading="isInitialLoading" :has-items="items.length > 0" empty-text="Chưa có đơn hàng nào.">
-      <template #default>
-        <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
-          <OrderItemCard
-            v-for="item in items"
-            :key="item.id"
-            :order="item"
-            :to="{ name: 'orders.detail', params: { id: item.id } }"
-            customer-fallback="Khách lẻ"
-          />
-        </transition-group>
-      </template>
-    </EntityListState>
+    <OrderListSkeleton v-if="isInitialLoading" />
+
+    <div v-else-if="items.length === 0" class="app-empty-state">Chưa có đơn hàng nào.</div>
+
+    <div v-else class="space-y-3">
+      <transition-group name="app-list-fade" tag="div" class="space-y-3" appear>
+        <OrderItemCard
+          v-for="item in items"
+          :key="item.id"
+          :order="item"
+          :to="{ name: 'orders.detail', params: { id: item.id } }"
+          customer-fallback="Khách lẻ"
+        />
+      </transition-group>
+    </div>
 
     <InfiniteListStatus :visible="items.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
     <div v-if="items.length && hasMore" ref="infiniteSentinel" class="h-1 w-full"></div>
