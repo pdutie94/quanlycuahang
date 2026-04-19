@@ -12,6 +12,7 @@ const { items, meta, page, load, loadMore, loading, submitCreate, createLoading,
 interface MaterialPrice {
   id: number | string;
   material_name: string;
+  unit_price: number | string;
 }
 
 const newMaterialName = ref('');

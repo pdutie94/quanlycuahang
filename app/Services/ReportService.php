@@ -54,18 +54,47 @@ class ReportService
             ];
         }
         $pdo = Database::getInstance();
-        // Cập nhật giá vốn cho đơn vị cơ bản
-        $stmt = $pdo->prepare('UPDATE product_units SET price_cost = ? WHERE product_id = ? AND unit_id = (SELECT base_unit_id FROM products WHERE id = ?)');
-        $ok = $stmt->execute([$priceCost, $productId, $productId]);
-        if ($ok) {
+
+        // Get base_unit_id for this product
+        $baseUnitStmt = $pdo->prepare('SELECT base_unit_id FROM products WHERE id = ?');
+        $baseUnitStmt->execute([$productId]);
+        $baseUnitRow = $baseUnitStmt->fetch();
+        if (!$baseUnitRow || !isset($baseUnitRow['base_unit_id'])) {
             return [
-                'success' => true,
-                'message' => 'Đã cập nhật giá vốn.'
+                'success' => false,
+                'message' => 'Không tìm thấy đơn vị cơ bản của sản phẩm.'
             ];
         }
+        $baseUnitId = (int)$baseUnitRow['base_unit_id'];
+
+        // Cập nhật giá vốn cho đơn vị cơ bản
+        $stmt = $pdo->prepare('UPDATE product_units SET price_cost = ? WHERE product_id = ? AND unit_id = ?');
+        $ok = $stmt->execute([$priceCost, $productId, $baseUnitId]);
+        if (!$ok) {
+            return [
+                'success' => false,
+                'message' => 'Không thể cập nhật giá vốn.'
+            ];
+        }
+
+        // Check if auto_price_enabled and recalculate price_sell
+        $productStmt = $pdo->prepare('SELECT auto_price_enabled, auto_price_value FROM products WHERE id = ?');
+        $productStmt->execute([$productId]);
+        $productRow = $productStmt->fetch();
+        if ($productRow && (int)$productRow['auto_price_enabled'] === 1) {
+            $autoPriceValue = isset($productRow['auto_price_value']) ? (float)$productRow['auto_price_value'] : 0;
+            if ($autoPriceValue > 0) {
+                // Calculate new price_sell: round to thousands
+                $newPriceSell = round($priceCost + $autoPriceValue);
+                // Update price_sell for base unit
+                $updateSellStmt = $pdo->prepare('UPDATE product_units SET price_sell = ? WHERE product_id = ? AND unit_id = ?');
+                $updateSellStmt->execute([$newPriceSell, $productId, $baseUnitId]);
+            }
+        }
+
         return [
-            'success' => false,
-            'message' => 'Không thể cập nhật giá vốn.'
+            'success' => true,
+            'message' => 'Đã cập nhật giá vốn.'
         ];
     }
     public static function getCostUpdateData(): array
