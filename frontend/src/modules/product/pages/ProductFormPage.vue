@@ -7,6 +7,7 @@ import { useToast } from '../../../shared/composables/useToast';
 import type { ProductLog } from '../types';
 import ActionConfirmSheet from '../../../shared/components/ActionConfirmSheet.vue';
 import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
+import ProductFormSkeleton from '../components/ProductFormSkeleton.vue';
 import { useFormat } from '../../../shared/composables/useFormat';
 import { useEntityForm } from '../../../shared/composables/useEntityForm';
 
@@ -184,7 +185,7 @@ console.log( materialPrices)
       @confirm="deleteCurrentProduct"
     />
 
-    <div v-if="loading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">Đang tải dữ liệu form...</div>
+    <ProductFormSkeleton v-if="loading" />
 
     <template v-else>
       <form class="space-y-3" @submit.prevent="handleSave('stay')">
