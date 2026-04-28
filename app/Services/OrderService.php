@@ -96,11 +96,22 @@ class OrderService
             if (isset($row['type']) && $row['type'] === 'item') {
                 $items[] = $row;
             } elseif (isset($row['type']) && $row['type'] === 'payment') {
+                $paymentNote = $row['payment_note'] ?? '';
+                $paymentMethod = 'cash';
+                $cleanNote = $paymentNote;
+                if (str_ends_with($paymentNote, '[TT:bank]')) {
+                    $paymentMethod = 'bank';
+                    $cleanNote = rtrim(substr($paymentNote, 0, -9));
+                } elseif (str_ends_with($paymentNote, '[TT:cash]')) {
+                    $paymentMethod = 'cash';
+                    $cleanNote = rtrim(substr($paymentNote, 0, -9));
+                }
                 $payments[] = [
                     'id' => $row['id'],
                     'paid_at' => $row['paid_at'],
                     'amount' => $row['paid_amount'],
-                    'note' => $row['payment_note'],
+                    'note' => $cleanNote,
+                    'payment_method' => $paymentMethod,
                 ];
             }
         }

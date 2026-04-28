@@ -9,6 +9,7 @@ import {
     ClipboardList,
     History,
     Pencil,
+    RotateCcw,
     Trash2,
     Users,
 } from "@lucide/vue";
@@ -35,6 +36,9 @@ const {
     submitPayment,
     paymentLoading,
     paymentError,
+    resetPayment,
+    resetLoading,
+    resetError,
     remove,
     deleteLoading,
     deleteError,
@@ -56,6 +60,7 @@ watch(showPayment, (val) => {
     // Khi đóng modal, có thể reset nếu muốn (giữ lại để user nhập lại nếu cần)
 });
 const showDeleteModal = ref(false);
+const showResetModal = ref(false);
 
 const totals = computed(() => {
     const total = Number(purchase.value?.total_amount || 0);
@@ -108,6 +113,23 @@ const pay = async () => {
     }
 };
 
+const resetPaymentState = async () => {
+    const id = Number(route.params.id || 0);
+    if (id <= 0) {
+        return;
+    }
+
+    try {
+        const payload = await resetPayment(id);
+        showResetModal.value = false;
+        showPayment.value = false;
+        toast.success(payload?.message || "Đã đặt lại thanh toán.");
+        await refreshPage();
+    } catch (_err: any) {
+        toast.error(resetError.value || "Không thể đặt lại thanh toán.");
+    }
+};
+
 const deleteCurrentPurchase = async () => {
     if (!purchase.value?.id) {
         return;
@@ -142,6 +164,12 @@ const parseLogText = (detailRaw: any) => {
             return {
                 text: `Thanh toán ${formatMoney(detail.amount || 0)}${detail.method ? ` (${detail.method})` : ""}`,
                 tone: "text-brand-700",
+            };
+        }
+        if (detail.type === "payment_reset") {
+            return {
+                text: `Đặt lại thanh toán: đã trả ${formatMoney(detail.paid_before || 0)} → ${formatMoney(detail.paid_after || 0)}${Number(detail.payments_count || 0) > 0 ? `, xóa ${Number(detail.payments_count || 0)} lần thanh toán` : ""}`,
+                tone: "text-amber-700",
             };
         }
     } catch (_err: any) {
@@ -276,6 +304,18 @@ watch(
                     </button>
                     <button
                         type="button"
+                        class="detail-header-menu-item detail-header-menu-item-amber"
+                        @click="
+                            closeMenu();
+                            showResetModal = true;
+                        "
+                    >
+                        <RotateCcw class="h-4 w-4 shrink-0" /><span
+                            >Đặt lại thanh toán</span
+                        >
+                    </button>
+                    <button
+                        type="button"
                         class="detail-header-menu-item detail-header-menu-item-rose"
                         @click="
                             closeMenu();
@@ -298,6 +338,17 @@ watch(
             :loading="deleteLoading"
             @cancel="showDeleteModal = false"
             @confirm="deleteCurrentPurchase"
+        />
+
+        <ActionConfirmSheet
+            :open="showResetModal"
+            title="Đặt lại thanh toán"
+            description="Đặt lại về chưa thanh toán và xóa toàn bộ lịch sử thanh toán của phiếu nhập này?"
+            confirm-label="Đặt lại thanh toán"
+            tone="warning"
+            :loading="resetLoading"
+            @cancel="showResetModal = false"
+            @confirm="resetPaymentState"
         />
 
         <div
@@ -624,8 +675,17 @@ watch(
                         class="flex flex-col gap-2 px-4 py-3 text-sm sm:flex-row sm:items-start sm:justify-between"
                     >
                         <div class="min-w-0">
-                            <div class="font-medium text-slate-900">
-                                {{ formatMoney(payment.amount) }}
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="font-medium text-slate-900">
+                                    {{ formatMoney(payment.amount) }}
+                                </span>
+                                <span
+                                    v-if="payment.payment_method"
+                                    class="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-0.5 text-xs text-slate-600"
+                                >
+                                    <span v-if="payment.payment_method === 'bank'">Chuyển khoản</span>
+                                    <span v-else>Tiền mặt</span>
+                                </span>
                             </div>
                             <div
                                 v-if="payment.note"

@@ -417,12 +417,18 @@ const detectManualQtyPrecision = (value: string | number) => {
 };
 
 const getManualQtyPrecision = (item: ManualOrderItem | any) => {
+    const typed = detectManualQtyPrecision(item?.qty);
+
+    if (typed !== null && typed !== undefined) {
+        return typed; // 👈 ưu tiên input mới
+    }
+
     const storedPrecision = Number(item?.qty_precision);
     if (Number.isInteger(storedPrecision) && storedPrecision >= 0) {
         return storedPrecision;
     }
 
-    return detectManualQtyPrecision(item?.qty);
+    return 0;
 };
 
 const getManualQtyStep = (item: ManualOrderItem | any) =>
@@ -438,9 +444,7 @@ const roundManualQtyByPrecision = (
 };
 
 const formatManualQtyValue = (value: string | number, precision = 4) =>
-    Number(value || 0)
-        .toFixed(precision)
-        .replace(/\.?0+$/, "");
+    Number(value).toFixed(precision);
 
 const normalizeManualQty = (item: ManualOrderItem | any) => {
     const typedPrecision = detectManualQtyPrecision(item.qty);
@@ -1117,10 +1121,11 @@ onMounted(async () => {
                                         v-model="item.qty"
                                         :min="getManualQtyMin(item)"
                                         :step="getManualQtyStep(item)"
-                                        type="number"
+                                        @change="normalizeManualQty(item)"
+                                        type="text"
+                                        inputmode="decimal"
                                         class="h-6 w-10 rounded-md border border-slate-300 text-center text-sm outline-none"
                                         @click.stop
-                                        @change="normalizeManualQty(item)"
                                     />
                                     <button
                                         type="button"

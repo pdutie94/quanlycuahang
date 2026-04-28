@@ -12,6 +12,11 @@ export async function fetchPurchaseDetail(id: number | string): Promise<ApiRespo
   return response.data;
 }
 
+export async function fetchPurchaseItems(id: number | string): Promise<ApiResponse<{ items: any[]; manual_items: any[] }>> {
+  const response = await api.get(`/purchases/${id}/items`);
+  return response.data;
+}
+
 export async function fetchPurchaseFormData(): Promise<ApiResponse<PurchaseBootstrapData>> {
   const response = await api.get('/purchases/bootstrap/form-data');
   return response.data;
@@ -29,6 +34,11 @@ export async function updatePurchase(id: number | string, payload: Record<string
 
 export async function recordPurchasePayment(id: number | string, payload: Record<string, any>): Promise<ApiResponse<any>> {
   const response = await api.post(`/purchases/${id}/payment`, payload);
+  return response.data;
+}
+
+export async function resetPurchasePayment(id: number | string): Promise<ApiResponse<any>> {
+  const response = await api.post(`/purchases/${id}/payment/reset`);
   return response.data;
 }
 

@@ -14,27 +14,73 @@ const summary = computed(() => {
   total_debt = total_amount - total_paid;
   return { total_amount, total_paid, total_debt };
 });
-import PurchaseListItemCard from '../../purchase/components/PurchaseListItemCard.vue';
+import SupplierPurchaseItemList from '../components/SupplierPurchaseItemList.vue';
 import { Pencil, Trash2, ReceiptText } from '@lucide/vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useSupplierDetail } from '../composables/useSupplierDetail';
 import { useToast } from '../../../shared/composables/useToast';
+import { fetchSupplierPayments, paySupplierDebt } from '../services/supplier.api';
 import ActionConfirmSheet from '../../../shared/components/ActionConfirmSheet.vue';
 import DetailHeaderBar from '../../../shared/components/DetailHeaderBar.vue';
+import PaymentModal from '../../../shared/components/PaymentModal.vue';
 
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
-const { supplier, purchases, totalDebt, paymentHistory, loading, error, load, remove, deleteLoading, deleteError } = useSupplierDetail();
+const { supplier, purchases, totalDebt, loading, error, load, remove, deleteLoading, deleteError } = useSupplierDetail();
 const showDeleteModal = ref(false);
+const showPaymentModal = ref(false);
+const paymentLoading = ref(false);
+const paymentAmount = ref('');
+const paymentMethod = ref('cash');
+const paymentNote = ref('');
+const paymentHistory = ref<Record<string, any>[]>([]);
+const paymentHistoryLoading = ref(false);
 
 // Đã thay thế bằng useFormat
 
 const loadPage = async () => {
   try {
     await load(Number(route.params.id || 0));
+    await loadPaymentHistory();
   } catch (_err: any) {
     toast.error(error.value || 'Không thể tải chi tiết nhà cung cấp.');
+  }
+};
+
+const loadPaymentHistory = async () => {
+  const supplierId = String(route.params.id || '');
+  if (!supplierId) return;
+  paymentHistoryLoading.value = true;
+  try {
+    const response = await fetchSupplierPayments(supplierId);
+    paymentHistory.value = response?.data?.payments || [];
+  } catch (_err: any) {
+    console.error('Failed to load payment history', _err);
+  } finally {
+    paymentHistoryLoading.value = false;
+  }
+};
+
+const submitPayment = async () => {
+  if (!supplier.value?.id) return;
+  paymentLoading.value = true;
+  try {
+    await paySupplierDebt(supplier.value.id, {
+      amount: paymentAmount.value,
+      note: paymentNote.value,
+      payment_method: paymentMethod.value,
+    });
+    toast.success('Đã ghi nhận thanh toán.');
+    showPaymentModal.value = false;
+    paymentAmount.value = '';
+    paymentNote.value = '';
+    paymentMethod.value = 'cash';
+    await loadPage();
+  } catch (err: any) {
+    toast.error(err?.response?.data?.message || 'Không thể ghi nhận thanh toán.');
+  } finally {
+    paymentLoading.value = false;
   }
 };
 
@@ -57,19 +103,6 @@ onMounted(async () => {
   await loadPage();
 });
 
-// Map lại dữ liệu purchase để tương thích với component chung
-function mapPurchase(purchase: any) {
-  // Đảm bảo có các field: supplier_name, status, total_amount, paid_amount, purchase_code, purchase_date
-  return {
-    ...purchase,
-    supplier_name: supplier.value?.name || purchase.supplier_name || 'Chưa có nhà cung cấp',
-    status: Number(purchase.debt_amount || 0) > 0 ? 'unpaid' : 'paid',
-    paid_amount: purchase.paid_amount,
-    total_amount: purchase.total_amount,
-    purchase_code: purchase.purchase_code,
-    purchase_date: purchase.purchase_date,
-  };
-}
 </script>
 
 <template>
@@ -77,20 +110,36 @@ function mapPurchase(purchase: any) {
     <DetailHeaderBar :title="supplier ? `Nhà cung cấp ${supplier.name}` : 'Chi tiết nhà cung cấp'" back-to="/suppliers">
       <template #actions="{ closeMenu }">
         <template v-if="supplier">
-          <RouterLink
+          <button
             v-if="Number(summary.total_debt || 0) > 0"
-            :to="{ name: 'suppliers.debtPayment', params: { id: supplier.id } }"
+            type="button"
             class="detail-header-menu-item detail-header-menu-item-amber"
-            @click="closeMenu"
+            @click="closeMenu(); showPaymentModal = true"
           >
             <ReceiptText class="h-4 w-4 shrink-0" />
             <span>Thanh toán</span>
-          </RouterLink>
+          </button>
           <RouterLink :to="{ name: 'suppliers.edit', params: { id: supplier.id } }" class="detail-header-menu-item" @click="closeMenu"><Pencil class="h-4 w-4 shrink-0" /><span>Chỉnh sửa</span></RouterLink>
           <button type="button" class="detail-header-menu-item detail-header-menu-item-rose" @click="closeMenu(); showDeleteModal = true"><Trash2 class="h-4 w-4 shrink-0" /><span>Xóa nhà cung cấp</span></button>
         </template>
       </template>
     </DetailHeaderBar>
+
+    <PaymentModal
+      v-model:open="showPaymentModal"
+      title="Thanh toán công nợ nhà cung cấp"
+      :stat-total="summary.total_amount"
+      :stat-paid="summary.total_paid"
+      :stat-debt="summary.total_debt"
+      stat-paid-label="Đã thanh toán"
+      submit-label="Ghi nhận thanh toán"
+      :loading="paymentLoading"
+      v-model:amount="paymentAmount"
+      v-model:payment-method="paymentMethod"
+      v-model:note="paymentNote"
+      @submit="submitPayment"
+      @close="showPaymentModal = false"
+    />
 
     <ActionConfirmSheet
       :open="showDeleteModal"
@@ -134,7 +183,7 @@ function mapPurchase(purchase: any) {
           <div
             v-for="item in paymentHistory"
             :key="item.id"
-            class="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3 last:border-b-0"
+            class="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-2 last:border-b-0"
           >
             <div class="min-w-0 flex-1 text-sm">
               <div class="text-slate-400">{{ formatDateTime(item.paid_at) }}</div>
@@ -145,22 +194,7 @@ function mapPurchase(purchase: any) {
         </div>
       </section>
 
-      <section v-if="!purchases.length" class="app-empty-state">Nhà cung cấp chưa có phiếu nhập nào.</section>
-
-      <section v-else class="space-y-3">
-        <div class="text-sm font-medium text-slate-600">Phiếu nhập</div>
-        <div v-for="purchase in purchases" :key="purchase.id">
-          <RouterLink :to="{ name: 'purchases.detail', params: { id: purchase.id } }" class="block">
-            <PurchaseListItemCard
-              :purchase="mapPurchase(purchase)"
-              :show-supplier-name="false"
-              :show-code-on-top="true"
-              :format-money="formatMoney"
-              :format-date-time="formatDateTime"
-            />
-          </RouterLink>
-        </div>
-      </section>
+      <SupplierPurchaseItemList :purchases="purchases" />
     </template>
   </section>
 </template>

@@ -426,6 +426,97 @@ class PaymentService
         }
     }
 
+    public static function resetPurchasePayment($purchaseId)
+    {
+        $purchaseId = (int) $purchaseId;
+        if ($purchaseId <= 0) {
+            throw new Exception('ID phiếu nhập không hợp lệ.');
+        }
+
+        $pdo = Database::getInstance();
+        $pdo->beginTransaction();
+
+        try {
+            $stmt = $pdo->prepare('SELECT * FROM purchases WHERE id = ? FOR UPDATE');
+            $stmt->execute([$purchaseId]);
+            $purchase = $stmt->fetch();
+
+            if (!$purchase) {
+                throw new Exception('Không tìm thấy phiếu nhập.');
+            }
+
+            $totalAmount = isset($purchase['total_amount']) ? (float) $purchase['total_amount'] : 0.0;
+            $paidOld = isset($purchase['paid_amount']) ? (float) $purchase['paid_amount'] : 0.0;
+            $statusOld = isset($purchase['status']) ? (string) $purchase['status'] : 'debt';
+
+            if ($totalAmount <= 0 || $paidOld <= 0) {
+                throw new Exception('Phiếu nhập chưa có khoản thanh toán để đặt lại.');
+            }
+
+            $paymentsStmt = $pdo->prepare('SELECT id, amount FROM payments WHERE type = \'supplier\' AND purchase_id = ?');
+            $paymentsStmt->execute([$purchaseId]);
+            $payments = $paymentsStmt->fetchAll();
+
+            if (empty($payments)) {
+                throw new Exception('Phiếu nhập không có lịch sử thanh toán để đặt lại.');
+            }
+
+            $sumPayments = 0.0;
+            $hasNegative = false;
+            foreach ($payments as $row) {
+                $amountRow = isset($row['amount']) ? (float) $row['amount'] : 0.0;
+                $sumPayments += $amountRow;
+                if ($amountRow < 0) {
+                    $hasNegative = true;
+                }
+            }
+
+            if ($hasNegative) {
+                throw new Exception('Phiếu nhập có lịch sử hoàn trả/điều chỉnh, không thể đặt lại thanh toán tự động.');
+            }
+
+            if (abs($sumPayments - $paidOld) > 0.0001) {
+                throw new Exception('Dữ liệu thanh toán không khớp, không thể đặt lại tự động.');
+            }
+
+            $noteRaw = isset($purchase['note']) ? (string) $purchase['note'] : '';
+            $noteTrim = self::removePaymentMethodTagFromNote($noteRaw);
+
+            $newPaid = 0.0;
+            $newStatus = $totalAmount > 0 ? 'debt' : $statusOld;
+
+            $updateStmt = $pdo->prepare('UPDATE purchases SET paid_amount = ?, status = ?, note = ? WHERE id = ?');
+            $updateStmt->execute([
+                $newPaid,
+                $newStatus,
+                $noteTrim,
+                $purchaseId,
+            ]);
+
+            $deleteStmt = $pdo->prepare('DELETE FROM payments WHERE type = \'supplier\' AND purchase_id = ?');
+            $deleteStmt->execute([$purchaseId]);
+
+            if (class_exists('PurchaseLog')) {
+                PurchaseLog::create([
+                    'purchase_id' => $purchaseId,
+                    'action' => 'payment_reset',
+                    'detail' => [
+                        'type' => 'payment_reset',
+                        'paid_before' => $paidOld,
+                        'paid_after' => $newPaid,
+                        'payments_count' => count($payments),
+                    ],
+                ]);
+            }
+
+            $pdo->commit();
+            ReportService::clearReportCache();
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
     protected static function appendPaymentMethodTagToNote($note, $paymentMethod)
     {
         $noteTrim = self::removePaymentMethodTagFromNote($note);
@@ -484,6 +575,7 @@ class PaymentService
         }
 
         if (class_exists('Payment')) {
+            $paymentNoteWithMethod = self::appendPaymentMethodTagToNote($note, $paymentMethod);
             Payment::create([
                 'type' => 'customer',
                 'customer_id' => isset($order['customer_id']) ? $order['customer_id'] : null,
@@ -491,7 +583,7 @@ class PaymentService
                 'order_id' => $orderId,
                 'purchase_id' => null,
                 'amount' => $amount,
-                'note' => $note,
+                'note' => $paymentNoteWithMethod,
             ]);
         }
 

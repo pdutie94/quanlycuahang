@@ -13,7 +13,6 @@ export default {
   mounted(el: HTMLInputElement & { inputHandler?: EventListener }) {
     // Always show numeric keyboard on mobile
     el.setAttribute('inputmode', 'numeric');
-    el.setAttribute('pattern', '[0-9]*(\\.[0-9]+)?');
 
     // Format on mount
     if (el.value) {

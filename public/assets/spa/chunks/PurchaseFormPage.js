@@ -1,1 +1,1 @@
-import{r as e}from"./purchase.js";export{e as default};
+import{n as e}from"./purchase.js";export{e as default};

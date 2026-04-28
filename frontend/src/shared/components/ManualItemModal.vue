@@ -245,7 +245,8 @@ const onSave = () => {
                                 <span class="app-label">Số lượng</span>
                                 <input
                                     v-model="qty"
-                                    type="number"
+                                    type="text"
+                                    inputmode="decimal"
                                     min="0"
                                     step="0.01"
                                     class="app-input text-right"

@@ -111,7 +111,7 @@ export function useFormat() {
   };
   
   const formatPriceInput = (value: string | number | null | undefined, allowEmpty = true): string => {
-    const amount = parsePriceShorthand(value);
+    const amount = parseAmount(value);
     if (amount <= 0) {
       return allowEmpty ? '' : '0';
     }

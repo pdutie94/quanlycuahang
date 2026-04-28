@@ -53,6 +53,22 @@ class PurchaseApiController
         ]);
     }
 
+    public function getItems(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($id <= 0) {
+            return ApiResponse::error($response, 'Invalid purchase id', 422);
+        }
+
+        $items = \PurchaseRepository::findItemsByPurchaseId($id);
+        $manualItems = \PurchaseRepository::findManualItemsByPurchaseId($id);
+
+        return ApiResponse::success($response, [
+            'items' => $items,
+            'manual_items' => $manualItems,
+        ]);
+    }
+
     public function create(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $payload = $this->normalizePayload($request);
@@ -133,6 +149,27 @@ class PurchaseApiController
             ], 'Đã ghi nhận thanh toán phiếu nhập.');
         } catch (\Exception $e) {
             return ApiResponse::error($response, 'Không thể ghi nhận thanh toán: ' . $e->getMessage(), 422);
+        }
+    }
+
+    public function paymentReset(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $purchaseId = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($purchaseId <= 0) {
+            return ApiResponse::error($response, 'Invalid purchase id', 422);
+        }
+
+        try {
+            \PaymentService::resetPurchasePayment($purchaseId);
+            $view = \PurchaseService::getPurchaseViewData($purchaseId);
+
+            return ApiResponse::success($response, [
+                'id' => $purchaseId,
+                'purchase' => isset($view['purchase']) ? $view['purchase'] : null,
+                'payments' => isset($view['payments']) ? $view['payments'] : [],
+            ], 'Đã đặt lại thanh toán phiếu nhập.');
+        } catch (\Exception $e) {
+            return ApiResponse::error($response, 'Không thể đặt lại thanh toán: ' . $e->getMessage(), 422);
         }
     }
 

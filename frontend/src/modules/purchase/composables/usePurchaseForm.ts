@@ -170,7 +170,7 @@ export function usePurchaseForm() {
     purchase_date: form.value.purchase_date,
     payment_status: form.value.payment_status,
     payment_method: form.value.payment_method,
-    paid_amount: isUpdateMode ? undefined : form.value.paid_amount,
+    paid_amount: isUpdateMode ? undefined : (form.value.payment_status === 'debt' ? 0 : form.value.paid_amount),
     note: form.value.note,
     product_unit_id: rows.value.map((row: PurchaseItem) => row.product_unit_id),
     qty: rows.value.map((row: PurchaseItem) => row.qty),

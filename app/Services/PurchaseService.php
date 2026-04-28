@@ -84,7 +84,7 @@ class PurchaseService
             'purchase' => $purchase,
             'items' => $items,
             'manualItems' => PurchaseRepository::findManualItemsByPurchaseId($id),
-            'payments' => PurchaseRepository::findPaymentsByPurchaseId($id),
+            'payments' => self::formatPayments(PurchaseRepository::findPaymentsByPurchaseId($id)),
             'logs' => class_exists('PurchaseLog') ? PurchaseLog::findByPurchase($id) : [],
         ];
     }
@@ -711,5 +711,37 @@ class PurchaseService
         }
 
         return $purchaseNoteTrim . ' ' . $methodTag;
+    }
+
+    private static function formatPayments(array $payments): array
+    {
+        return array_map(function ($payment) {
+            $note = $payment['note'] ?? '';
+            $paymentMethod = 'cash';
+            $cleanNote = $note;
+
+            // Parse payment method from note format "note (Chuyển khoản)" or "note (Tiền mặt)"
+            if (str_ends_with($note, ' (Chuyển khoản)')) {
+                $paymentMethod = 'bank';
+                $cleanNote = substr($note, 0, -16);
+            } elseif (str_ends_with($note, ' (Tiền mặt)')) {
+                $paymentMethod = 'cash';
+                $cleanNote = substr($note, 0, -12);
+            } elseif ($note === 'Chuyển khoản') {
+                $paymentMethod = 'bank';
+                $cleanNote = '';
+            } elseif ($note === 'Tiền mặt') {
+                $paymentMethod = 'cash';
+                $cleanNote = '';
+            }
+
+            return [
+                'id' => $payment['id'],
+                'paid_at' => $payment['paid_at'],
+                'amount' => $payment['amount'],
+                'note' => $cleanNote,
+                'payment_method' => $paymentMethod,
+            ];
+        }, $payments);
     }
 }

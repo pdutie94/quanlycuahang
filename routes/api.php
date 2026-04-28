@@ -81,6 +81,7 @@ return function (App $app) {
         $supplierController = new SupplierApiController();
         $group->get('/suppliers', [$supplierController, 'list']);
         $group->get('/suppliers/{id}', [$supplierController, 'detail']);
+        $group->get('/suppliers/{id}/payments', [$supplierController, 'getPayments']);
         $group->get('/suppliers/bootstrap/form-data', [$supplierController, 'formData']);
         $group->get('/suppliers/{id}/form-data', [$supplierController, 'formEditData']);
         $group->post('/suppliers', [$supplierController, 'store']);
@@ -114,12 +115,14 @@ return function (App $app) {
         $purchaseBootstrapController = new PurchaseBootstrapApiController();
         $group->get('/purchases', [$purchaseController, 'list']);
         $group->get('/purchases/{id}', [$purchaseController, 'detail']);
+        $group->get('/purchases/{id}/items', [$purchaseController, 'getItems']);
         $group->get('/purchases/bootstrap/form-data', [$purchaseBootstrapController, 'formData']);
         $group->post('/purchases', [$purchaseController, 'create']);
         $group->put('/purchases/{id}', [$purchaseController, 'update']);
         $group->patch('/purchases/{id}', [$purchaseController, 'update']);
         $group->delete('/purchases/{id}', [$purchaseController, 'delete']);
         $group->post('/purchases/{id}/payment', [$purchaseController, 'paymentStore']);
+        $group->post('/purchases/{id}/payment/reset', [$purchaseController, 'paymentReset']);
 
         $reportController = new ReportApiController();
         $group->get('/reports/overview', [$reportController, 'overview']);

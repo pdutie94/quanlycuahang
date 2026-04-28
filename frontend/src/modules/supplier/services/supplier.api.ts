@@ -39,3 +39,8 @@ export async function paySupplierDebt(id: number | string, payload: Record<strin
   const response = await api.post(`/suppliers/${id}/payment`, payload);
   return response.data;
 }
+
+export async function fetchSupplierPayments(id: number | string) {
+  const response = await api.get(`/suppliers/${id}/payments`);
+  return response.data;
+}

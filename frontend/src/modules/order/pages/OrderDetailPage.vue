@@ -1199,14 +1199,16 @@ onMounted(async () => {
                         >
                             <div class="min-w-0">
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span
-                                        class="inline-flex items-center gap-1 rounded-lg bg-brand-50 px-2.5 py-0.5 text-sm font-medium text-brand-700"
-                                    >
-                                        <span>Thanh toán</span>
-                                    </span>
                                     <span class="font-medium text-slate-900">{{
                                         formatMoney(payment.amount)
                                     }}</span>
+                                    <span
+                                        v-if="payment.payment_method"
+                                        class="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-0.5 text-xs text-slate-600"
+                                    >
+                                        <span v-if="payment.payment_method === 'bank'">Chuyển khoản</span>
+                                        <span v-else>Tiền mặt</span>
+                                    </span>
                                 </div>
                                 <div
                                     v-if="payment.note"

@@ -354,16 +354,20 @@ const decreaseCartQty = (item: any) => {
     item.quantity = formatQtyValue(nextQty);
 };
 
-const detectManualQtyPrecision = (value: any) => {
+const detectManualQtyPrecision = (
+    value: string | number | null | undefined,
+) => {
     const rawValue = String(value ?? "").trim();
-
     if (!rawValue || !rawValue.includes(".")) {
         return 0;
     }
-
-    const fractionalPart = rawValue.split(".")[1].replace(/[^0-9]/g, "");
+    const fractionalPart = rawValue
+        .split(".")[1]
+        .replace(/[^0-9]/g, "")
+        .replace(/0+$/, "");
     return fractionalPart.length;
 };
+
 const getManualQtyPrecision = (item: any) => {
     const storedPrecision = Number(item?.qty_precision);
     if (Number.isInteger(storedPrecision) && storedPrecision >= 0) {
@@ -378,10 +382,9 @@ const roundManualQtyByPrecision = (value: any, precision: any) => {
     const factor = 10 ** precision;
     return Math.round(Number(value || 0) * factor) / factor;
 };
-const formatManualQtyValue = (value: any, precision = 4) =>
-    Number(value || 0)
-        .toFixed(precision)
-        .replace(/\.?0+$/, "");
+const formatManualQtyValue = (value: string | number, precision = 4) =>
+    Number(value).toFixed(precision);
+
 const normalizeManualQty = (item: any) => {
     const typedPrecision = detectManualQtyPrecision(item.qty);
     item.qty_precision = typedPrecision;
@@ -906,7 +909,8 @@ onMounted(async () => {
                                         v-model="item.qty"
                                         :min="getManualQtyMin(item)"
                                         :step="getManualQtyStep(item)"
-                                        type="number"
+                                        type="text"
+                                        inputmode="decimal"
                                         class="h-6 w-10 rounded-md border border-slate-300 text-center text-sm outline-none"
                                         @click.stop
                                         @change="normalizeManualQty(item)"

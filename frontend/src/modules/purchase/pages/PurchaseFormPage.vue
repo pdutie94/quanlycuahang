@@ -642,13 +642,18 @@ const detectManualQtyPrecision = (
 };
 
 const getManualQtyPrecision = (item: ManualPurchaseItem): number => {
-    if (
-        typeof item.qty_precision === "number" &&
-        Number.isInteger(item.qty_precision)
-    ) {
-        return item.qty_precision;
+    const typed = detectManualQtyPrecision(item?.qty);
+
+    if (typed !== null && typed !== undefined) {
+        return typed; // 👈 ưu tiên input mới
     }
-    return detectManualQtyPrecision(item?.qty);
+
+    const storedPrecision = Number(item?.qty_precision);
+    if (Number.isInteger(storedPrecision) && storedPrecision >= 0) {
+        return storedPrecision;
+    }
+
+    return 0;
 };
 
 const getManualQtyStep = (item: ManualPurchaseItem) =>
@@ -664,9 +669,7 @@ const roundManualQtyByPrecision = (
 };
 
 const formatManualQtyValue = (value: string | number, precision = 4) =>
-    Number(value || 0)
-        .toFixed(precision)
-        .replace(/\.?0+$/, "");
+    Number(value).toFixed(precision);
 
 const normalizeManualQty = (item: ManualPurchaseItem) => {
     const currentQty = Number(item.qty || 0);
@@ -686,6 +689,20 @@ const normalizeManualQty = (item: ManualPurchaseItem) => {
 
     item.qty = formatManualQtyValue(normalizedQty, precision);
 };
+
+function onManualQtyInput(item: ManualPurchaseItem) {
+    // Khi sửa số lượng: tính lại giá nhập = tổng tiền / số lượng
+    const qty = Number(item.qty) || 0;
+    const amount = parseMoneyInput(item.amount);
+    if (qty > 0 && amount > 0) {
+        item.price_cost = formatter.format(Math.round(amount / qty));
+    }
+}
+
+function onManualQtyBlur(item: ManualPurchaseItem) {
+    normalizeManualQty(item);
+    onManualQtyInput(item);
+}
 
 const initializePage = async () => {
     resetState();
@@ -908,8 +925,7 @@ onMounted(async () => {
                                     <div class="relative">
                                         <input
                                             type="text"
-                                            inputmode="numeric"
-                                            pattern="[0-9]*(\.[0-9]+)?"
+                                            inputmode="decimal"
                                             v-model="row.qty"
                                             min="0"
                                             :step="
@@ -1060,9 +1076,10 @@ onMounted(async () => {
                                         <input
                                             type="text"
                                             v-model="item.qty"
-                                            inputmode="numeric"
-                                            pattern="[0-9]*(\.[0-9]+)?"
+                                            inputmode="decimal"
                                             class="text-sm rounded-md border border-slate-300 px-2 py-1 w-full pr-10"
+                                            @input="onManualQtyInput(item)"
+                                            @blur="onManualQtyBlur(item)"
                                         />
                                         <span
                                             class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-slate-400"
