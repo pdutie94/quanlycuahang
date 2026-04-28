@@ -164,26 +164,25 @@ function getCombinedItems(purchaseId: number | string) {
             <div class="text-sm text-slate-400">Không có sản phẩm</div>
           </div>
 
-          <!-- Items - Single line format: Tên + SL ĐVT + Giá + Tổng -->
+          <!-- Items: Group 1 (name, qty, price) flex-wrap + Group 2 (total) separate -->
           <div
             v-for="item in getCombinedItems(purchase.id)"
             :key="`${purchase.id}-${item.id}`"
             class="flex items-center justify-between gap-3 px-4 py-2 hover:bg-slate-50/60"
           >
-            <!-- Tên sản phẩm -->
-            <div class="min-w-0 flex-1 truncate text-sm font-medium text-slate-800">
-              {{ item.name }}
+            <!-- Cụm 1: Tên SP + SL + Giá nhập (flex-wrap) -->
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 flex-1 min-w-0">
+              <div class="text-sm font-medium text-slate-800">
+                {{ item.name }}
+              </div>
+              <div class="text-sm">
+                <span class="font-semibold text-brand-600">{{ formatNumber(item.qty) }}</span> <span class="text-slate-500">{{ item.unit_name }}</span>
+              </div>
+              <div class="text-sm text-amber-700">
+                {{ formatMoney(item.price_cost) }}
+              </div>
             </div>
-            <!-- SL + ĐVT -->
-            <div class="shrink-0 text-sm">
-              <span class="font-semibold text-brand-600">{{ formatNumber(item.qty) }}</span>
-              <span class="text-slate-500">{{ item.unit_name }}</span>
-            </div>
-            <!-- Giá nhập -->
-            <div class="shrink-0 text-sm text-amber-700 w-20 text-right">
-              {{ formatMoney(item.price_cost) }}
-            </div>
-            <!-- Tổng -->
+            <!-- Cụm 2: Tổng -->
             <div class="shrink-0 text-sm font-semibold text-emerald-700 w-24 text-right">
               {{ formatMoney(item.amount) }}
             </div>
