@@ -1,7 +1,14 @@
 RewriteEngine On
 
-# Frontend root route must hit SPA shell
-RewriteRule ^$ index.html [L]
+# Set environment variable when serving index.html via rewrite
+RewriteRule ^$ index.html [E=NO_CACHE:1,L]
+RewriteRule ^(login|change-password|migrations|dashboard|products|customers|orders|pos|purchases|suppliers|categories|units|reports)(/.*)?$ index.html [E=NO_CACHE:1,L]
+RewriteRule ^[A-Za-z0-9_-]+(/.*)?$ index.html [E=NO_CACHE:1,L]
+
+# Disable caching for all HTML responses (SPA shell)
+Header always set Cache-Control "no-cache, no-store, must-revalidate" env=NO_CACHE
+Header always set Pragma "no-cache" env=NO_CACHE
+Header always set Expires "0" env=NO_CACHE
 
 # Serve existing files/directories directly
 RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -27,8 +34,3 @@ RewriteRule ^category$ /categories [R=302,L]
 RewriteRule ^unit$ /units [R=302,L]
 RewriteRule ^report$ /reports [R=302,L]
 
-# Vue SPA routes (history mode) served as static file
-RewriteRule ^(login|change-password|migrations|dashboard|products|customers|orders|pos|purchases|suppliers|categories|units|reports)(/.*)?$ index.html [L]
-
-# Fallback for new frontend routes
-RewriteRule ^[A-Za-z0-9_-]+(/.*)?$ index.html [L]
