@@ -190,6 +190,20 @@ class CustomerApiController
         ], isset($result['message']) ? (string) $result['message'] : 'Đã ghi nhận thanh toán công nợ.');
     }
 
+    public function getPayments(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($id <= 0) {
+            return ApiResponse::error($response, 'Invalid customer id', 422);
+        }
+
+        $payments = \CustomerRepository::findPaymentsByCustomerId($id);
+
+        return ApiResponse::success($response, [
+            'payments' => $payments,
+        ]);
+    }
+
     private function normalizePayload(ServerRequestInterface $request): array
     {
         $body = $request->getParsedBody();

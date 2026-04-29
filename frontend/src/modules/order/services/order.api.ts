@@ -87,3 +87,8 @@ export async function resetOrderPayment(id: number | string): Promise<ApiRespons
   const response = await api.post(`/orders/${id}/payment/reset`);
   return response.data;
 }
+
+export async function fetchOrderItems(id: number | string): Promise<ApiResponse<{ items: any[]; manual_items: any[] }>> {
+  const response = await api.get(`/orders/${id}/items`);
+  return response.data;
+}

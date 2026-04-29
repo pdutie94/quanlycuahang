@@ -70,6 +70,7 @@ return function (App $app) {
         $group->get('/customers', [$customerController, 'list']);
         $group->get('/customers/{id}/payment', [$customerController, 'customerPaymentInfo']);
         $group->post('/customers/{id}/payment', [$customerController, 'customerPaymentStore']);
+        $group->get('/customers/{id}/payments', [$customerController, 'getPayments']);
         $group->get('/customers/{id}', [$customerController, 'detail']);
         $group->post('/customers', [$customerController, 'create']);
         $group->put('/customers/{id}', [$customerController, 'update']);
@@ -97,6 +98,7 @@ return function (App $app) {
         $group->get('/orders/{id}/preview', [$orderController, 'preview']);
         $group->get('/orders/{id}/invoice', [$orderController, 'invoice']);
         $group->get('/orders/{id}/return', [$orderController, 'returnInfo']);
+        $group->get('/orders/{id}/items', [$orderController, 'getItems']);
         $group->post('/orders', [$orderController, 'create']);
         $group->put('/orders/{id}', [$orderController, 'update']);
         $group->patch('/orders/{id}', [$orderController, 'update']);

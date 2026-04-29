@@ -86,8 +86,13 @@ class CustomerRepository extends BaseRepository
 
     public static function findPaymentsByCustomerId(int $id): array
     {
+        // Aggregate payments by paid_at and note to show total amount per payment event
         $stmt = self::db()->prepare(
-            'SELECT id, amount, paid_at, note FROM payments WHERE type = \'customer\' AND customer_id = ? ORDER BY paid_at DESC, id DESC'
+            'SELECT MIN(id) as id, SUM(amount) as amount, paid_at, note 
+            FROM payments 
+            WHERE type = \'customer\' AND customer_id = ? 
+            GROUP BY paid_at, note 
+            ORDER BY paid_at DESC, id DESC'
         );
         $stmt->execute([$id]);
         return $stmt->fetchAll();

@@ -75,6 +75,24 @@ class OrderApiController
         ]);
     }
 
+    public function getItems(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($id <= 0) {
+            return ApiResponse::error($response, 'Invalid order id', 422);
+        }
+
+        $result = \OrderService::getOrderViewData($id);
+        if (empty($result['success'])) {
+            return ApiResponse::error($response, 'Order not found', 404);
+        }
+
+        return ApiResponse::success($response, [
+            'items' => $result['items'],
+            'manual_items' => $result['manualItems'],
+        ]);
+    }
+
     public function preview(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $id = isset($args['id']) ? (int) $args['id'] : 0;

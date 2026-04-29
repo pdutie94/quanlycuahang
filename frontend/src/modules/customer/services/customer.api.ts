@@ -44,3 +44,8 @@ export async function submitCustomerDebtPayment(id: number | string, payload: Re
   const response = await api.post(`/customers/${id}/payment`, payload);
   return response.data;
 }
+
+export async function fetchCustomerPayments(id: number | string) {
+  const response = await api.get(`/customers/${id}/payments`);
+  return response.data;
+}
