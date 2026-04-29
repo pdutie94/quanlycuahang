@@ -182,9 +182,9 @@ function getCombinedItems(orderId: number | string) {
                 {{ formatMoney(item.price_sell) }}
               </div>
             </div>
-            <!-- Cụm 2: Tổng -->
+            <!-- Cụm 2: Tổng (manual items use amount_sell, regular items use amount) -->
             <div class="shrink-0 text-sm font-semibold text-emerald-700 w-24 text-right">
-              {{ formatMoney(item.amount) }}
+              {{ formatMoney(item.amount || item.amount_sell || 0) }}
             </div>
           </div>
         </div>
