@@ -203,8 +203,8 @@ const roundDownThousand = (value: string | number) => {
     const normalizedAmount = Math.round(amount);
     const remainder = normalizedAmount % 1000;
     const baseAmount = normalizedAmount - remainder;
-    // <=700 làm tròn xuống, >700 làm tròn lên
-    if (remainder > 700) return baseAmount + 1000;
+    // >=500 làm tròn lên, <500 làm tròn xuống
+    if (remainder >= 500) return baseAmount + 1000;
     return baseAmount;
 };
 

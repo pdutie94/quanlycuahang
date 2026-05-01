@@ -56,10 +56,12 @@ class Money
         if ($int <= 0) {
             return 0;
         }
-        $rounded = (int) floor($int / 1000) * 1000;
-        if ($rounded < 0) {
-            $rounded = 0;
+        $remainder = $int % 1000;
+        $base = $int - $remainder;
+        // >=500 làm tròn lên, <500 làm tròn xuống
+        if ($remainder >= 500) {
+            $base += 1000;
         }
-        return $rounded;
+        return $base;
     }
 }

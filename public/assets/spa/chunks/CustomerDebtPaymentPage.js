@@ -1,1 +1,1 @@
-import{D as e}from"./customer.js";export{e as default};
+import{O as e}from"./customer.js";export{e as default};

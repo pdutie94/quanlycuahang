@@ -1,1 +1,1 @@
-import{c as e}from"./customer.js";export{e as default};
+import{l as e}from"./customer.js";export{e as default};
