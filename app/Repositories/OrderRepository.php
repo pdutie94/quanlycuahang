@@ -47,22 +47,10 @@ class OrderRepository extends BaseRepository
 
     private static function buildListSelectSql(): string
     {
-        return 'SELECT o.*, c.name AS customer_name, c.phone AS customer_phone, COALESCE(ic.items_count, 0) AS items_count
-                FROM orders o
-                LEFT JOIN customers c ON o.customer_id = c.id
-                LEFT JOIN (
-                    SELECT order_id, SUM(count_items) AS items_count
-                    FROM (
-                        SELECT order_id, COUNT(*) AS count_items
-                        FROM order_items
-                        GROUP BY order_id
-                        UNION ALL
-                        SELECT order_id, COUNT(*) AS count_items
-                        FROM order_manual_items
-                        GROUP BY order_id
-                    ) t
-                    GROUP BY order_id
-                ) ic ON ic.order_id = o.id';
+        // Use optimized query from QueryOptimizer - replaces expensive UNION ALL subquery
+        // with separate LEFT JOINs for better performance
+        $optimized = \App\Services\QueryOptimizer::buildOptimizedItemsCountSelect();
+        return $optimized['sql'];
     }
 
     public static function findActiveById($id)

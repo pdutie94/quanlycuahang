@@ -10,6 +10,7 @@ import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 import AppModalSheet from '../../../shared/components/AppModalSheet.vue';
 import { useUrlFilters } from '../../../shared/composables/useUrlFilters';
+import { useDebouncedCallback } from '../../../shared/composables/useDebounce';
 import OrderListSkeleton from '../components/OrderListSkeleton.vue';
 
 const route = useRoute();
@@ -47,7 +48,29 @@ const {
   }
 });
 
-const applySearch = () => applyFilters({ q: filters.value.q });
+// Local search query for v-model
+const searchQuery = ref(filters.value.q);
+
+// Debounced search - wait 300ms after user stops typing
+const debouncedUpdateSearch = useDebouncedCallback((query: string) => {
+  if (query !== filters.value.q) {
+    applyFilters({ q: query });
+  }
+}, 300);
+
+// Watch local query and trigger debounced update
+watch(searchQuery, (newValue) => {
+  debouncedUpdateSearch(newValue);
+});
+
+// Watch when filters are cleared from URL
+watch(() => filters.value.q, (newValue) => {
+  if (newValue !== searchQuery.value) {
+    searchQuery.value = newValue;
+  }
+});
+
+const applySearch = () => debouncedUpdateSearch(searchQuery.value);
 const applyOrderStatus = (value: string) => applyFilters({ order_status: value });
 
 const applyAdvancedFilter = () => {
@@ -82,7 +105,7 @@ watch(
 <template>
   <section class="space-y-3">
     <ListHeaderBar
-      v-model="filters.q"
+      v-model="searchQuery"
       title="Đơn hàng"
       subtitle="Quản lý danh sách đơn hàng bán ra."
       :create-to="{ name: 'pos.index' }"

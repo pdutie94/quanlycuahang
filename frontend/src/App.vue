@@ -20,13 +20,33 @@ import {
 } from '@lucide/vue';
 import { logout } from './modules/auth/services/auth.api';
 import { useToast } from './shared/composables/useToast';
+import { usePreloadRoutes } from './shared/composables/usePreloadRoutes';
 import AppToast from './shared/components/AppToast.vue';
+import { onMounted } from 'vue';
 
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const showMenu = ref(false);
 const showShell = computed(() => route.meta?.hideShell !== true);
+
+// Preload critical routes after login for better UX
+const { preloadCriticalRoutes } = usePreloadRoutes();
+const hasPreloaded = ref(false);
+
+// Watch for navigation to dashboard (after login) and trigger preload
+watch(
+  () => route.name,
+  (routeName) => {
+    if (routeName === 'dashboard' && !hasPreloaded.value) {
+      hasPreloaded.value = true;
+      // Preload critical routes 2 seconds after login
+      setTimeout(() => {
+        preloadCriticalRoutes();
+      }, 2000);
+    }
+  }
+);
 
 const onLogout = async () => {
   try {

@@ -8,6 +8,7 @@ import { useProducts } from '../composables/useProducts';
 import { useToast } from '../../../shared/composables/useToast';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
 import { useUrlFilters } from '../../../shared/composables/useUrlFilters';
+import { useDebouncedCallback } from '../../../shared/composables/useDebounce';
 import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
@@ -22,6 +23,28 @@ const { filters, applyFilters, clearFilters } = useUrlFilters({
   q: { default: '' },
   stock: { default: 'all' },
   category_id: { default: '' }
+});
+
+// Local search query for v-model (synced immediately)
+const searchQuery = ref(filters.value.q);
+
+// Watch local query and debounce filter updates
+const debouncedUpdateSearch = useDebouncedCallback((query: string) => {
+  if (query !== filters.value.q) {
+    applyFilters({ q: query });
+  }
+}, 300);
+
+// Watch for changes and trigger debounced update
+watch(searchQuery, (newValue) => {
+  debouncedUpdateSearch(newValue);
+});
+
+// Also watch when filters are cleared from URL
+watch(() => filters.value.q, (newValue) => {
+  if (newValue !== searchQuery.value) {
+    searchQuery.value = newValue;
+  }
 });
 
 const { items, meta, categories, loading, error, load } = useProducts();
@@ -106,13 +129,13 @@ const displayItems = computed(() =>
 <template>
   <section class="space-y-4">
     <ListHeaderBar
-      v-model="filters.q"
+      v-model="searchQuery"
       title="Sản phẩm"
       subtitle="Quản lý danh sách sản phẩm đang bán."
       :create-to="{ name: 'products.create' }"
       search-placeholder="Tìm kiếm theo tên, SKU..."
       filter-type="grid"
-      @search="applyFilters({ q: filters.q })"
+      @search="debouncedUpdateSearch(searchQuery)"
       @filter-click="showCategoryModal = true"
     >
       <template #chips>

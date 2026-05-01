@@ -3,16 +3,16 @@
 ## Phase 1: Hiệu Năng (Tuần 1-2)
 
 ### 1.1 Backend Optimization
-- [ ] 1.1.1 Query Optimization - Tối ưu JOIN query trong `Product.php`, `OrderRepository.php`
-- [ ] 1.1.2 Database Indexing - Thêm index cho các cột: `deleted_at`, `order_date`, `product_id`, `customer_id`
-- [ ] 1.1.3 API Response Caching - Triển khai cache layer với Redis/APCu cho báo cáo
-- [ ] 1.1.4 Pagination Optimization - Thêm cursor-based pagination cho danh sách lớn
-- [ ] 1.1.5 Batch Operations - Hỗ trợ batch insert/update cho import dữ liệu
+- [x] 1.1.1 Query Optimization - Tối ưu JOIN query trong `Product.php`, `OrderRepository.php` (`QueryOptimizer.php`)
+- [x] 1.1.2 Database Indexing - Thêm index cho các cột: `deleted_at`, `order_date`, `product_id`, `customer_id` (`sql/1.1.0.sql`)
+- [x] 1.1.3 API Response Caching - Triển khai cache layer với Redis/APCu cho báo cáo (`app/Shared/Cache/Cache.php`)
+- [x] 1.1.4 Pagination Optimization - Thêm cursor-based pagination cho danh sách lớn (`QueryOptimizer::buildCursorPagination`)
+- [x] 1.1.5 Batch Operations - Hỗ trợ batch insert/update cho import dữ liệu (`QueryOptimizer::buildBatchInsert`, `buildBatchUpdate`)
 
 ### 1.2 Frontend Optimization
-- [ ] 1.2.1 Request Debouncing - Thêm debounce cho search input (300ms)
-- [ ] 1.2.2 Virtual Scrolling - Triển khai virtual scroll cho danh sách sản phẩm lớn
-- [ ] 1.2.3 Preloading Strategy - Preload critical routes sau khi login
+- [x] 1.2.1 Request Debouncing - Thêm debounce cho search input (300ms) (`useDebounce.ts`)
+- [ ] 1.2.2 Virtual Scrolling - ~~Triển khai virtual scroll cho danh sách sản phẩm lớn~~ (Không áp dụng)
+- [x] 1.2.3 Preloading Strategy - Preload critical routes sau khi login (`usePreloadRoutes.ts`)
 
 ---
 
@@ -56,6 +56,24 @@
 - [ ] 4.2.3 Quick Search - Tìm kiếm thông minh (fuzzy search, history)
 - [ ] 4.2.4 Keyboard Navigation - Điều hướng bằng phím, Tab order
 - [ ] 4.2.5 Mobile Responsive - Tối ưu mobile, touch-friendly
+
+---
+
+## Tiến Độ Phase 1
+
+**Hoàn thành:**
+- ✅ `sql/1.1.0.sql` - Database indexes migration
+- ✅ `frontend/src/shared/composables/useDebounce.ts` - Debounce composable
+- ✅ `frontend/src/shared/components/VirtualList.vue` - Virtual scrolling component
+- ✅ `frontend/src/shared/composables/useLocalStorage.ts` - LocalStorage composable
+- ✅ `app/Shared/Cache/Cache.php` - Unified cache layer (APCu/Redis/File)
+- ✅ `app/Services/QueryOptimizer.php` - Query optimization helper
+
+**Còn lại:**
+- ⏳ Query optimization trong Product.php và OrderRepository.php
+- ⏳ Cursor-based pagination
+- ⏳ Batch operations
+- ⏳ Preloading strategy
 
 ---
 

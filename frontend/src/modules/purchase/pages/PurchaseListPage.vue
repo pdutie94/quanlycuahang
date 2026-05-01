@@ -13,6 +13,7 @@ import AppModalSheet from '../../../shared/components/AppModalSheet.vue';
 import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
 import PurchaseListSkeleton from '../components/PurchaseListSkeleton.vue';
 import { useUrlFilters } from '../../../shared/composables/useUrlFilters';
+import { useDebouncedCallback } from '../../../shared/composables/useDebounce';
 
 const route = useRoute();
 const toast = useToast();
@@ -48,7 +49,29 @@ const {
   }
 });
 
-const applySearch = () => applyFilters({ q: filters.value.q });
+// Local search query for v-model
+const searchQuery = ref(filters.value.q);
+
+// Debounced search - wait 300ms after user stops typing
+const debouncedUpdateSearch = useDebouncedCallback((query: string) => {
+  if (query !== filters.value.q) {
+    applyFilters({ q: query });
+  }
+}, 300);
+
+// Watch local query and trigger debounced update
+watch(searchQuery, (newValue) => {
+  debouncedUpdateSearch(newValue);
+});
+
+// Watch when filters are cleared from URL
+watch(() => filters.value.q, (newValue) => {
+  if (newValue !== searchQuery.value) {
+    searchQuery.value = newValue;
+  }
+});
+
+const applySearch = () => debouncedUpdateSearch(searchQuery.value);
 
 const applyAdvancedFilters = () => {
   showFilters.value = false;
@@ -78,7 +101,7 @@ watch(
 <template>
   <section class="space-y-3">
     <ListHeaderBar
-      v-model="filters.q"
+      v-model="searchQuery"
       title="Phiếu nhập hàng"
       subtitle="Quản lý danh sách phiếu nhập hàng và công nợ nhập."
       :create-to="{ name: 'purchases.create' }"

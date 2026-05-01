@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import SupplierItemCard from '../../../shared/components/SupplierItemCard.vue';
-import { computed, watch } from 'vue';
+import { computed, watch, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useSupplierList } from '../composables/useSupplierList';
 import { useToast } from '../../../shared/composables/useToast';
 import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
 import { useUrlFilters } from '../../../shared/composables/useUrlFilters';
+import { useDebouncedCallback } from '../../../shared/composables/useDebounce';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import ListHeaderBar from '../../../shared/components/ListHeaderBar.vue';
 import FilterClearChip from '../../../shared/components/FilterClearChip.vue';
@@ -17,6 +18,28 @@ const toast = useToast();
 const { filters, applyFilters, clearFilters } = useUrlFilters({
   q: { default: '' },
   debt_status: { default: '' }
+});
+
+// Local search query for v-model
+const searchQuery = ref(filters.value.q);
+
+// Debounced search - wait 300ms after user stops typing
+const debouncedUpdateSearch = useDebouncedCallback((query: string) => {
+  if (query !== filters.value.q) {
+    applyFilters({ q: query });
+  }
+}, 300);
+
+// Watch local query and trigger debounced update
+watch(searchQuery, (newValue) => {
+  debouncedUpdateSearch(newValue);
+});
+
+// Watch when filters are cleared from URL
+watch(() => filters.value.q, (newValue) => {
+  if (newValue !== searchQuery.value) {
+    searchQuery.value = newValue;
+  }
 });
 
 const { suppliers, meta, loading, error, load } = useSupplierList();
@@ -58,14 +81,14 @@ const hasAnyFilter = computed(() => filters.value.debt_status !== '');
 <template>
   <section class="space-y-3">
     <ListHeaderBar
-      v-model="filters.q"
+      v-model="searchQuery"
       title="Nhà cung cấp"
       subtitle="Quản lý danh sách nhà cung cấp và công nợ nhập hàng."
       :create-to="{ name: 'suppliers.create' }"
       create-label="Thêm nhà cung cấp"
       search-placeholder="Tìm kiếm theo tên, SĐT, địa chỉ..."
       chips-class="mt-2 flex items-center gap-2 overflow-x-auto text-sm"
-      @search="applyFilters({ q: filters.q })"
+      @search="debouncedUpdateSearch(searchQuery)"
     >
       <template #chips>
         <button
