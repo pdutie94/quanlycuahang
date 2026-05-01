@@ -365,6 +365,12 @@ class OrderApiController
                 }
             }
 
+            $orderNote = $note;
+            if ($paymentStatus === 'pay' && $paidAmount > 0) {
+                $methodTag = $paymentMethod === 'bank' ? '[TT:bank]' : '[TT:cash]';
+                $orderNote = $note !== '' ? $note . ' ' . $methodTag : $methodTag;
+            }
+
             $orderId = \Order::create([
                 'customer_id' => $customerId ?: null,
                 'total_amount' => $finalTotal,
@@ -372,7 +378,7 @@ class OrderApiController
                 'paid_amount' => $paidAmount,
                 'status' => $status,
                 'order_status' => 'pending',
-                'note' => $note,
+                'note' => $orderNote,
                 'discount_type' => $discountType,
                 'discount_value' => $discountValue,
                 'discount_amount' => $discountAmount,
@@ -390,6 +396,8 @@ class OrderApiController
             }
 
             if ($paymentStatus === 'pay' && $paidAmount > 0) {
+                $methodTag = $paymentMethod === 'bank' ? '[TT:bank]' : '[TT:cash]';
+                $paymentNote = $note !== '' ? $note . ' ' . $methodTag : $methodTag;
                 \Payment::create([
                     'type' => 'customer',
                     'customer_id' => $customerId ?: null,
@@ -397,7 +405,7 @@ class OrderApiController
                     'order_id' => $orderId,
                     'purchase_id' => null,
                     'amount' => $paidAmount,
-                    'note' => $note,
+                    'note' => $paymentNote,
                 ]);
             }
 
