@@ -100,7 +100,7 @@ const loading = computed(
 const saving = computed(() => createLoading.value || updateLoading.value);
 
 import { useFormat } from "../../../shared/composables/useFormat";
-const { formatMoney, parseAmount } = useFormat();
+const { formatMoney, parseAmount, roundToThousand } = useFormat();
 
 const formatMoneyInput = (value: string | number, allowEmpty = true) => {
     const amount = parseAmount(value);
@@ -197,21 +197,10 @@ const normalizeDecimalDisplay = (value: string | number) => {
     return raw.replace(/\.0+$/, "").replace(/(\.\d*?[1-9])0+$/, "$1");
 };
 
-const roundDownThousand = (value: string | number) => {
-    const amount = typeof value === "number" ? value : parseAmount(value);
-    if (amount <= 0) return 0;
-    const normalizedAmount = Math.round(amount);
-    const remainder = normalizedAmount % 1000;
-    const baseAmount = normalizedAmount - remainder;
-    // >=500 làm tròn lên, <500 làm tròn xuống
-    if (remainder >= 500) return baseAmount + 1000;
-    return baseAmount;
-};
-
 const manualRoundTotal = () => {
     // Không reset discount/surcharge, chỉ làm tròn payment_amount
     form.value.payment_amount = formatMoneyInput(
-        roundDownThousand(finalTotal.value),
+        roundToThousand(finalTotal.value),
     );
 };
 
@@ -238,7 +227,7 @@ const finalTotal = computed(() => {
         Number(summary.value.gross || 0) -
         discountAmount.value +
         surchargeValue.value;
-    return roundDownThousand(total < 0 ? 0 : total);
+    return roundToThousand(total < 0 ? 0 : total);
 });
 
 const selectorItems = computed<SelectorItem[]>(() =>

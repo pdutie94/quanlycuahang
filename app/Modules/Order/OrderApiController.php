@@ -395,6 +395,16 @@ class OrderApiController
                 \OrderManualItem::create($row);
             }
 
+            // Re-read the saved lines so create and update use the same
+            // canonical calculation (including custom line prices).
+            $reconciledOrder = \OrderService::reconcileOrderTotals((int) $orderId);
+            if ($reconciledOrder) {
+                $finalTotal = (float) ($reconciledOrder['total_amount'] ?? $finalTotal);
+                $totalCost = (float) ($reconciledOrder['total_cost'] ?? $totalCost);
+                $paidAmount = (float) ($reconciledOrder['paid_amount'] ?? $paidAmount);
+                $status = (string) ($reconciledOrder['status'] ?? $status);
+            }
+
             if ($paymentStatus === 'pay' && $paidAmount > 0) {
                 $methodTag = $paymentMethod === 'bank' ? '[TT:bank]' : '[TT:cash]';
                 $paymentNote = $note !== '' ? $note . ' ' . $methodTag : $methodTag;

@@ -70,6 +70,64 @@ class OrderService
         ];
     }
 
+    /**
+     * Recalculate an order total from the current order lines instead of
+     * applying a delta to the value previously stored on the order.
+     *
+     * Order lines keep the price selected at the time of the order. The
+     * current product-unit price must therefore never be used here.
+     */
+    public static function reconcileOrderTotals($id, array $input = []): ?array
+    {
+        $id = (int) $id;
+        if ($id <= 0) {
+            return null;
+        }
+
+        $order = OrderRepository::findActiveWithCustomer($id);
+        if (!$order) {
+            return null;
+        }
+
+        $totals = self::calculateCanonicalOrderTotals($id, $order, $input);
+        $pdo = Database::getInstance();
+
+        $storedTotal = self::normalizeMoneyValue(isset($order['total_amount']) ? $order['total_amount'] : 0);
+        $storedCost = self::normalizeMoneyValue(isset($order['total_cost']) ? $order['total_cost'] : 0);
+        $storedPaid = self::normalizeMoneyValue(isset($order['paid_amount']) ? $order['paid_amount'] : 0);
+        $storedDiscount = self::normalizeMoneyValue(isset($order['discount_amount']) ? $order['discount_amount'] : 0);
+        $storedStatus = isset($order['status']) ? (string) $order['status'] : '';
+
+        if (
+            abs($storedTotal - $totals['totalAmount']) > 0.0001
+            || abs($storedCost - $totals['totalCost']) > 0.0001
+            || abs($storedPaid - $totals['paidAmount']) > 0.0001
+            || abs($storedDiscount - $totals['discountAmount']) > 0.0001
+            || $storedStatus !== $totals['status']
+        ) {
+            $stmt = $pdo->prepare('UPDATE orders SET total_amount = ?, total_cost = ?, paid_amount = ?, status = ?, discount_amount = ? WHERE id = ? AND deleted_at IS NULL');
+            $stmt->execute([
+                $totals['totalAmount'],
+                $totals['totalCost'],
+                $totals['paidAmount'],
+                $totals['status'],
+                $totals['discountAmount'],
+                $id,
+            ]);
+            if (class_exists('ReportService')) {
+                ReportService::clearReportCache();
+            }
+        }
+
+        $order['total_amount'] = $totals['totalAmount'];
+        $order['total_cost'] = $totals['totalCost'];
+        $order['paid_amount'] = $totals['paidAmount'];
+        $order['status'] = $totals['status'];
+        $order['discount_amount'] = $totals['discountAmount'];
+
+        return $order;
+    }
+
     public static function getOrderViewData($id): array
     {
         $id = (int) $id;
@@ -80,7 +138,7 @@ class OrderService
             ];
         }
 
-        $order = OrderRepository::findActiveWithCustomer($id);
+        $order = self::reconcileOrderTotals($id);
         if (!$order) {
             return [
                 'success' => false,
@@ -140,7 +198,7 @@ class OrderService
             ];
         }
 
-        $order = OrderRepository::findActiveWithCustomer($id);
+        $order = self::reconcileOrderTotals($id);
         if (!$order) {
             return [
                 'success' => false,
@@ -169,7 +227,7 @@ class OrderService
             ];
         }
 
-        $order = OrderRepository::findActiveWithCustomer($id);
+        $order = self::reconcileOrderTotals($id);
         if (!$order) {
             return [
                 'success' => false,
@@ -202,7 +260,7 @@ class OrderService
             ];
         }
 
-        $order = OrderRepository::findForEdit($id);
+        $order = self::reconcileOrderTotals($id);
         if (!$order) {
             return [
                 'success' => false,
@@ -236,7 +294,7 @@ class OrderService
             ];
         }
 
-        $order = OrderRepository::findActiveWithCustomer($id);
+        $order = self::reconcileOrderTotals($id);
         if (!$order) {
             return [
                 'success' => false,
@@ -991,18 +1049,10 @@ class OrderService
                 }
             }
 
-            $totals = self::calculateAdjustedOrderSummary($order, [
-                'total_add_amount' => $totalAddAmount,
-                'total_reduce_amount' => $totalReduceAmount,
-                'total_add_cost' => $totalAddCost,
-                'total_reduce_cost' => $totalReduceCost,
-            ], [
+            $totals = self::calculateCanonicalOrderTotals($id, $order, [
                 'discount_type' => isset($payload['discount_type']) ? $payload['discount_type'] : (isset($order['discount_type']) ? $order['discount_type'] : 'none'),
                 'discount_value' => isset($payload['discount_value']) ? $payload['discount_value'] : (isset($order['discount_value']) ? $order['discount_value'] : '0'),
                 'surcharge_amount' => isset($payload['surcharge_amount']) ? $payload['surcharge_amount'] : (isset($order['surcharge_amount']) ? $order['surcharge_amount'] : '0'),
-            ], [
-                'roundDownThousand' => true,
-                'preserveStatusOnZero' => true,
             ]);
 
             $totalAmount = $totals['totalAmount'];
@@ -1554,6 +1604,83 @@ class OrderService
             @flock($lockHandle, LOCK_UN);
             @fclose($lockHandle);
         }
+    }
+
+    private static function calculateCanonicalOrderTotals(int $orderId, array $order, array $input = []): array
+    {
+        $pdo = Database::getInstance();
+        $itemStmt = $pdo->prepare('SELECT COALESCE(SUM(amount), 0) AS subtotal, COALESCE(SUM(price_cost * qty), 0) AS total_cost FROM order_items WHERE order_id = ?');
+        $itemStmt->execute([$orderId]);
+        $itemSummary = $itemStmt->fetch() ?: [];
+
+        $subtotal = self::normalizeMoneyValue(isset($itemSummary['subtotal']) ? $itemSummary['subtotal'] : 0);
+        $totalCost = self::normalizeMoneyValue(isset($itemSummary['total_cost']) ? $itemSummary['total_cost'] : 0);
+
+        if (class_exists('OrderManualItem')) {
+            $manualItems = OrderManualItem::findByOrder($orderId);
+            foreach ($manualItems as $manualItem) {
+                $subtotal += self::normalizeMoneyValue(isset($manualItem['amount_sell']) ? $manualItem['amount_sell'] : 0);
+                $totalCost += self::normalizeMoneyValue(isset($manualItem['amount_buy']) ? $manualItem['amount_buy'] : 0);
+            }
+        }
+
+        $discountType = array_key_exists('discount_type', $input)
+            ? (string) $input['discount_type']
+            : (isset($order['discount_type']) ? (string) $order['discount_type'] : 'none');
+        if (!in_array($discountType, ['none', 'fixed', 'percent'], true)) {
+            $discountType = 'none';
+        }
+
+        $discountValueSource = array_key_exists('discount_value', $input)
+            ? $input['discount_value']
+            : (isset($order['discount_value']) ? $order['discount_value'] : 0);
+        $discountValue = self::parseFlexibleMoneyValue($discountValueSource);
+        if ($discountValue < 0) {
+            $discountValue = 0;
+        }
+
+        $discountAmount = 0.0;
+        if ($discountType === 'fixed') {
+            $discountAmount = $discountValue;
+        } elseif ($discountType === 'percent') {
+            $discountValue = min($discountValue, 100);
+            $discountAmount = round($subtotal * $discountValue / 100);
+        }
+        $discountAmount = min(max($discountAmount, 0), $subtotal);
+
+        $surchargeSource = array_key_exists('surcharge_amount', $input)
+            ? $input['surcharge_amount']
+            : (isset($order['surcharge_amount']) ? $order['surcharge_amount'] : 0);
+        $surchargeAmount = self::parseFlexibleMoneyValue($surchargeSource, true);
+        if ($surchargeAmount < 0) {
+            $surchargeAmount = 0;
+        }
+
+        $totalAmount = $subtotal - $discountAmount + $surchargeAmount;
+        if ($totalAmount < 0) {
+            $totalAmount = 0;
+        }
+        $totalAmount = Money::roundDownThousand($totalAmount);
+
+        $paidAmount = self::normalizeMoneyValue(isset($order['paid_amount']) ? $order['paid_amount'] : 0);
+        if ($paidAmount < 0) {
+            $paidAmount = 0;
+        }
+        $paidAmount = min($paidAmount, $totalAmount);
+
+        $status = $totalAmount <= 0 || $paidAmount >= $totalAmount ? 'paid' : 'debt';
+
+        return [
+            'subtotal' => $subtotal,
+            'totalAmount' => $totalAmount,
+            'totalCost' => max($totalCost, 0),
+            'paidAmount' => $paidAmount,
+            'status' => $status,
+            'discountType' => $discountType,
+            'discountValue' => $discountValue,
+            'discountAmount' => $discountAmount,
+            'surchargeAmount' => $surchargeAmount,
+        ];
     }
 
     public static function calculateAdjustedOrderSummary(array $order, array $adjustments = [], array $input = [], array $options = []): array
