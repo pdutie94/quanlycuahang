@@ -48,14 +48,14 @@ export async function submitMissingCostUpdate(payload: Record<string, any>): Pro
   return response.data;
 }
 
-export async function fetchAnalytics(period = '30d'): Promise<ApiResponse<any>> {
-  const response = await api.get('/reports/analytics', { params: { period } });
+export async function fetchAnalytics(params: Record<string, any> = {}): Promise<ApiResponse<any>> {
+  const response = await api.get('/reports/analytics', { params });
   return response.data;
 }
 
-export async function fetchProductPerformance(period = '30d', sortBy = 'revenue', page = 1, perPage = 50): Promise<ApiResponse<any>> {
+export async function fetchProductPerformance(params: Record<string, any> = {}, sortBy = 'revenue', page = 1, perPage = 50): Promise<ApiResponse<any>> {
   const response = await api.get('/reports/product-performance', {
-    params: { period, sort_by: sortBy, page, per_page: perPage }
+    params: { ...params, sort_by: sortBy, page, per_page: perPage }
   });
   return response.data;
 }

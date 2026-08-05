@@ -7,8 +7,8 @@ export function useAnalytics() {
 
   const request = useFetch(fetchAnalytics);
 
-  const load = async (period = "30d") => {
-    const payload = await request.execute(period);
+  const load = async (params: Record<string, any> = {}) => {
+    const payload = await request.execute(params);
     data.value = payload?.data || null;
     return payload;
   };

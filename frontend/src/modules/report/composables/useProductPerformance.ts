@@ -7,8 +7,8 @@ export function useProductPerformance() {
 
   const request = useFetch(fetchProductPerformance);
 
-  const load = async (period = "30d", sortBy = "revenue", page = 1, perPage = 50) => {
-    const payload = await request.execute(period, sortBy, page, perPage);
+  const load = async (params: Record<string, any> = {}, sortBy = "revenue", page = 1, perPage = 50) => {
+    const payload = await request.execute(params, sortBy, page, perPage);
     data.value = payload?.data || null;
     return payload;
   };

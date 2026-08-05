@@ -1042,19 +1042,20 @@ class ReportService
         }
     }
 
-    public static function getAnalyticsData(string $period): array
+    public static function getAnalyticsData(array $queryParams = []): array
     {
-        $period = self::normalizeReportPeriod($period);
-        $cacheKey = 'report:analytics:v2:' . $period;
+        $range = self::resolveReportDateRange($queryParams);
+        $cacheKey = 'report:analytics:v4:' . md5(json_encode($range['filters']));
 
-        return \App\Shared\Cache\Cache::remember($cacheKey, function () use ($period) {
+        return \App\Shared\Cache\Cache::remember($cacheKey, function () use ($range) {
             $pdo = \Database::getInstance();
-            list($startDate, $endDate) = self::getReportPeriodRange($period);
+            $startDate = $range['startDate'];
+            $endDate = $range['endDate'];
 
             return [
                 'charts' => self::getChartData($pdo, $startDate, $endDate),
                 'summary' => self::getSummaryStats($pdo, $startDate, $endDate),
-                'topProducts' => self::getTopProducts($pdo, $startDate, $endDate, 10),
+                'filters' => $range['filters'],
             ];
         }, 300);
     }
@@ -1068,6 +1069,32 @@ class ReportService
     {
         $days = ['7d' => 7, '30d' => 30, '90d' => 90, '1y' => 365][$period];
         return [date('Y-m-d 00:00:00', strtotime("-{$days} days")), date('Y-m-d 23:59:59')];
+    }
+
+    private static function resolveReportDateRange(array $queryParams): array
+    {
+        $range = self::resolveSalesDateRange($queryParams);
+
+        if (empty($range['hasDateFilter'])) {
+            $today = new DateTime();
+            $range = [
+                'filterMode' => 'month',
+                'startDate' => $today->format('Y-m-01'),
+                'endDate' => $today->format('Y-m-t'),
+            ];
+        }
+
+        $filters = [
+            'filter_mode' => $range['filterMode'],
+            'start_date' => $range['startDate'],
+            'end_date' => $range['endDate'],
+        ];
+
+        return [
+            'startDate' => $range['startDate'] . ' 00:00:00',
+            'endDate' => $range['endDate'] . ' 23:59:59',
+            'filters' => $filters,
+        ];
     }
 
     private static function getChartData(\PDO $pdo, string $startDate, string $endDate): array
@@ -1146,42 +1173,18 @@ class ReportService
         ];
     }
 
-    private static function getTopProducts(\PDO $pdo, string $startDate, string $endDate, int $limit): array
+    public static function getProductPerformanceData(array $queryParams, string $sortBy, int $page = 1, int $perPage = 50): array
     {
-        $sql = "SELECT
-                    p.id,
-                    p.name,
-                    p.code,
-                    SUM(oi.qty) as total_qty,
-                    SUM(oi.qty * oi.price_sell) as total_revenue,
-                    SUM(oi.qty * oi.price_cost) as total_cost,
-                    SUM(oi.qty * (oi.price_sell - oi.price_cost)) as total_profit
-                FROM order_items oi
-                JOIN orders o ON oi.order_id = o.id
-                JOIN products p ON oi.product_id = p.id
-                WHERE o.deleted_at IS NULL
-                AND (o.order_status IS NULL OR o.order_status <> 'cancelled')
-                AND o.order_date BETWEEN ? AND ?
-                GROUP BY p.id
-                ORDER BY total_revenue DESC
-                LIMIT " . (int)$limit; // Ép kiểu limit để tránh lỗi SQL injection nếu biến này đến từ user
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$startDate, $endDate]);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    }
-
-    public static function getProductPerformanceData(string $period, string $sortBy, int $page = 1, int $perPage = 50): array
-    {
-        $period = self::normalizeReportPeriod($period);
+        $range = self::resolveReportDateRange($queryParams);
         $sortBy = in_array($sortBy, ['revenue', 'quantity', 'profit', 'margin'], true) ? $sortBy : 'revenue';
         $page = max(1, $page);
         $perPage = min(50, max(1, $perPage));
-        $cacheKey = sprintf('report:product-performance:v2:%s:%s:%d:%d', $period, $sortBy, $page, $perPage);
+        $cacheKey = sprintf('report:product-performance:v3:%s:%s:%d:%d', md5(json_encode($range['filters'])), $sortBy, $page, $perPage);
 
-        return \App\Shared\Cache\Cache::remember($cacheKey, function () use ($period, $sortBy, $page, $perPage) {
+        return \App\Shared\Cache\Cache::remember($cacheKey, function () use ($range, $sortBy, $page, $perPage) {
             $pdo = \Database::getInstance();
-            list($startDate, $endDate) = self::getReportPeriodRange($period);
+            $startDate = $range['startDate'];
+            $endDate = $range['endDate'];
             $orderByMap = [
                 'quantity' => 'sold_qty DESC, p.id ASC',
                 'profit' => 'profit DESC, p.id ASC',
@@ -1247,7 +1250,7 @@ class ReportService
                     'total_count' => $totalProducts,
                     'total_pages' => max(1, (int) ceil($totalProducts / $perPage)),
                 ],
-                'period' => $period,
+                'filters' => $range['filters'],
             ];
         }, 300);
     }
@@ -1257,7 +1260,7 @@ class ReportService
         return "SELECT oi.product_id,
                 SUM(oi.qty) AS total_qty,
                 SUM(oi.qty * oi.price_sell) AS total_revenue,
-                SUM(oi.qty * (oi.price_sell - oi.price_cost)) AS total_profit
+                SUM(oi.qty * (CAST(oi.price_sell AS DECIMAL(20, 4)) - CAST(oi.price_cost AS DECIMAL(20, 4)))) AS total_profit
             FROM orders o
             INNER JOIN order_items oi ON oi.order_id = o.id
             WHERE o.deleted_at IS NULL

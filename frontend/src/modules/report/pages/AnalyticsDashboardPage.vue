@@ -1,45 +1,35 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import Chart from 'chart.js/auto';
 import { BarChart3, DollarSign, ShoppingCart, TrendingUp } from '@lucide/vue';
 import ReportNavButtons from '../components/ReportNavButtons.vue';
 import ReportGroupTabs from '../components/ReportGroupTabs.vue';
+import ReportDateFilter, { type ReportDateFilterValue } from '../components/ReportDateFilter.vue';
 import { useAnalytics } from '../composables/useAnalytics';
 import { useFormat } from '../../../shared/composables/useFormat';
 
 const { data, loading, error, load } = useAnalytics();
 const { formatMoney } = useFormat();
-const period = ref('30d');
+const today = new Date().toISOString().slice(0, 10);
+const filter = reactive<ReportDateFilterValue>({
+  filter_mode: 'month', day: today, month: today.slice(0, 7),
+  quarter: String(Math.floor(new Date().getMonth() / 3) + 1), quarter_year: String(new Date().getFullYear()), year: String(new Date().getFullYear()),
+});
 const revenueCanvas = ref<HTMLCanvasElement | null>(null);
 const ordersCanvas = ref<HTMLCanvasElement | null>(null);
-const isSampleData = ref(false);
 let revenueChart: Chart | null = null;
 let ordersChart: Chart | null = null;
 
-const periods = [
-  { value: '7d', label: '7 ngày' },
-  { value: '30d', label: '30 ngày' },
-  { value: '90d', label: '90 ngày' },
-  { value: '1y', label: '1 năm' },
-];
-
 const summary = computed(() => data.value?.summary || {});
-const topProducts = computed(() => data.value?.top_products || []);
 
-const sampleLabels = Array.from({ length: 30 }, (_, index) => `${String(index + 1).padStart(2, '0')}/07`);
-const sampleCharts = {
-  revenue_trend: {
-    labels: sampleLabels,
-    datasets: [
-      { label: 'Doanh thu', color: '#0ea5a4', data: [8200000, 6400000, 7500000, 9100000, 8000000, 10600000, 9400000, 11800000, 10100000, 8700000, 9600000, 12500000, 11100000, 13700000, 12000000, 10200000, 8900000, 9800000, 7400000, 6800000, 8100000, 10900000, 12400000, 11600000, 13200000, 10500000, 9000000, 11700000, 14100000, 12800000] },
-      { label: 'Lợi nhuận', color: '#22c55e', data: [2300000, 1700000, 2000000, 2800000, 2500000, 3300000, 2900000, 3800000, 3100000, 2600000, 3000000, 4100000, 3500000, 4400000, 3800000, 3000000, 2600000, 3100000, 2100000, 1900000, 2400000, 3400000, 3900000, 3600000, 4200000, 3200000, 2700000, 3700000, 4500000, 4000000] },
-    ],
-  },
-  orders_trend: {
-    labels: sampleLabels,
-    datasets: [{ label: 'Số đơn hàng', color: '#0ea5a4', data: [42, 35, 48, 39, 56, 44, 61, 52, 67, 49, 58, 73, 64, 78, 55, 46, 63, 51, 40, 47, 59, 71, 66, 74, 57, 45, 62, 76, 68, 54] }],
-  },
-};
+function buildParams() {
+  const params: Record<string, string> = { filter_mode: filter.filter_mode };
+  if (filter.filter_mode === 'day') params.day = filter.day;
+  if (filter.filter_mode === 'month') params.month = filter.month;
+  if (filter.filter_mode === 'quarter') { params.quarter = filter.quarter; params.quarter_year = filter.quarter_year; }
+  if (filter.filter_mode === 'year') params.year = filter.year;
+  return params;
+}
 
 function hasTrendData(trend: any) {
   return Boolean(
@@ -154,29 +144,22 @@ const moneyChartOptions = {
 
 function renderCharts() {
   const charts = data.value?.charts || {};
-  if (!revenueCanvas.value || !ordersCanvas.value) return;
-
   destroyCharts();
-  const revenueHasData = hasTrendData(charts.revenue_trend);
-  const ordersHaveData = hasTrendData(charts.orders_trend);
-  const revenueTrend = revenueHasData ? charts.revenue_trend : sampleCharts.revenue_trend;
-  const ordersTrend = ordersHaveData ? charts.orders_trend : sampleCharts.orders_trend;
-  isSampleData.value = !revenueHasData || !ordersHaveData;
 
-  revenueChart = new Chart(revenueCanvas.value, {
+  if (revenueCanvas.value && hasTrendData(charts.revenue_trend)) revenueChart = new Chart(revenueCanvas.value, {
     type: 'line',
     data: {
-      labels: revenueTrend.labels || [],
-      datasets: lineDatasets(revenueCanvas.value, revenueTrend.datasets, '#0ea5a4'),
+      labels: charts.revenue_trend.labels || [],
+      datasets: lineDatasets(revenueCanvas.value, charts.revenue_trend.datasets, '#0ea5a4'),
     },
     options: moneyChartOptions,
   });
 
-  ordersChart = new Chart(ordersCanvas.value, {
+  if (ordersCanvas.value && hasTrendData(charts.orders_trend)) ordersChart = new Chart(ordersCanvas.value, {
     type: 'line',
     data: {
-      labels: ordersTrend.labels || [],
-      datasets: lineDatasets(ordersCanvas.value, ordersTrend.datasets, '#0ea5a4'),
+      labels: charts.orders_trend.labels || [],
+      datasets: lineDatasets(ordersCanvas.value, charts.orders_trend.datasets, '#0ea5a4'),
     },
     options: { ...chartOptions, plugins: { ...chartOptions.plugins, legend: { ...chartOptions.plugins.legend, display: false } } },
   });
@@ -184,7 +167,7 @@ function renderCharts() {
 
 async function loadData() {
   try {
-    await load(period.value);
+    await load(buildParams());
     await nextTick();
     renderCharts();
   } catch {
@@ -192,7 +175,6 @@ async function loadData() {
   }
 }
 
-watch(period, () => { void loadData(); });
 onMounted(() => { void loadData(); });
 onBeforeUnmount(destroyCharts);
 </script>
@@ -200,20 +182,15 @@ onBeforeUnmount(destroyCharts);
 <template>
   <section class="space-y-6">
     <header>
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
         <div>
           <h1 class="text-xl font-semibold text-slate-900">Phân tích bán hàng</h1>
           <p class="text-sm text-slate-500">Theo dõi doanh thu và hiệu suất đơn chưa hủy</p>
         </div>
-        <div class="relative grid min-w-[6rem]">
-          <select v-model="period" class="app-select col-start-1 row-start-1 h-9">
-            <option v-for="item in periods" :key="item.value" :value="item.value">{{ item.label }}</option>
-          </select>
-          <span class="pointer-events-none col-start-1 row-start-1 mr-3 flex items-center justify-end text-slate-400"><svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
-        </div>
       </div>
       <ReportNavButtons />
       <ReportGroupTabs group="sales" />
+      <ReportDateFilter :model-value="filter" :loading="loading" @update:model-value="Object.assign(filter, $event)" @apply="loadData" />
     </header>
 
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -226,17 +203,9 @@ onBeforeUnmount(destroyCharts);
     <div v-if="loading" class="flex justify-center py-12"><div class="h-8 w-8 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" /></div>
     <div v-else-if="error" class="rounded-lg bg-red-50 p-4 text-center text-red-600">{{ error }}</div>
     <template v-else>
-      <div v-if="isSampleData" class="-mb-3 flex justify-end">
-        <span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">Dữ liệu minh họa</span>
-      </div>
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div class="rounded-xl border border-slate-200 bg-white p-4"><h2 class="mb-4 text-base font-medium">Doanh thu & lợi nhuận</h2><div class="h-72"><canvas ref="revenueCanvas" /></div></div>
-        <div class="rounded-xl border border-slate-200 bg-white p-4"><h2 class="mb-4 text-base font-medium">Số đơn hàng</h2><div class="h-72"><canvas ref="ordersCanvas" /></div></div>
-      </div>
-      <div class="rounded-xl border border-slate-200 bg-white p-4">
-        <h2 class="mb-4 text-base font-medium">Top sản phẩm bán chạy</h2>
-        <p v-if="!topProducts.length" class="py-6 text-center text-sm text-slate-500">Chưa có dữ liệu sản phẩm trong kỳ này.</p>
-        <div v-else class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b text-left text-slate-600"><th class="pb-2">Sản phẩm</th><th class="pb-2 text-right">Số lượng</th><th class="pb-2 text-right">Doanh thu</th><th class="pb-2 text-right">Lợi nhuận</th></tr></thead><tbody><tr v-for="product in topProducts" :key="product.id" class="border-b border-slate-100"><td class="py-3"><div class="font-medium">{{ product.name }}</div><div class="text-xs text-slate-500">{{ product.code }}</div></td><td class="py-3 text-right">{{ product.total_qty?.toLocaleString() }}</td><td class="py-3 text-right">{{ formatMoney(product.total_revenue) }}</td><td class="py-3 text-right text-green-600">{{ formatMoney(product.total_profit) }}</td></tr></tbody></table></div>
+        <div class="rounded-xl border border-slate-200 bg-white p-4"><h2 class="mb-4 text-base font-medium">Doanh thu & lợi nhuận</h2><div v-if="hasTrendData(data?.charts?.revenue_trend)" class="h-72"><canvas ref="revenueCanvas" /></div><p v-else class="flex h-72 items-center justify-center text-sm text-slate-500">Chưa có dữ liệu trong kỳ đã chọn.</p></div>
+        <div class="rounded-xl border border-slate-200 bg-white p-4"><h2 class="mb-4 text-base font-medium">Số đơn hàng</h2><div v-if="hasTrendData(data?.charts?.orders_trend)" class="h-72"><canvas ref="ordersCanvas" /></div><p v-else class="flex h-72 items-center justify-center text-sm text-slate-500">Chưa có dữ liệu trong kỳ đã chọn.</p></div>
       </div>
     </template>
   </section>
