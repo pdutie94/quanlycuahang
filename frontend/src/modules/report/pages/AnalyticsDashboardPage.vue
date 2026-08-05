@@ -9,7 +9,7 @@ import { useAnalytics } from '../composables/useAnalytics';
 import { useFormat } from '../../../shared/composables/useFormat';
 
 const { data, loading, error, load } = useAnalytics();
-const { formatMoney } = useFormat();
+const { formatMoney, formatCompactMoney } = useFormat();
 const today = new Date().toISOString().slice(0, 10);
 const filter = reactive<ReportDateFilterValue>({
   filter_mode: 'month', day: today, month: today.slice(0, 7),
@@ -122,10 +122,7 @@ const chartOptions = {
 };
 
 function formatCompactValue(value: number) {
-  if (Math.abs(value) >= 1_000_000_000) return `${(value / 1_000_000_000).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} tỷ`;
-  if (Math.abs(value) >= 1_000_000) return `${(value / 1_000_000).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} tr`;
-  if (Math.abs(value) >= 1_000) return `${(value / 1_000).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}k`;
-  return value.toLocaleString('vi-VN');
+  return formatCompactMoney(value);
 }
 
 const moneyChartOptions = {
@@ -194,8 +191,8 @@ onBeforeUnmount(destroyCharts);
     </header>
 
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="flex items-center gap-3"><DollarSign class="h-5 w-5 text-blue-600" /><div><p class="text-sm text-slate-500">Doanh thu</p><p class="text-lg font-semibold">{{ formatMoney(summary.total_revenue) }}</p></div></div></div>
-      <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="flex items-center gap-3"><TrendingUp class="h-5 w-5 text-green-600" /><div><p class="text-sm text-slate-500">Lợi nhuận</p><p class="text-lg font-semibold">{{ formatMoney(summary.total_profit) }}</p></div></div></div>
+      <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="flex items-center gap-3"><DollarSign class="h-5 w-5 text-blue-600" /><div><p class="text-sm text-slate-500">Doanh thu</p><p class="text-lg font-semibold" :title="formatMoney(summary.total_revenue)">{{ formatCompactMoney(summary.total_revenue) }}</p></div></div></div>
+      <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="flex items-center gap-3"><TrendingUp class="h-5 w-5 text-green-600" /><div><p class="text-sm text-slate-500">Lợi nhuận</p><p class="text-lg font-semibold" :title="formatMoney(summary.total_profit)">{{ formatCompactMoney(summary.total_profit) }}</p></div></div></div>
       <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="flex items-center gap-3"><ShoppingCart class="h-5 w-5 text-amber-600" /><div><p class="text-sm text-slate-500">Số đơn hàng</p><p class="text-lg font-semibold">{{ summary.total_orders?.toLocaleString() || 0 }}</p></div></div></div>
       <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="flex items-center gap-3"><BarChart3 class="h-5 w-5 text-purple-600" /><div><p class="text-sm text-slate-500">Tỷ suất lợi nhuận</p><p class="text-lg font-semibold">{{ summary.profit_margin || 0 }}%</p></div></div></div>
     </div>
