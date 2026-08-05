@@ -37,6 +37,8 @@ const SupplierDebtReportPage = () => import('../modules/report/pages/SupplierDeb
 const ChangePasswordPage = () => import('../modules/system/pages/ChangePasswordPage.vue');
 const MigrationPage = () => import('../modules/system/pages/MigrationPage.vue');
 const CostUpdatePage = () => import('../modules/report/pages/CostUpdatePage.vue');
+const AnalyticsDashboardPage = () => import('../modules/report/pages/AnalyticsDashboardPage.vue');
+const ProductPerformancePage = () => import('../modules/report/pages/ProductPerformancePage.vue');
 
 const routerBase = (window as any).__BASE_PATH__ || '';
 
@@ -47,8 +49,8 @@ const routes: RouteRecordRaw[] = [
     component: InventoryReportPage
   },
   {
-    path: '/reports/cost-update',
-    name: 'reports.costUpdate',
+    path: '/reports/costs/update',
+    name: 'reports.costs.update',
     component: CostUpdatePage
   },
   {
@@ -112,23 +114,33 @@ const routes: RouteRecordRaw[] = [
     component: ReportIndexPage
   },
   {
-    path: '/reports/customer-debt',
-    name: 'reports.customerDebt',
+    path: '/reports/sales/analytics',
+    name: 'reports.sales.analytics',
+    component: AnalyticsDashboardPage
+  },
+  {
+    path: '/reports/sales/products',
+    name: 'reports.sales.products',
+    component: ProductPerformancePage
+  },
+  {
+    path: '/reports/debts/customer',
+    name: 'reports.debts.customer',
     component: CustomerDebtReportPage
   },
   {
-    path: '/reports/supplier-debt',
-    name: 'reports.supplierDebt',
+    path: '/reports/debts/supplier',
+    name: 'reports.debts.supplier',
     component: SupplierDebtReportPage
   },
   {
-    path: '/reports/sales',
-    name: 'reports.sales',
+    path: '/reports/sales/detail',
+    name: 'reports.sales.detail',
     component: SalesReportPage
   },
   {
-    path: '/reports/missing-cost',
-    name: 'reports.missingCost',
+    path: '/reports/costs/missing',
+    name: 'reports.costs.missing',
     component: MissingCostReportPage
   },
   {

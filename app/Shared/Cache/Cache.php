@@ -223,6 +223,7 @@ class Cache
     {
         $file = self::getCacheFilePath($key);
         $payload = [
+            'key' => $key,
             'expires' => time() + $ttl,
             'value' => $value
         ];

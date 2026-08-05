@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ReportNavButtons from "../components/ReportNavButtons.vue";
+import ReportGroupTabs from "../components/ReportGroupTabs.vue";
 import { useFormat } from "../../../shared/composables/useFormat";
 const { formatMoney } = useFormat();
 import { computed, onMounted, reactive, ref } from "vue";
@@ -119,6 +120,7 @@ onMounted(async () => {
                 Báo cáo giá vốn thiếu
             </h1>
             <ReportNavButtons />
+            <ReportGroupTabs group="costs" />
             <form
                 class="app-card mt-3 flex flex-col gap-3"
                 @submit.prevent="loadPage"

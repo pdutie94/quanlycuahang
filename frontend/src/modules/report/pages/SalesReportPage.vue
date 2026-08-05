@@ -8,6 +8,7 @@ import { useInfiniteList } from '../../../shared/composables/useInfiniteList';
 import InfiniteListStatus from '../../../shared/components/InfiniteListStatus.vue';
 import OrderItemCard from '../../../shared/components/OrderItemCard.vue';
 import ReportNavButtons from '../components/ReportNavButtons.vue';
+import ReportGroupTabs from '../components/ReportGroupTabs.vue';
 
 const toast = useToast();
 const { items, summary, meta, loading, error, load } = useSalesReport();
@@ -69,6 +70,7 @@ const applyFilter = async () => {
       <h1 class="text-lg font-semibold text-slate-900">Báo cáo doanh thu chi tiết</h1>
       <p class="mt-1 text-sm text-slate-500">Xem danh sách đơn hàng, doanh thu và lợi nhuận theo khoảng thời gian.</p>
       <ReportNavButtons />
+      <ReportGroupTabs group="sales" />
       <form class="app-card mt-3 flex flex-col gap-2" @submit.prevent="applyFilter">
         <div class="flex gap-2 flex-wrap">
           <button type="button" class="inline-flex h-9 items-center rounded-xl border px-4 text-sm font-medium border-slate-300 text-slate-700 hover:bg-slate-100" :class="{ 'border-brand-600 bg-brand-50 text-brand-700': form.filter_mode === 'day' }" @click="form.filter_mode = 'day'">Ngày</button>
@@ -88,12 +90,7 @@ const applyFilter = async () => {
           <div v-if="form.filter_mode === 'quarter'" class="flex gap-2">
             <div>
               <label class="app-label">Quý</label>
-              <select v-model="form.quarter" class="h-10 min-w-[9rem] md:min-w-[10rem] rounded-xl border border-slate-300 px-3 text-sm">
-                <option value="1">Quý 1</option>
-                <option value="2">Quý 2</option>
-                <option value="3">Quý 3</option>
-                <option value="4">Quý 4</option>
-              </select>
+              <div class="relative grid min-w-[9rem] md:min-w-[10rem]"><select v-model="form.quarter" class="app-select col-start-1 row-start-1"><option value="1">Quý 1</option><option value="2">Quý 2</option><option value="3">Quý 3</option><option value="4">Quý 4</option></select><span class="pointer-events-none col-start-1 row-start-1 mr-3 flex items-center justify-end text-slate-400"><svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></span></div>
             </div>
             <div>
               <label class="app-label">Năm</label>

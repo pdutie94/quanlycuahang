@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ReportNavButtons from "../components/ReportNavButtons.vue";
+import ReportGroupTabs from "../components/ReportGroupTabs.vue";
 import { useFormat } from "../../../shared/composables/useFormat";
 import { ref, computed, onMounted, reactive, watch } from "vue";
 import { useToast } from "../../../shared/composables/useToast";
@@ -133,6 +134,7 @@ onMounted(async () => {
                 </p>
             </div>
             <ReportNavButtons />
+            <ReportGroupTabs group="costs" />
         </header>
         <div class="flex items-center gap-2 mt-2">
             <input

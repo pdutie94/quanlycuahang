@@ -19,8 +19,14 @@
 ## Phase 2: Tính Năng Cốt Lõi (Tuần 3-4)
 
 ### 2.1 Báo Cáo Nâng Cao
-- [ ] 2.1.1 Sales Analytics Dashboard - Biểu đồ doanh thu interactive (Chart.js)
-- [ ] 2.1.2 Product Performance Report - Phân tích sản phẩm bán chạy/chậm
+- [x] 2.1.1 Sales Analytics Dashboard - Biểu đồ doanh thu interactive (Chart.js)
+  - API: `GET /reports/analytics?period=30d`
+  - Page: `/reports/analytics`
+  - Features: Doanh thu, lợi nhuận, top sản phẩm, biểu đồ trend
+- [x] 2.1.2 Product Performance Report - Phân tích sản phẩm bán chạy/chậm
+  - API: `GET /reports/product-performance?period=30d&sort_by=revenue`
+  - Page: `/reports/product-performance`
+  - Features: Sắp xếp theo doanh thu/số lượng/lợi nhuận, SP bán chạy, SP tồn kho chậm
 - [ ] 2.1.3 Profit & Loss Statement - Báo cáo lãi lỗ
 - [ ] 2.1.4 Export Reports - Xuất báo cáo PDF/Excel
 

@@ -997,6 +997,10 @@ class ReportService
 
     public static function clearReportCache()
     {
+        if (class_exists('\App\Shared\Cache\Cache')) {
+            \App\Shared\Cache\Cache::clear('report:');
+        }
+
         $patterns = [
             'sumOrdersByDateRange:*',
             'sumCustomerDebt',
@@ -1036,5 +1040,260 @@ class ReportService
                 @unlink($file);
             }
         }
+    }
+
+    public static function getAnalyticsData(string $period): array
+    {
+        $period = self::normalizeReportPeriod($period);
+        $cacheKey = 'report:analytics:v2:' . $period;
+
+        return \App\Shared\Cache\Cache::remember($cacheKey, function () use ($period) {
+            $pdo = \Database::getInstance();
+            list($startDate, $endDate) = self::getReportPeriodRange($period);
+
+            return [
+                'charts' => self::getChartData($pdo, $startDate, $endDate),
+                'summary' => self::getSummaryStats($pdo, $startDate, $endDate),
+                'topProducts' => self::getTopProducts($pdo, $startDate, $endDate, 10),
+            ];
+        }, 300);
+    }
+
+    private static function normalizeReportPeriod(string $period): string
+    {
+        return in_array($period, ['7d', '30d', '90d', '1y'], true) ? $period : '30d';
+    }
+
+    private static function getReportPeriodRange(string $period): array
+    {
+        $days = ['7d' => 7, '30d' => 30, '90d' => 90, '1y' => 365][$period];
+        return [date('Y-m-d 00:00:00', strtotime("-{$days} days")), date('Y-m-d 23:59:59')];
+    }
+
+    private static function getChartData(\PDO $pdo, string $startDate, string $endDate): array
+    {
+        $sql = "SELECT
+            DATE(o.order_date) as date,
+            COUNT(*) as order_count,
+            SUM(o.total_amount) as revenue,
+            SUM(o.total_cost) as cost,
+            SUM(o.total_amount - o.total_cost) as profit
+            FROM orders o
+            WHERE o.deleted_at IS NULL
+              AND (o.order_status IS NULL OR o.order_status <> 'cancelled')
+              AND o.order_date BETWEEN ? AND ?
+            GROUP BY DATE(o.order_date)
+            ORDER BY date ASC";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$startDate, $endDate]);
+        $rows = $stmt->fetchAll();
+
+        $labels = [];
+        $revenue = [];
+        $profit = [];
+        $orders = [];
+
+        foreach ($rows as $row) {
+            $labels[] = date('d/m', strtotime($row['date']));
+            $revenue[] = (float) $row['revenue'];
+            $profit[] = (float) $row['profit'];
+            $orders[] = (int) $row['order_count'];
+        }
+
+        return [
+            'revenue_trend' => [
+                'labels' => $labels,
+                'datasets' => [
+                    ['label' => 'Doanh thu', 'data' => $revenue, 'color' => '#3b82f6'],
+                    ['label' => 'Lợi nhuận', 'data' => $profit, 'color' => '#10b981'],
+                ],
+            ],
+            'orders_trend' => [
+                'labels' => $labels,
+                'datasets' => [
+                    ['label' => 'Số đơn', 'data' => $orders, 'color' => '#f59e0b'],
+                ],
+            ],
+        ];
+    }
+
+    private static function getSummaryStats(\PDO $pdo, string $startDate, string $endDate): array
+    {
+        $sql = "SELECT
+            COUNT(*) as total_orders,
+            SUM(total_amount) as total_revenue,
+            SUM(total_cost) as total_cost,
+            SUM(total_amount - total_cost) as total_profit,
+            AVG(total_amount) as avg_order_value
+            FROM orders
+            WHERE deleted_at IS NULL
+              AND (order_status IS NULL OR order_status <> 'cancelled')
+              AND order_date BETWEEN ? AND ?";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$startDate, $endDate]);
+        $row = $stmt->fetch();
+
+        return [
+            'total_orders' => (int) ($row['total_orders'] ?? 0),
+            'total_revenue' => (float) ($row['total_revenue'] ?? 0),
+            'total_profit' => (float) ($row['total_profit'] ?? 0),
+            'avg_order_value' => (float) ($row['avg_order_value'] ?? 0),
+            'profit_margin' => $row['total_revenue'] > 0
+                ? round(($row['total_profit'] / $row['total_revenue']) * 100, 1)
+                : 0,
+        ];
+    }
+
+    private static function getTopProducts(\PDO $pdo, string $startDate, string $endDate, int $limit): array
+    {
+        $sql = "SELECT
+                    p.id,
+                    p.name,
+                    p.code,
+                    SUM(oi.qty) as total_qty,
+                    SUM(oi.qty * oi.price_sell) as total_revenue,
+                    SUM(oi.qty * oi.price_cost) as total_cost,
+                    SUM(oi.qty * (oi.price_sell - oi.price_cost)) as total_profit
+                FROM order_items oi
+                JOIN orders o ON oi.order_id = o.id
+                JOIN products p ON oi.product_id = p.id
+                WHERE o.deleted_at IS NULL
+                AND (o.order_status IS NULL OR o.order_status <> 'cancelled')
+                AND o.order_date BETWEEN ? AND ?
+                GROUP BY p.id
+                ORDER BY total_revenue DESC
+                LIMIT " . (int)$limit; // Ép kiểu limit để tránh lỗi SQL injection nếu biến này đến từ user
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$startDate, $endDate]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public static function getProductPerformanceData(string $period, string $sortBy, int $page = 1, int $perPage = 50): array
+    {
+        $period = self::normalizeReportPeriod($period);
+        $sortBy = in_array($sortBy, ['revenue', 'quantity', 'profit', 'margin'], true) ? $sortBy : 'revenue';
+        $page = max(1, $page);
+        $perPage = min(50, max(1, $perPage));
+        $cacheKey = sprintf('report:product-performance:v2:%s:%s:%d:%d', $period, $sortBy, $page, $perPage);
+
+        return \App\Shared\Cache\Cache::remember($cacheKey, function () use ($period, $sortBy, $page, $perPage) {
+            $pdo = \Database::getInstance();
+            list($startDate, $endDate) = self::getReportPeriodRange($period);
+            $orderByMap = [
+                'quantity' => 'sold_qty DESC, p.id ASC',
+                'profit' => 'profit DESC, p.id ASC',
+                'margin' => 'profit_margin DESC, p.id ASC',
+                'revenue' => 'revenue DESC, p.id ASC',
+            ];
+            $orderBy = $orderByMap[$sortBy];
+            $aggregateSql = self::getCompletedProductAggregateSql();
+            $offset = ($page - 1) * $perPage;
+
+            $sql = "SELECT
+            p.id,
+            p.name,
+            p.code,
+            COALESCE(i.qty_base, 0) as current_stock,
+            COALESCE(s.total_qty, 0) as sold_qty,
+            COALESCE(s.total_revenue, 0) as revenue,
+            COALESCE(s.total_profit, 0) as profit,
+            CASE
+                WHEN s.total_revenue > 0 THEN ROUND((s.total_profit / s.total_revenue) * 100, 1)
+                ELSE 0
+            END as profit_margin,
+            CASE
+                WHEN s.total_qty > 0 THEN COALESCE(i.qty_base, 0) / s.total_qty
+                ELSE NULL
+            END as days_of_inventory
+            FROM products p
+            LEFT JOIN inventory i ON i.product_id = p.id
+            LEFT JOIN ({$aggregateSql}) s ON p.id = s.product_id
+            WHERE p.deleted_at IS NULL
+            ORDER BY {$orderBy}
+            LIMIT {$perPage} OFFSET {$offset}";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$startDate, $endDate]);
+            $items = $stmt->fetchAll();
+
+            $totalProducts = (int) $pdo->query('SELECT COUNT(*) FROM products WHERE deleted_at IS NULL')->fetchColumn();
+            $summarySql = "SELECT
+                COUNT(*) AS active_products,
+                COALESCE(SUM(total_revenue), 0) AS total_revenue,
+                COALESCE(SUM(total_profit), 0) AS total_profit
+                FROM ({$aggregateSql}) summary";
+            $summaryStmt = $pdo->prepare($summarySql);
+            $summaryStmt->execute([$startDate, $endDate]);
+            $summaryRow = $summaryStmt->fetch();
+            $totalRevenue = (float) ($summaryRow['total_revenue'] ?? 0);
+            $totalProfit = (float) ($summaryRow['total_profit'] ?? 0);
+
+            return [
+                'items' => $items,
+                'summary' => [
+                    'total_products' => $totalProducts,
+                    'active_products' => (int) ($summaryRow['active_products'] ?? 0),
+                    'total_revenue' => $totalRevenue,
+                    'total_profit' => $totalProfit,
+                    'avg_profit_margin' => $totalRevenue > 0 ? round(($totalProfit / $totalRevenue) * 100, 1) : 0,
+                ],
+                'top_products' => self::getProductPerformanceTopProducts($pdo, $aggregateSql, $startDate, $endDate),
+                'slow_products' => self::getSlowProducts($pdo, $aggregateSql, $startDate, $endDate),
+                'meta' => [
+                    'page' => $page,
+                    'per_page' => $perPage,
+                    'total_count' => $totalProducts,
+                    'total_pages' => max(1, (int) ceil($totalProducts / $perPage)),
+                ],
+                'period' => $period,
+            ];
+        }, 300);
+    }
+
+    private static function getCompletedProductAggregateSql(): string
+    {
+        return "SELECT oi.product_id,
+                SUM(oi.qty) AS total_qty,
+                SUM(oi.qty * oi.price_sell) AS total_revenue,
+                SUM(oi.qty * (oi.price_sell - oi.price_cost)) AS total_profit
+            FROM orders o
+            INNER JOIN order_items oi ON oi.order_id = o.id
+            WHERE o.deleted_at IS NULL
+              AND (o.order_status IS NULL OR o.order_status <> 'cancelled')
+              AND o.order_date BETWEEN ? AND ?
+            GROUP BY oi.product_id";
+    }
+
+    private static function getProductPerformanceTopProducts(\PDO $pdo, string $aggregateSql, string $startDate, string $endDate): array
+    {
+        $sql = "SELECT p.id, p.name, p.code,
+                s.total_qty AS sold_qty, s.total_revenue AS revenue, s.total_profit AS profit,
+                CASE WHEN s.total_revenue > 0 THEN ROUND((s.total_profit / s.total_revenue) * 100, 1) ELSE 0 END AS profit_margin
+            FROM ({$aggregateSql}) s
+            INNER JOIN products p ON p.id = s.product_id
+            WHERE p.deleted_at IS NULL
+            ORDER BY s.total_revenue DESC, p.id ASC
+            LIMIT 10";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$startDate, $endDate]);
+        return $stmt->fetchAll();
+    }
+
+    private static function getSlowProducts(\PDO $pdo, string $aggregateSql, string $startDate, string $endDate): array
+    {
+        $sql = "SELECT p.id, p.name, p.code, COALESCE(i.qty_base, 0) AS current_stock
+            FROM products p
+            LEFT JOIN inventory i ON i.product_id = p.id
+            LEFT JOIN ({$aggregateSql}) s ON p.id = s.product_id
+            WHERE p.deleted_at IS NULL
+              AND COALESCE(i.qty_base, 0) > 0
+              AND s.product_id IS NULL
+            ORDER BY COALESCE(i.qty_base, 0) DESC, p.id ASC
+            LIMIT 10";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$startDate, $endDate]);
+        return $stmt->fetchAll();
     }
 }

@@ -3,6 +3,7 @@ import InfiniteListStatus from "../../../shared/components/InfiniteListStatus.vu
 import CustomerItemCard from "../../../shared/components/CustomerItemCard.vue";
 import { useInfiniteList } from "../../../shared/composables/useInfiniteList";
 import ReportNavButtons from "../components/ReportNavButtons.vue";
+import ReportGroupTabs from "../components/ReportGroupTabs.vue";
 import { useFormat } from "../../../shared/composables/useFormat";
 const { formatMoney } = useFormat();
 import { computed, reactive, ref } from "vue";
@@ -64,6 +65,7 @@ const resetFilter = async () => {
                 Công nợ khách hàng
             </h1>
             <ReportNavButtons />
+            <ReportGroupTabs group="debts" />
 
             <form
                 class="app-card mt-3 flex flex-col gap-3"

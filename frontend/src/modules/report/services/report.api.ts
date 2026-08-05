@@ -47,3 +47,15 @@ export async function submitMissingCostUpdate(payload: Record<string, any>): Pro
   const response = await api.post('/reports/missing-cost/update', payload);
   return response.data;
 }
+
+export async function fetchAnalytics(period = '30d'): Promise<ApiResponse<any>> {
+  const response = await api.get('/reports/analytics', { params: { period } });
+  return response.data;
+}
+
+export async function fetchProductPerformance(period = '30d', sortBy = 'revenue', page = 1, perPage = 50): Promise<ApiResponse<any>> {
+  const response = await api.get('/reports/product-performance', {
+    params: { period, sort_by: sortBy, page, per_page: perPage }
+  });
+  return response.data;
+}

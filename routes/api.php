@@ -140,6 +140,10 @@ return function (App $app) {
         $group->get('/reports/cost-update', [$reportController, 'costUpdate']);
         $group->post('/reports/cost-update', [$reportController, 'costUpdate']);
 
+        // Analytics Dashboard
+        $group->get('/reports/analytics', [$reportController, 'analytics']);
+        $group->get('/reports/product-performance', [$reportController, 'productPerformance']);
+
         // Material Prices
         $materialPriceController = new MaterialPriceApiController();
         $group->get('/material-prices', [$materialPriceController, 'list']);

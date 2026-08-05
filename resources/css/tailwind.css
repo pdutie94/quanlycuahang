@@ -173,6 +173,14 @@
 		@apply block h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none;
 	}
 
+	.app-select {
+		@apply block h-10 w-full appearance-none cursor-pointer rounded-xl border border-slate-300 bg-white px-3 pr-9 text-sm text-slate-900 outline-none;
+	}
+
+	.app-select:focus {
+		@apply border-brand-500;
+	}
+
 	.form-field:focus,
 	.app-input:focus {
 		@apply border-brand-500;

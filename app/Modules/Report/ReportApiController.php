@@ -204,6 +204,44 @@ class ReportApiController
         return $body;
     }
 
+    public function analytics(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $query = $request->getQueryParams();
+        $period = isset($query['period']) ? (string) $query['period'] : '30d';
+        $data = \ReportService::getAnalyticsData($period);
+
+        return ApiResponse::success($response, [
+            'charts' => isset($data['charts']) ? $data['charts'] : [],
+            'summary' => isset($data['summary']) ? $data['summary'] : [],
+            'top_products' => isset($data['topProducts']) ? $data['topProducts'] : [],
+            'period' => $period,
+        ]);
+    }
+
+    public function productPerformance(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $query = $request->getQueryParams();
+        $period = isset($query['period']) ? (string) $query['period'] : '30d';
+        $sortBy = isset($query['sort_by']) ? (string) $query['sort_by'] : 'revenue';
+        $page = isset($query['page']) ? max(1, (int) $query['page']) : 1;
+        $perPage = isset($query['per_page']) ? min(50, max(1, (int) $query['per_page'])) : 50;
+        $data = \ReportService::getProductPerformanceData($period, $sortBy, $page, $perPage);
+
+        return ApiResponse::success($response, [
+            'items' => isset($data['items']) ? $data['items'] : [],
+            'summary' => isset($data['summary']) ? $data['summary'] : [],
+            'top_products' => isset($data['top_products']) ? $data['top_products'] : [],
+            'slow_products' => isset($data['slow_products']) ? $data['slow_products'] : [],
+            'meta' => isset($data['meta']) ? $data['meta'] : [
+                'page' => $page,
+                'per_page' => $perPage,
+                'total_count' => 0,
+                'total_pages' => 1,
+            ],
+            'period' => isset($data['period']) ? $data['period'] : $period,
+        ]);
+    }
+
     private function getRecentOrders(\PDO $pdo, int $limit = 10): array
     {
         if ($limit < 1) {
