@@ -4,6 +4,7 @@
   "scripts": {
     "dev:spa": "vite",
     "build:spa": "vite build",
+    "test:format": "node --experimental-strip-types --test frontend/src/shared/composables/useFormat.test.mts",
     "watch:spa": "npm run build:spa && chokidar \"frontend/src/**/*\" \"frontend/index.html\" \"vite.config.js\" -c \"npm run build:spa\"",
     "build:css": "tailwindcss -c tailwind.config.js -i resources/css/tailwind.css -o public/assets/css/tailwind.css --minify",
     "watch:css": "tailwindcss -c tailwind.config.js -i resources/css/tailwind.css -o public/assets/css/tailwind.css --watch",

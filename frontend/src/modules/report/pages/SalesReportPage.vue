@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFormat } from '../../../shared/composables/useFormat';
-const { formatMoney } = useFormat();
+const { formatMoney, formatCompactMoney } = useFormat();
 import { reactive } from 'vue';
 import { useToast } from '../../../shared/composables/useToast';
 import { useSalesReport } from '../composables/useSalesReport';
@@ -108,10 +108,10 @@ const applyFilter = async () => {
 
     <section class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <div class="rounded-xl border border-slate-200 bg-white p-3 text-sm"><div class="text-slate-500">Số đơn</div><div class="mt-1 font-semibold text-slate-900">{{ Number(summary.order_count || 0) }}</div></div>
-      <div class="rounded-xl border border-sky-100 bg-white p-3 text-sm"><div class="text-sky-700">Doanh thu</div><div class="mt-1 font-semibold text-slate-900">{{ formatMoney(summary.total_amount) }}</div></div>
-      <div class="rounded-xl border border-brand-100 bg-white p-3 text-sm"><div class="text-brand-700">Lợi nhuận</div><div class="mt-1 font-semibold text-slate-900">{{ formatMoney(summary.profit) }}</div></div>
-      <div class="rounded-xl border border-brand-100 bg-white p-3 text-sm"><div class="text-brand-700">Đã thu</div><div class="mt-1 font-semibold text-slate-900">{{ formatMoney(summary.paid_amount) }}</div></div>
-      <div class="rounded-xl border border-rose-100 bg-white p-3 text-sm"><div class="text-rose-700">Còn nợ</div><div class="mt-1 font-semibold text-slate-900">{{ formatMoney(summary.debt_amount) }}</div></div>
+      <div class="rounded-xl border border-sky-100 bg-white p-3 text-sm"><div class="text-sky-700">Doanh thu</div><div class="mt-1 font-semibold text-slate-900" :title="formatMoney(summary.total_amount)">{{ formatCompactMoney(summary.total_amount) }}</div></div>
+      <div class="rounded-xl border border-brand-100 bg-white p-3 text-sm"><div class="text-brand-700">Lợi nhuận</div><div class="mt-1 font-semibold text-slate-900" :title="formatMoney(summary.profit)">{{ formatCompactMoney(summary.profit) }}</div></div>
+      <div class="rounded-xl border border-brand-100 bg-white p-3 text-sm"><div class="text-brand-700">Đã thu</div><div class="mt-1 font-semibold text-slate-900" :title="formatMoney(summary.paid_amount)">{{ formatCompactMoney(summary.paid_amount) }}</div></div>
+      <div class="rounded-xl border border-rose-100 bg-white p-3 text-sm"><div class="text-rose-700">Còn nợ</div><div class="mt-1 font-semibold text-slate-900" :title="formatMoney(summary.debt_amount)">{{ formatCompactMoney(summary.debt_amount) }}</div></div>
     </section>
 
 
@@ -119,7 +119,7 @@ const applyFilter = async () => {
     <div v-else-if="!items.length" class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">Không có dữ liệu doanh thu.</div>
 
     <section v-else class="space-y-3">
-      <OrderItemCard v-for="item in items" :key="item.id" :order="item" :link-enabled="true" :show-view-icon="true" />
+      <OrderItemCard v-for="item in items" :key="item.id" :order="item" :link-enabled="true" :show-view-icon="true" :compact-money="true" />
       <InfiniteListStatus :visible="items.length > 0" :loading-more="loadingMore" :has-more="hasMore" />
       <div v-if="items.length && hasMore" ref="infiniteListSentinel" class="h-1 w-full"></div>
     </section>

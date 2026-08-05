@@ -2,7 +2,7 @@
 import ReportNavButtons from "../components/ReportNavButtons.vue";
 import ReportGroupTabs from "../components/ReportGroupTabs.vue";
 import { useFormat } from "../../../shared/composables/useFormat";
-const { formatMoney } = useFormat();
+const { formatMoney, formatCompactMoney } = useFormat();
 import { computed, onMounted, reactive, ref } from "vue";
 import { useToast } from "../../../shared/composables/useToast";
 import { useMissingCostReport } from "../composables/useMissingCostReport";
@@ -203,8 +203,8 @@ onMounted(async () => {
                 class="rounded-xl border border-slate-200 bg-white p-3 text-sm"
             >
                 <div class="text-slate-500">Tăng giá vốn dự kiến</div>
-                <div class="mt-1 font-semibold">
-                    {{ formatMoney(summary.total_delta_cost) }}
+                <div class="mt-1 font-semibold" :title="formatMoney(summary.total_delta_cost)">
+                    {{ formatCompactMoney(summary.total_delta_cost) }}
                 </div>
             </div>
         </section>
@@ -265,14 +265,14 @@ onMounted(async () => {
                         </div>
                         <div class="mt-1 flex flex-wrap gap-3">
                             <span>SL: {{ item.qty }} {{ item.unit_name }}</span>
-                            <span
-                                >Giá vốn hiện tại:
-                                {{ formatMoney(item.item_price_cost) }}</span
-                            >
-                            <span
-                                >Giá vốn đề xuất:
-                                {{ formatMoney(item.unit_price_cost) }}</span
-                            >
+                            <span>
+                                Giá vốn hiện tại:
+                                <span :title="formatMoney(item.item_price_cost)">{{ formatCompactMoney(item.item_price_cost) }}</span>
+                            </span>
+                            <span>
+                                Giá vốn đề xuất:
+                                <span :title="formatMoney(item.unit_price_cost)">{{ formatCompactMoney(item.unit_price_cost) }}</span>
+                            </span>
                         </div>
                     </div>
                 </label>

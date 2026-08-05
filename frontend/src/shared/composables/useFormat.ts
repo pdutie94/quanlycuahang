@@ -2,6 +2,10 @@
 // Dùng chung cho format tiền, ngày, parseAmount
 
 export const numberFormatter = new Intl.NumberFormat('vi-VN');
+const compactMoneyFormatter = new Intl.NumberFormat('vi-VN', {
+  maximumFractionDigits: 2,
+  minimumFractionDigits: 0
+});
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',
   month: '2-digit',
@@ -14,6 +18,23 @@ const dateOnlyFormatter = new Intl.DateTimeFormat('vi-VN', {
   month: '2-digit',
   year: 'numeric'
 });
+
+export function formatCompactMoney(value: string | number | null | undefined): string {
+  const amount = Number(value ?? 0);
+  if (!Number.isFinite(amount)) {
+    return '0 đ';
+  }
+
+  const normalizedAmount = Object.is(amount, -0) ? 0 : amount;
+  const absoluteAmount = Math.abs(normalizedAmount);
+  if (absoluteAmount < 1_000_000) {
+    return `${numberFormatter.format(normalizedAmount)} đ`;
+  }
+
+  const divisor = absoluteAmount >= 1_000_000_000 ? 1_000_000_000 : 1_000_000;
+  const unit = divisor === 1_000_000_000 ? 'tỷ' : 'tr';
+  return `${compactMoneyFormatter.format(normalizedAmount / divisor)} ${unit} đ`;
+}
 
 export function useFormat() {
   const roundToThousand = (amount: number): number => {
@@ -122,6 +143,7 @@ export function useFormat() {
 
   return {
     formatMoney,
+    formatCompactMoney,
     formatDate,
     formatDateTime,
     formatHistoryDateTime,

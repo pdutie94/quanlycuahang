@@ -5,7 +5,7 @@ import { useInfiniteList } from "../../../shared/composables/useInfiniteList";
 import ReportNavButtons from "../components/ReportNavButtons.vue";
 import ReportGroupTabs from "../components/ReportGroupTabs.vue";
 import { useFormat } from "../../../shared/composables/useFormat";
-const { formatMoney } = useFormat();
+const { formatMoney, formatCompactMoney } = useFormat();
 import { computed, reactive, ref } from "vue";
 import { useToast } from "../../../shared/composables/useToast";
 import { useCustomerDebtReport } from "../composables/useCustomerDebtReport";
@@ -131,22 +131,22 @@ const resetFilter = async () => {
         <section class="grid grid-cols-1 gap-3 md:grid-cols-3">
             <article class="rounded-2xl border border-slate-200 bg-white p-3">
                 <div class="text-sm text-slate-500">Tổng doanh số</div>
-                <div class="mt-1 text-lg font-semibold text-slate-900">
-                    {{ formatMoney(summary.total_amount) }}
+                <div class="mt-1 text-lg font-semibold text-slate-900" :title="formatMoney(summary.total_amount)">
+                    {{ formatCompactMoney(summary.total_amount) }}
                 </div>
             </article>
             <article
                 class="rounded-2xl border border-brand-100 bg-brand-50 p-3"
             >
                 <div class="text-sm text-brand-700">Đã thu</div>
-                <div class="mt-1 text-lg font-semibold text-brand-800">
-                    {{ formatMoney(summary.paid_amount) }}
+                <div class="mt-1 text-lg font-semibold text-brand-800" :title="formatMoney(summary.paid_amount)">
+                    {{ formatCompactMoney(summary.paid_amount) }}
                 </div>
             </article>
             <article class="rounded-2xl border border-rose-100 bg-rose-50 p-3">
                 <div class="text-sm text-rose-700">Còn nợ</div>
-                <div class="mt-1 text-lg font-semibold text-rose-800">
-                    {{ formatMoney(summary.debt_amount) }}
+                <div class="mt-1 text-lg font-semibold text-rose-800" :title="formatMoney(summary.debt_amount)">
+                    {{ formatCompactMoney(summary.debt_amount) }}
                 </div>
             </article>
         </section>
@@ -174,6 +174,7 @@ const resetFilter = async () => {
                         v-for="item in items"
                         :key="item.id"
                         :customer="item"
+                        :compact-money="true"
                         :to="{
                             name: 'customers.detail',
                             params: { id: item.id },

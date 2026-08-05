@@ -3,7 +3,7 @@
 import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useFormat } from '../composables/useFormat';
-const { formatMoney } = useFormat();
+const { formatMoney, formatCompactMoney } = useFormat();
 
 const props = defineProps({
   supplier: {
@@ -17,8 +17,15 @@ const props = defineProps({
   linkEnabled: {
     type: Boolean,
     default: true
+  },
+  compactMoney: {
+    type: Boolean,
+    default: false
   }
 });
+
+const displayMoney = (value: string | number | null | undefined) =>
+  props.compactMoney ? formatCompactMoney(value) : formatMoney(value);
 
 const debtAmount = computed(() => Number(props.supplier?.debt_amount ?? 0));
 const totalAmount = computed(() => Number(props.supplier?.total_amount ?? 0));
@@ -42,9 +49,9 @@ const rootTo = computed(() => props.to ? props.to : { name: 'suppliers.detail', 
         <span v-if="supplier.address" class="truncate">{{ supplier.address || 'Không có địa chỉ' }}</span>
       </div>
       <div class="text-sm text-slate-500 mt-0.5">
-        Nợ: <span class="font-medium" :class="debtAmount > 0 ? 'text-violet-700' : 'text-slate-700'">{{ formatMoney(debtAmount) }}</span>
-        <span class="ml-2">Tổng: <span class="font-medium text-slate-900">{{ formatMoney(totalAmount) }}</span></span>
-        <span class="ml-2">Trả: <span class="font-medium text-brand-700">{{ formatMoney(paidAmount) }}</span></span>
+        Nợ: <span class="font-medium" :title="formatMoney(debtAmount)" :class="debtAmount > 0 ? 'text-violet-700' : 'text-slate-700'">{{ displayMoney(debtAmount) }}</span>
+        <span class="ml-2">Tổng: <span class="font-medium text-slate-900" :title="formatMoney(totalAmount)">{{ displayMoney(totalAmount) }}</span></span>
+        <span class="ml-2">Trả: <span class="font-medium text-brand-700" :title="formatMoney(paidAmount)">{{ displayMoney(paidAmount) }}</span></span>
       </div>
     </div>
   </component>

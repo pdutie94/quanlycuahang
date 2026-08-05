@@ -29,13 +29,17 @@ const props = defineProps({
   customerFallback: {
     type: String,
     default: 'Khách lẻ'
+  },
+  compactMoney: {
+    type: Boolean,
+    default: false
   }
 });
 
-const numberFormatter = new Intl.NumberFormat('vi-VN');
-const { formatDateTime: sharedFormatDateTime } = useFormat();
+const { formatDateTime: sharedFormatDateTime, formatMoney: fullFormatMoney, formatCompactMoney } = useFormat();
 
-const formatMoney = (amount: string | number | null | undefined) => `${numberFormatter.format(Number(amount || 0))} đ`;
+const formatMoney = (amount: string | number | null | undefined) =>
+  props.compactMoney ? formatCompactMoney(amount) : fullFormatMoney(amount);
 
 const formatDateTime = (value: string | Date | null | undefined) => {
   const text = sharedFormatDateTime(value);
@@ -263,13 +267,13 @@ const closePreview = () => {
       </div>
 
       <div class="mt-0.5 flex flex-wrap items-center gap-x-3 text-sm">
-        <span class="text-slate-600">Tổng: <span class="font-semibold text-slate-900">{{ formatMoney(totalAmount) }}</span></span>
+        <span class="text-slate-600">Tổng: <span class="font-semibold text-slate-900" :title="fullFormatMoney(totalAmount)">{{ formatMoney(totalAmount) }}</span></span>
         <span v-if="isPaid" class="text-slate-600">
           Lãi:
-          <span class="font-semibold" :class="profitAmount >= 0 ? 'text-brand-700' : 'text-rose-700'">{{ formatMoney(profitAmount) }}</span>
+          <span class="font-semibold" :title="fullFormatMoney(profitAmount)" :class="profitAmount >= 0 ? 'text-brand-700' : 'text-rose-700'">{{ formatMoney(profitAmount) }}</span>
         </span>
         <span v-else class="text-slate-600">
-          Nợ: <span class="font-semibold text-rose-700">{{ formatMoney(debtAmount) }}</span>
+          Nợ: <span class="font-semibold text-rose-700" :title="fullFormatMoney(debtAmount)">{{ formatMoney(debtAmount) }}</span>
         </span>
       </div>
     </div>
@@ -366,32 +370,32 @@ const closePreview = () => {
             <div class="space-y-1.5">
               <div class="flex items-center justify-between gap-3">
                 <span class="text-slate-500">Tạm tính</span>
-                <span class="font-medium text-slate-900">{{ formatMoney(previewBaseAmount) }}</span>
+                <span class="font-medium text-slate-900" :title="fullFormatMoney(previewBaseAmount)">{{ formatMoney(previewBaseAmount) }}</span>
               </div>
               <div class="flex items-center justify-between gap-3">
                 <span class="text-slate-500">Giảm giá</span>
-                <span class="font-medium" :class="previewDiscountAmount > 0 ? 'text-brand-700' : 'text-slate-400'">{{ previewDiscountAmount > 0 ? `-${formatMoney(previewDiscountAmount)}` : formatMoney(0) }}</span>
+                <span class="font-medium" :title="fullFormatMoney(previewDiscountAmount)" :class="previewDiscountAmount > 0 ? 'text-brand-700' : 'text-slate-400'">{{ previewDiscountAmount > 0 ? `-${formatMoney(previewDiscountAmount)}` : formatMoney(0) }}</span>
               </div>
               <div class="flex items-center justify-between gap-3">
                 <span class="text-slate-500">Phụ thu</span>
-                <span class="font-medium" :class="previewSurchargeAmount > 0 ? 'text-amber-700' : 'text-slate-400'">{{ previewSurchargeAmount > 0 ? `+${formatMoney(previewSurchargeAmount)}` : formatMoney(0) }}</span>
+                <span class="font-medium" :title="fullFormatMoney(previewSurchargeAmount)" :class="previewSurchargeAmount > 0 ? 'text-amber-700' : 'text-slate-400'">{{ previewSurchargeAmount > 0 ? `+${formatMoney(previewSurchargeAmount)}` : formatMoney(0) }}</span>
               </div>
             </div>
             <div class="my-2 border-t border-dashed border-slate-200"></div>
             <div class="flex items-center justify-between gap-3">
               <span class="font-medium text-slate-700">Tổng cộng</span>
-              <span class="text-sm font-semibold text-slate-900 md:text-base">{{ formatMoney(previewTotalAmount) }}</span>
+              <span class="text-sm font-semibold text-slate-900 md:text-base" :title="fullFormatMoney(previewTotalAmount)">{{ formatMoney(previewTotalAmount) }}</span>
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
               <div class="text-sm text-slate-500">Đã thanh toán</div>
-              <div class="mt-0.5 font-semibold text-brand-700">{{ formatMoney(previewPaidAmount) }}</div>
+              <div class="mt-0.5 font-semibold text-brand-700" :title="fullFormatMoney(previewPaidAmount)">{{ formatMoney(previewPaidAmount) }}</div>
             </div>
             <div class="rounded-lg bg-white px-2.5 py-2 ring-1 ring-slate-200">
               <div class="text-sm text-slate-500">Còn nợ</div>
-              <div class="mt-0.5 font-semibold" :class="previewRemainingAmount > 0 ? 'text-rose-700' : 'text-slate-700'">{{ formatMoney(previewRemainingAmount) }}</div>
+              <div class="mt-0.5 font-semibold" :title="fullFormatMoney(previewRemainingAmount)" :class="previewRemainingAmount > 0 ? 'text-rose-700' : 'text-slate-700'">{{ formatMoney(previewRemainingAmount) }}</div>
             </div>
           </div>
 
@@ -408,9 +412,9 @@ const closePreview = () => {
               <div v-for="item in previewItems" :key="`p-${item.id || item.product_id}-${item.product_unit_id || item.unit_name}`" class="flex items-center justify-between px-3 py-1 text-sm">
                 <div>
                   <div class="font-medium text-slate-900">{{ item.product_name }}</div>
-                  <div class="text-slate-500">SL: {{ toQtyText(item.qty) }} {{ item.unit_name }} - Giá: {{ formatMoney(item.price_sell) }}</div>
+                  <div class="text-slate-500">SL: {{ toQtyText(item.qty) }} {{ item.unit_name }} - Giá: <span :title="fullFormatMoney(item.price_sell)">{{ formatMoney(item.price_sell) }}</span></div>
                 </div>
-                <div class="text-slate-900">{{ formatMoney(item.amount) }}</div>
+                <div class="text-slate-900" :title="fullFormatMoney(item.amount)">{{ formatMoney(item.amount) }}</div>
               </div>
             </div>
           </div>
@@ -421,9 +425,9 @@ const closePreview = () => {
               <div v-for="(item, index) in previewManualItems" :key="`m-${index}`" class="flex items-center justify-between px-3 py-1 text-sm">
                 <div>
                   <div class="font-medium text-slate-900">{{ item.item_name }}</div>
-                  <div class="text-slate-500">SL: {{ toQtyText(item.qty) }} {{ item.unit_name }} - Giá: {{ formatMoney(item.price_sell) }}</div>
+                  <div class="text-slate-500">SL: {{ toQtyText(item.qty) }} {{ item.unit_name }} - Giá: <span :title="fullFormatMoney(item.price_sell)">{{ formatMoney(item.price_sell) }}</span></div>
                 </div>
-                <div class="text-slate-900">{{ formatMoney(item.amount_sell || (Number(item.qty || 0) * Number(item.price_sell || 0))) }}</div>
+                <div class="text-slate-900" :title="fullFormatMoney(item.amount_sell || (Number(item.qty || 0) * Number(item.price_sell || 0)))">{{ formatMoney(item.amount_sell || (Number(item.qty || 0) * Number(item.price_sell || 0))) }}</div>
               </div>
             </div>
           </div>
