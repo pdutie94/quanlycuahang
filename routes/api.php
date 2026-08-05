@@ -42,6 +42,9 @@ return function (App $app) {
         $group->post('/migrations/run', [$migrationController, 'run']);
 
         $productController = new ProductApiController();
+        $group->get('/products/merge/options', [$productController, 'mergeOptions']);
+        $group->get('/products/merge/preview', [$productController, 'mergePreview']);
+        $group->post('/products/merge', [$productController, 'merge']);
         $group->get('/products', [$productController, 'list']);
         $group->get('/products/bootstrap/form-data', [$productController, 'formData']);
         $group->get('/products/{id}/form-data', [$productController, 'formEditData']);

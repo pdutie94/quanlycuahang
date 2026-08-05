@@ -1,0 +1,1 @@
+import{t as e}from"./product.js";export{e as default};

@@ -28,6 +28,14 @@ const props = defineProps({
     type: String,
     default: 'Tạo mới'
   },
+  secondaryTo: {
+    type: [String, Object],
+    default: null
+  },
+  secondaryLabel: {
+    type: String,
+    default: 'Gộp'
+  },
   filterType: {
     type: String,
     default: '',
@@ -110,6 +118,13 @@ const onClearKeyword = () => {
             <h1 class="font-display text-xl font-bold text-slate-900 md:text-2xl">{{ title }}</h1>
             <p v-if="subtitle" class="mt-1 text-sm leading-6 text-slate-500">{{ subtitle }}</p>
           </div>
+          <RouterLink
+            v-if="secondaryTo"
+            :to="secondaryTo"
+            class="inline-flex h-10 items-center justify-center rounded-xl border border-brand-200 bg-white px-3 text-sm font-medium text-brand-700 transition hover:bg-brand-50"
+          >
+            {{ secondaryLabel }}
+          </RouterLink>
           <RouterLink
             v-if="createTo"
             :to="createTo"

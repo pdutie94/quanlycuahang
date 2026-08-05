@@ -133,6 +133,8 @@ const displayItems = computed(() =>
       title="Sản phẩm"
       subtitle="Quản lý danh sách sản phẩm đang bán."
       :create-to="{ name: 'products.create' }"
+      :secondary-to="{ name: 'products.merge' }"
+      secondary-label="Gộp SP"
       search-placeholder="Tìm kiếm theo tên, SKU..."
       filter-type="grid"
       @search="debouncedUpdateSearch(searchQuery)"

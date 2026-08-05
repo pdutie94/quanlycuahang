@@ -62,6 +62,45 @@ class ProductApiController
         ]);
     }
 
+    public function mergeOptions(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        try {
+            $data = \ProductMergeService::getOptions($request->getQueryParams());
+            return ApiResponse::success($response, $data);
+        } catch (\Throwable $e) {
+            return ApiResponse::error($response, $e->getMessage(), 500);
+        }
+    }
+
+    public function mergePreview(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $query = $request->getQueryParams();
+        try {
+            $data = \ProductMergeService::preview(
+                isset($query['source_id']) ? $query['source_id'] : 0,
+                isset($query['target_id']) ? $query['target_id'] : 0
+            );
+            return ApiResponse::success($response, $data);
+        } catch (\ProductMergeException $e) {
+            return ApiResponse::error($response, $e->getMessage(), $e->status, $e->data);
+        } catch (\Throwable $e) {
+            return ApiResponse::error($response, $e->getMessage(), 500);
+        }
+    }
+
+    public function merge(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $payload = $this->normalizePayload($request);
+        try {
+            $data = \ProductMergeService::merge($payload);
+            return ApiResponse::success($response, $data, 'Đã gộp sản phẩm và cập nhật tồn thực tế.');
+        } catch (\ProductMergeException $e) {
+            return ApiResponse::error($response, $e->getMessage(), $e->status, $e->data);
+        } catch (\Throwable $e) {
+            return ApiResponse::error($response, $e->getMessage(), 500);
+        }
+    }
+
     public function detail(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $id = isset($args['id']) ? (int) $args['id'] : 0;

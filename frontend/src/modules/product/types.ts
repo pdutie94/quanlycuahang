@@ -72,3 +72,51 @@ export interface ProductFormState {
   weight_value: string;
   material_type: string;
 }
+
+export interface ProductMergeUnit {
+  id: number | string;
+  product_id: number | string;
+  unit_id: number | string;
+  unit_name: string;
+  factor: number;
+  price_sell?: number | string;
+  price_cost?: number | string;
+  allow_fraction?: number | string;
+  min_step?: number | string;
+}
+
+export interface ProductMergeOption {
+  id: number;
+  name: string;
+  code?: string;
+  base_unit_id: number;
+  base_unit_name?: string;
+  inventory_qty_base: number;
+  order_item_count: number;
+  purchase_item_count: number;
+  project_issue_item_count: number;
+  product_units: ProductMergeUnit[];
+}
+
+export interface ProductMergePreview {
+  source: ProductMergeOption;
+  target: ProductMergeOption;
+  references: {
+    order_items: number;
+    order_count: number;
+    purchase_items: number;
+    purchase_count: number;
+    project_issue_items: number;
+    project_issue_count: number;
+    product_logs: number;
+  };
+  unit_mapping: Array<{
+    source_unit_id: number;
+    target_unit_id: number;
+    unit_name: string;
+    factor: number;
+  }>;
+  conflicts: Array<{ source_unit_id: number; unit_name?: string; reason: string }>;
+  can_merge: boolean;
+  warnings: { inventory: string };
+}

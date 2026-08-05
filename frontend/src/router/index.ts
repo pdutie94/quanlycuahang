@@ -27,6 +27,7 @@ const PurchaseFormPage = () => import('../modules/purchase/pages/PurchaseFormPag
 const PurchaseListPage = () => import('../modules/purchase/pages/PurchaseListPage.vue');
 const ProductFormPage = () => import('../modules/product/pages/ProductFormPage.vue');
 const ProductListPage = () => import('../modules/product/pages/ProductListPage.vue');
+const ProductMergePage = () => import('../modules/product/pages/ProductMergePage.vue');
 const MaterialPricePage = () => import('../modules/material-price/pages/MaterialPriceListPage.vue');
 const CustomerDebtReportPage = () => import('../modules/report/pages/CustomerDebtReportPage.vue');
 const InventoryReportPage = () => import('../modules/report/pages/InventoryReportPage.vue');
@@ -77,6 +78,11 @@ const routes: RouteRecordRaw[] = [
     path: '/products/create',
     name: 'products.create',
     component: ProductFormPage
+  },
+  {
+    path: '/products/merge',
+    name: 'products.merge',
+    component: ProductMergePage
   },
   {
     path: '/products/:id/edit',
